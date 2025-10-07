@@ -10,6 +10,15 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -17,6 +26,7 @@ import { type BreadcrumbItem } from '@/types';
 interface Props {
     mustVerifyEmail: boolean;
     status?: string;
+    timezones: string[];
 }
 
 defineProps<Props>();
@@ -30,6 +40,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
 const page = usePage();
 const user = page.props.auth.user;
+// const langs = await axios.get();
 </script>
 
 <template>
@@ -96,6 +107,33 @@ const user = page.props.auth.user;
                             A new verification link has been sent to your email
                             address.
                         </div>
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label for="timezone">Timezone</Label>
+                        <Select 
+                            id="timezone" 
+                            name="timezone" 
+                            :default-value="user.timezone" 
+                            required
+                        >
+                            <SelectTrigger class="w-full">
+                                <SelectValue placeholder="Select a timezone" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Timezone</SelectLabel>
+                                    <SelectItem 
+                                        v-for="timezone in timezones" 
+                                        :key="timezone" 
+                                        :value="timezone"
+                                    >
+                                        {{ timezone }}
+                                    </SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                        <InputError class="mt-2" :message="errors.name" />
                     </div>
 
                     <div class="flex items-center gap-4">
