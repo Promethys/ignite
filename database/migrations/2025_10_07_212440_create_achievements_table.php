@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->string('name', 100);
             $table->string('slug', 100)->unique();
             $table->text('description');
-            $table->foreignId('created_by')->constrained('users')->nullOnDelete();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
 
             // Visual
             $table->string('icon', 50);

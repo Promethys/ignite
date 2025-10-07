@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -27,6 +28,7 @@ class Achievement extends Model
         'rarity',
         'order',
         'is_active',
+        'created_by',
     ];
 
     /**
@@ -40,6 +42,14 @@ class Achievement extends Model
         'order' => 'integer',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Get the user who created this achievement.
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
     /**
      * Get the users who have unlocked this achievement.
