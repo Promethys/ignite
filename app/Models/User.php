@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
@@ -34,6 +36,16 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'total_points',
+        'level'
     ];
 
     /**
@@ -110,24 +122,28 @@ class User extends Authenticatable
     /**
      * Calculate total points earned.
      *
-     * @return int
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
-    public function getTotalPointsAttribute(): int
+    public function totalPoints(): Attribute
     {
         $goalPoints = $this->goals()->sum('points');
         $achievementPoints = $this->unlockedAchievements()->sum('points_reward');
 
-        return $goalPoints + $achievementPoints;
+        return new Attribute(
+            get: fn () => $goalPoints + $achievementPoints,
+        );
     }
 
     /**
      * Calculate user level based on points.
      *
-     * @return int
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
-    public function getLevelAttribute(): int
+    public function level(): Attribute
     {
         // Simple level calculation: 1 level per 100 points
-        return floor($this->total_points / 100) + 1;
+        return new Attribute(
+            get: fn () => floor($this->total_points / 100) + 1,
+        );
     }
 }

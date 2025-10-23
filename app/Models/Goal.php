@@ -54,6 +54,12 @@ class Goal extends Model
         'order' => 'integer',
     ];
 
+    protected $with = [
+        'category',
+        'milestones',
+        'entries'
+    ];
+
     /**
      * Get the user that owns the goal.
      */

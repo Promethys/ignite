@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -41,6 +42,15 @@ class Milestone extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'is_reached'
+    ];
+
+    /**
      * Get the goal that owns the milestone.
      */
     public function goal(): BelongsTo
@@ -64,10 +74,12 @@ class Milestone extends Model
     /**
      * Check if the milestone is reached based on current goal value.
      *
-     * @return bool
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
-    public function isReached(): bool
+    public function isReached(): Attribute
     {
-        return $this->goal->current_value >= $this->target_value;
+        return Attribute::make(
+            get: fn () => $this->goal->current_value >= $this->target_value,
+        );
     }
 }

@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GoalEntry extends Model
 {
@@ -37,6 +38,15 @@ class GoalEntry extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'increment_value'
+    ];
+
+    /**
      * Get the goal that owns the entry.
      */
     public function goal(): BelongsTo
@@ -47,10 +57,12 @@ class GoalEntry extends Model
     /**
      * Get the increment value.
      *
-     * @return float
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
-    public function getIncrementAttribute(): float
+    public function incrementValue(): Attribute
     {
-        return $this->value - $this->previous_value;
+        return Attribute::make(
+            get: fn () => $this->value - $this->previous_value,
+        );
     }
 }
