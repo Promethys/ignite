@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Goal } from '@/types/models';
 import TextLink from './TextLink.vue';
-import { Link, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import goals from '@/routes/goals';
 import { getDateDiffFromNow, toTitleCase } from '@/lib/utils';
 import Progress from './ui/progress/Progress.vue';

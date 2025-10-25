@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { Plus, Target } from "lucide-vue-next";
+import { Target } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Link } from '@inertiajs/vue3';
 import {
