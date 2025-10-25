@@ -20,7 +20,7 @@ class GoalController extends Controller
         'target_value' => 'nullable|numeric',
         'current_value' => 'required|numeric',
         'unit' => 'nullable|string|max:50',
-        'recurrence' => 'nullable|in:daily,weekly,monthly',
+        'recurrence' => 'nullable|in:daily,weekly,monthly,annually',
         'start_date' => 'nullable|date',
         'deadline' => 'nullable|date|after:start_date',
         'completed_at' => 'nullable|date|after:start_date',

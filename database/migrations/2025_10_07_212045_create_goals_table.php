@@ -25,7 +25,7 @@ return new class extends Migration {
             $table->string('unit', 50)->nullable();
 
             // Recurrence
-            $table->enum('recurrence', ['daily', 'weekly', 'monthly'])->nullable();
+            $table->enum('recurrence', ['daily', 'weekly', 'monthly', 'annually'])->nullable();
 
             // Dates
             $table->date('start_date')->nullable();

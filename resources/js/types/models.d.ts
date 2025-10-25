@@ -46,7 +46,7 @@ export interface Goal {
     target_value: number | null;
     current_value: number;
     unit: string | null;
-    recurrence: 'daily' | 'weekly' | 'monthly' | null;
+    recurrence: 'daily' | 'weekly' | 'monthly' | 'annually' | null;
     start_date: string | null;
     deadline: string | null;
     completed_at: string | null;

@@ -30,5 +30,6 @@ export function getGoalRecurrenceOptions() {
         {value: 'daily', label: 'Daily'}, 
         {value: 'weekly', label: 'Weekly'}, 
         {value: 'monthly', label: 'Monthly'}, 
+        {value: 'annually', label: 'Annually'}, 
     ];
 }

@@ -72,7 +72,7 @@ class GoalFactory extends Factory
             $targetValue = null;
             $currentValue = 0;
             $unit = null;
-            $recurrence = fake()->randomElement(['daily', 'weekly', 'monthly']);
+            $recurrence = fake()->randomElement(['daily', 'weekly', 'monthly', 'annually']);
         } else { // multi_step
             $title = fake()->randomElement($simpleGoals);
             $targetValue = null;
