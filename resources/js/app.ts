@@ -5,6 +5,14 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { initializeTheme } from './composables/useAppearance';
+import formbricks from "@formbricks/js";
+
+if (typeof window !== "undefined") {
+    formbricks.setup({
+        environmentId: "cmh7uef6q0rtzad01j1mpxxwl",
+        appUrl: "https://app.formbricks.com",
+    });
+}
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
