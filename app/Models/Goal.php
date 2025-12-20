@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notifiable;
 
 class Goal extends Model
 {
@@ -57,7 +57,7 @@ class Goal extends Model
     protected $with = [
         'category',
         'milestones',
-        'entries'
+        'entries',
     ];
 
     /**
@@ -94,8 +94,6 @@ class Goal extends Model
 
     /**
      * Calculate the progress percentage.
-     *
-     * @return float
      */
     public function getProgressPercentageAttribute(): float
     {
@@ -108,8 +106,6 @@ class Goal extends Model
 
     /**
      * Check if the goal is overdue.
-     *
-     * @return bool
      */
     public function isOverdue(): bool
     {
@@ -120,8 +116,6 @@ class Goal extends Model
 
     /**
      * Mark the goal as completed.
-     *
-     * @return void
      */
     public function markAsCompleted(): void
     {

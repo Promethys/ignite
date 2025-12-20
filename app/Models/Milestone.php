@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\Notifiable;
 
 class Milestone extends Model
 {
@@ -47,7 +47,7 @@ class Milestone extends Model
      * @var array
      */
     protected $appends = [
-        'is_reached'
+        'is_reached',
     ];
 
     /**
@@ -60,8 +60,6 @@ class Milestone extends Model
 
     /**
      * Mark the milestone as completed.
-     *
-     * @return void
      */
     public function markAsCompleted(): void
     {
@@ -73,8 +71,6 @@ class Milestone extends Model
 
     /**
      * Check if the milestone is reached based on current goal value.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
     public function isReached(): Attribute
     {

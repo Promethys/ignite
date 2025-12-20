@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -45,7 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $appends = [
         'total_points',
-        'level'
+        'level',
     ];
 
     /**
@@ -121,8 +121,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Calculate total points earned.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
     public function totalPoints(): Attribute
     {
@@ -136,8 +134,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Calculate user level based on points.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
     public function level(): Attribute
     {

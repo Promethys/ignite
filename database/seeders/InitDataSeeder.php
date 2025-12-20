@@ -410,7 +410,7 @@ class InitDataSeeder extends Seeder
 
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->command->error('❌ Error during seeding: ' . $e->getMessage());
+            $this->command->error('❌ Error during seeding: '.$e->getMessage());
             $this->command->error($e->getTraceAsString());
             throw $e;
         }

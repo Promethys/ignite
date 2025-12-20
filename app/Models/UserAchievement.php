@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserAchievement extends Model
 {
@@ -60,20 +60,16 @@ class UserAchievement extends Model
 
     /**
      * Check if the achievement is unlocked.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
     public function isUnlocked(): Attribute
     {
         return new Attribute(
-            get: fn() => !is_null($this->unlocked_at)
+            get: fn () => ! is_null($this->unlocked_at)
         );
     }
 
     /**
      * Mark the achievement as unlocked.
-     *
-     * @return void
      */
     public function unlock(): void
     {

@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GoalEntry extends Model
 {
@@ -43,7 +43,7 @@ class GoalEntry extends Model
      * @var array
      */
     protected $appends = [
-        'increment_value'
+        'increment_value',
     ];
 
     /**
@@ -56,8 +56,6 @@ class GoalEntry extends Model
 
     /**
      * Get the increment value.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
     public function incrementValue(): Attribute
     {

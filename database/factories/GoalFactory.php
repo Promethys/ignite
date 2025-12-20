@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -118,7 +118,7 @@ class GoalFactory extends Factory
      */
     public function inProgress(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => 'in_progress',
             'completed_at' => null,
         ]);
@@ -129,7 +129,7 @@ class GoalFactory extends Factory
      */
     public function completed(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => 'completed',
             'current_value' => $attributes['target_value'] ?? 0,
             'completed_at' => fake()->dateTimeBetween('-3 months', 'now'),
@@ -141,7 +141,7 @@ class GoalFactory extends Factory
      */
     public function overdue(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => 'in_progress',
             'deadline' => fake()->dateTimeBetween('-2 months', '-1 day'),
         ]);

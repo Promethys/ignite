@@ -35,7 +35,7 @@ class GoalController extends Controller
     public function index()
     {
         return Inertia::render('Goals/Index', [
-            'items' => auth()->user()->goals
+            'items' => auth()->user()->goals,
         ]);
     }
 
@@ -46,8 +46,8 @@ class GoalController extends Controller
         return Inertia::render('Goals/Create', [
             'user' => [
                 'id' => $user->id,
-                'categories' => $user->categories->pluck('name', 'id')
-            ]
+                'categories' => $user->categories->pluck('name', 'id'),
+            ],
         ]);
     }
 
@@ -61,7 +61,7 @@ class GoalController extends Controller
 
         Goal::create([
             ...$validated,
-            'order' => $order
+            'order' => $order,
         ]);
 
         return to_route('goals.index');
@@ -72,7 +72,7 @@ class GoalController extends Controller
         Gate::authorize('view', $goal);
 
         return Inertia::render('Goals/Show', [
-            'goal' => $goal
+            'goal' => $goal,
         ]);
     }
 
@@ -86,8 +86,8 @@ class GoalController extends Controller
             'goal' => $goal,
             'user' => [
                 'id' => $user->id,
-                'categories' => $user->categories->pluck('name', 'id')
-            ]
+                'categories' => $user->categories->pluck('name', 'id'),
+            ],
         ]);
     }
 

@@ -16,7 +16,7 @@ class GoalEntryController extends Controller
 
         $validated = $request->validate([
             'increment' => 'required|numeric',
-            'note' => 'nullable|string|max:500'
+            'note' => 'nullable|string|max:500',
         ]);
         $newValue = $goal->current_value + $validated['increment'];
         $entryData = [
@@ -26,10 +26,10 @@ class GoalEntryController extends Controller
             'entry_date' => now()->toDateString(),
         ];
 
-        \DB::transaction(function () use($goal, $entryData, $newValue) {
+        \DB::transaction(function () use ($goal, $entryData, $newValue) {
             $goal->entries()->create($entryData);
             $goal->update([
-                'current_value' => $newValue
+                'current_value' => $newValue,
             ]);
         });
 
@@ -37,7 +37,7 @@ class GoalEntryController extends Controller
             ->with('notification', [
                 'type' => 'success',
                 'title' => 'Success',
-                'body' => 'Goal entry saved successfully!'
+                'body' => 'Goal entry saved successfully!',
             ]);
     }
 
@@ -47,10 +47,10 @@ class GoalEntryController extends Controller
 
         $newValue = $goal->current_value - $goalEntry->increment_value;
 
-        \DB::transaction(function () use($goal, $newValue, $goalEntry) {
+        \DB::transaction(function () use ($goal, $newValue, $goalEntry) {
             $goalEntry->delete();
             $goal->update([
-                'current_value' => $newValue
+                'current_value' => $newValue,
             ]);
         });
 
@@ -58,7 +58,7 @@ class GoalEntryController extends Controller
             ->with('notification', [
                 'type' => 'success',
                 'title' => 'Success',
-                'body' => 'Goal entry deleted successfully!'
+                'body' => 'Goal entry deleted successfully!',
             ]);
     }
 }

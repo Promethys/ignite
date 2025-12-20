@@ -22,8 +22,9 @@ class RevertDataSeeder extends Seeder
         $this->command->warn('⚠️  This will delete all seeded data!');
         $this->command->newLine();
 
-        if (!$this->command->confirm('Are you sure you want to continue?', false)) {
+        if (! $this->command->confirm('Are you sure you want to continue?', false)) {
             $this->command->info('Aborted.');
+
             return;
         }
 
@@ -102,7 +103,7 @@ class RevertDataSeeder extends Seeder
 
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->command->error('❌ Error during cleanup: ' . $e->getMessage());
+            $this->command->error('❌ Error during cleanup: '.$e->getMessage());
             throw $e;
         }
     }
