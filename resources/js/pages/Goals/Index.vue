@@ -65,7 +65,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </Link> 
                 </Button>
             </div>
-            <div class="grid grid-cols-4 gap-4 p-4">
+            <div class="flex flex-wrap gap-4 p-4">
                 <GoalCard :item="goal" v-for="goal in items"/>
             </div>
         </div>

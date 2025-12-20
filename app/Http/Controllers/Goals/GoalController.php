@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Goals;
 
+use App\Http\Controllers\Controller;
 use App\Models\Goal;
 use App\Models\User;
-use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
 
 class GoalController extends Controller
 {
@@ -52,6 +53,8 @@ class GoalController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('create', Goal::class);
+
         $validated = $request->validate($this->rules);
 
         $order = User::find($validated['user_id'])->goals()->count() + 1;
@@ -66,6 +69,8 @@ class GoalController extends Controller
 
     public function show(Goal $goal)
     {
+        Gate::authorize('view', $goal);
+
         return Inertia::render('Goals/Show', [
             'goal' => $goal
         ]);
@@ -73,6 +78,8 @@ class GoalController extends Controller
 
     public function edit(Goal $goal)
     {
+        Gate::authorize('view', $goal);
+
         $user = auth()->user()->load('categories');
 
         return Inertia::render('Goals/Edit', [
@@ -86,6 +93,8 @@ class GoalController extends Controller
 
     public function update(Request $request, Goal $goal)
     {
+        Gate::authorize('update', $goal);
+
         $validated = $request->validate($this->rules);
 
         $goal->update($validated);
@@ -95,6 +104,8 @@ class GoalController extends Controller
 
     public function destroy(Goal $goal)
     {
+        Gate::authorize('delete', $goal);
+
         $goal->delete();
 
         return redirect()->back();

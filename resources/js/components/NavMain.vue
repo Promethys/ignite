@@ -19,12 +19,12 @@ const page = usePage();
 
 <template>
     <SidebarGroup class="px-2 py-0">
-        <SidebarGroupLabel>Platform</SidebarGroupLabel>
+        <!-- <SidebarGroupLabel>Platform</SidebarGroupLabel> -->
         <SidebarMenu>
             <SidebarMenuItem v-for="item in items" :key="item.title">
                 <SidebarMenuButton
                     as-child
-                    :is-active="urlIsActive(item.href, page.url)"
+                    :is-active="item.isActive ?? urlIsActive(item.href, page.url)"
                     :tooltip="item.title"
                 >
                     <Link :href="item.href">

@@ -14,7 +14,13 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { LayoutGrid, Target } from 'lucide-vue-next';
+import {
+    Crosshair,
+    Home,
+    Folder, 
+    TrendingUp, 
+    Trophy 
+} from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import goals from '@/routes/goals';
 
@@ -22,13 +28,31 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
-        icon: LayoutGrid,
+        icon: Home,
     },
     {
         title: 'Goals',
         href: goals.index(),
-        icon: Target,
+        icon: Crosshair,
+        isActive: function () {
+            return document.location.href.includes('goals');
+        }()
     },
+    // {
+    //     title: 'Categories',
+    //     href: categories.index(),
+    //     icon: Folder,
+    // },
+    // {
+    //     title: 'Progress',
+    //     href: progress(),
+    //     icon: TrendingUp,
+    // },
+    // {
+    //     title: 'Achievements',
+    //     href: achievements.index(),
+    //     icon: Trophy,
+    // },
 ];
 
 const footerNavItems: NavItem[] = [];
