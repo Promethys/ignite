@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
-import { Goal, GoalEntry, User } from '@/types/models';
+import { Goal } from '@/types/models';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@ import {
 import moment from 'moment';
 import InputError from '@/components/InputError.vue';
 import DialogClose from '@/components/ui/dialog/DialogClose.vue';
+import ProgressChart from '@/components/charts/ProgressChart.vue';
 
 const props = defineProps<{
     goal: Goal;
@@ -146,10 +147,18 @@ const submitEntry = () => {
                     <h3 class="font-medium text-xl mb-2">
                         Progress Chart
                     </h3>
-                    <div>
-                        <!-- Line chart here -->
+                    <div v-if="goal.entries && goal.entries.length > 0">
+                        <ProgressChart 
+                            :entries="goal.entries" 
+                            :target-value="goal.target_value" 
+                            :unit="goal.unit"
+                        />
                     </div>
+                    <p v-else class="text-sm text-muted-foreground">
+                    No progress data yet. Log your first entry to see the chart!
+                    </p>
                 </div>
+
                 <div>
                     <h3 class="font-medium text-xl mb-2">
                         Stats

@@ -2,6 +2,24 @@ import { onMounted, ref } from 'vue';
 
 type Appearance = 'light' | 'dark' | 'system';
 
+export function getBinaryTheme() {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    const currentAppearance = getStoredAppearance();
+
+    if (currentAppearance === 'system') {
+        const mediaQueryList = window.matchMedia(
+            '(prefers-color-scheme: dark)',
+        );
+
+        return mediaQueryList.matches ? 'dark' : 'light';
+    } else {
+        return currentAppearance;
+    }
+}
+
 export function updateTheme(value: Appearance) {
     if (typeof window === 'undefined') {
         return;

@@ -6,6 +6,7 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { initializeTheme } from './composables/useAppearance';
 import formbricks from "@formbricks/js";
+import VueApexCharts from 'vue3-apexcharts';
 
 if (typeof window !== "undefined") {
     formbricks.setup({
@@ -26,6 +27,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(VueApexCharts)
             .mount(el);
     },
     progress: {
