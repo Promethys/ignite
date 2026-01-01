@@ -16,7 +16,7 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import {
     Crosshair,
-    Home,
+    LayoutDashboard,
     Folder, 
     TrendingUp, 
     Trophy 
@@ -28,7 +28,7 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
-        icon: Home,
+        icon: LayoutDashboard,
     },
     {
         title: 'Goals',

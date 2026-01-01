@@ -23,11 +23,12 @@ import GoalBadges from './GoalBadges.vue';
 
 defineProps<{
     item: Goal;
+    variant: string;
 }>();
 </script>
 
 <template>
-    <Card class="px-9 py-12 rounded-4xl gap-2 min-w-md text-sm hover:bg-accent border-2 border-accent cursor-pointer" @click="router.get(goals.show(item))">
+    <Card class="rounded-4xl gap-2 text-sm hover:bg-accent border-2 border-accent cursor-pointer" :class="(variant && variant === 'mini') ? 'px-6 py-8' : 'px-9 py-12 min-w-md'">
         <div class="flex items-center justify-between w-full">
             <div>
                 <GoalBadges :goal="item" />
@@ -75,7 +76,7 @@ defineProps<{
 
         <div class="space-y-9">
             <div class="space-y-2">
-                <h3 class="font-medium text-xl">{{ item.title }}</h3>
+                <h3 class="font-medium text-xl hover:underline"  @click="router.get(goals.show(item))">{{ item.title }}</h3>
                 <p class="font-light text-sm">{{ item.description }}</p>
             </div>
             <div>

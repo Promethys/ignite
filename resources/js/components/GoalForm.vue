@@ -258,6 +258,7 @@ const form = useForm({
                             type="date"
                             name="completed_at"
                             :tabindex="11"
+                            :required="form.status === 'completed'"
                         />
                         <InputError :message="form.errors.completed_at" />
                     </div>

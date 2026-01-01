@@ -4,7 +4,7 @@ use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalEntryController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('/goals')->group(function () {
         Route::controller(GoalController::class)->group(function () {
             // Goals
