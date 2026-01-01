@@ -28,7 +28,6 @@ import ProgressChart from '@/components/charts/ProgressChart.vue';
 
 const props = defineProps<{
     goal: Goal;
-    user: User;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -43,7 +42,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const entryForm = useForm({
-    increment: null as number | null,
+    increment: undefined as number | undefined,
     note: '' as string,
 });
 
