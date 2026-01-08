@@ -41,8 +41,8 @@ defineProps<{
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuGroup>
-                        <DropdownMenuItem as-child disabled>
-                            <Link :href="goals.complete(item).url" class="cursor-pointer">Mark as completed</Link>
+                        <DropdownMenuItem as-child v-if="item.type === 'simple'">
+                            <Link :method="goals.complete(item).method" :href="goals.complete(item).url" class="cursor-pointer">Mark as completed</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem as-child>
                             <Link :href="goals.edit(item).url" class="cursor-pointer">Edit</Link>

@@ -119,11 +119,12 @@ class GoalController extends Controller
         // ]);
     }
 
-    // TODO:
     public function complete(Goal $goal)
     {
-        // return Inertia::render('Goals/Show', [
-        //     'goal' => $goal
-        // ]);
+        Gate::authorize('update', $goal);
+
+        $goal->markAsCompleted();
+
+        return redirect()->back();
     }
 }

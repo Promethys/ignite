@@ -25,6 +25,7 @@ import moment from 'moment';
 import InputError from '@/components/InputError.vue';
 import DialogClose from '@/components/ui/dialog/DialogClose.vue';
 import ProgressChart from '@/components/charts/ProgressChart.vue';
+import { CheckCircle2, Pencil } from 'lucide-vue-next';
 
 const props = defineProps<{
     goal: Goal;
@@ -62,16 +63,25 @@ const submitEntry = () => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-4 space-y-6">
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-row items-center justify-between">
                 <h3 class="font-medium text-xl">
                     {{ goal.icon ?? '' }}
                     {{ goal.title }}
                 </h3>
-                <Button>
-                    <Link :href="goals.edit(goal).url">
-                        Edit
-                    </Link>
-                </Button>
+                <div class="flex flex-row items-center justify-between gap-2">
+                    <Button v-if="!goal.completed_at && goal.status !== 'completed'">
+                        <CheckCircle2 />
+                        <Link :method="goals.complete(goal).method" :href="goals.complete(goal).url">
+                            Mark as completed
+                        </Link>
+                    </Button>
+                    <Button>
+                        <Pencil />
+                        <Link :href="goals.edit(goal).url">
+                            Edit
+                        </Link>
+                    </Button>
+                </div>
             </div>
             <GoalBadges :goal />
             <section class="text-sm space-y-2">
@@ -85,7 +95,7 @@ const submitEntry = () => {
                             <Progress :model-value="(goal.current_value / goal.target_value) * 100" />
                             <span class="text-sm shrink-0">
                                 <span class="font-semibold">
-                                    {{ (goal.current_value / goal.target_value * 100).toPrecision(2) }} %
+                                    {{ Math.round(goal.current_value / goal.target_value * 100) }} %
                                 </span>
                                 <span>
                                     ({{ goal.current_value }} / {{ goal.target_value }} {{ goal.unit }})
