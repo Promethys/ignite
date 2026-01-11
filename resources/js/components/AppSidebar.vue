@@ -23,6 +23,7 @@ import {
 } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import goals from '@/routes/goals';
+import categories from '@/routes/categories';
 
 const mainNavItems: NavItem[] = [
     {
@@ -38,11 +39,11 @@ const mainNavItems: NavItem[] = [
             return document.location.href.includes('goals');
         }()
     },
-    // {
-    //     title: 'Categories',
-    //     href: categories.index(),
-    //     icon: Folder,
-    // },
+    {
+        title: 'Categories',
+        href: categories.index(),
+        icon: Folder,
+    },
     // {
     //     title: 'Progress',
     //     href: progress(),

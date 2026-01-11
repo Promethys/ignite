@@ -33,6 +33,8 @@ export interface Category {
 
     user?: User;
     goals?: Goal[];
+
+    goals_count?: number;
 }
 
 export interface Goal {
