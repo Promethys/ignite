@@ -79,10 +79,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <div>
                                         {{ category.name }}
                                     </div>
-                                    <Button variant="ghost" size="icon"
+                                    <!-- <Button variant="ghost" size="icon"
                                         class="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100">
                                         <Edit class="h-4 w-4" />
-                                    </Button>
+                                    </Button> -->
                                 </div>
                             </CardTitle>
                         </CardHeader>
