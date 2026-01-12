@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import categories from '@/routes/categories';
 import { BreadcrumbItem } from '@/types';
 import { Category } from '@/types/models';
-import { Edit, Plus, Target } from 'lucide-vue-next';
+import { ArrowRight, Edit, Plus, Target } from 'lucide-vue-next';
 import {
     Empty,
     EmptyContent,
@@ -93,8 +93,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     {{ category.goals_count ?? 0 }} {{ (category.goals_count ?? 0) === 1 ? "goal" : "goals" }}
                                 </span>
                                 <Button variant="link" class="h-auto p-0" as-child>
-                                    <!-- FIXME: check how to assign GET parameters into wayfinder -->
-                                    <Link :href="goals.index().url">View Goals →</Link>
+                                    <Link :href="`${goals.index().url}?category=${category.id}`">
+                                        View Goals
+                                        <ArrowRight />
+                                    </Link>
                                 </Button>
                             </div>
                         </CardContent>

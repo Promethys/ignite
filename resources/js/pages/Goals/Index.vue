@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Goal } from '@/types/models';
+import { Category, Goal } from '@/types/models';
 import AppLayout from '@/layouts/AppLayout.vue';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
@@ -15,11 +15,22 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 import GoalCard from '@/components/GoalCard.vue';
 import { Input } from '@/components/ui/input';
+import Separator from '@/components/ui/separator/Separator.vue';
+import { computed, ref } from 'vue';
 
 interface Props {
-    items: Goal[]
+    items: Goal[],
+    categories: Category[]
+    category_id?: string|null
 }
 
 const props = defineProps<Props>()
@@ -30,6 +41,17 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: goals.index().url,
     },
 ];
+
+const selectedCategoryId = ref(props.category_id ? parseInt(props.category_id) : 'all');
+
+const filteredItems = computed(() => {
+    if(selectedCategoryId.value === 'all') {
+        return props.items;
+    } else {
+        return props.items.filter((item) => item.category_id === selectedCategoryId.value)
+    }
+});
+
 </script>
 
 <template>
@@ -59,7 +81,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             </EmptyContent>
         </Empty>
         <div v-else>
-            <div class="p-4">
+            <div class="p-4 space-y-6">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                     <div>
                         <h1 class="text-balance text-2xl font-bold tracking-tight sm:text-3xl">All Goals</h1>
@@ -74,9 +96,36 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </Link>
                     </Button>
                 </div>
-            </div>
-            <div class="flex flex-wrap gap-4 p-4">
-                <GoalCard :item="goal" v-for="goal in items" variant="default" />
+
+                <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                    <div class="relative flex-1">
+                        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input placeholder="Search goals..." class="pl-9" />
+                    </div>
+                    <Button variant="outline" size="icon" class="w-full sm:w-auto bg-transparent">
+                        <Select v-model="selectedCategoryId">
+                            <SelectTrigger>
+                                <SelectValue placeholder="Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">
+                                    All categories
+                                </SelectItem>
+                                <SelectItem :value="null">
+                                    No category
+                                </SelectItem>
+                                <Separator class="my-2" />
+                                <SelectItem v-for="category in categories" :key="category.id" :value="category.id">
+                                    {{ category.name }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </Button>
+                </div>
+
+                <div class="flex flex-wrap gap-4">
+                    <GoalCard :item="goal" v-for="goal in filteredItems" variant="default" />
+                </div>
             </div>
         </div>
     </AppLayout>

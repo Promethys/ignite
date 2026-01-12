@@ -32,10 +32,16 @@ class GoalController extends Controller
         'order' => 'nullable|integer',
     ];
 
-    public function index()
+    public function index(Request $request)
     {
+        $validated = $request->validate([
+            'category' => 'nullable|integer|min:1|exists:categories,id'
+        ]);
+
         return Inertia::render('Goals/Index', [
             'items' => auth()->user()->goals,
+            'categories' => auth()->user()->categories,
+            'category_id' => $validated['category'] ?? null
         ]);
     }
 
