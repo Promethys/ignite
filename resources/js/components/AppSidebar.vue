@@ -13,17 +13,19 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import {
     Crosshair,
     LayoutDashboard,
-    Folder, 
-    TrendingUp, 
-    Trophy 
+    Folder,
+    TrendingUp,
+    Trophy
 } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import goals from '@/routes/goals';
 import categories from '@/routes/categories';
+
+const page = usePage();
 
 const mainNavItems: NavItem[] = [
     {
@@ -35,9 +37,7 @@ const mainNavItems: NavItem[] = [
         title: 'Goals',
         href: goals.index(),
         icon: Crosshair,
-        isActive: function () {
-            return document.location.href.includes('goals');
-        }()
+        isActive: page.url.includes('/goals')
     },
     {
         title: 'Categories',
