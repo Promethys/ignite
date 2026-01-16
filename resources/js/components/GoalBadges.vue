@@ -13,7 +13,7 @@ const getStatusDisplayName = function (name: string) {
 </script>
 
 <template>
-    <div class="flex items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2">
         <Badge class="rounded-full font-semibold" v-if="goal.category?.name">{{ goal.category?.name }}</Badge>
         <Badge class="rounded-full font-semibold">{{ getStatusDisplayName(goal.status) }}</Badge>
         <Badge class="rounded-full font-semibold">{{ toTitleCase(goal.priority) + ' Priority' }}</Badge>

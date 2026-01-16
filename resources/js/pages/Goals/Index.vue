@@ -43,12 +43,24 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const selectedCategoryId = ref(props.category_id ? parseInt(props.category_id) : 'all');
+const searchQuery = ref('');
 
 const filteredItems = computed(() => {
+    let items = props.items;
+
+    // Search input
+    if(searchQuery.value !== null && searchQuery.value !== '') {
+        items = items.filter((item) => {
+            return item.title.toLowerCase().includes(searchQuery.value.toLowerCase()) 
+                || item.description?.toLowerCase().includes(searchQuery.value.toLowerCase())
+        });
+    }
+
+    // Filter input
     if(selectedCategoryId.value === 'all') {
-        return props.items;
+        return items;
     } else {
-        return props.items.filter((item) => item.category_id === selectedCategoryId.value)
+        return items.filter((item) => item.category_id === selectedCategoryId.value)
     }
 });
 
@@ -59,49 +71,28 @@ const filteredItems = computed(() => {
     <Head title="Goals" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Empty v-if="items.length === 0">
-            <EmptyHeader>
-                <EmptyMedia variant="icon">
-                    <Target />
-                </EmptyMedia>
-                <EmptyTitle>No Goal Yet</EmptyTitle>
-                <EmptyDescription>
-                    You don't have any goal yet. Get started by creating your first
-                    goal.
-                </EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-                <div class="flex gap-2">
-                    <Button>
-                        <Link :href="goals.create().url">
-                            Define a Goal
-                        </Link>
-                    </Button>
+        <div class="p-4 space-y-6">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <div>
+                    <h1 class="text-balance text-2xl font-bold tracking-tight sm:text-3xl">All Goals</h1>
+                    <p class="mt-1 text-pretty text-sm text-muted-foreground sm:text-base">
+                        Manage and track all your goals in one place
+                    </p>
                 </div>
-            </EmptyContent>
-        </Empty>
-        <div v-else>
-            <div class="p-4 space-y-6">
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                    <div>
-                        <h1 class="text-balance text-2xl font-bold tracking-tight sm:text-3xl">All Goals</h1>
-                        <p class="mt-1 text-pretty text-sm text-muted-foreground sm:text-base">
-                            Manage and track all your goals in one place
-                        </p>
-                    </div>
-                    <Button as-child class="w-full sm:w-auto">
-                        <Link :href="goals.create().url">
-                            <Plus />
-                            Goal
-                        </Link>
-                    </Button>
-                </div>
+                <Button v-if="items.length > 0" as-child class="w-full sm:w-auto">
+                    <Link :href="goals.create().url">
+                        <Plus />
+                        Goal
+                    </Link>
+                </Button>
+            </div>
 
-                <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
-                    <div class="relative flex-1">
-                        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input placeholder="Search goals..." class="pl-9" />
-                    </div>
+            <div v-if="items.length > 0" class="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                <div class="relative flex-1">
+                    <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input v-model="searchQuery" placeholder="Search goals..." class="pl-9" />
+                </div>
+                <div>
                     <Select v-model="selectedCategoryId">
                         <SelectTrigger>
                             <SelectValue placeholder="Category" />
@@ -120,10 +111,34 @@ const filteredItems = computed(() => {
                         </SelectContent>
                     </Select>
                 </div>
-
-                <div class="flex flex-wrap gap-4">
-                    <GoalCard :item="goal" v-for="goal in filteredItems" variant="default" />
-                </div>
+            </div>
+            <Empty v-if="items.length === 0 || filteredItems.length === 0">
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <Target />
+                    </EmptyMedia>
+                    <EmptyTitle>
+                        <template v-if="items.length === 0">No Goal Yet</template>
+                        <template v-else-if="filteredItems.length === 0">No Goal found</template>
+                    </EmptyTitle>
+                    <EmptyDescription>
+                        <template v-if="items.length === 0">You don't have any goal yet. Get started by creating your first goal.</template>
+                        <template v-else-if="filteredItems.length === 0">You don't have any goals that match this search/filter</template>
+                    </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent v-if="items.length === 0">
+                    <div class="flex gap-2">
+                        <Button as-child>
+                            <Link :href="goals.create().url">
+                                <Plus />
+                                Define a Goal
+                            </Link>
+                        </Button>
+                    </div>
+                </EmptyContent>
+            </Empty>
+            <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <GoalCard :item="goal" v-for="goal in filteredItems" :key="goal.id" variant="mini" />
             </div>
         </div>
     </AppLayout>
