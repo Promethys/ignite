@@ -102,25 +102,23 @@ const filteredItems = computed(() => {
                         <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input placeholder="Search goals..." class="pl-9" />
                     </div>
-                    <Button variant="outline" size="icon" class="w-full sm:w-auto bg-transparent">
-                        <Select v-model="selectedCategoryId">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">
-                                    All categories
-                                </SelectItem>
-                                <SelectItem :value="null">
-                                    No category
-                                </SelectItem>
-                                <Separator class="my-2" />
-                                <SelectItem v-for="category in categories" :key="category.id" :value="category.id">
-                                    {{ category.name }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </Button>
+                    <Select v-model="selectedCategoryId">
+                        <SelectTrigger>
+                            <SelectValue placeholder="Category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">
+                                All categories
+                            </SelectItem>
+                            <SelectItem :value="null">
+                                No category
+                            </SelectItem>
+                            <Separator class="my-2" />
+                            <SelectItem v-for="category in categories" :key="category.id" :value="category.id">
+                                {{ category.name }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div class="flex flex-wrap gap-4">
