@@ -71,7 +71,7 @@ const stats = [
                         <h2 class="text-2xl font-bold">Active Goals</h2>
                         <p class="text-sm text-muted-foreground">Track your current goals and progress</p>
                     </div>
-                    <Button asChild v-if="activeGoalsList.length > 0">
+                    <Button as-child v-if="activeGoalsList.length > 0">
                         <Link :href="goals.create().url">
                             <Plus class="mr-2 h-4 w-4" />
                             New Goal
@@ -92,7 +92,7 @@ const stats = [
                         </EmptyTitle>
                         <EmptyDescription>It's cold up here...</EmptyDescription>
                         <EmptyContent>
-                            <Button asChild>
+                            <Button as-child>
                                 <Link :href="goals.create().url">
                                     <Plus class="mr-2 h-4 w-4" />
                                     New Goal
