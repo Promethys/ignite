@@ -13,7 +13,6 @@ import {
     Empty,
     EmptyContent,
     EmptyDescription,
-    EmptyHeader,
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
@@ -80,7 +79,7 @@ const stats = [
                     </Button>
                 </div>
 
-                <div v-if="activeGoalsList.length > 0" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div v-if="activeGoalsList.length > 0" class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
                     <GoalCard v-for="goal in activeGoalsList" :key="goal.id" :item="goal" />
                 </div>
                 <div v-else>

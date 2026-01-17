@@ -93,7 +93,7 @@ const form = useForm({
                 <CardDescription>{{ formState.cardDescription }}</CardDescription>
             </CardHeader>
             <CardContent>
-                <div class="grid gap-6 grid-cols-3">
+                <div class="grid gap-6 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 sm:gap-4">
                     <!-- Title -->
                     <div class="grid gap-2">
                         <Label for="title">Title</Label>
@@ -167,7 +167,7 @@ const form = useForm({
                     </div>
 
                     <!-- Description -->
-                    <div class="grid gap-2 col-span-3">
+                    <div class="grid gap-2 col-span-full">
                         <Label for="description">Description</Label>
                         <Textarea
                             id="description"

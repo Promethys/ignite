@@ -32,7 +32,7 @@ const isCompleted = props.item.completed_at && (props.item.status === 'completed
 
 <template>
     <Link :href="goals.show(item.id).url">
-        <Card class="h-full rounded-4xl gap-2 text-sm hover:bg-accent border-2 border-accent cursor-pointer px-6 py-8 transition-all" :class="{'opacity-60 border-dashed': isCompleted}">
+        <Card class="h-full rounded-4xl gap-2 text-sm hover:bg-accent/50 border-2 border-accent cursor-pointer px-6 py-8 transition-all" :class="{'opacity-60 border-dashed': isCompleted}">
             <div class="flex items-center justify-between w-full">
                 <div>
                     <GoalBadges :goal="item" />
@@ -78,17 +78,14 @@ const isCompleted = props.item.completed_at && (props.item.status === 'completed
                 </DropdownMenu>
             </div>
     
-            <div class="space-y-9">
+            <div class="space-y-4">
                 <div class="space-y-2">
                     <h3 class="font-medium text-xl" :class="{'line-through': isCompleted}">{{ item.title }}</h3>
                     <p class="font-light text-sm" v-if="item.description">{{ item.description }}</p>
                 </div>
                 <div class="flex items-center justify-between">
-                    <span>
-                        <template v-if="item.start_date">
-                            Started at: {{ moment(item.start_date).format('L') }}
-                        </template>
-                        <template v-else>Not started.</template>
+                    <span v-if="item.start_date">
+                        Started at: {{ moment(item.start_date).format('L') }}
                     </span>
                     <span v-if="item.deadline">
                         Deadline: 
