@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import GoalForm from '@/components/GoalForm.vue';
+import GoalForm from '@/components/goals/GoalForm.vue';
 import { User } from '@/types/models';
 
 const breadcrumbs: BreadcrumbItem[] = [

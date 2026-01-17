@@ -2,21 +2,21 @@
 import { store, update } from '@/actions/App/Http/Controllers/Goals/GoalController';
 import { Goal, User } from '@/types/models';
 import { useForm } from '@inertiajs/vue3';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import InputError from './InputError.vue';
-import { Textarea } from './ui/textarea';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import InputError from '../InputError.vue';
+import { Textarea } from '../ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Switch } from './ui/switch';
+import { Switch } from '../ui/switch';
 import goals from '@/routes/goals';
-import TextLink from './TextLink.vue';
+import TextLink from '../TextLink.vue';
 import { 
     Select, 
     SelectContent, 
     SelectItem, 
     SelectTrigger, 
     SelectValue 
-} from './ui/select';
+} from '../ui/select';
 import {
     Card,
     CardContent,

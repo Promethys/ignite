@@ -22,7 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import GoalCard from '@/components/GoalCard.vue';
+import GoalCard from '@/components/goals/GoalCard.vue';
 import { Input } from '@/components/ui/input';
 import Separator from '@/components/ui/separator/Separator.vue';
 import { computed, ref } from 'vue';
@@ -138,7 +138,7 @@ const filteredItems = computed(() => {
                 </EmptyContent>
             </Empty>
             <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <GoalCard :item="goal" v-for="goal in filteredItems" :key="goal.id" variant="mini" />
+                <GoalCard :item="goal" v-for="goal in filteredItems" :key="goal.id" />
             </div>
         </div>
     </AppLayout>

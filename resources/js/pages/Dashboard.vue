@@ -5,7 +5,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Goal } from '@/types/models';
 import goals from '@/routes/goals';
-import GoalCard from '@/components/GoalCard.vue';
+import GoalCard from '@/components/goals/GoalCard.vue';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Goal as GoalIcon, Plus } from 'lucide-vue-next';
@@ -81,7 +81,7 @@ const stats = [
                 </div>
 
                 <div v-if="activeGoalsList.length > 0" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <GoalCard v-for="goal in activeGoalsList" :key="goal.id" :item="goal" variant="mini" />
+                    <GoalCard v-for="goal in activeGoalsList" :key="goal.id" :item="goal" />
                 </div>
                 <div v-else>
                     <Empty>

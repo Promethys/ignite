@@ -7,6 +7,7 @@ import { createApp, h } from 'vue';
 import { initializeTheme } from './composables/useAppearance';
 import formbricks from "@formbricks/js";
 import VueApexCharts from 'vue3-apexcharts';
+import moment from 'moment';
 
 if (typeof window !== "undefined") {
     formbricks.setup({
@@ -16,6 +17,9 @@ if (typeof window !== "undefined") {
 }
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const locale = document.querySelector('html')?.getAttribute('lang') ?? navigator.language.split('-')[0] ?? 'en';
+
+moment.locale(locale);
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

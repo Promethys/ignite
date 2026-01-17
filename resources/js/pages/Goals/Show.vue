@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import GoalBadges from '@/components/GoalBadges.vue';
+import GoalBadges from '@/components/goals/GoalBadges.vue';
 import { Progress } from '@/components/ui/progress';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { getDateDiffFromNow } from '@/lib/utils';
@@ -75,9 +75,9 @@ const submitEntry = () => {
                             Mark as completed
                         </Link>
                     </Button>
-                    <Button>
-                        <Pencil />
+                    <Button as-child>
                         <Link :href="goals.edit(goal).url">
+                            <Pencil />
                             Edit
                         </Link>
                     </Button>

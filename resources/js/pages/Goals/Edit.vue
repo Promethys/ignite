@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import GoalForm from '@/components/GoalForm.vue';
+import GoalForm from '@/components/goals/GoalForm.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
