@@ -12,11 +12,11 @@ class CategoryObserver
      */
     public function creating(Category $category): void
     {
-        if (!$category->slug) {
+        if (! $category->slug) {
             $category->slug = Str::slug($category->name);
         }
 
-        if (!$category->order && $category->user_id) {
+        if (! $category->order && $category->user_id) {
             $maxOrder = Category::where('user_id', $category->user_id)->max('order') ?? 0;
             $category->order = $maxOrder + 1;
         }

@@ -25,7 +25,7 @@ class GoalObserver
      */
     public function created(Goal $goal): void
     {
-        // 
+        //
     }
 
     /**
@@ -47,7 +47,7 @@ class GoalObserver
      */
     public function updated(Goal $goal): void
     {
-        // 
+        //
     }
 
     /**
