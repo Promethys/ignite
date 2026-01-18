@@ -75,7 +75,10 @@ class Milestone extends Model
     public function isReached(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->goal->current_value >= $this->target_value,
+            get: fn () => match($this->goal->direction) {
+                'ascending' => $this->goal->current_value >= $this->target_value,
+                'descending' => $this->goal->current_value <= $this->target_value
+            },
         );
     }
 }

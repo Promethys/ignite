@@ -18,6 +18,7 @@ class GoalController extends Controller
         'description' => 'nullable|string',
         'icon' => 'nullable|string|max:50',
         'type' => 'required|in:simple,quantifiable,recurring,multi_step',
+        'direction' => 'required|in:ascending,descending',
         'target_value' => 'nullable|numeric',
         'current_value' => 'required|numeric',
         'unit' => 'nullable|string|max:50',

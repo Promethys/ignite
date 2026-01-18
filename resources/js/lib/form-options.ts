@@ -33,3 +33,10 @@ export function getGoalRecurrenceOptions() {
         {value: 'annually', label: 'Annually'}, 
     ];
 }
+
+export function getGoalDirectionOptions() {
+    return [
+        {value: 'ascending', label: 'Ascending'}, 
+        {value: 'descending', label: 'Descending'}, 
+    ];
+}

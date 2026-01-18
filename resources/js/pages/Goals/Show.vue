@@ -92,13 +92,15 @@ const submitEntry = () => {
                     <!-- Quantifiable: Progress bar -->
                     <template v-if="goal.type === 'quantifiable' && goal.target_value">
                         <div class="flex flex-row gap-2 items-center">
-                            <Progress :model-value="(goal.current_value / goal.target_value) * 100" />
+                            <Progress :model-value="goal.progress_percentage" />
                             <span class="text-sm shrink-0">
                                 <span class="font-semibold">
-                                    {{ Math.round(goal.current_value / goal.target_value * 100) }} %
+                                    {{ Math.round(goal.progress_percentage) }}%
                                 </span>
                                 <span>
-                                    ({{ goal.current_value }} / {{ goal.target_value }} {{ goal.unit }})
+                                    ({{ goal.current_value }} 
+                                    {{ goal.direction === 'ascending' ? '/' : '→' }} 
+                                    {{ goal.target_value }} {{ goal.unit }})
                                 </span>
                             </span>
                         </div>

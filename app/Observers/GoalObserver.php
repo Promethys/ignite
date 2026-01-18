@@ -11,10 +11,17 @@ class GoalObserver
      */
     public function creating(Goal $goal): void
     {
+        if ($goal->current_value !== null) {
+            $goal->initial_value = $goal->current_value;
+        }
+
         if (
             $goal->status !== 'completed'
             && $goal->target_value
-            && $goal->current_value >= $goal->target_value
+            && (
+                ($goal->direction === 'descending' && $goal->current_value <= $goal->target_value) 
+                || ($goal->direction === 'ascending' && $goal->current_value >= $goal->target_value)
+            )
         ) {
             $this->markAsCompleted($goal);
         }
@@ -36,7 +43,10 @@ class GoalObserver
         if (
             $goal->status !== 'completed'
             && $goal->target_value
-            && $goal->current_value >= $goal->target_value
+            && (
+                ($goal->direction === 'descending' && $goal->current_value <= $goal->target_value) 
+                || ($goal->direction === 'ascending' && $goal->current_value >= $goal->target_value)
+            )
         ) {
             $this->markAsCompleted($goal);
         }

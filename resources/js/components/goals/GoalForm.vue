@@ -7,7 +7,13 @@ import { Label } from '../ui/label';
 import InputError from '../InputError.vue';
 import { Textarea } from '../ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Switch } from '../ui/switch';
+// import { Switch } from '../ui/switch';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import goals from '@/routes/goals';
 import TextLink from '../TextLink.vue';
 import { 
@@ -26,12 +32,14 @@ import {
     CardTitle
 } from '@/components/ui/card';
 import { 
+    getGoalDirectionOptions,
     getGoalPriorityOptions, 
     getGoalRecurrenceOptions, 
     getGoalStatusOptions, 
     getGoalTypeOptions 
 } from '@/lib/form-options';
 import { nullToEmpty, nullToUndefined } from '@/lib/utils';
+import { CircleQuestionMark } from 'lucide-vue-next';
 
 const props = defineProps<{
     record?: Goal;
@@ -56,6 +64,7 @@ const form = useForm({
     description: nullToEmpty(props.record?.description),
     icon: nullToEmpty(props.record?.icon),
     type: props.record?.type ?? 'simple',
+    direction: props.record?.direction ?? 'ascending',
     target_value: nullToUndefined(props.record?.target_value),
     current_value: props.record?.current_value ?? 0,
     unit: nullToEmpty(props.record?.unit),
@@ -330,8 +339,8 @@ const form = useForm({
                         <InputError :message="form.errors.points" />
                     </div>
 
-                    <!-- Is Public -->
-                    <div class="grid gap-2">
+                    <!-- Is Public: FIXME: show only when we handle communities -->
+                    <!-- <div class="grid gap-2">
                         <Label for="is_public">Is public</Label>
                         <Switch 
                             id="is_public" 
@@ -340,6 +349,43 @@ const form = useForm({
                             :tabindex="15"
                         />
                         <InputError :message="form.errors.is_public" />
+                    </div> -->
+
+                    <!-- Direction -->
+                    <div class="grid gap-2">
+                        <Label for="direction" class="space-x-2">
+                            Direction
+                            <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger>
+                                    <CircleQuestionMark class="w-4 h-4 text-muted-foreground/50" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Choose if your goal's evolution will be ascending or descending</p>
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </Label>
+                        <Select 
+                            id="direction" 
+                            v-model="form.direction"
+                            name="direction" 
+                            :tabindex="15"
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a direction" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem 
+                                    v-for="direction in getGoalDirectionOptions()" 
+                                    :key="direction.value" 
+                                    :value="direction.value"
+                                >
+                                    {{ direction.label }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <InputError :message="form.errors.direction" />
                     </div>
 
                     <!-- Icon -->

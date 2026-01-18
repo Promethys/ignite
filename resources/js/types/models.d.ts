@@ -45,7 +45,9 @@ export interface Goal {
     description: string | null;
     icon: string | null;
     type: 'simple' | 'quantifiable' | 'recurring' | 'multi_step';
+    direction: 'ascending' | 'descending';
     target_value: number | null;
+    initial_value: number;
     current_value: number;
     unit: string | null;
     recurrence: 'daily' | 'weekly' | 'monthly' | 'annually' | null;
@@ -59,6 +61,11 @@ export interface Goal {
     order: number;
     created_at: string;
     updated_at: string;
+
+    // Attributes
+    progress_percentage: number;
+    is_overdue: boolean;
+    is_completed: boolean;
 
     // Relationships (if loaded)
     user?: User;

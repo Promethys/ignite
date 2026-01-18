@@ -86,13 +86,15 @@ const isCompleted = props.item.completed_at && (props.item.status === 'completed
                 </div>
                 <div class="space-y-2">
                     <div v-if="item.target_value" class="flex flex-col gap-2">
-                        <Progress :model-value="(item.current_value / item.target_value) * 100" />
+                        <Progress :model-value="item.progress_percentage" />
                         <span class="text-sm shrink-0">
                             <span class="font-semibold">
-                                {{ Math.round(item.current_value / item.target_value * 100) }} %
+                                {{ Math.round(item.progress_percentage) }}%
                             </span>
                             <span>
-                                ({{ item.current_value }} / {{ item.target_value }} {{ item.unit }})
+                                ({{ item.current_value }} 
+                                {{ item.direction === 'ascending' ? '/' : '→' }} 
+                                {{ item.target_value }} {{ item.unit }})
                             </span>
                         </span>
                     </div>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Observers\GoalObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,6 +28,8 @@ class Goal extends Model
         'description',
         'icon',
         'type',
+        'direction',
+        'initial_value',
         'target_value',
         'current_value',
         'unit',
@@ -48,6 +51,7 @@ class Goal extends Model
      */
     protected $casts = [
         'target_value' => 'decimal:2',
+        'initial_value' => 'decimal:2',
         'current_value' => 'decimal:2',
         'start_date' => 'date',
         'deadline' => 'date',
@@ -61,6 +65,12 @@ class Goal extends Model
         'category',
         'milestones',
         'entries',
+    ];
+
+    protected $appends = [
+        'progress_percentage',
+        'is_overdue',
+        'is_completed',
     ];
 
     /**
@@ -95,26 +105,40 @@ class Goal extends Model
         return $this->hasMany(Milestone::class);
     }
 
-    /**
-     * Calculate the progress percentage.
-     */
-    public function getProgressPercentageAttribute(): float
+    protected function progressPercentage(): Attribute
     {
-        if ($this->target_value <= 0) {
-            return 0;
-        }
+        return Attribute::make(
+            get: function () {
+                if ($this->target_value === $this->initial_value) {
+                    return $this->is_completed ? 100 : 0;
+                }
 
-        return min(($this->current_value / $this->target_value) * 100, 100);
+                $percentage = (($this->current_value - $this->initial_value) / ($this->target_value - $this->initial_value)) * 100;
+
+                return max($percentage, 0); // Allow value over 100%, but not below zero
+                // return min(max($percentage, 0), 100);
+            },
+        );
     }
 
     /**
      * Check if the goal is overdue.
      */
-    public function isOverdue(): bool
+    public function isOverdue(): Attribute
     {
-        return $this->deadline &&
-            $this->deadline->isPast() &&
-            $this->status !== 'completed';
+        return Attribute::make(
+            get: fn() => $this->deadline 
+                && $this->deadline->isPast() 
+                && $this->status !== 'completed'
+        );
+    }
+
+    public function isCompleted(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => ($this->status === 'completed') 
+                && ($this->completed_at !== null)
+        );
     }
 
     /**
