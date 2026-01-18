@@ -109,7 +109,12 @@ class Goal extends Model
     {
         return Attribute::make(
             get: function () {
-                if ($this->target_value === $this->initial_value) {
+                if (! $this->target_value) {
+                    return null;
+                }
+
+                if (($this->target_value === $this->initial_value)
+                    || ($this->target_value - $this->initial_value === 0)) {
                     return $this->is_completed ? 100 : 0;
                 }
 
@@ -127,8 +132,8 @@ class Goal extends Model
     public function isOverdue(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->deadline 
-                && $this->deadline->isPast() 
+            get: fn () => $this->deadline
+                && $this->deadline->isPast()
                 && $this->status !== 'completed'
         );
     }
@@ -136,7 +141,7 @@ class Goal extends Model
     public function isCompleted(): Attribute
     {
         return Attribute::make(
-            get: fn() => ($this->status === 'completed') 
+            get: fn () => ($this->status === 'completed')
                 && ($this->completed_at !== null)
         );
     }

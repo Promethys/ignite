@@ -19,7 +19,7 @@ class GoalObserver
             $goal->status !== 'completed'
             && $goal->target_value
             && (
-                ($goal->direction === 'descending' && $goal->current_value <= $goal->target_value) 
+                ($goal->direction === 'descending' && $goal->current_value <= $goal->target_value)
                 || ($goal->direction === 'ascending' && $goal->current_value >= $goal->target_value)
             )
         ) {
@@ -44,7 +44,7 @@ class GoalObserver
             $goal->status !== 'completed'
             && $goal->target_value
             && (
-                ($goal->direction === 'descending' && $goal->current_value <= $goal->target_value) 
+                ($goal->direction === 'descending' && $goal->current_value <= $goal->target_value)
                 || ($goal->direction === 'ascending' && $goal->current_value >= $goal->target_value)
             )
         ) {
