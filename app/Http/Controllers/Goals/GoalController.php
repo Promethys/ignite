@@ -78,9 +78,16 @@ class GoalController extends Controller
     {
         Gate::authorize('view', $goal);
 
-        return Inertia::render('Goals/Show', [
-            'goal' => $goal,
+        $chartEntries = $goal->entries->map(fn($entry) => [
+            'entry_date' => $entry->entry_date,
+            'value' => $entry->value,
         ]);
+
+        $goal->load([
+            'entries' => fn($query) => $query->orderBy('entry_date', 'desc')->take(20)
+        ]);
+
+        return Inertia::render('Goals/Show', compact('goal', 'chartEntries'));
     }
 
     public function edit(Goal $goal)

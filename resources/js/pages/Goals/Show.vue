@@ -29,6 +29,7 @@ import { CheckCircle2, Pencil } from 'lucide-vue-next';
 
 const props = defineProps<{
     goal: Goal;
+    chartEntries: [];
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -158,9 +159,9 @@ const submitEntry = () => {
                     <h3 class="font-medium text-xl mb-2">
                         Progress Chart
                     </h3>
-                    <div v-if="goal.entries && goal.entries.length > 0">
+                    <div v-if="chartEntries && chartEntries.length > 0">
                         <ProgressChart 
-                            :entries="goal.entries" 
+                            :entries="chartEntries" 
                             :target-value="goal.target_value" 
                             :unit="goal.unit"
                         />

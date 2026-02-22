@@ -64,7 +64,6 @@ class Goal extends Model
     protected $with = [
         'category',
         'milestones',
-        'entries',
     ];
 
     protected $appends = [

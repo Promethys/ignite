@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { getBinaryTheme } from '@/composables/useAppearance';
 import { GoalEntry } from '@/types/models';
-import { categories } from '@vueuse/core/metadata.cjs';
 
 const props = defineProps<{
     entries: GoalEntry[],
@@ -37,7 +36,7 @@ const chartOptions = {
         height: 350,
         type: 'line',
         zoom: {
-            enabled: false
+            enabled: true
         }
     },
     theme: {
@@ -47,7 +46,7 @@ const chartOptions = {
         enabled: false
     },
     stroke: {
-        curve: 'straight'
+        curve: 'smooth'
     },
     grid: {
         row: {

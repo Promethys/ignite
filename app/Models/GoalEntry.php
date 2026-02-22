@@ -60,7 +60,7 @@ class GoalEntry extends Model
     public function incrementValue(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->value - $this->previous_value,
+            get: fn () => round($this->value - $this->previous_value, 2),
         );
     }
 }
