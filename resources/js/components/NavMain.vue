@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
     SidebarGroup,
-    SidebarGroupLabel,
+    // SidebarGroupLabel,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,

@@ -18,8 +18,8 @@ import {
     Crosshair,
     LayoutDashboard,
     Folder,
-    TrendingUp,
-    Trophy
+    // TrendingUp,
+    // Trophy
 } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import goals from '@/routes/goals';

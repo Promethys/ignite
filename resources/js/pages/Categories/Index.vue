@@ -3,7 +3,11 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import categories from '@/routes/categories';
 import { BreadcrumbItem } from '@/types';
 import { Category } from '@/types/models';
-import { ArrowRight, Edit, Plus, Target } from 'lucide-vue-next';
+import {
+    ArrowRight,
+    // Edit,
+    Plus,
+    Target } from 'lucide-vue-next';
 import {
     Empty,
     EmptyContent,
@@ -33,7 +37,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :breadcrumbs="breadcrumbs">
         <Empty v-if="items.length === 0">
             <EmptyHeader>
                 <EmptyMedia variant="icon">
