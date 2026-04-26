@@ -113,7 +113,7 @@ class GoalController extends Controller
 
         $goal->update($validated);
 
-        return to_route('goals.edit', [$goal]);
+        return back(303);
     }
 
     public function destroy(Goal $goal)
@@ -122,15 +122,20 @@ class GoalController extends Controller
 
         $goal->delete();
 
-        return redirect()->back();
+        return back(303);
     }
 
-    // TODO:
-    public function updateStatus(Goal $goal)
+    public function updateStatus(Request $request, Goal $goal)
     {
-        // return Inertia::render('Goals/Show', [
-        //     'goal' => $goal
-        // ]);
+        Gate::authorize('update', $goal);
+
+        $validated = $request->validate([
+            'status' => $this->rules['status']
+        ]);
+
+        $goal->updateStatus($validated['status']);
+
+        return back(303);
     }
 
     public function complete(Goal $goal)
@@ -139,6 +144,6 @@ class GoalController extends Controller
 
         $goal->markAsCompleted();
 
-        return redirect()->back();
+        return back(303);
     }
 }

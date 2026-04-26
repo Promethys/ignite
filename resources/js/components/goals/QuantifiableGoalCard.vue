@@ -23,12 +23,22 @@ import GoalBadges from './GoalBadges.vue';
 import { Progress } from '../ui/progress';
 import moment from 'moment';
 import { getDateDiffFromNow } from '@/lib/utils';
+import { computed } from 'vue';
 
 const props = defineProps<{
     item: Goal;
 }>();
 
-const isCompleted = props.item.completed_at && (props.item.status === 'completed');
+const isCompleted = computed(() => {
+    return props.item.completed_at && (props.item.status === 'completed');
+});
+const isInProgress = computed(() => {
+    return props.item.status === 'in_progress';
+});
+const isPaused = computed(() => {
+    return props.item.status === 'paused';
+});
+
 </script>
 
 <template>
@@ -48,6 +58,22 @@ const isCompleted = props.item.completed_at && (props.item.status === 'completed
                         <DropdownMenuGroup>
                             <DropdownMenuItem v-if="!isCompleted" as-child>
                                 <Link :method="goals.complete(item).method" :href="goals.complete(item).url" class="cursor-pointer">Mark as completed</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem v-if="isInProgress" as-child>
+                                <Link 
+                                    :method="goals.updateStatus(item).method" 
+                                    :href="goals.updateStatus(item).url"
+                                    :data="{ status: 'paused' }" 
+                                    class="cursor-pointer w-full"
+                                >Pause</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem v-if="isPaused" as-child>
+                                <Link 
+                                    :method="goals.updateStatus(item).method" 
+                                    :href="goals.updateStatus(item).url"
+                                    :data="{ status: 'in_progress' }" 
+                                    class="cursor-pointer w-full"
+                                >Resume</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem as-child>
                                 <Link :href="goals.edit(item).url" class="cursor-pointer">Edit</Link>

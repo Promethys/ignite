@@ -155,4 +155,14 @@ class Goal extends Model
             'completed_at' => now(),
         ]);
     }
+
+    /**
+     * Mark the goal as completed.
+     */
+    public function updateStatus(string $status): void
+    {
+        $this->update([
+            'status' => $status,
+        ]);
+    }
 }
