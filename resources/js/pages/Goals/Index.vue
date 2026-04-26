@@ -104,7 +104,9 @@ const filteredItems = computed(() => {
                             <SelectItem :value="null">
                                 No category
                             </SelectItem>
-                            <Separator class="my-2" />
+                            <template v-if="categories.length > 0">
+                                <Separator class="my-2" />
+                            </template>
                             <SelectItem v-for="category in categories" :key="category.id" :value="category.id">
                                 {{ category.name }}
                             </SelectItem>
