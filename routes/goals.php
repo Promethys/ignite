@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::controller(GoalEntryController::class)->group(function () {
             // Goal entries (nested resource)
+            Route::get('/{goal}/entries', 'index')->name('goals.entries');
             Route::post('/{goal}/entries', 'store')->name('goals.entries.store');
             Route::delete('/{goal}/entries/{goalEntry}', 'destroy')->name('goals.entries.destroy');
         });

@@ -38,7 +38,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: goals.index().url,
     },
     {
-        title: `View "${props.goal.title}"`,
+        title: `${props.goal.title}`,
         href: '',
     },
 ];
@@ -208,7 +208,14 @@ const submitEntry = () => {
 
                 <!-- Entry History -->
                 <div v-if="goal.entries && goal.entries.length > 0" class="space-y-4">
-                    <h4 class="font-medium text-lg">Progress History</h4>
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-medium text-lg">Progress History</h4>
+                        <Button as-child>
+                            <Link :href="goals.entries.get(goal).url">
+                                All entries
+                            </Link>
+                        </Button>
+                    </div>
 
                     <div class="space-y-3">
                         <div v-for="entry in goal.entries" :key="entry.id" class="border rounded-lg p-4 space-y-2">

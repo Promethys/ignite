@@ -17,7 +17,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: goals.index().url,
     },
     {
-        title: `Edit "${props.goal.title}"`,
+        title: `${props.goal.title}`,
+        href: goals.show(props.goal).url,
+    },
+    {
+        title: `Edit`,
         href: '',
     },
 ];
