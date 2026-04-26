@@ -5,7 +5,7 @@ import QuantifiableGoalCard from './QuantifiableGoalCard.vue';
 import RecurringGoalCard from './RecurringGoalCard.vue';
 import MultiStepGoalCard from './MultiStepGoalCard.vue';
 
-const props = defineProps<{
+defineProps<{
     item: Goal;
 }>();
 </script>

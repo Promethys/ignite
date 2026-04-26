@@ -21,7 +21,7 @@ interface Props {
     items: Category[]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
