@@ -54,7 +54,7 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', env('LOG_STACK', 'single')),
+            'channels' => explode(',', env('LOG_STACK', 'daily')),
             'ignore_exceptions' => false,
         ],
 
@@ -125,6 +125,13 @@ return [
 
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
+        ],
+
+        'sql' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/sql/sql.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14, // SQL logs can be large
         ],
 
     ],
