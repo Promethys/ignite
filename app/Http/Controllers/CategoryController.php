@@ -10,7 +10,6 @@ use Inertia\Inertia;
 class CategoryController extends Controller
 {
     protected $rules = [
-        'user_id' => 'required|exists:users,id',
         'name' => 'required|string|max:255',
         'slug' => 'nullable|string|max:255',
         'description' => 'nullable|string',
@@ -52,6 +51,8 @@ class CategoryController extends Controller
         Gate::authorize('create', Category::class);
 
         $validated = $request->validate($this->rules);
+
+        $validated['user_id'] = auth()->id();
 
         Category::create($validated);
 
@@ -99,7 +100,7 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return to_route('categories.edit', [$category]);
+        return to_route('categories.index');
     }
 
     /**

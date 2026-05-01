@@ -13,7 +13,7 @@ return new class extends Migration
 
             // Basic information
             $table->string('name', 100);
-            $table->string('slug', 100)->unique();
+            $table->string('slug', 100)->nullable();
             $table->text('description');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
 

@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
             $table->string('name', 100);
-            $table->string('slug', 100);
+            $table->string('slug', 100)->nullable();
             $table->text('description')->nullable();
 
             // Visual customization
