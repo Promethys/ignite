@@ -1,0 +1,145 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$entry_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Goals/GoalController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$value\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Goals/GoalController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\GoalEntry\:\:\$increment_value\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Goals/GoalEntryController.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Achievement\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Achievement.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Category\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Category.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Goal\:\:\$is_completed\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Goal.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Goal\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Goal.php
+
+		-
+			message: '#^Property ''is_completed'' does not exist in model\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/Goal.php
+
+		-
+			message: '#^Property ''is_overdue'' does not exist in model\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/Goal.php
+
+		-
+			message: '#^PHPDoc type array of property App\\Models\\GoalEntry\:\:\$appends is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$appends\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/GoalEntry.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\GoalEntry\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/GoalEntry.php
+
+		-
+			message: '#^Property ''increment_value'' does not exist in model\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/GoalEntry.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$current_value\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/Milestone.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$direction\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Milestone.php
+
+		-
+			message: '#^PHPDoc type array of property App\\Models\\Milestone\:\:\$appends is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$appends\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Milestone.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Milestone\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Milestone.php
+
+		-
+			message: '#^Property ''is_reached'' does not exist in model\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/Milestone.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$total_points\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc type array of property App\\Models\\User\:\:\$appends is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$appends\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\User\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\User\:\:\$hidden is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$hidden\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Property ''level'' does not exist in model\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Property ''total_points'' does not exist in model\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\UserAchievement\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/UserAchievement.php
