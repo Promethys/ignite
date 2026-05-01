@@ -50,4 +50,4 @@ jobs:
         run: ./vendor/bin/phpunit
 
       - name: Tests Front-End
-        run: npx vitest --run
+        run: LARAVEL_BYPASS_ENV_CHECK=1 npx vitest --run
