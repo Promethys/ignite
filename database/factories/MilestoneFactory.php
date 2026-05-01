@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Goal;
+use App\Models\Milestone;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Milestone>
+ * @extends Factory<Milestone>
  */
 class MilestoneFactory extends Factory
 {

@@ -30,7 +30,7 @@ class ProfileUpdateTest extends TestCase
             ->patch(route('profile.update'), [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
-                'timezone' => 'UTC'
+                'timezone' => 'UTC',
             ]);
 
         $response
@@ -53,7 +53,7 @@ class ProfileUpdateTest extends TestCase
             ->patch(route('profile.update'), [
                 'name' => 'Test User',
                 'email' => $user->email,
-                'timezone' => 'UTC'
+                'timezone' => 'UTC',
             ]);
 
         $response

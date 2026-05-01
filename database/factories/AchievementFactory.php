@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Achievement;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Achievement>
+ * @extends Factory<Achievement>
  */
 class AchievementFactory extends Factory
 {

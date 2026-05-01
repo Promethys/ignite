@@ -78,13 +78,13 @@ class GoalController extends Controller
     {
         Gate::authorize('view', $goal);
 
-        $chartEntries = $goal->entries->map(fn($entry) => [
+        $chartEntries = $goal->entries->map(fn ($entry) => [
             'entry_date' => $entry->entry_date,
             'value' => $entry->value,
         ]);
 
         $goal->load([
-            'entries' => fn($query) => $query->orderBy('entry_date', 'desc')->take(20)
+            'entries' => fn ($query) => $query->orderBy('entry_date', 'desc')->take(20),
         ]);
 
         return Inertia::render('Goals/Show', compact('goal', 'chartEntries'));
@@ -130,7 +130,7 @@ class GoalController extends Controller
         Gate::authorize('update', $goal);
 
         $validated = $request->validate([
-            'status' => $this->rules['status']
+            'status' => $this->rules['status'],
         ]);
 
         $goal->updateStatus($validated['status']);

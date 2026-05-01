@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Goal;
+use App\Models\GoalEntry;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\GoalEntry>
+ * @extends Factory<GoalEntry>
  */
 class GoalEntryFactory extends Factory
 {

@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class InitDataSeeder extends Seeder
 {
@@ -73,7 +74,7 @@ class InitDataSeeder extends Seeder
                 $createdCategories[] = Category::create([
                     'user_id' => $demoUser->id,
                     'name' => $category['name'],
-                    'slug' => \Illuminate\Support\Str::slug($category['name']),
+                    'slug' => Str::slug($category['name']),
                     'description' => "Goals related to {$category['name']}",
                     'color' => $category['color'],
                     'icon' => $category['icon'],

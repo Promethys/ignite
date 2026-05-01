@@ -25,25 +25,25 @@ class GoalEntryController extends Controller
 
         $query = $goal->entries();
 
-        if (isset($validated['search']) && !empty($validated['search'])) {
-            $query->where(function (Builder $query) use($validated) {
-                $query->whereRaw("LOWER(note) like ?", ["%" . strtolower($validated['search']) . "%"])
-                    ->orWhereRaw("LOWER(value) like ?", ["%" . strtolower($validated['search']) . "%"])
-                    ->orWhereRaw("LOWER(entry_date) like ?", ["%" . strtolower($validated['search']) . "%"]);
+        if (isset($validated['search']) && ! empty($validated['search'])) {
+            $query->where(function (Builder $query) use ($validated) {
+                $query->whereRaw('LOWER(note) like ?', ['%'.strtolower($validated['search']).'%'])
+                    ->orWhereRaw('LOWER(value) like ?', ['%'.strtolower($validated['search']).'%'])
+                    ->orWhereRaw('LOWER(entry_date) like ?', ['%'.strtolower($validated['search']).'%']);
             });
         }
 
-        if (isset($validated['from']) && !empty($validated['from'])) {
+        if (isset($validated['from']) && ! empty($validated['from'])) {
             $query->whereDate('entry_date', '>=', $validated['from']);
         }
 
-        if (isset($validated['to']) && !empty($validated['to'])) {
+        if (isset($validated['to']) && ! empty($validated['to'])) {
             $query->whereDate('entry_date', '<=', $validated['to']);
         }
 
         $query->orderBy('entry_date', 'desc');
 
-        $entries = Inertia::scroll(fn() => $query->paginate(20));
+        $entries = Inertia::scroll(fn () => $query->paginate(20));
 
         return Inertia::render('GoalEntries/Index', compact('goal', 'entries'));
     }
