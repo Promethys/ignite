@@ -5,6 +5,7 @@ namespace Tests\Feature\Models;
 use App\Models\Goal;
 use App\Models\GoalEntry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class GoalEntryTest extends TestCase
@@ -44,7 +45,7 @@ class GoalEntryTest extends TestCase
     {
         $entry = GoalEntry::factory()->create(['entry_date' => '2026-03-15']);
 
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $entry->entry_date);
+        $this->assertInstanceOf(Carbon::class, $entry->entry_date);
         $this->assertEquals('2026-03-15', $entry->entry_date->format('Y-m-d'));
     }
 

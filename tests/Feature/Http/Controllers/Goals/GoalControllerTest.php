@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Http\Controllers\Goals;
 
-use App\Models\Category;
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

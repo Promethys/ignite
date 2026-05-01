@@ -8,6 +8,7 @@ use App\Models\GoalEntry;
 use App\Models\Milestone;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class GoalTest extends TestCase
@@ -98,13 +99,13 @@ class GoalTest extends TestCase
             'completed_at' => '2026-03-10 14:30:00',
         ]);
 
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $goal->start_date);
+        $this->assertInstanceOf(Carbon::class, $goal->start_date);
         $this->assertEquals('2026-01-15', $goal->start_date->format('Y-m-d'));
 
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $goal->deadline);
+        $this->assertInstanceOf(Carbon::class, $goal->deadline);
         $this->assertEquals('2026-06-30', $goal->deadline->format('Y-m-d'));
 
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $goal->completed_at);
+        $this->assertInstanceOf(Carbon::class, $goal->completed_at);
         $this->assertEquals('2026-03-10 14:30:00', $goal->completed_at->format('Y-m-d H:i:s'));
     }
 
