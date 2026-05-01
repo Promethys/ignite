@@ -62,7 +62,12 @@ class GoalController extends Controller
     {
         Gate::authorize('create', Goal::class);
 
-        $validated = $request->validate($this->rules);
+        $rules = $this->rules;
+        if ($request->input('type') === 'quantifiable') {
+            $rules['target_value'] = 'required|numeric';
+        }
+
+        $validated = $request->validate($rules);
 
         $order = User::find($validated['user_id'])->goals()->count() + 1;
 

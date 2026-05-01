@@ -99,6 +99,8 @@ class GoalFactory extends Factory
             'description' => fake()->optional(0.7)->paragraph(),
             'icon' => fake()->randomElement($icons),
             'type' => $type,
+            'direction' => 'ascending',
+            'initial_value' => 0,
             'target_value' => $targetValue,
             'current_value' => $currentValue,
             'unit' => $unit,
@@ -109,7 +111,7 @@ class GoalFactory extends Factory
             'status' => $status,
             'priority' => fake()->randomElement(['low', 'medium', 'high']),
             'points' => fake()->numberBetween(0, 500),
-            'is_public' => fake()->boolean(20), // 20% public
+            'is_public' => fake()->boolean(20),
             'order' => fake()->numberBetween(0, 10),
         ];
     }
@@ -145,6 +147,37 @@ class GoalFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => 'in_progress',
             'deadline' => fake()->dateTimeBetween('-2 months', '-1 day'),
+        ]);
+    }
+
+    public function quantifiable(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'quantifiable',
+            'direction' => 'ascending',
+            'initial_value' => 0,
+            'target_value' => $attributes['target_value'] ?? 100,
+            'current_value' => $attributes['current_value'] ?? 0,
+            'unit' => $attributes['unit'] ?? 'units',
+            'recurrence' => null,
+        ]);
+    }
+
+    public function paused(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'paused',
+            'completed_at' => null,
+        ]);
+    }
+
+    public function descending(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'direction' => 'descending',
+            'initial_value' => $attributes['initial_value'] ?? 100,
+            'target_value' => $attributes['target_value'] ?? 0,
+            'current_value' => $attributes['current_value'] ?? $attributes['initial_value'] ?? 100,
         ]);
     }
 }
