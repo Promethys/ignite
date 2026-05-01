@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { toTitleCase } from '@/lib/utils';
 import { Goal } from '@/types/models';
 import Badge from '../ui/badge/Badge.vue';
-import { toTitleCase } from '@/lib/utils';
 
 const props = defineProps<{
     goal: Goal;
@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const getStatusDisplayName = function (name: string) {
     return toTitleCase(name.replace('_', ' '));
-}
+};
 
 const goalStatusBadgeColors = {
     'bg-green-700 text-white': props.goal.status === 'completed',
@@ -20,9 +20,23 @@ const goalStatusBadgeColors = {
 
 <template>
     <div class="flex flex-wrap items-center gap-2">
-        <Badge class="rounded-full font-semibold text-2xs" :class="goalStatusBadgeColors">{{ getStatusDisplayName(goal.status) }}</Badge>
-        <Badge class="rounded-full font-semibold text-2xs" v-if="goal.category?.name">{{ goal.category?.name }}</Badge>
-        <Badge class="rounded-full font-semibold text-2xs">{{ toTitleCase(goal.priority) + ' Priority' }}</Badge>
-        <Badge class="rounded-full font-semibold text-2xs" v-if="goal.recurrence">{{ toTitleCase(goal.recurrence) }}</Badge>
+        <Badge
+            class="rounded-full text-2xs font-semibold"
+            :class="goalStatusBadgeColors"
+            >{{ getStatusDisplayName(goal.status) }}</Badge
+        >
+        <Badge
+            class="rounded-full text-2xs font-semibold"
+            v-if="goal.category?.name"
+            >{{ goal.category?.name }}</Badge
+        >
+        <Badge class="rounded-full text-2xs font-semibold">{{
+            toTitleCase(goal.priority) + ' Priority'
+        }}</Badge>
+        <Badge
+            class="rounded-full text-2xs font-semibold"
+            v-if="goal.recurrence"
+            >{{ toTitleCase(goal.recurrence) }}</Badge
+        >
     </div>
 </template>

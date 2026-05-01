@@ -1,62 +1,67 @@
 <script setup lang="ts">
-import { store, update } from '@/actions/App/Http/Controllers/Goals/GoalController';
+import {
+    store,
+    update,
+} from '@/actions/App/Http/Controllers/Goals/GoalController';
+import { Button } from '@/components/ui/button';
 import { Goal, User } from '@/types/models';
 import { useForm } from '@inertiajs/vue3';
+import InputError from '../InputError.vue';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import InputError from '../InputError.vue';
 import { Textarea } from '../ui/textarea';
-import { Button } from '@/components/ui/button';
 // import { Switch } from '../ui/switch';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
-import goals from '@/routes/goals';
-import TextLink from '../TextLink.vue';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '../ui/select';
 import {
     Card,
     CardContent,
     CardDescription,
     CardFooter,
     CardHeader,
-    CardTitle
+    CardTitle,
 } from '@/components/ui/card';
-import { 
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
     getGoalDirectionOptions,
-    getGoalPriorityOptions, 
-    getGoalRecurrenceOptions, 
-    getGoalStatusOptions, 
-    getGoalTypeOptions 
+    getGoalPriorityOptions,
+    getGoalRecurrenceOptions,
+    getGoalStatusOptions,
+    getGoalTypeOptions,
 } from '@/lib/form-options';
 import { nullToEmpty, nullToUndefined } from '@/lib/utils';
+import goals from '@/routes/goals';
 import { CircleQuestionMark } from 'lucide-vue-next';
+import TextLink from '../TextLink.vue';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '../ui/select';
 
 const props = defineProps<{
     record?: Goal;
     user: User;
 }>();
 
-const formState = props.record ? {
-    cardTitle: 'Edit a goal',
-    cardDescription: 'Edit your goal.',
-    action: update(props.record),
-    submitBtnLabel: 'Edit',
-} : {
-    cardTitle: 'Create a goal',
-    cardDescription: 'Create your new goal.',
-    action: store(),
-    submitBtnLabel: 'Create',
-};
+const formState = props.record
+    ? {
+          cardTitle: 'Edit a goal',
+          cardDescription: 'Edit your goal.',
+          action: update(props.record),
+          submitBtnLabel: 'Edit',
+      }
+    : {
+          cardTitle: 'Create a goal',
+          cardDescription: 'Create your new goal.',
+          action: store(),
+          submitBtnLabel: 'Create',
+      };
 
 const form = useForm({
     category_id: props.record?.category_id?.toString() ?? undefined,
@@ -69,28 +74,33 @@ const form = useForm({
     current_value: props.record?.current_value ?? 0,
     unit: nullToEmpty(props.record?.unit),
     recurrence: props.record?.recurrence ?? undefined,
-    start_date: props.record?.start_date ? new Date(props.record?.start_date).toISOString().split('T')[0] : undefined,
-    deadline: props.record?.deadline ? new Date(props.record?.deadline).toISOString().split('T')[0] : undefined,
-    completed_at: props.record?.completed_at ? new Date(props.record?.completed_at).toISOString().split('T')[0] : undefined,
+    start_date: props.record?.start_date
+        ? new Date(props.record?.start_date).toISOString().split('T')[0]
+        : undefined,
+    deadline: props.record?.deadline
+        ? new Date(props.record?.deadline).toISOString().split('T')[0]
+        : undefined,
+    completed_at: props.record?.completed_at
+        ? new Date(props.record?.completed_at).toISOString().split('T')[0]
+        : undefined,
     status: props.record?.status ?? 'not_started',
     priority: props.record?.priority ?? 'medium',
     points: props.record?.points ?? 0,
     is_public: props.record?.is_public ?? false,
     order: props.record?.order ?? 0,
-})
-.transform((data) => ({
+}).transform((data) => ({
     ...data,
     user_id: props.user.id,
     // Convert empty strings back to null for nullable fields
     description: data.description || null,
     icon: data.icon || null,
-    unit: (data.type === 'quantifiable') ? data.unit : null,
+    unit: data.type === 'quantifiable' ? data.unit : null,
     start_date: data.start_date || null,
     deadline: data.deadline || null,
     completed_at: data.completed_at || null,
     category_id: data.category_id || null,
-    target_value: (data.type === 'quantifiable') ? data.target_value : null,
-    recurrence: (data.type === 'recurring') ? data.recurrence : null,
+    target_value: data.type === 'quantifiable' ? data.target_value : null,
+    recurrence: data.type === 'recurring' ? data.recurrence : null,
 }));
 </script>
 
@@ -99,10 +109,14 @@ const form = useForm({
         <Card class="m-4">
             <CardHeader>
                 <CardTitle>{{ formState.cardTitle }}</CardTitle>
-                <CardDescription>{{ formState.cardDescription }}</CardDescription>
+                <CardDescription>{{
+                    formState.cardDescription
+                }}</CardDescription>
             </CardHeader>
             <CardContent>
-                <div class="grid gap-6 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 sm:gap-4">
+                <div
+                    class="grid gap-6 sm:grid-cols-1 sm:gap-4 md:grid-cols-2 lg:grid-cols-3"
+                >
                     <!-- Title -->
                     <div class="grid gap-2">
                         <Label for="title">Title</Label>
@@ -126,20 +140,23 @@ const form = useForm({
                                 Create a category
                             </span>
                         </div>
-                        <Select 
-                            id="category_id" 
+                        <Select
+                            id="category_id"
                             v-model="form.category_id"
-                            name="category_id" 
+                            name="category_id"
                             :tabindex="2"
-                            :disabled="!user.categories || user.categories?.length === 0"
+                            :disabled="
+                                !user.categories ||
+                                user.categories?.length === 0
+                            "
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem 
-                                    v-for="(category, id) in user.categories" 
-                                    :key="id" 
+                                <SelectItem
+                                    v-for="(category, id) in user.categories"
+                                    :key="id"
                                     :value="id"
                                 >
                                     {{ category }}
@@ -152,10 +169,10 @@ const form = useForm({
                     <!-- Type -->
                     <div class="grid gap-2">
                         <Label for="type">Type</Label>
-                        <Select 
-                            id="type" 
+                        <Select
+                            id="type"
                             v-model="form.type"
-                            name="type" 
+                            name="type"
                             :tabindex="4"
                             required
                         >
@@ -163,9 +180,9 @@ const form = useForm({
                                 <SelectValue placeholder="Select a goal type" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem 
-                                    v-for="type in getGoalTypeOptions()" 
-                                    :key="type.value" 
+                                <SelectItem
+                                    v-for="type in getGoalTypeOptions()"
+                                    :key="type.value"
                                     :value="type.value"
                                 >
                                     {{ type.label }}
@@ -176,7 +193,7 @@ const form = useForm({
                     </div>
 
                     <!-- Description -->
-                    <div class="grid gap-2 col-span-full">
+                    <div class="col-span-full grid gap-2">
                         <Label for="description">Description</Label>
                         <Textarea
                             id="description"
@@ -275,20 +292,22 @@ const form = useForm({
                     <!-- Priority -->
                     <div class="grid gap-2">
                         <Label for="priority">Priority</Label>
-                        <Select 
-                            id="priority" 
+                        <Select
+                            id="priority"
                             v-model="form.priority"
-                            name="priority" 
+                            name="priority"
                             :tabindex="12"
                             required
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select a goal priority" />
+                                <SelectValue
+                                    placeholder="Select a goal priority"
+                                />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem 
-                                    v-for="priority in getGoalPriorityOptions()" 
-                                    :key="priority.value" 
+                                <SelectItem
+                                    v-for="priority in getGoalPriorityOptions()"
+                                    :key="priority.value"
                                     :value="priority.value"
                                 >
                                     {{ priority.label }}
@@ -301,10 +320,10 @@ const form = useForm({
                     <!-- Status -->
                     <div class="grid gap-2">
                         <Label for="status">Status</Label>
-                        <Select 
-                            id="status" 
+                        <Select
+                            id="status"
                             v-model="form.status"
-                            name="status" 
+                            name="status"
                             :tabindex="13"
                             required
                         >
@@ -312,9 +331,9 @@ const form = useForm({
                                 <SelectValue placeholder="Select a status" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem 
-                                    v-for="status in getGoalStatusOptions()" 
-                                    :key="status.value" 
+                                <SelectItem
+                                    v-for="status in getGoalStatusOptions()"
+                                    :key="status.value"
                                     :value="status.value"
                                 >
                                     {{ status.label }}
@@ -357,28 +376,33 @@ const form = useForm({
                             Direction
                             <TooltipProvider>
                                 <Tooltip>
-                                <TooltipTrigger>
-                                    <CircleQuestionMark class="w-4 h-4 text-muted-foreground/50" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>Choose if your goal's evolution will be ascending or descending</p>
-                                </TooltipContent>
+                                    <TooltipTrigger>
+                                        <CircleQuestionMark
+                                            class="h-4 w-4 text-muted-foreground/50"
+                                        />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>
+                                            Choose if your goal's evolution will
+                                            be ascending or descending
+                                        </p>
+                                    </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
                         </Label>
-                        <Select 
-                            id="direction" 
+                        <Select
+                            id="direction"
                             v-model="form.direction"
-                            name="direction" 
+                            name="direction"
                             :tabindex="15"
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a direction" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem 
-                                    v-for="direction in getGoalDirectionOptions()" 
-                                    :key="direction.value" 
+                                <SelectItem
+                                    v-for="direction in getGoalDirectionOptions()"
+                                    :key="direction.value"
                                     :value="direction.value"
                                 >
                                     {{ direction.label }}
@@ -405,20 +429,22 @@ const form = useForm({
                     <!-- Recurrence -->
                     <div class="grid gap-2">
                         <Label for="recurrence">Recurrence</Label>
-                        <Select 
-                            id="recurrence" 
+                        <Select
+                            id="recurrence"
                             v-model="form.recurrence"
-                            name="recurrence" 
+                            name="recurrence"
                             :tabindex="17"
                             :disabled="form.type !== 'recurring'"
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select a recurrence" />
+                                <SelectValue
+                                    placeholder="Select a recurrence"
+                                />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem 
-                                    v-for="recurrence in getGoalRecurrenceOptions()" 
-                                    :key="recurrence.value" 
+                                <SelectItem
+                                    v-for="recurrence in getGoalRecurrenceOptions()"
+                                    :key="recurrence.value"
                                     :value="recurrence.value"
                                 >
                                     {{ recurrence.label }}
@@ -433,9 +459,9 @@ const form = useForm({
                 <TextLink :href="goals.index().url" :tabindex="18">
                     Cancel
                 </TextLink>
-                <Button 
-                    :tabindex="19" 
-                    type="submit" 
+                <Button
+                    :tabindex="19"
+                    type="submit"
                     :disabled="form.processing"
                 >
                     {{ formState.submitBtnLabel }}

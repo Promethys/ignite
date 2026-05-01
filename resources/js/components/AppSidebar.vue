@@ -12,18 +12,12 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import categories from '@/routes/categories';
+import goals from '@/routes/goals';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import {
-    Crosshair,
-    LayoutDashboard,
-    Folder,
-    // TrendingUp,
-    // Trophy
-} from 'lucide-vue-next';
+import { Crosshair, Folder, LayoutDashboard } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
-import goals from '@/routes/goals';
-import categories from '@/routes/categories';
 
 const page = usePage();
 
@@ -37,7 +31,7 @@ const mainNavItems: NavItem[] = [
         title: 'Goals',
         href: goals.index(),
         icon: Crosshair,
-        isActive: page.url.includes('/goals')
+        isActive: page.url.includes('/goals'),
     },
     {
         title: 'Categories',

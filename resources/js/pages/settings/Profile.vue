@@ -18,7 +18,7 @@ import {
     SelectLabel,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -40,7 +40,6 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
 const page = usePage();
 const user = page.props.auth.user;
-
 </script>
 
 <template>
@@ -111,10 +110,10 @@ const user = page.props.auth.user;
 
                     <div class="grid gap-2">
                         <Label for="timezone">Timezone</Label>
-                        <Select 
-                            id="timezone" 
-                            name="timezone" 
-                            :default-value="user.timezone" 
+                        <Select
+                            id="timezone"
+                            name="timezone"
+                            :default-value="user.timezone"
                             required
                         >
                             <SelectTrigger class="w-full">
@@ -123,9 +122,9 @@ const user = page.props.auth.user;
                             <SelectContent>
                                 <SelectGroup>
                                     <SelectLabel>Timezone</SelectLabel>
-                                    <SelectItem 
-                                        v-for="timezone in timezones" 
-                                        :key="timezone" 
+                                    <SelectItem
+                                        v-for="timezone in timezones"
+                                        :key="timezone"
                                         :value="timezone"
                                     >
                                         {{ timezone }}

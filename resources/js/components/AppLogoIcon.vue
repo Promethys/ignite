@@ -13,5 +13,5 @@ defineProps<Props>();
 </script>
 
 <template>
-    <img src="../../../public/favicon.svg">
+    <img src="../../../public/favicon.svg" />
 </template>

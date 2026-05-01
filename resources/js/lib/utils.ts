@@ -21,7 +21,8 @@ export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {
 export function toTitleCase(str: string) {
     return str.replace(
         /\w\S*/g,
-        text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+        (text) =>
+            text.charAt(0).toUpperCase() + text.substring(1).toLowerCase(),
     );
 }
 
@@ -32,11 +33,12 @@ export function getDateDiffFromNow(date: string) {
     return otherDate.diff(now, 'days');
 }
 
-
 export function nullToEmpty(value: string | null | undefined): string {
     return value ?? '';
 }
 
-export function nullToUndefined(value: number | null | undefined): number | undefined {
+export function nullToUndefined(
+    value: number | null | undefined,
+): number | undefined {
     return value ?? undefined;
 }

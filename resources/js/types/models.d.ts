@@ -54,7 +54,12 @@ export interface Goal {
     start_date: string | null;
     deadline: string | null;
     completed_at: string | null;
-    status: 'not_started' | 'in_progress' | 'completed' | 'paused' | 'abandoned';
+    status:
+        | 'not_started'
+        | 'in_progress'
+        | 'completed'
+        | 'paused'
+        | 'abandoned';
     priority: 'low' | 'medium' | 'high';
     points: number;
     is_public: boolean;
@@ -115,7 +120,7 @@ export interface Achievement {
     icon: string;
     badge_image: string | null;
     type: 'goal_completion' | 'streak' | 'points' | 'consistency' | 'special';
-    criteria: AchievementCriteria; 
+    criteria: AchievementCriteria;
     points_reward: number;
     rarity: 'common' | 'rare' | 'epic' | 'legendary';
     order: number;
@@ -124,7 +129,7 @@ export interface Achievement {
     updated_at: string;
 
     creator?: User;
-    users?: User[]
+    users?: User[];
 }
 
 export interface UserAchievement {
@@ -137,12 +142,12 @@ export interface UserAchievement {
     created_at: string;
     updated_at: string;
 
-    user?: User
+    user?: User;
     achievement?: Achievement;
 }
 
 // Define the structure of criteria based on achievement type
-export type AchievementCriteria = 
+export type AchievementCriteria =
     | GoalCompletionCriteria
     | StreakCriteria
     | PointsCriteria
