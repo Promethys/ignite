@@ -1,23 +1,26 @@
 import '../css/app.css';
 
+import formbricks from '@formbricks/js';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import moment from 'moment';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
-import { initializeTheme } from './composables/useAppearance';
-import formbricks from "@formbricks/js";
 import VueApexCharts from 'vue3-apexcharts';
-import moment from 'moment';
+import { initializeTheme } from './composables/useAppearance';
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
     formbricks.setup({
-        environmentId: "cmh7uef6q0rtzad01j1mpxxwl",
-        appUrl: "https://app.formbricks.com",
+        environmentId: 'cmh7uef6q0rtzad01j1mpxxwl',
+        appUrl: 'https://app.formbricks.com',
     });
 }
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
-const locale = document.querySelector('html')?.getAttribute('lang') ?? navigator.language.split('-')[0] ?? 'en';
+const locale =
+    document.querySelector('html')?.getAttribute('lang') ??
+    navigator.language.split('-')[0] ??
+    'en';
 
 moment.locale(locale);
 

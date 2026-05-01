@@ -9,28 +9,33 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger
+    DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
+import { Input } from '@/components/ui/input';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { Spinner } from '@/components/ui/spinner';
-import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { cn } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
 import { Head, InfiniteScroll, router } from '@inertiajs/vue3';
+import { getLocalTimeZone, today } from '@internationalized/date';
 import { useDebounceFn } from '@vueuse/core';
-import moment from 'moment';
-import { computed, ref } from 'vue';
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { CalendarIcon, XIcon } from 'lucide-vue-next';
-import { cn } from '@/lib/utils';
+import moment from 'moment';
 import { DateValue } from 'reka-ui';
-import { today, getLocalTimeZone } from '@internationalized/date';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
     goal: Goal;
@@ -63,11 +68,12 @@ const hasActiveFilters = computed(() => {
     return !!searchInput.value || !!dateFrom.value || !!dateTo.value;
 });
 
-const scrollKey = computed(() =>
-    `${searchInput.value ?? ''}-${dateFrom.value?.toString() ?? ''}-${dateTo.value?.toString() ?? ''}`
+const scrollKey = computed(
+    () =>
+        `${searchInput.value ?? ''}-${dateFrom.value?.toString() ?? ''}-${dateTo.value?.toString() ?? ''}`,
 );
 
-const defaultPlaceholder = today(getLocalTimeZone())
+const defaultPlaceholder = today(getLocalTimeZone());
 
 const debouncedSearch = useDebounceFn(() => {
     router.reload({
@@ -78,8 +84,8 @@ const debouncedSearch = useDebounceFn(() => {
             from: dateFrom.value?.toString(),
             to: dateTo.value?.toString(),
         },
-        onStart: () => isSearchLoading.value = true,
-        onFinish: () => isSearchLoading.value = false,
+        onStart: () => (isSearchLoading.value = true),
+        onFinish: () => (isSearchLoading.value = false),
     });
 }, 400);
 
@@ -100,44 +106,61 @@ const resetFilters = () => {
 
     debouncedSearch();
 };
-
 </script>
 
 <template>
-
     <Head title="Goal Entries" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-4 space-y-6">
-            <section class="text-sm space-y-2">
-                <h3 class="font-medium text-xl">
-                    All Entries
-                </h3>
+        <div class="space-y-6 p-4">
+            <section class="space-y-2 text-sm">
+                <h3 class="text-xl font-medium">All Entries</h3>
                 <div>
                     <div class="space-y-3">
                         <div class="flex items-center gap-4">
-                            <Input type="search" placeholder="Search..." v-model="searchInput" class="max-w-md" @input="debouncedSearch" />
+                            <Input
+                                type="search"
+                                placeholder="Search..."
+                                v-model="searchInput"
+                                class="max-w-md"
+                                @input="debouncedSearch"
+                            />
 
                             <div>
                                 <Popover v-model:open="dateFromCalendarOpen">
                                     <PopoverTrigger as-child>
                                         <Button
                                             variant="outline"
-                                            :class="cn(
-                                            'w-[280px] justify-start text-left font-normal',
-                                            !dateFrom && 'text-muted-foreground',
-                                            )"
+                                            :class="
+                                                cn(
+                                                    'w-[280px] justify-start text-left font-normal',
+                                                    !dateFrom &&
+                                                        'text-muted-foreground',
+                                                )
+                                            "
                                         >
-                                            <CalendarIcon class="mr-2 h-4 w-4" />
-                                            {{ dateFrom ? dateFrom.toString() : "Pick a date" }}
+                                            <CalendarIcon
+                                                class="mr-2 h-4 w-4"
+                                            />
+                                            {{
+                                                dateFrom
+                                                    ? dateFrom.toString()
+                                                    : 'Pick a date'
+                                            }}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent class="w-auto p-0">
                                         <Calendar
                                             v-model="dateFrom"
-                                            :default-placeholder="defaultPlaceholder"
+                                            :default-placeholder="
+                                                defaultPlaceholder
+                                            "
                                             layout="month-and-year"
-                                            @update:model-value="handleCalendarFilterUpdate('dateFrom')"
+                                            @update:model-value="
+                                                handleCalendarFilterUpdate(
+                                                    'dateFrom',
+                                                )
+                                            "
                                         />
                                     </PopoverContent>
                                 </Popover>
@@ -148,21 +171,36 @@ const resetFilters = () => {
                                     <PopoverTrigger as-child>
                                         <Button
                                             variant="outline"
-                                            :class="cn(
-                                            'w-[280px] justify-start text-left font-normal',
-                                            !dateTo && 'text-muted-foreground',
-                                            )"
+                                            :class="
+                                                cn(
+                                                    'w-[280px] justify-start text-left font-normal',
+                                                    !dateTo &&
+                                                        'text-muted-foreground',
+                                                )
+                                            "
                                         >
-                                            <CalendarIcon class="mr-2 h-4 w-4" />
-                                            {{ dateTo ? dateTo.toString() : "Pick a date" }}
+                                            <CalendarIcon
+                                                class="mr-2 h-4 w-4"
+                                            />
+                                            {{
+                                                dateTo
+                                                    ? dateTo.toString()
+                                                    : 'Pick a date'
+                                            }}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent class="w-auto p-0">
                                         <Calendar
                                             v-model="dateTo"
-                                            :default-placeholder="defaultPlaceholder"
+                                            :default-placeholder="
+                                                defaultPlaceholder
+                                            "
                                             layout="month-and-year"
-                                            @update:model-value="handleCalendarFilterUpdate('dateTo')"
+                                            @update:model-value="
+                                                handleCalendarFilterUpdate(
+                                                    'dateTo',
+                                                )
+                                            "
                                         />
                                     </PopoverContent>
                                 </Popover>
@@ -175,60 +213,119 @@ const resetFilters = () => {
                                 </Button>
                             </div>
                         </div>
-                        <InfiniteScroll :key="scrollKey" data="entries" manual class="relative">
-                            <div v-if="isSearchLoading" class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/50 backdrop-blur-xs">
+                        <InfiniteScroll
+                            :key="scrollKey"
+                            data="entries"
+                            manual
+                            class="relative"
+                        >
+                            <div
+                                v-if="isSearchLoading"
+                                class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/50 backdrop-blur-xs"
+                            >
                                 <Spinner class="h-6 w-6 text-primary" />
                             </div>
 
                             <template #previous="{ loading, fetch, hasMore }">
                                 <div class="text-center">
-                                    <Button v-if="hasMore" @click="fetch" :disabled="loading">
-                                        {{ loading ? 'Loading...' : 'Load previous' }}
+                                    <Button
+                                        v-if="hasMore"
+                                        @click="fetch"
+                                        :disabled="loading"
+                                    >
+                                        {{
+                                            loading
+                                                ? 'Loading...'
+                                                : 'Load previous'
+                                        }}
                                     </Button>
                                 </div>
                             </template>
 
                             <template v-if="entries.data.length > 0">
-                                <div v-for="entry in entries.data" :key="entry.id"
-                                    class="border rounded-lg p-4 space-y-2 my-3">
+                                <div
+                                    v-for="entry in entries.data"
+                                    :key="entry.id"
+                                    class="my-3 space-y-2 rounded-lg border p-4"
+                                >
                                     <!-- Entry Header: Date and Value -->
-                                    <div class="flex justify-between items-start">
+                                    <div
+                                        class="flex items-start justify-between"
+                                    >
                                         <div>
                                             <p class="font-medium">
-                                                {{ moment(entry.entry_date).format('MMM DD, YYYY') }}
+                                                {{
+                                                    moment(
+                                                        entry.entry_date,
+                                                    ).format('MMM DD, YYYY')
+                                                }}
                                             </p>
-                                            <p class="text-sm text-muted-foreground">
-                                                {{ (entry.increment_value > 0 ? '+' : '') + entry.increment_value }} {{
-                                                    goal.unit }}
+                                            <p
+                                                class="text-sm text-muted-foreground"
+                                            >
+                                                {{
+                                                    (entry.increment_value > 0
+                                                        ? '+'
+                                                        : '') +
+                                                    entry.increment_value
+                                                }}
+                                                {{ goal.unit }}
                                                 <span class="text-xs">
-                                                    ({{ entry.previous_value }} → {{ entry.value }})
+                                                    ({{
+                                                        entry.previous_value
+                                                    }}
+                                                    → {{ entry.value }})
                                                 </span>
                                             </p>
                                         </div>
                                         <!-- Delete button -->
-                                        <div class="space-y-4 max-w-md">
+                                        <div class="max-w-md space-y-4">
                                             <Dialog>
                                                 <DialogTrigger as-child>
-                                                    <Button variant="destructive">
+                                                    <Button
+                                                        variant="destructive"
+                                                    >
                                                         Delete
                                                     </Button>
                                                 </DialogTrigger>
-                                                <DialogContent class="sm:max-w-[425px]">
+                                                <DialogContent
+                                                    class="sm:max-w-[425px]"
+                                                >
                                                     <DialogHeader>
-                                                        <DialogTitle>Delete entry</DialogTitle>
+                                                        <DialogTitle
+                                                            >Delete
+                                                            entry</DialogTitle
+                                                        >
                                                         <DialogDescription>
-                                                            Delete that entry from progress history?
+                                                            Delete that entry
+                                                            from progress
+                                                            history?
                                                         </DialogDescription>
                                                     </DialogHeader>
 
                                                     <DialogFooter>
                                                         <DialogClose as-child>
-                                                            <Button type="button" variant="secondary">
+                                                            <Button
+                                                                type="button"
+                                                                variant="secondary"
+                                                            >
                                                                 Cancel
                                                             </Button>
                                                         </DialogClose>
-                                                        <Button variant="destructive"
-                                                            @click="router.delete(goals.entries.destroy({ goal, goalEntry: entry.id }))">
+                                                        <Button
+                                                            variant="destructive"
+                                                            @click="
+                                                                router.delete(
+                                                                    goals.entries.destroy(
+                                                                        {
+                                                                            goal,
+                                                                            goalEntry:
+                                                                                entry.id,
+                                                                        },
+                                                                    ),
+                                                                )
+                                                            "
+                                                        >
                                                             Delete
                                                         </Button>
                                                     </DialogFooter>
@@ -249,16 +346,20 @@ const resetFilters = () => {
                                     <EmptyMedia variant="icon">
                                         <XIcon />
                                     </EmptyMedia>
-                                    <EmptyTitle>
-                                        No result found.
-                                    </EmptyTitle>
+                                    <EmptyTitle> No result found. </EmptyTitle>
                                 </EmptyHeader>
                             </Empty>
 
                             <template #next="{ loading, fetch, hasMore }">
                                 <div class="text-center">
-                                    <Button v-if="hasMore" @click="fetch" :disabled="loading">
-                                        {{ loading ? 'Loading...' : 'Load more' }}
+                                    <Button
+                                        v-if="hasMore"
+                                        @click="fetch"
+                                        :disabled="loading"
+                                    >
+                                        {{
+                                            loading ? 'Loading...' : 'Load more'
+                                        }}
                                     </Button>
                                 </div>
                             </template>

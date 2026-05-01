@@ -46,5 +46,8 @@ jobs:
       - name: Build Assets
         run: npm run build
 
-      - name: Tests
+      - name: Tests Back-End
         run: ./vendor/bin/phpunit
+
+      - name: Tests Front-End
+        run: LARAVEL_BYPASS_ENV_CHECK=1 npx vitest --run

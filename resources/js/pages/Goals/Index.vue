@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import { Category, Goal } from '@/types/models';
-import AppLayout from '@/layouts/AppLayout.vue';
-import goals from '@/routes/goals';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
-import { Plus, Search, Target } from "lucide-vue-next";
-import { Button } from "@/components/ui/button";
-import { Link } from '@inertiajs/vue3';
+import GoalCard from '@/components/goals/GoalCard.vue';
+import { Button } from '@/components/ui/button';
 import {
     Empty,
     EmptyContent,
@@ -14,26 +8,31 @@ import {
     EmptyHeader,
     EmptyMedia,
     EmptyTitle,
-} from "@/components/ui/empty";
+} from '@/components/ui/empty';
+import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select'
-import GoalCard from '@/components/goals/GoalCard.vue';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/select';
 import Separator from '@/components/ui/separator/Separator.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import goals from '@/routes/goals';
+import { type BreadcrumbItem } from '@/types';
+import { Category, Goal } from '@/types/models';
+import { Head, Link } from '@inertiajs/vue3';
+import { Plus, Search, Target } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface Props {
-    items: Goal[],
-    categories: Category[]
-    category_id?: string|null
+    items: Goal[];
+    categories: Category[];
+    category_id?: string | null;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -42,44 +41,64 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const selectedCategoryId = ref(props.category_id ? parseInt(props.category_id) : 'all');
+const selectedCategoryId = ref(
+    props.category_id ? parseInt(props.category_id) : 'all',
+);
 const searchQuery = ref('');
 
 const filteredItems = computed(() => {
     let items = props.items;
 
     // Search input
-    if(searchQuery.value !== null && searchQuery.value !== '') {
+    if (searchQuery.value !== null && searchQuery.value !== '') {
         items = items.filter((item) => {
-            return item.title.toLowerCase().includes(searchQuery.value.toLowerCase()) 
-                || item.description?.toLowerCase().includes(searchQuery.value.toLowerCase())
+            return (
+                item.title
+                    .toLowerCase()
+                    .includes(searchQuery.value.toLowerCase()) ||
+                item.description
+                    ?.toLowerCase()
+                    .includes(searchQuery.value.toLowerCase())
+            );
         });
     }
 
     // Filter input
-    if(selectedCategoryId.value === 'all') {
+    if (selectedCategoryId.value === 'all') {
         return items;
     } else {
-        return items.filter((item) => item.category_id === selectedCategoryId.value)
+        return items.filter(
+            (item) => item.category_id === selectedCategoryId.value,
+        );
     }
 });
-
 </script>
 
 <template>
-
     <Head title="Goals" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-4 space-y-6">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div class="space-y-6 p-4">
+            <div
+                class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+            >
                 <div>
-                    <h1 class="text-balance text-2xl font-bold tracking-tight sm:text-3xl">All Goals</h1>
-                    <p class="mt-1 text-pretty text-sm text-muted-foreground sm:text-base">
+                    <h1
+                        class="text-2xl font-bold tracking-tight text-balance sm:text-3xl"
+                    >
+                        All Goals
+                    </h1>
+                    <p
+                        class="mt-1 text-sm text-pretty text-muted-foreground sm:text-base"
+                    >
                         Manage and track all your goals in one place
                     </p>
                 </div>
-                <Button v-if="items.length > 0" as-child class="w-full sm:w-auto">
+                <Button
+                    v-if="items.length > 0"
+                    as-child
+                    class="w-full sm:w-auto"
+                >
                     <Link :href="goals.create().url">
                         <Plus />
                         Goal
@@ -87,10 +106,19 @@ const filteredItems = computed(() => {
                 </Button>
             </div>
 
-            <div v-if="items.length > 0" class="flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <div
+                v-if="items.length > 0"
+                class="flex flex-col gap-3 sm:flex-row sm:gap-4"
+            >
                 <div class="relative flex-1">
-                    <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input v-model="searchQuery" placeholder="Search goals..." class="pl-9" />
+                    <Search
+                        class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <Input
+                        v-model="searchQuery"
+                        placeholder="Search goals..."
+                        class="pl-9"
+                    />
                 </div>
                 <div>
                     <Select v-model="selectedCategoryId">
@@ -101,13 +129,15 @@ const filteredItems = computed(() => {
                             <SelectItem value="all">
                                 All categories
                             </SelectItem>
-                            <SelectItem :value="null">
-                                No category
-                            </SelectItem>
+                            <SelectItem :value="null"> No category </SelectItem>
                             <template v-if="categories.length > 0">
                                 <Separator class="my-2" />
                             </template>
-                            <SelectItem v-for="category in categories" :key="category.id" :value="category.id">
+                            <SelectItem
+                                v-for="category in categories"
+                                :key="category.id"
+                                :value="category.id"
+                            >
                                 {{ category.name }}
                             </SelectItem>
                         </SelectContent>
@@ -120,12 +150,22 @@ const filteredItems = computed(() => {
                         <Target />
                     </EmptyMedia>
                     <EmptyTitle>
-                        <template v-if="items.length === 0">No Goal Yet</template>
-                        <template v-else-if="filteredItems.length === 0">No Goal found</template>
+                        <template v-if="items.length === 0"
+                            >No Goal Yet</template
+                        >
+                        <template v-else-if="filteredItems.length === 0"
+                            >No Goal found</template
+                        >
                     </EmptyTitle>
                     <EmptyDescription>
-                        <template v-if="items.length === 0">You don't have any goal yet. Get started by creating your first goal.</template>
-                        <template v-else-if="filteredItems.length === 0">You don't have any goals that match this search/filter</template>
+                        <template v-if="items.length === 0"
+                            >You don't have any goal yet. Get started by
+                            creating your first goal.</template
+                        >
+                        <template v-else-if="filteredItems.length === 0"
+                            >You don't have any goals that match this
+                            search/filter</template
+                        >
                     </EmptyDescription>
                 </EmptyHeader>
                 <EmptyContent v-if="items.length === 0">
@@ -140,7 +180,11 @@ const filteredItems = computed(() => {
                 </EmptyContent>
             </Empty>
             <div v-else class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-                <GoalCard :item="goal" v-for="goal in filteredItems" :key="goal.id" />
+                <GoalCard
+                    :item="goal"
+                    v-for="goal in filteredItems"
+                    :key="goal.id"
+                />
             </div>
         </div>
     </AppLayout>

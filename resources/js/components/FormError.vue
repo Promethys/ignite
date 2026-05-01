@@ -7,8 +7,8 @@ defineProps<{
 </script>
 
 <template>
-    <div class="flex items-center gap-1 text-red-400 text-sm">
-        <TriangleAlertIcon class="w-4 h-4" />
+    <div class="flex items-center gap-1 text-sm text-red-400">
+        <TriangleAlertIcon class="h-4 w-4" />
         <span>{{ error }}</span>
     </div>
 </template>
