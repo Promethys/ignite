@@ -20,9 +20,9 @@ import { Category } from '@/types/models';
 import { useForm } from '@inertiajs/vue3';
 import { Edit, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
-import FormError from '../FormError.vue';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
+import InputError from '../InputError.vue';
 
 const props = defineProps<{
     record?: Category;
@@ -101,9 +101,9 @@ const open = ref<boolean>(false);
                             placeholder="Sports"
                             v-model="form.name"
                         />
-                        <FormError
+                        <InputError
                             v-if="form.errors.name"
-                            :error="form.errors.name"
+                            :message="form.errors.name"
                         />
                     </div>
                     <div class="grid gap-3">
@@ -114,9 +114,9 @@ const open = ref<boolean>(false);
                             default-value="All sportive goals like soccer, tennis, gym, ..."
                             v-model="form.description"
                         />
-                        <FormError
+                        <InputError
                             v-if="form.errors.description"
-                            :error="form.errors.description"
+                            :message="form.errors.description"
                         />
                     </div>
                     <div class="grid grid-cols-2 gap-3">
@@ -129,9 +129,9 @@ const open = ref<boolean>(false);
                                 default-value="#ff0000"
                                 v-model="form.color"
                             />
-                            <FormError
+                            <InputError
                                 v-if="form.errors.color"
-                                :error="form.errors.color"
+                                :message="form.errors.color"
                             />
                         </div>
                         <div class="space-y-3">
@@ -142,9 +142,9 @@ const open = ref<boolean>(false);
                                 default-value="💪"
                                 v-model="form.icon"
                             />
-                            <FormError
+                            <InputError
                                 v-if="form.errors.icon"
-                                :error="form.errors.icon"
+                                :message="form.errors.icon"
                             />
                         </div>
                     </div>
