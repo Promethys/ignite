@@ -26,6 +26,7 @@ import InputError from '../InputError.vue';
 
 const props = defineProps<{
     record?: Category;
+    open?: boolean
 }>();
 
 const formState = props.record
@@ -55,7 +56,7 @@ const form = useForm({
     icon: data.icon || null,
 }));
 
-const open = ref<boolean>(false);
+const open = ref<boolean>(props.open ?? false);
 </script>
 
 <template>

@@ -5,7 +5,7 @@ import {
 } from '@/actions/App/Http/Controllers/Goals/GoalController';
 import { Button } from '@/components/ui/button';
 import { Goal, User } from '@/types/models';
-import { useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import InputError from '../InputError.vue';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -43,6 +43,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '../ui/select';
+import categories from '@/routes/categories';
 
 const props = defineProps<{
     record?: Goal;
@@ -135,10 +136,12 @@ const form = useForm({
                     <!-- Category -->
                     <div class="grid gap-2">
                         <div class="flex items-center justify-between">
-                            <Label for="category_id">Category</Label>
-                            <span class="text-sm" :tabindex="3">
-                                Create a category
-                            </span>
+                            <Label for="category_id" class="justify-between w-full">
+                                <span>Category</span>
+                                <Link class="hover:underline" :tabindex="3" :href="categories.index()" :data="{ create: 1 }">
+                                    Create a category
+                                </Link>
+                            </Label>
                         </div>
                         <Select
                             id="category_id"
