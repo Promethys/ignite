@@ -31,25 +31,31 @@ const props = defineProps<{
 
 const formState = props.record
     ? {
-          cardTitle: 'Edit a category',
-          cardDescription: 'Edit your category.',
-          action: update(props.record),
-          submitBtnLabel: 'Edit',
-      }
+        formName: null,
+        cardTitle: 'Edit a category',
+        cardDescription: 'Edit your category.',
+        action: update(props.record),
+        submitBtnLabel: 'Edit',
+    }
     : {
-          cardTitle: 'Create a category',
-          cardDescription:
-              'Create a category here. You can use it to organize your goals.',
-          action: store(),
-          submitBtnLabel: 'Create',
-      };
+        formName: 'CategoryCreateForm',
+        cardTitle: 'Create a category',
+        cardDescription:
+            'Create a category here. You can use it to organize your goals.',
+        action: store(),
+        submitBtnLabel: 'Create',
+    };
 
-const form = useForm({
+const formData = {
     name: props.record?.name ?? '',
     description: props.record?.description ?? '',
     icon: props.record?.icon ?? '',
     color: props.record?.color ?? undefined,
-}).transform((data) => ({
+};
+
+const form = formState.formName ? useForm(formState.formName, formData) : useForm(formData);
+
+form.transform((data) => ({
     ...data,
     // Convert empty strings back to null for nullable fields
     description: data.description || null,

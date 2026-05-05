@@ -59,7 +59,7 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return to_route('categories.index');
+        return redirect()->back();
     }
 
     /**
