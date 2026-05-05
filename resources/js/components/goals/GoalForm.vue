@@ -20,12 +20,6 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
     getGoalDirectionOptions,
     getGoalPriorityOptions,
     getGoalRecurrenceOptions,
@@ -34,7 +28,6 @@ import {
 } from '@/lib/form-options';
 import { nullToEmpty, nullToUndefined } from '@/lib/utils';
 import goals from '@/routes/goals';
-import { CircleQuestionMark } from 'lucide-vue-next';
 import TextLink from '../TextLink.vue';
 import {
     Select,
@@ -44,6 +37,7 @@ import {
     SelectValue,
 } from '../ui/select';
 import categories from '@/routes/categories';
+import HelpTooltip from '../ui/HelpTooltip.vue';
 
 const props = defineProps<{
     record?: Goal;
@@ -383,21 +377,10 @@ form.transform((data) => ({
                     <div class="grid gap-2">
                         <Label for="direction" class="space-x-2">
                             Direction
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <CircleQuestionMark
-                                            class="h-4 w-4 text-muted-foreground/50"
-                                        />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>
-                                            Choose if your goal's evolution will
-                                            be ascending or descending
-                                        </p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+                            <HelpTooltip>
+                                Choose if your goal's evolution will
+                                be ascending or descending
+                            </HelpTooltip>
                         </Label>
                         <Select
                             id="direction"
