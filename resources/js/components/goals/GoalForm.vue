@@ -138,7 +138,7 @@ form.transform((data) => ({
                         <div class="flex items-center justify-between">
                             <Label for="category_id" class="justify-between w-full">
                                 <span>Category</span>
-                                <Link class="hover:underline" :tabindex="3" :href="categories.index()" :data="{ create: 1 }">
+                                <Link class="hover:underline" :tabindex="-1" :href="categories.index()" :data="{ create: 1 }">
                                     Create a category
                                 </Link>
                             </Label>
@@ -147,13 +147,12 @@ form.transform((data) => ({
                             id="category_id"
                             v-model="form.category_id"
                             name="category_id"
-                            :tabindex="2"
                             :disabled="
                                 !user.categories ||
                                 user.categories?.length === 0
                             "
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="2">
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -176,10 +175,9 @@ form.transform((data) => ({
                             id="type"
                             v-model="form.type"
                             name="type"
-                            :tabindex="4"
                             required
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="3">
                                 <SelectValue placeholder="Select a goal type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -202,7 +200,7 @@ form.transform((data) => ({
                             id="description"
                             v-model="form.description"
                             name="description"
-                            :tabindex="5"
+                            :tabindex="4"
                         />
                         <InputError :message="form.errors.description" />
                     </div>
@@ -216,7 +214,7 @@ form.transform((data) => ({
                             type="number"
                             step="0.01"
                             name="current_value"
-                            :tabindex="6"
+                            :tabindex="5"
                             required
                         />
                         <InputError :message="form.errors.current_value" />
@@ -231,7 +229,7 @@ form.transform((data) => ({
                             type="number"
                             step="0.01"
                             name="target_value"
-                            :tabindex="7"
+                            :tabindex="6"
                             :disabled="form.type !== 'quantifiable'"
                         />
                         <InputError :message="form.errors.target_value" />
@@ -246,7 +244,7 @@ form.transform((data) => ({
                             type="text"
                             name="unit"
                             placeholder="km, books, sessions, etc."
-                            :tabindex="8"
+                            :tabindex="7"
                             :disabled="form.type !== 'quantifiable'"
                         />
                         <InputError :message="form.errors.unit" />
@@ -260,7 +258,7 @@ form.transform((data) => ({
                             v-model="form.start_date"
                             type="date"
                             name="start_date"
-                            :tabindex="9"
+                            :tabindex="8"
                         />
                         <InputError :message="form.errors.start_date" />
                     </div>
@@ -273,7 +271,7 @@ form.transform((data) => ({
                             v-model="form.deadline"
                             type="date"
                             name="deadline"
-                            :tabindex="10"
+                            :tabindex="9"
                         />
                         <InputError :message="form.errors.deadline" />
                     </div>
@@ -286,7 +284,7 @@ form.transform((data) => ({
                             v-model="form.completed_at"
                             type="date"
                             name="completed_at"
-                            :tabindex="11"
+                            :tabindex="10"
                             :required="form.status === 'completed'"
                         />
                         <InputError :message="form.errors.completed_at" />
@@ -299,10 +297,9 @@ form.transform((data) => ({
                             id="priority"
                             v-model="form.priority"
                             name="priority"
-                            :tabindex="12"
                             required
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="11">
                                 <SelectValue
                                     placeholder="Select a goal priority"
                                 />
@@ -327,10 +324,9 @@ form.transform((data) => ({
                             id="status"
                             v-model="form.status"
                             name="status"
-                            :tabindex="13"
                             required
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="12">
                                 <SelectValue placeholder="Select a status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -355,7 +351,7 @@ form.transform((data) => ({
                             type="number"
                             name="points"
                             min="0"
-                            :tabindex="14"
+                            :tabindex="13"
                             required
                         />
                         <InputError :message="form.errors.points" />
@@ -368,7 +364,7 @@ form.transform((data) => ({
                             id="is_public" 
                             v-model="form.is_public"
                             name="is_public" 
-                            :tabindex="15"
+                            :tabindex="14"
                         />
                         <InputError :message="form.errors.is_public" />
                     </div> -->
@@ -386,9 +382,8 @@ form.transform((data) => ({
                             id="direction"
                             v-model="form.direction"
                             name="direction"
-                            :tabindex="15"
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="14">
                                 <SelectValue placeholder="Select a direction" />
                             </SelectTrigger>
                             <SelectContent>
@@ -413,7 +408,7 @@ form.transform((data) => ({
                             type="text"
                             name="icon"
                             placeholder="📕, 🚀, 🏃‍♀️"
-                            :tabindex="16"
+                            :tabindex="15"
                         />
                         <InputError :message="form.errors.icon" />
                     </div>
@@ -425,10 +420,9 @@ form.transform((data) => ({
                             id="recurrence"
                             v-model="form.recurrence"
                             name="recurrence"
-                            :tabindex="17"
                             :disabled="form.type !== 'recurring'"
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="16">
                                 <SelectValue
                                     placeholder="Select a recurrence"
                                 />
@@ -448,11 +442,11 @@ form.transform((data) => ({
                 </div>
             </CardContent>
             <CardFooter class="flex justify-between px-6">
-                <TextLink :href="goals.index().url" :tabindex="18">
+                <TextLink :href="goals.index().url" :tabindex="17">
                     Cancel
                 </TextLink>
                 <Button
-                    :tabindex="19"
+                    :tabindex="18"
                     type="submit"
                     :disabled="form.processing"
                 >

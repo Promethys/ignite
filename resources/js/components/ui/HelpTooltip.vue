@@ -11,7 +11,7 @@ import { CircleQuestionMark } from 'lucide-vue-next';
 <template>
     <TooltipProvider>
         <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger tabindex="-1">
                 <CircleQuestionMark
                     class="h-4 w-4 text-muted-foreground/50"
                 />
