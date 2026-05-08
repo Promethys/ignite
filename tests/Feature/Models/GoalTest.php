@@ -156,7 +156,7 @@ class GoalTest extends TestCase
     {
         $goal = Goal::factory()->create([
             'status' => 'in_progress',
-            'deadline' => now()->subDay(),
+            'deadline' => now()->subDays(3),
         ]);
 
         $this->assertTrue($goal->is_overdue);

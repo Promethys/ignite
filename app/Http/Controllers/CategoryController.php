@@ -27,7 +27,7 @@ class CategoryController extends Controller
 
         return Inertia::render('Categories/Index', [
             'items' => auth()->user()->categories()->withCount('goals')->get(),
-            'openCreate' => $hasValidQueryParam
+            'openCreate' => $hasValidQueryParam,
         ]);
     }
 
