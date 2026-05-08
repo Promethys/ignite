@@ -31,6 +31,7 @@ import { ArrowRight, Target, Trash } from 'lucide-vue-next';
 
 interface Props {
     items: Category[];
+    openCreate: boolean;
 }
 
 defineProps<Props>();
@@ -57,7 +58,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             </EmptyHeader>
             <EmptyContent>
                 <div class="flex gap-2">
-                    <CategoryFormModal />
+                    <CategoryFormModal :open="openCreate" />
                 </div>
             </EmptyContent>
         </Empty>
@@ -79,7 +80,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </p>
                     </div>
                     <div>
-                        <CategoryFormModal />
+                        <CategoryFormModal :open="openCreate" />
                     </div>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

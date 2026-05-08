@@ -53,6 +53,7 @@ class GoalObserverTest extends TestCase
             'current_value' => 50,
             'target_value' => 100,
             'status' => 'in_progress',
+            'completed_at' => null,
         ]);
 
         $this->assertEquals('in_progress', $goal->fresh()->status);

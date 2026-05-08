@@ -66,8 +66,9 @@ const isPaused = computed(() => {
                                     :method="goals.complete(item).method"
                                     :href="goals.complete(item).url"
                                     class="cursor-pointer"
-                                    >Mark as completed</Link
                                 >
+                                    Mark as completed
+                                </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem v-if="isInProgress" as-child>
                                 <Link
@@ -75,8 +76,9 @@ const isPaused = computed(() => {
                                     :href="goals.updateStatus(item).url"
                                     :data="{ status: 'paused' }"
                                     class="w-full cursor-pointer"
-                                    >Pause</Link
                                 >
+                                    Pause
+                                </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem v-if="isPaused" as-child>
                                 <Link
@@ -84,15 +86,17 @@ const isPaused = computed(() => {
                                     :href="goals.updateStatus(item).url"
                                     :data="{ status: 'in_progress' }"
                                     class="w-full cursor-pointer"
-                                    >Resume</Link
                                 >
+                                    Resume
+                                </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem as-child>
                                 <Link
                                     :href="goals.edit(item).url"
                                     class="cursor-pointer"
-                                    >Edit</Link
                                 >
+                                    Edit
+                                </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem variant="destructive" as-child>
                                 <AlertDialog>
@@ -101,10 +105,9 @@ const isPaused = computed(() => {
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
-                                            <AlertDialogTitle
-                                                >Are you absolutely
-                                                sure?</AlertDialogTitle
-                                            >
+                                            <AlertDialogTitle>
+                                                Are you absolutely sure?
+                                            </AlertDialogTitle>
                                             <AlertDialogDescription>
                                                 This action cannot be undone.
                                                 This will permanently delete
@@ -142,7 +145,10 @@ const isPaused = computed(() => {
                     >
                         {{ item.title }}
                     </h3>
-                    <p class="text-sm font-light" v-if="item.description">
+                    <p
+                        class="line-clamp-2 text-sm font-light"
+                        v-if="item.description"
+                    >
                         {{ item.description }}
                     </p>
                 </div>

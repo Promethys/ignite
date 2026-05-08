@@ -21,10 +21,13 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $hasValidQueryParam = $request->boolean('create');
+
         return Inertia::render('Categories/Index', [
             'items' => auth()->user()->categories()->withCount('goals')->get(),
+            'openCreate' => $hasValidQueryParam,
         ]);
     }
 
@@ -56,7 +59,7 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return to_route('categories.index');
+        return redirect()->back();
     }
 
     /**

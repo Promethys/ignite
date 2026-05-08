@@ -98,7 +98,9 @@ class GoalProgressFlowTest extends TestCase
     public function test_goal_can_be_paused_and_resumed()
     {
         $goal = Goal::factory()->create([
+            'type' => 'simple',
             'status' => 'in_progress',
+            'current_value' => 0,
         ]);
 
         $goal->updateStatus('paused');

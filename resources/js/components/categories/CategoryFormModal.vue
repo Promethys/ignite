@@ -20,22 +20,25 @@ import { Category } from '@/types/models';
 import { useForm } from '@inertiajs/vue3';
 import { Edit, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
-import FormError from '../FormError.vue';
+import InputError from '../InputError.vue';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 
 const props = defineProps<{
     record?: Category;
+    open?: boolean;
 }>();
 
 const formState = props.record
     ? {
+          formName: null,
           cardTitle: 'Edit a category',
           cardDescription: 'Edit your category.',
           action: update(props.record),
           submitBtnLabel: 'Edit',
       }
     : {
+          formName: 'CategoryCreateForm',
           cardTitle: 'Create a category',
           cardDescription:
               'Create a category here. You can use it to organize your goals.',
@@ -43,19 +46,25 @@ const formState = props.record
           submitBtnLabel: 'Create',
       };
 
-const form = useForm({
+const formData = {
     name: props.record?.name ?? '',
     description: props.record?.description ?? '',
     icon: props.record?.icon ?? '',
     color: props.record?.color ?? undefined,
-}).transform((data) => ({
+};
+
+const form = formState.formName
+    ? useForm(formState.formName, formData)
+    : useForm(formData);
+
+form.transform((data) => ({
     ...data,
     // Convert empty strings back to null for nullable fields
     description: data.description || null,
     icon: data.icon || null,
 }));
 
-const open = ref<boolean>(false);
+const open = ref<boolean>(props.open ?? false);
 </script>
 
 <template>
@@ -101,9 +110,9 @@ const open = ref<boolean>(false);
                             placeholder="Sports"
                             v-model="form.name"
                         />
-                        <FormError
+                        <InputError
                             v-if="form.errors.name"
-                            :error="form.errors.name"
+                            :message="form.errors.name"
                         />
                     </div>
                     <div class="grid gap-3">
@@ -114,9 +123,9 @@ const open = ref<boolean>(false);
                             default-value="All sportive goals like soccer, tennis, gym, ..."
                             v-model="form.description"
                         />
-                        <FormError
+                        <InputError
                             v-if="form.errors.description"
-                            :error="form.errors.description"
+                            :message="form.errors.description"
                         />
                     </div>
                     <div class="grid grid-cols-2 gap-3">
@@ -129,9 +138,9 @@ const open = ref<boolean>(false);
                                 default-value="#ff0000"
                                 v-model="form.color"
                             />
-                            <FormError
+                            <InputError
                                 v-if="form.errors.color"
-                                :error="form.errors.color"
+                                :message="form.errors.color"
                             />
                         </div>
                         <div class="space-y-3">
@@ -142,9 +151,9 @@ const open = ref<boolean>(false);
                                 default-value="💪"
                                 v-model="form.icon"
                             />
-                            <FormError
+                            <InputError
                                 v-if="form.errors.icon"
-                                :error="form.errors.icon"
+                                :message="form.errors.icon"
                             />
                         </div>
                     </div>

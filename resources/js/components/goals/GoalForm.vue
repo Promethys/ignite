@@ -5,7 +5,7 @@ import {
 } from '@/actions/App/Http/Controllers/Goals/GoalController';
 import { Button } from '@/components/ui/button';
 import { Goal, User } from '@/types/models';
-import { useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import InputError from '../InputError.vue';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -20,12 +20,6 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
     getGoalDirectionOptions,
     getGoalPriorityOptions,
     getGoalRecurrenceOptions,
@@ -33,9 +27,10 @@ import {
     getGoalTypeOptions,
 } from '@/lib/form-options';
 import { nullToEmpty, nullToUndefined } from '@/lib/utils';
+import categories from '@/routes/categories';
 import goals from '@/routes/goals';
-import { CircleQuestionMark } from 'lucide-vue-next';
 import TextLink from '../TextLink.vue';
+import HelpTooltip from '../ui/HelpTooltip.vue';
 import {
     Select,
     SelectContent,
@@ -51,19 +46,21 @@ const props = defineProps<{
 
 const formState = props.record
     ? {
+          formName: null,
           cardTitle: 'Edit a goal',
           cardDescription: 'Edit your goal.',
           action: update(props.record),
           submitBtnLabel: 'Edit',
       }
     : {
+          formName: 'GoalCreateForm',
           cardTitle: 'Create a goal',
           cardDescription: 'Create your new goal.',
           action: store(),
           submitBtnLabel: 'Create',
       };
 
-const form = useForm({
+const formData = {
     category_id: props.record?.category_id?.toString() ?? undefined,
     title: nullToEmpty(props.record?.title),
     description: nullToEmpty(props.record?.description),
@@ -88,7 +85,13 @@ const form = useForm({
     points: props.record?.points ?? 0,
     is_public: props.record?.is_public ?? false,
     order: props.record?.order ?? 0,
-}).transform((data) => ({
+};
+
+const form = formState.formName
+    ? useForm(formState.formName, formData)
+    : useForm(formData);
+
+form.transform((data) => ({
     ...data,
     user_id: props.user.id,
     // Convert empty strings back to null for nullable fields
@@ -135,22 +138,31 @@ const form = useForm({
                     <!-- Category -->
                     <div class="grid gap-2">
                         <div class="flex items-center justify-between">
-                            <Label for="category_id">Category</Label>
-                            <span class="text-sm" :tabindex="3">
-                                Create a category
-                            </span>
+                            <Label
+                                for="category_id"
+                                class="w-full justify-between"
+                            >
+                                <span>Category</span>
+                                <Link
+                                    class="hover:underline"
+                                    :tabindex="-1"
+                                    :href="categories.index()"
+                                    :data="{ create: 1 }"
+                                >
+                                    Create a category
+                                </Link>
+                            </Label>
                         </div>
                         <Select
                             id="category_id"
                             v-model="form.category_id"
                             name="category_id"
-                            :tabindex="2"
                             :disabled="
                                 !user.categories ||
                                 user.categories?.length === 0
                             "
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="2">
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -173,10 +185,9 @@ const form = useForm({
                             id="type"
                             v-model="form.type"
                             name="type"
-                            :tabindex="4"
                             required
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="3">
                                 <SelectValue placeholder="Select a goal type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -199,7 +210,7 @@ const form = useForm({
                             id="description"
                             v-model="form.description"
                             name="description"
-                            :tabindex="5"
+                            :tabindex="4"
                         />
                         <InputError :message="form.errors.description" />
                     </div>
@@ -213,7 +224,7 @@ const form = useForm({
                             type="number"
                             step="0.01"
                             name="current_value"
-                            :tabindex="6"
+                            :tabindex="5"
                             required
                         />
                         <InputError :message="form.errors.current_value" />
@@ -228,7 +239,7 @@ const form = useForm({
                             type="number"
                             step="0.01"
                             name="target_value"
-                            :tabindex="7"
+                            :tabindex="6"
                             :disabled="form.type !== 'quantifiable'"
                         />
                         <InputError :message="form.errors.target_value" />
@@ -243,7 +254,7 @@ const form = useForm({
                             type="text"
                             name="unit"
                             placeholder="km, books, sessions, etc."
-                            :tabindex="8"
+                            :tabindex="7"
                             :disabled="form.type !== 'quantifiable'"
                         />
                         <InputError :message="form.errors.unit" />
@@ -257,7 +268,7 @@ const form = useForm({
                             v-model="form.start_date"
                             type="date"
                             name="start_date"
-                            :tabindex="9"
+                            :tabindex="8"
                         />
                         <InputError :message="form.errors.start_date" />
                     </div>
@@ -270,7 +281,7 @@ const form = useForm({
                             v-model="form.deadline"
                             type="date"
                             name="deadline"
-                            :tabindex="10"
+                            :tabindex="9"
                         />
                         <InputError :message="form.errors.deadline" />
                     </div>
@@ -283,7 +294,7 @@ const form = useForm({
                             v-model="form.completed_at"
                             type="date"
                             name="completed_at"
-                            :tabindex="11"
+                            :tabindex="10"
                             :required="form.status === 'completed'"
                         />
                         <InputError :message="form.errors.completed_at" />
@@ -296,10 +307,9 @@ const form = useForm({
                             id="priority"
                             v-model="form.priority"
                             name="priority"
-                            :tabindex="12"
                             required
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="11">
                                 <SelectValue
                                     placeholder="Select a goal priority"
                                 />
@@ -324,10 +334,9 @@ const form = useForm({
                             id="status"
                             v-model="form.status"
                             name="status"
-                            :tabindex="13"
                             required
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="12">
                                 <SelectValue placeholder="Select a status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -352,7 +361,7 @@ const form = useForm({
                             type="number"
                             name="points"
                             min="0"
-                            :tabindex="14"
+                            :tabindex="13"
                             required
                         />
                         <InputError :message="form.errors.points" />
@@ -365,7 +374,7 @@ const form = useForm({
                             id="is_public" 
                             v-model="form.is_public"
                             name="is_public" 
-                            :tabindex="15"
+                            :tabindex="14"
                         />
                         <InputError :message="form.errors.is_public" />
                     </div> -->
@@ -374,29 +383,17 @@ const form = useForm({
                     <div class="grid gap-2">
                         <Label for="direction" class="space-x-2">
                             Direction
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <CircleQuestionMark
-                                            class="h-4 w-4 text-muted-foreground/50"
-                                        />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>
-                                            Choose if your goal's evolution will
-                                            be ascending or descending
-                                        </p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+                            <HelpTooltip>
+                                Choose if your goal's evolution will be
+                                ascending or descending
+                            </HelpTooltip>
                         </Label>
                         <Select
                             id="direction"
                             v-model="form.direction"
                             name="direction"
-                            :tabindex="15"
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="14">
                                 <SelectValue placeholder="Select a direction" />
                             </SelectTrigger>
                             <SelectContent>
@@ -421,7 +418,7 @@ const form = useForm({
                             type="text"
                             name="icon"
                             placeholder="📕, 🚀, 🏃‍♀️"
-                            :tabindex="16"
+                            :tabindex="15"
                         />
                         <InputError :message="form.errors.icon" />
                     </div>
@@ -433,10 +430,9 @@ const form = useForm({
                             id="recurrence"
                             v-model="form.recurrence"
                             name="recurrence"
-                            :tabindex="17"
                             :disabled="form.type !== 'recurring'"
                         >
-                            <SelectTrigger>
+                            <SelectTrigger :tabindex="16">
                                 <SelectValue
                                     placeholder="Select a recurrence"
                                 />
@@ -456,11 +452,11 @@ const form = useForm({
                 </div>
             </CardContent>
             <CardFooter class="flex justify-between px-6">
-                <TextLink :href="goals.index().url" :tabindex="18">
+                <TextLink :href="goals.index().url" :tabindex="17">
                     Cancel
                 </TextLink>
                 <Button
-                    :tabindex="19"
+                    :tabindex="18"
                     type="submit"
                     :disabled="form.processing"
                 >

@@ -176,6 +176,7 @@ class GoalControllerTest extends TestCase
     {
         $goal = Goal::factory()->create([
             'user_id' => $this->user->id,
+            'type' => 'simple',
             'current_value' => 0,
             'status' => 'in_progress',
         ]);
@@ -228,6 +229,7 @@ class GoalControllerTest extends TestCase
     {
         $goal = Goal::factory()->create([
             'user_id' => $this->user->id,
+            'type' => 'simple',
             'status' => 'in_progress',
             'current_value' => 0,
         ]);
@@ -243,6 +245,7 @@ class GoalControllerTest extends TestCase
     {
         $goal = Goal::factory()->create([
             'user_id' => $this->user->id,
+            'type' => 'simple',
             'status' => 'paused',
             'current_value' => 0,
         ]);

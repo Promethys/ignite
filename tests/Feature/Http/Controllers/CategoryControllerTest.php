@@ -89,7 +89,7 @@ class CategoryControllerTest extends TestCase
             ->post(route('categories.store'), [
                 'name' => 'My Category',
             ])
-            ->assertRedirect(route('categories.index'));
+            ->assertRedirectBack();
 
         $this->assertDatabaseHas('categories', [
             'name' => 'My Category',
