@@ -156,6 +156,7 @@ class GoalTest extends TestCase
     {
         $goal = Goal::factory()->create([
             'status' => 'in_progress',
+            'type' => 'simple',
             'deadline' => now()->subDays(3),
         ]);
 
@@ -166,6 +167,7 @@ class GoalTest extends TestCase
     {
         $goal = Goal::factory()->create([
             'status' => 'in_progress',
+            'type' => 'simple',
             'deadline' => null,
         ]);
 
@@ -175,6 +177,7 @@ class GoalTest extends TestCase
     public function test_is_overdue_returns_false_when_completed()
     {
         $goal = Goal::factory()->create([
+            'type' => 'simple',
             'status' => 'completed',
             'deadline' => now()->subDay(),
             'completed_at' => now(),
@@ -186,6 +189,7 @@ class GoalTest extends TestCase
     public function test_is_completed_returns_true_when_status_is_completed()
     {
         $goal = Goal::factory()->create([
+            'type' => 'simple',
             'status' => 'completed',
             'completed_at' => now(),
         ]);
@@ -199,7 +203,7 @@ class GoalTest extends TestCase
 
     public function test_mark_as_completed_sets_status_and_timestamp()
     {
-        $goal = Goal::factory()->create(['status' => 'in_progress']);
+        $goal = Goal::factory()->create(['type' => 'simple', 'status' => 'in_progress']);
 
         $goal->markAsCompleted();
 
@@ -209,7 +213,7 @@ class GoalTest extends TestCase
 
     public function test_update_status_changes_goal_status()
     {
-        $goal = Goal::factory()->create(['status' => 'in_progress']);
+        $goal = Goal::factory()->create(['type' => 'simple', 'status' => 'in_progress']);
 
         $goal->updateStatus('paused');
 
