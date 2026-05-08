@@ -20,31 +20,31 @@ import { Category } from '@/types/models';
 import { useForm } from '@inertiajs/vue3';
 import { Edit, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
+import InputError from '../InputError.vue';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
-import InputError from '../InputError.vue';
 
 const props = defineProps<{
     record?: Category;
-    open?: boolean
+    open?: boolean;
 }>();
 
 const formState = props.record
     ? {
-        formName: null,
-        cardTitle: 'Edit a category',
-        cardDescription: 'Edit your category.',
-        action: update(props.record),
-        submitBtnLabel: 'Edit',
-    }
+          formName: null,
+          cardTitle: 'Edit a category',
+          cardDescription: 'Edit your category.',
+          action: update(props.record),
+          submitBtnLabel: 'Edit',
+      }
     : {
-        formName: 'CategoryCreateForm',
-        cardTitle: 'Create a category',
-        cardDescription:
-            'Create a category here. You can use it to organize your goals.',
-        action: store(),
-        submitBtnLabel: 'Create',
-    };
+          formName: 'CategoryCreateForm',
+          cardTitle: 'Create a category',
+          cardDescription:
+              'Create a category here. You can use it to organize your goals.',
+          action: store(),
+          submitBtnLabel: 'Create',
+      };
 
 const formData = {
     name: props.record?.name ?? '',
@@ -53,7 +53,9 @@ const formData = {
     color: props.record?.color ?? undefined,
 };
 
-const form = formState.formName ? useForm(formState.formName, formData) : useForm(formData);
+const form = formState.formName
+    ? useForm(formState.formName, formData)
+    : useForm(formData);
 
 form.transform((data) => ({
     ...data,

@@ -134,7 +134,10 @@ const isPaused = computed(() => {
                     >
                         {{ item.title }}
                     </h3>
-                    <p class="text-sm font-light line-clamp-2" v-if="item.description">
+                    <p
+                        class="line-clamp-2 text-sm font-light"
+                        v-if="item.description"
+                    >
                         {{ item.description }}
                     </p>
                 </div>

@@ -27,8 +27,10 @@ import {
     getGoalTypeOptions,
 } from '@/lib/form-options';
 import { nullToEmpty, nullToUndefined } from '@/lib/utils';
+import categories from '@/routes/categories';
 import goals from '@/routes/goals';
 import TextLink from '../TextLink.vue';
+import HelpTooltip from '../ui/HelpTooltip.vue';
 import {
     Select,
     SelectContent,
@@ -36,8 +38,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '../ui/select';
-import categories from '@/routes/categories';
-import HelpTooltip from '../ui/HelpTooltip.vue';
 
 const props = defineProps<{
     record?: Goal;
@@ -46,19 +46,19 @@ const props = defineProps<{
 
 const formState = props.record
     ? {
-        formName: null,
-        cardTitle: 'Edit a goal',
-        cardDescription: 'Edit your goal.',
-        action: update(props.record),
-        submitBtnLabel: 'Edit',
-    }
+          formName: null,
+          cardTitle: 'Edit a goal',
+          cardDescription: 'Edit your goal.',
+          action: update(props.record),
+          submitBtnLabel: 'Edit',
+      }
     : {
-        formName: 'GoalCreateForm',
-        cardTitle: 'Create a goal',
-        cardDescription: 'Create your new goal.',
-        action: store(),
-        submitBtnLabel: 'Create',
-    };
+          formName: 'GoalCreateForm',
+          cardTitle: 'Create a goal',
+          cardDescription: 'Create your new goal.',
+          action: store(),
+          submitBtnLabel: 'Create',
+      };
 
 const formData = {
     category_id: props.record?.category_id?.toString() ?? undefined,
@@ -87,7 +87,9 @@ const formData = {
     order: props.record?.order ?? 0,
 };
 
-const form = formState.formName ? useForm(formState.formName, formData) : useForm(formData);
+const form = formState.formName
+    ? useForm(formState.formName, formData)
+    : useForm(formData);
 
 form.transform((data) => ({
     ...data,
@@ -136,9 +138,17 @@ form.transform((data) => ({
                     <!-- Category -->
                     <div class="grid gap-2">
                         <div class="flex items-center justify-between">
-                            <Label for="category_id" class="justify-between w-full">
+                            <Label
+                                for="category_id"
+                                class="w-full justify-between"
+                            >
                                 <span>Category</span>
-                                <Link class="hover:underline" :tabindex="-1" :href="categories.index()" :data="{ create: 1 }">
+                                <Link
+                                    class="hover:underline"
+                                    :tabindex="-1"
+                                    :href="categories.index()"
+                                    :data="{ create: 1 }"
+                                >
                                     Create a category
                                 </Link>
                             </Label>
@@ -374,8 +384,8 @@ form.transform((data) => ({
                         <Label for="direction" class="space-x-2">
                             Direction
                             <HelpTooltip>
-                                Choose if your goal's evolution will
-                                be ascending or descending
+                                Choose if your goal's evolution will be
+                                ascending or descending
                             </HelpTooltip>
                         </Label>
                         <Select
