@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalEntryController;
+use App\Http\Controllers\MilestoneController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -26,6 +27,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{goal}/entries', 'index')->name('goals.entries');
             Route::post('/{goal}/entries', 'store')->name('goals.entries.store');
             Route::delete('/{goal}/entries/{goalEntry}', 'destroy')->name('goals.entries.destroy');
+        });
+
+        Route::controller(MilestoneController::class)->group(function () {
+            // Goal milestones (nested resource)
+            Route::post('/{goal}/milestones', 'store')->name('milestones.store');
+            Route::put('/{goal}/milestones/{milestone}', 'update')->name('milestones.update');
+            Route::delete('/{goal}/milestones/{milestone}', 'destroy')->name('milestones.destroy');
+            Route::patch('/{goal}/milestones/{milestone}/complete', 'complete')->name('milestones.complete');
         });
     });
 });

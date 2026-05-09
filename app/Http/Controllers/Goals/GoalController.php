@@ -90,6 +90,7 @@ class GoalController extends Controller
 
         $goal->load([
             'entries' => fn ($query) => $query->orderBy('entry_date', 'desc')->take(20),
+            'milestones' => fn ($query) => $query->orderBy('order', 'asc'),
         ]);
 
         return Inertia::render('Goals/Show', compact('goal', 'chartEntries'));

@@ -33,6 +33,18 @@ export function getDateDiffFromNow(date: string) {
     return otherDate.diff(now, 'days');
 }
 
+export function formatDate(date: string) {
+    let lang = undefined;
+
+    if (navigator.languages !== undefined) lang = navigator.languages[0];
+    lang = navigator.language;
+
+    return new Date(date).toLocaleDateString(lang ?? 'en-US', {
+        month: 'short',
+        day: 'numeric',
+    });
+}
+
 export function nullToEmpty(value: string | null | undefined): string {
     return value ?? '';
 }

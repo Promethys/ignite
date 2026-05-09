@@ -17,22 +17,20 @@ return new class extends Migration
             $table->text('description')->nullable();
 
             // Target value
-            $table->decimal('target_value', 10, 2);
+            $table->decimal('target_value', 10, 2)->nullable();
 
             // Order
             $table->integer('order')->default(0);
 
             // Status
-            $table->boolean('is_completed')->default(false);
             $table->timestamp('completed_at')->nullable();
 
             // Reward
-            $table->integer('points_reward')->default(0);
+            $table->integer('points_reward')->nullable()->default(0);
 
             $table->timestamps();
 
             $table->index(['goal_id', 'order']);
-            $table->index('is_completed');
         });
     }
 

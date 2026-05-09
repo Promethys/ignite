@@ -73,4 +73,49 @@ class MilestoneTest extends TestCase
 
         $this->assertFalse($milestone->is_reached);
     }
+
+    public function test_is_completed_when_completed_at_is_a_past_date()
+    {
+        $goal = Goal::factory()->create([
+            'current_value' => 30,
+            'type' => 'multi_step',
+        ]);
+        $milestone = Milestone::factory()->create([
+            'goal_id' => $goal->id,
+            'target_value' => 15,
+            'completed_at' => now()->subDay(),
+        ]);
+
+        $this->assertTrue($milestone->is_completed);
+    }
+
+    public function test_is_not_completed_when_completed_at_is_a_future_date()
+    {
+        $goal = Goal::factory()->create([
+            'current_value' => 30,
+            'type' => 'multi_step',
+        ]);
+        $milestone = Milestone::factory()->create([
+            'goal_id' => $goal->id,
+            'target_value' => 15,
+            'completed_at' => now()->addDay(),
+        ]);
+
+        $this->assertFalse($milestone->is_completed);
+    }
+
+    public function test_is_not_completed_when_completed_at_is_null()
+    {
+        $goal = Goal::factory()->create([
+            'current_value' => 30,
+            'type' => 'multi_step',
+        ]);
+        $milestone = Milestone::factory()->create([
+            'goal_id' => $goal->id,
+            'target_value' => 15,
+            'completed_at' => null,
+        ]);
+
+        $this->assertFalse($milestone->is_completed);
+    }
 }
