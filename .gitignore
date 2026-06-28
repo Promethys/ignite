@@ -16,6 +16,12 @@
 .env.production
 .phpactor.json
 .phpunit.result.cache
+/.claude
+/docs
+/scripts
+/z_inspos
+CLAUDE.md
+tmpclaude*
 Homestead.json
 Homestead.yaml
 npm-debug.log
