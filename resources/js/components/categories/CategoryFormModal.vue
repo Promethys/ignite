@@ -120,7 +120,7 @@ const open = ref<boolean>(props.open ?? false);
                         <Textarea
                             id="description"
                             name="description"
-                            default-value="All sportive goals like soccer, tennis, gym, ..."
+                            placeholder="All sportive goals like soccer, tennis, gym, ..."
                             v-model="form.description"
                         />
                         <InputError
@@ -148,7 +148,7 @@ const open = ref<boolean>(props.open ?? false);
                             <Input
                                 id="icon"
                                 name="icon"
-                                default-value="💪"
+                                placeholder="💪"
                                 v-model="form.icon"
                             />
                             <InputError
