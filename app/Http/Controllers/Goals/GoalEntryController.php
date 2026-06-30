@@ -71,12 +71,9 @@ class GoalEntryController extends Controller
             ]);
         });
 
-        return to_route('goals.show', ['goal' => $goal])
-            ->with('notification', [
-                'type' => 'success',
-                'title' => 'Success',
-                'body' => 'Goal entry saved successfully!',
-            ]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Entry saved.']);
+
+        return to_route('goals.show', ['goal' => $goal]);
     }
 
     public function destroy(Request $request, Goal $goal, GoalEntry $goalEntry)
@@ -92,11 +89,8 @@ class GoalEntryController extends Controller
             ]);
         });
 
-        return back()
-            ->with('notification', [
-                'type' => 'success',
-                'title' => 'Success',
-                'body' => 'Goal entry deleted successfully!',
-            ]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Entry deleted.']);
+
+        return back();
     }
 }

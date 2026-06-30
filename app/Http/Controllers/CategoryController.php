@@ -59,6 +59,8 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created.']);
+
         return redirect()->back();
     }
 
@@ -103,6 +105,8 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category updated.']);
+
         return to_route('categories.index');
     }
 
@@ -114,6 +118,8 @@ class CategoryController extends Controller
         Gate::authorize('delete', $category);
 
         $category->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category deleted.']);
 
         return redirect()->back();
     }

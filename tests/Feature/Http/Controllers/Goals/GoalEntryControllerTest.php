@@ -156,7 +156,9 @@ class GoalEntryControllerTest extends TestCase
             ->post(route('goals.entries.store', $this->goal), [
                 'increment' => 10,
             ])
-            ->assertRedirect(route('goals.show', $this->goal));
+            ->assertRedirect(route('goals.show', $this->goal))
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Entry saved.');
 
         $this->assertDatabaseHas('goal_entries', [
             'goal_id' => $this->goal->id,
@@ -212,7 +214,9 @@ class GoalEntryControllerTest extends TestCase
 
         $this->actingAs($this->user)
             ->delete(route('goals.entries.destroy', [$this->goal, $entry]))
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Entry deleted.');
 
         $this->assertModelMissing($entry);
     }

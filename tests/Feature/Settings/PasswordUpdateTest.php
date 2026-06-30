@@ -37,7 +37,9 @@ class PasswordUpdateTest extends TestCase
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect(route('password.edit'));
+            ->assertRedirect(route('password.edit'))
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Password updated.');
 
         $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
     }

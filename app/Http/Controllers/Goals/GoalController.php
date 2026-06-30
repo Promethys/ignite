@@ -76,6 +76,8 @@ class GoalController extends Controller
             'order' => $order,
         ]);
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal created.']);
+
         return to_route('goals.index');
     }
 
@@ -123,6 +125,8 @@ class GoalController extends Controller
 
         $goal->update($validated);
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal updated.']);
+
         return back(303);
     }
 
@@ -131,6 +135,8 @@ class GoalController extends Controller
         Gate::authorize('delete', $goal);
 
         $goal->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal deleted.']);
 
         return back(303);
     }
@@ -145,6 +151,8 @@ class GoalController extends Controller
 
         $goal->updateStatus($validated['status']);
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal status updated.']);
+
         return back(303);
     }
 
@@ -153,6 +161,8 @@ class GoalController extends Controller
         Gate::authorize('update', $goal);
 
         $goal->markAsCompleted();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal completed.']);
 
         return back(303);
     }

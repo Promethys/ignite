@@ -89,7 +89,9 @@ class CategoryControllerTest extends TestCase
             ->post(route('categories.store'), [
                 'name' => 'My Category',
             ])
-            ->assertRedirectBack();
+            ->assertRedirectBack()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Category created.');
 
         $this->assertDatabaseHas('categories', [
             'name' => 'My Category',
@@ -146,7 +148,9 @@ class CategoryControllerTest extends TestCase
             ->put(route('categories.update', $category), [
                 'name' => 'Updated Name',
             ])
-            ->assertRedirect(route('categories.index'));
+            ->assertRedirect(route('categories.index'))
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Category updated.');
 
         $this->assertEquals('Updated Name', $category->fresh()->name);
     }
@@ -172,7 +176,9 @@ class CategoryControllerTest extends TestCase
 
         $this->actingAs($this->user)
             ->delete(route('categories.destroy', $category))
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Category deleted.');
 
         $this->assertModelMissing($category);
     }

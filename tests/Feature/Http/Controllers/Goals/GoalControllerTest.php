@@ -129,7 +129,9 @@ class GoalControllerTest extends TestCase
     {
         $this->actingAs($this->user)
             ->post(route('goals.store'), $this->validGoalData())
-            ->assertRedirect(route('goals.index'));
+            ->assertRedirect(route('goals.index'))
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Goal created.');
 
         $this->assertDatabaseHas('goals', [
             'title' => 'Test Goal',
@@ -186,7 +188,9 @@ class GoalControllerTest extends TestCase
                 'title' => 'Updated Title',
                 'status' => $goal->status,
             ]))
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Goal updated.');
 
         $this->assertEquals('Updated Title', $goal->fresh()->title);
     }
@@ -216,7 +220,9 @@ class GoalControllerTest extends TestCase
 
         $this->actingAs($this->user)
             ->delete(route('goals.destroy', $goal))
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Goal deleted.');
 
         $this->assertModelMissing($goal);
     }
@@ -236,7 +242,9 @@ class GoalControllerTest extends TestCase
 
         $this->actingAs($this->user)
             ->patch(route('goals.update-status', $goal), ['status' => 'paused'])
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Goal status updated.');
 
         $this->assertEquals('paused', $goal->fresh()->status);
     }

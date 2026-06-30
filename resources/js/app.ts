@@ -8,6 +8,7 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 import { initializeTheme } from './composables/useAppearance';
+import { initializeFlashToast } from './lib/flashToast';
 
 if (typeof window !== 'undefined') {
     formbricks.setup({
@@ -44,3 +45,6 @@ createInertiaApp({
 
 // This will set light / dark mode on page load...
 initializeTheme();
+
+// This will listen for flash toast data from the server...
+initializeFlashToast();

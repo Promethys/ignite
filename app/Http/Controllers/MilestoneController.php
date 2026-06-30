@@ -6,6 +6,7 @@ use App\Models\Goal;
 use App\Models\Milestone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
 
 class MilestoneController extends Controller
 {
@@ -35,6 +36,8 @@ class MilestoneController extends Controller
             'order' => $order,
         ]);
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Milestone added.']);
+
         return redirect()->back();
     }
 
@@ -53,6 +56,8 @@ class MilestoneController extends Controller
 
         $milestone->update($validated);
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Milestone updated.']);
+
         return redirect()->back();
     }
 
@@ -69,6 +74,8 @@ class MilestoneController extends Controller
 
         $milestone->delete();
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Milestone deleted.']);
+
         return redirect()->back();
     }
 
@@ -84,6 +91,8 @@ class MilestoneController extends Controller
         }
 
         $milestone->markAsCompleted();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Milestone completed.']);
 
         return redirect()->back();
     }
