@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
 
 class VerifyEmailController extends Controller
 {
@@ -18,6 +19,8 @@ class VerifyEmailController extends Controller
         }
 
         $request->fulfill();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Email verified.']);
 
         return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
     }

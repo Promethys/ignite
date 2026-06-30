@@ -29,7 +29,9 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('dashboard', absolute: false))
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Welcome back!');
     }
 
     public function test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()
@@ -80,7 +82,9 @@ class AuthenticationTest extends TestCase
         $response = $this->actingAs($user)->post(route('logout'));
 
         $this->assertGuest();
-        $response->assertRedirect(route('home'));
+        $response->assertRedirect(route('home'))
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'You have been signed out.');
     }
 
     public function test_users_are_rate_limited()

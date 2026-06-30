@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import 'vue-sonner/style.css';
+import { Toaster } from '@/components/ui/sonner';
 import AppLayout from '@/layouts/app/AppSidebarLayout.vue';
 import type { BreadcrumbItemType } from '@/types';
 
@@ -15,4 +17,5 @@ withDefaults(defineProps<Props>(), {
     <AppLayout :breadcrumbs="breadcrumbs">
         <slot />
     </AppLayout>
+    <Toaster position="top-right" close-button close-button-position="top-right" theme="system" rich-colors />
 </template>

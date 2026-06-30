@@ -37,6 +37,8 @@ class PasswordResetLinkController extends Controller
             $request->only('email')
         );
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('A reset link will be sent if the account exists.')]);
+
         return back()->with('status', __('A reset link will be sent if the account exists.'));
     }
 }

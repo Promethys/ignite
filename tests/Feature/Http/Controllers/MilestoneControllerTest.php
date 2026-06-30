@@ -135,7 +135,9 @@ class MilestoneControllerTest extends TestCase
                 'title' => 'Reach 25%',
                 'target_value' => 25,
             ])
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Milestone added.');
 
         $this->assertDatabaseHas('milestones', [
             'goal_id' => $this->goal->id,
@@ -239,7 +241,9 @@ class MilestoneControllerTest extends TestCase
             ->put(route('milestones.update', [$this->goal, $milestone]), [
                 'title' => 'New title',
             ])
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Milestone updated.');
 
         $this->assertEquals('New title', $milestone->fresh()->title);
     }
@@ -263,7 +267,9 @@ class MilestoneControllerTest extends TestCase
 
         $this->actingAs($this->user)
             ->delete(route('milestones.destroy', [$this->goal, $milestone]))
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Milestone deleted.');
 
         $this->assertModelMissing($milestone);
     }
@@ -281,7 +287,9 @@ class MilestoneControllerTest extends TestCase
 
         $this->actingAs($this->user)
             ->patch(route('milestones.complete', [$this->goal, $milestone]))
-            ->assertRedirect();
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Milestone completed.');
 
         $this->assertNotNull($milestone->fresh()->completed_at);
     }

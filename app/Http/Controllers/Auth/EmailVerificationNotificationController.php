@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class EmailVerificationNotificationController extends Controller
 {
@@ -18,6 +19,8 @@ class EmailVerificationNotificationController extends Controller
         }
 
         $request->user()->sendEmailVerificationNotification();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Verification link sent.']);
 
         return back()->with('status', 'verification-link-sent');
     }

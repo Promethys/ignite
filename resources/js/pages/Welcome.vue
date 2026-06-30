@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { Toaster } from '@/components/ui/sonner';
 import { dashboard, login, register } from '@/routes';
 import { Head, Link } from '@inertiajs/vue3';
+import 'vue-sonner/style.css';
 </script>
 
 <template>
@@ -829,4 +831,11 @@ import { Head, Link } from '@inertiajs/vue3';
         </div>
         <div class="hidden h-14.5 lg:block"></div>
     </div>
+    <Toaster
+        position="top-right"
+        close-button
+        close-button-position="top-right"
+        theme="system"
+        rich-colors
+    />
 </template>
