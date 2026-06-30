@@ -16,7 +16,7 @@ import {
     DialogTrigger,
 } from '../ui/dialog';
 
-const props = defineProps<{
+defineProps<{
     row: Row<Milestone>;
 }>();
 </script>
