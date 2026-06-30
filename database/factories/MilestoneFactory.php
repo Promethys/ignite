@@ -26,7 +26,6 @@ class MilestoneFactory extends Factory
             'description' => fake()->optional(0.6)->sentence(),
             'target_value' => fake()->numberBetween(10, 100),
             'order' => fake()->numberBetween(0, 5),
-            'is_completed' => $isCompleted,
             'completed_at' => $isCompleted ? fake()->dateTimeBetween('-2 months', 'now') : null,
             'points_reward' => fake()->numberBetween(10, 100),
         ];

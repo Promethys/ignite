@@ -2,7 +2,17 @@
 import ProgressChart from '@/components/charts/ProgressChart.vue';
 import GoalBadges from '@/components/goals/GoalBadges.vue';
 import InputError from '@/components/InputError.vue';
+import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
+import Timeline from '@/components/milestones/Timeline.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -13,18 +23,35 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import DialogClose from '@/components/ui/dialog/DialogClose.vue';
+import HelpTooltip from '@/components/ui/HelpTooltip.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import { Progress } from '@/components/ui/progress';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { getMilestoneViewOptions } from '@/lib/form-options';
 import { getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { CheckCircle2, Pencil } from 'lucide-vue-next';
+import {
+    Check,
+    CheckCircle2,
+    ClockFading,
+    ListChecks,
+    Pencil,
+    Plus,
+    Settings2,
+} from 'lucide-vue-next';
 import moment from 'moment';
+import { ref } from 'vue';
 
 const props = defineProps<{
     goal: Goal;
@@ -37,10 +64,13 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: goals.index().url,
     },
     {
-        title: `${props.goal.title}`,
+        title: `"${props.goal.title}"`,
         href: '',
     },
 ];
+
+const isMilestoneSwitcherOpen = ref<boolean>(false);
+const viewStyle = ref(localStorage.getItem('view_style') ?? 'timeline');
 
 const entryForm = useForm({
     increment: undefined as number | undefined,
@@ -55,6 +85,17 @@ const submitEntry = () => {
         },
     });
 };
+
+const setViewStyle = (value: string) => {
+    const ALLOWED_VIEWS = ['timeline', 'checklist', 'cards', 'track'];
+
+    const newValue = ALLOWED_VIEWS.indexOf(value) > -1 ? value : 'timeline';
+
+    viewStyle.value = newValue;
+    localStorage.setItem('view_style', newValue);
+};
+
+const MILESTONEABLE_GOAL_TYPES = ['quantifiable', 'multi_step'];
 </script>
 
 <template>
@@ -193,6 +234,154 @@ const submitEntry = () => {
                 <div>
                     <h3 class="mb-2 text-xl font-medium">Stats</h3>
                 </div>
+            </section>
+
+            <section v-if="MILESTONEABLE_GOAL_TYPES.includes(goal.type)">
+                <Card>
+                    <CardHeader>
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col gap-1">
+                                <CardTitle class="text-lg"
+                                    >Milestones</CardTitle
+                                >
+                                <CardDescription>
+                                    Track key checkpoints on your journey to
+                                    completing this goal
+                                </CardDescription>
+                            </div>
+                            <div class="space-x-1">
+                                <MilestoneFormModal :goal_id="goal.id">
+                                    <template #trigger>
+                                        <Button variant="outline" size="sm">
+                                            <Plus class="size-4" />
+                                            Add Milestone
+                                        </Button>
+                                    </template>
+                                </MilestoneFormModal>
+                                <Button variant="outline" size="sm" as-child>
+                                    <Link
+                                        :href="`${goals.edit(goal).url}?tab=milestones`"
+                                    >
+                                        <ListChecks class="size-4" />
+                                        Manage Milestones
+                                    </Link>
+                                </Button>
+                                <Popover v-model:open="isMilestoneSwitcherOpen">
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            class="size-8 text-muted-foreground hover:text-foreground"
+                                        >
+                                            <Settings2 class="size-4" />
+                                            <span class="sr-only"
+                                                >Display settings</span
+                                            >
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent align="end" class="w-64">
+                                        <div class="flex flex-col gap-4">
+                                            <div class="flex flex-col gap-1">
+                                                <h4 class="text-sm font-medium">
+                                                    Display Style
+                                                </h4>
+                                                <p
+                                                    class="text-xs text-muted-foreground"
+                                                >
+                                                    Choose how milestones are
+                                                    displayed
+                                                </p>
+                                            </div>
+                                            <RadioGroup
+                                                v-model="viewStyle"
+                                                @update:model-value="
+                                                    (value) => {
+                                                        setViewStyle(
+                                                            value?.toString() ??
+                                                                'timeline',
+                                                        );
+                                                        isMilestoneSwitcherOpen = false;
+                                                    }
+                                                "
+                                                class="gap-2"
+                                            >
+                                                <Label
+                                                    v-for="option in getMilestoneViewOptions()"
+                                                    :key="option.value"
+                                                    class="flex items-start gap-3 rounded-lg border border-border/50 p-3 transition-colors has-[[data-state=checked]]:border-primary/50 has-[[data-state=checked]]:bg-muted/30"
+                                                    :class="{
+                                                        'cursor-pointer hover:bg-muted/50':
+                                                            option.value ===
+                                                            'timeline',
+                                                    }"
+                                                >
+                                                    <RadioGroupItem
+                                                        :id="option.value"
+                                                        :value="option.value"
+                                                        :disabled="
+                                                            option.value !==
+                                                            'timeline'
+                                                        "
+                                                        class="mt-0.5"
+                                                    />
+                                                    <div
+                                                        class="flex flex-1 flex-col gap-0.5"
+                                                    >
+                                                        <span
+                                                            class="flex items-center gap-2 text-sm font-medium"
+                                                        >
+                                                            {{ option.label }}
+                                                            <Check
+                                                                v-if="
+                                                                    viewStyle ===
+                                                                    option.value
+                                                                "
+                                                                class="size-3 text-primary"
+                                                            />
+                                                            <HelpTooltip
+                                                                v-if="
+                                                                    option.value !==
+                                                                    'timeline'
+                                                                "
+                                                            >
+                                                                <template
+                                                                    #trigger
+                                                                >
+                                                                    <Badge
+                                                                        class="text-2xs text-warning"
+                                                                        :variant="
+                                                                            null
+                                                                        "
+                                                                    >
+                                                                        <ClockFading
+                                                                            class="size-2"
+                                                                        />
+                                                                    </Badge>
+                                                                </template>
+
+                                                                Available Soon
+                                                            </HelpTooltip>
+                                                        </span>
+                                                        <span
+                                                            class="text-xs text-muted-foreground"
+                                                        >
+                                                            {{
+                                                                option.description
+                                                            }}
+                                                        </span>
+                                                    </div>
+                                                </Label>
+                                            </RadioGroup>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <Timeline :record="goal" />
+                    </CardContent>
+                </Card>
             </section>
 
             <section v-if="goal.type === 'quantifiable'" class="space-y-4">

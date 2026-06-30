@@ -40,3 +40,28 @@ export function getGoalDirectionOptions() {
         { value: 'descending', label: 'Descending' },
     ];
 }
+
+export function getMilestoneViewOptions() {
+    return [
+        {
+            value: 'timeline',
+            label: 'Timeline',
+            description: 'Vertical stepper with progress line',
+        },
+        {
+            value: 'checklist',
+            label: 'Checklist',
+            description: 'Simple checkbox list',
+        },
+        {
+            value: 'cards',
+            label: 'Cards Grid',
+            description: 'Card layout like Categories',
+        },
+        {
+            value: 'track',
+            label: 'Progress Track',
+            description: 'Markers on progress bar',
+        },
+    ];
+}

@@ -100,12 +100,12 @@ export interface Milestone {
     goal_id: number;
     title: string;
     description: string | null;
-    target_value: number;
+    target_value: number | null;
     order: number;
     is_completed: boolean;
     is_reached: boolean;
     completed_at: string | null;
-    points_reward: number;
+    points_reward: number | null;
     created_at: string;
     updated_at: string;
 

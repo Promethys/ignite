@@ -103,6 +103,12 @@ parameters:
 			path: app/Models/Milestone.php
 
 		-
+			message: '#^Property ''is_completed'' does not exist in model\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/Milestone.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\User\:\:\$total_points\.$#'
 			identifier: property.notFound
 			count: 1

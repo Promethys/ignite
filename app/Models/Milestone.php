@@ -23,7 +23,6 @@ class Milestone extends Model
         'description',
         'target_value',
         'order',
-        'is_completed',
         'completed_at',
         'points_reward',
     ];
@@ -36,7 +35,6 @@ class Milestone extends Model
     protected $casts = [
         'target_value' => 'decimal:2',
         'order' => 'integer',
-        'is_completed' => 'boolean',
         'completed_at' => 'datetime',
         'points_reward' => 'integer',
     ];
@@ -48,6 +46,7 @@ class Milestone extends Model
      */
     protected $appends = [
         'is_reached',
+        'is_completed',
     ];
 
     /**
@@ -64,7 +63,6 @@ class Milestone extends Model
     public function markAsCompleted(): void
     {
         $this->update([
-            'is_completed' => true,
             'completed_at' => now(),
         ]);
     }
@@ -79,6 +77,16 @@ class Milestone extends Model
                 'ascending' => $this->goal->current_value >= $this->target_value,
                 'descending' => $this->goal->current_value <= $this->target_value
             },
+        );
+    }
+
+    /**
+     * Check if the milestone is reached based on current goal value.
+     */
+    public function isCompleted(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => ! empty($this->completed_at) && $this->completed_at->isPast(),
         );
     }
 }
