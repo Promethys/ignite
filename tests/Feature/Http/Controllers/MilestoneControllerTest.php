@@ -204,6 +204,26 @@ class MilestoneControllerTest extends TestCase
             ->assertSessionHasErrors('target_value');
     }
 
+    public function test_milestone_points_reward_must_be_numeric()
+    {
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), [
+                'title' => 'Bad reward',
+                'points_reward' => 'not-a-number',
+            ])
+            ->assertSessionHasErrors('points_reward');
+    }
+
+    public function test_milestone_completed_at_must_be_a_date()
+    {
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), [
+                'title' => 'Bad completion date',
+                'completed_at' => 'not-a-date',
+            ])
+            ->assertSessionHasErrors('completed_at');
+    }
+
     // =========================================================================
     // UPDATE
     // =========================================================================
