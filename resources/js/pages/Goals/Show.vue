@@ -250,7 +250,7 @@ const MILESTONEABLE_GOAL_TYPES = ['quantifiable', 'multi_step'];
                                 </CardDescription>
                             </div>
                             <div class="space-x-1">
-                                <MilestoneFormModal :goal>
+                                <MilestoneFormModal :goal_id="goal.id">
                                     <template #trigger>
                                         <Button variant="outline" size="sm">
                                             <Plus class="size-4" />

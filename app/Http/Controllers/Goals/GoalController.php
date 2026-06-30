@@ -102,6 +102,10 @@ class GoalController extends Controller
 
         $user = auth()->user()->load('categories');
 
+        $goal->load([
+            'milestones' => fn ($query) => $query->orderBy('order', 'asc'),
+        ]);
+
         return Inertia::render('Goals/Edit', [
             'goal' => $goal,
             'user' => [

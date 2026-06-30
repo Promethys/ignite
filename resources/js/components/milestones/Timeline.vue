@@ -196,7 +196,7 @@ const activeIndex = computed(() =>
 
             <!-- Add milestone button at the end -->
             <div class="flex items-center gap-4">
-                <MilestoneFormModal :goal="props.record">
+                <MilestoneFormModal :goal_id="props.record.id">
                     <template #trigger>
                         <button
                             class="flex size-8 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-border transition-colors hover:border-muted-foreground"

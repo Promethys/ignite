@@ -11,21 +11,19 @@ import {
     PaginationPrevious,
 } from '@/components/ui/pagination'
 import { Checkbox } from '@/components/ui/checkbox';
-import { ChevronDown, ChevronUp, RefreshCw, Search } from 'lucide-vue-next';
+import { ChevronDown, ChevronUp, RefreshCw, Search, X } from 'lucide-vue-next';
 import { Input } from '../input';
+import { Empty, EmptyMedia, EmptyTitle } from '../empty';
 
 const props = defineProps<{
-    table: Table<TModel>,
-    defaultData: TModel[]
+    table: Table<TModel>
 }>();
 
-const defaultValue = props.defaultData ?? [];
+// const data = ref<TModel[]>([]);
 
-const data = ref<TModel[]>(defaultValue);
-
-const rerender = () => {
-    data.value = defaultValue;
-}
+// const rerender = () => {
+//     data.value = defaultValue;
+// }
 
 const shouldShowFooter = computed(() => {
     return props.table.getFooterGroups().some((footerGroup) => {
@@ -34,20 +32,25 @@ const shouldShowFooter = computed(() => {
         });
     });
 });
+
+const isTableEmpty = computed(() => {
+    return props.table.getRowModel().rows.length === 0;
+});
+
 </script>
 
 <template>
     <div class="relative overflow-x-auto bg-primary-foreground shadow-xs rounded-lg border border-border">
-        <div class="p-4 flex items-center justify-between space-x-4">
-            <!-- <label for="input-group" class="sr-only">Search</label>
+        <!-- <div class="p-4 flex items-center justify-between space-x-4">
+            <label for="input-group" class="sr-only">Search</label>
             <div class="relative">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <Search class="size-4" />
                 </div>
                 <Input type="text" id="input-group" placeholder="Search" class="ps-9" />
-            </div> -->
+            </div>
 
-            <!-- <Select v-model="selectedCategoryId">
+            <Select v-model="selectedCategoryId">
                 <SelectTrigger>
                     <SelectValue placeholder="Category" />
                 </SelectTrigger>
@@ -63,8 +66,8 @@ const shouldShowFooter = computed(() => {
                         {{ category.name }}
                     </SelectItem>
                 </SelectContent>
-            </Select> -->
-        </div>
+            </Select>
+        </div> -->
         <table class="w-full text-sm text-left rtl:text-right text-foreground">
             <caption v-if="$slots.caption">
                 <slot name="caption" />
@@ -95,6 +98,18 @@ const shouldShowFooter = computed(() => {
                         <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                     </td>
                 </tr>
+                <tr v-if="isTableEmpty">
+                    <td :colspan="table.getAllLeafColumns().length">
+                        <Empty>
+                            <EmptyTitle>
+                                <EmptyMedia class="mx-auto" variant="icon">
+                                    <X />
+                                </EmptyMedia>
+                                No records yet.
+                            </EmptyTitle>
+                        </Empty>
+                    </td>
+                </tr>
             </tbody>
             <tfoot v-if="shouldShowFooter">
                 <tr v-for="footerGroup in table.getFooterGroups()" :key="footerGroup.id" class="font-semibold text-heading">
@@ -105,19 +120,20 @@ const shouldShowFooter = computed(() => {
                 </tr>
             </tfoot>
         </table>
-        <nav class="flex items-center flex-column flex-wrap md:flex-row justify-between px-6 py-3"
-            aria-label="Table navigation">
+        <!-- <nav v-if="!isTableEmpty"
+            class="flex items-center flex-column flex-wrap md:flex-row justify-between px-6 py-3"
+            aria-label="Table navigation"> -->
             <!-- <span class="text-sm font-normal text-foreground mb-4 md:mb-0 block w-full md:inline md:w-auto">Showing <span
                     class="font-semibold text-heading">1-10</span> of <span
                     class="font-semibold text-heading">1000</span></span> -->
 
             <!-- FIXME: conditionnal mx-auto here, when the pagination elements are shown -->
-            <div class="text-center mx-auto">
+            <!-- <div class="text-center mx-auto">
                 <Button @click="rerender" class="mx-auto" variant="link">
                     <RefreshCw class="size-4" />
                     Rerender
                 </Button>
-            </div>
+            </div> -->
 
             <!-- <div>
                 <Pagination v-slot="{ page }" :items-per-page="10" :total="30" :default-page="2">
@@ -137,6 +153,6 @@ const shouldShowFooter = computed(() => {
                     </PaginationContent>
                 </Pagination>
             </div> -->
-        </nav>
+        <!-- </nav> -->
     </div>
 </template>

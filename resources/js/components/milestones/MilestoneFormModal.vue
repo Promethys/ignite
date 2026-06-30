@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Goal, Milestone } from '@/types/models';
+import { Milestone } from '@/types/models';
 import { useForm } from '@inertiajs/vue3';
 import { Edit, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -25,25 +25,26 @@ import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 
 const props = defineProps<{
-    goal: Goal;
+    goal_id: number;
     record?: Milestone;
     open?: boolean;
 }>();
 
 const formState = props.record
     ? {
-          formName: null,
           cardTitle: 'Edit a milestone',
           cardDescription: 'Edit your milestone.',
-          action: update({ goal: props.goal, milestone: props.record }),
+          action: update({
+              goal: props.record.goal_id,
+              milestone: props.record,
+          }),
           submitBtnLabel: 'Edit',
       }
     : {
-          formName: 'MilestoneCreateForm',
           cardTitle: 'Create a milestone',
           cardDescription:
               'Create a milestone and track key checkpoints on your journey to completing this goal.',
-          action: store({ goal: props.goal }),
+          action: store({ goal: props.goal_id }),
           submitBtnLabel: 'Create',
       };
 
@@ -51,12 +52,10 @@ const formData = {
     title: props.record?.title ?? '',
     description: props.record?.description ?? '',
     target_value: props.record?.target_value ?? undefined,
-    points_reward: 0,
+    // points_reward: 0,
 };
 
-const form = formState.formName
-    ? useForm(formState.formName, formData)
-    : useForm(formData);
+const form = useForm(formData);
 
 form.transform((data) => ({
     ...data,
@@ -122,7 +121,7 @@ const open = ref<boolean>(props.open ?? false);
                         <Textarea
                             id="description"
                             name="description"
-                            default-value="All sportive goals like soccer, tennis, gym, ..."
+                            placeholder="Milestone description here..."
                             v-model="form.description"
                         />
                         <InputError

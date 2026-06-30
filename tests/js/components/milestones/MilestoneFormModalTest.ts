@@ -1,18 +1,20 @@
+import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
+import type { Milestone } from '@/types/models';
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
-import type { Goal, Milestone } from '@/types/models';
 
 const { mockUseForm, mockStore, mockUpdate } = vi.hoisted(() => ({
     mockUseForm: vi.fn(),
-    mockStore: vi.fn(({ goal }: { goal: Goal }) => ({
+    mockStore: vi.fn(({ goal }: { goal: number }) => ({
         method: 'post',
-        url: `/goals/${goal.id}/milestones`,
+        url: `/goals/${goal}/milestones`,
     })),
-    mockUpdate: vi.fn(({ goal, milestone }: { goal: Goal; milestone: Milestone }) => ({
-        method: 'put',
-        url: `/goals/${goal.id}/milestones/${milestone.id}`,
-    })),
+    mockUpdate: vi.fn(
+        ({ goal, milestone }: { goal: number; milestone: Milestone }) => ({
+            method: 'put',
+            url: `/goals/${goal}/milestones/${milestone.id}`,
+        }),
+    ),
 }));
 
 vi.mock('@inertiajs/vue3', () => ({
@@ -42,35 +44,6 @@ const createMockForm = (
     transform: vi.fn(),
     ...overrides,
 });
-
-const baseGoal: Goal = {
-    id: 1,
-    user_id: 1,
-    category_id: null,
-    title: 'Save money',
-    description: 'Save 1000 euros',
-    icon: null,
-    type: 'quantifiable',
-    direction: 'ascending',
-    target_value: 1000,
-    initial_value: 0,
-    current_value: 500,
-    unit: 'euros',
-    recurrence: null,
-    start_date: '2026-01-01',
-    deadline: '2026-12-31',
-    completed_at: null,
-    status: 'in_progress',
-    priority: 'medium',
-    points: 100,
-    is_public: false,
-    order: 1,
-    created_at: '2026-01-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
-    progress_percentage: 50,
-    is_overdue: false,
-    is_completed: false,
-};
 
 const baseMilestone: Milestone = {
     id: 10,
@@ -116,10 +89,9 @@ const stubs = {
 
 describe('MilestoneFormModal', () => {
     beforeEach(() => {
-        mockUseForm.mockImplementation((...args: unknown[]) => {
-            const data = (args.length === 2 ? args[1] : args[0]) as Record<string, unknown>;
-            return createMockForm(data);
-        });
+        mockUseForm.mockImplementation((data: Record<string, unknown>) =>
+            createMockForm(data),
+        );
         mockStore.mockClear();
         mockUpdate.mockClear();
     });
@@ -130,7 +102,7 @@ describe('MilestoneFormModal', () => {
 
     it('renders in create mode when no record prop is given', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -143,7 +115,7 @@ describe('MilestoneFormModal', () => {
 
     it('shows the default create trigger button with Plus icon and Milestone text', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -153,28 +125,26 @@ describe('MilestoneFormModal', () => {
 
     it('initializes form with empty fields in create mode', () => {
         mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
         expect(mockUseForm).toHaveBeenCalledWith(
-            'MilestoneCreateForm',
             expect.objectContaining({
                 title: '',
                 description: '',
                 target_value: undefined,
-                points_reward: 0,
             }),
         );
     });
 
-    it('calls store action with the goal in create mode', () => {
+    it('calls store action with the goal id in create mode', () => {
         mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
-        expect(mockStore).toHaveBeenCalledWith({ goal: baseGoal });
+        expect(mockStore).toHaveBeenCalledWith({ goal: 1 });
         expect(mockUpdate).not.toHaveBeenCalled();
     });
 
@@ -184,7 +154,7 @@ describe('MilestoneFormModal', () => {
 
     it('renders in edit mode when record prop is provided', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal, record: baseMilestone },
+            props: { goal_id: 1, record: baseMilestone },
             global: { stubs },
         });
 
@@ -195,7 +165,7 @@ describe('MilestoneFormModal', () => {
 
     it('shows edit trigger button with Edit icon in edit mode', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal, record: baseMilestone },
+            props: { goal_id: 1, record: baseMilestone },
             global: { stubs },
         });
 
@@ -205,7 +175,7 @@ describe('MilestoneFormModal', () => {
 
     it('pre-fills form fields with record values in edit mode', () => {
         mount(MilestoneFormModal, {
-            props: { goal: baseGoal, record: baseMilestone },
+            props: { goal_id: 1, record: baseMilestone },
             global: { stubs },
         });
 
@@ -214,35 +184,21 @@ describe('MilestoneFormModal', () => {
                 title: 'Reach 25% completion',
                 description: 'Reach 250 euros saved',
                 target_value: 250,
-                points_reward: 0,
             }),
         );
     });
 
-    it('calls update action with goal and milestone in edit mode', () => {
+    it('calls update action with the milestone goal id and milestone in edit mode', () => {
         mount(MilestoneFormModal, {
-            props: { goal: baseGoal, record: baseMilestone },
+            props: { goal_id: 1, record: baseMilestone },
             global: { stubs },
         });
 
         expect(mockUpdate).toHaveBeenCalledWith({
-            goal: baseGoal,
+            goal: baseMilestone.goal_id,
             milestone: baseMilestone,
         });
         expect(mockStore).not.toHaveBeenCalled();
-    });
-
-    it('uses unnamed form in edit mode', () => {
-        mount(MilestoneFormModal, {
-            props: { goal: baseGoal, record: baseMilestone },
-            global: { stubs },
-        });
-
-        expect(mockUseForm).toHaveBeenCalledWith(
-            expect.objectContaining({
-                title: 'Reach 25% completion',
-            }),
-        );
     });
 
     // =========================================================================
@@ -251,7 +207,7 @@ describe('MilestoneFormModal', () => {
 
     it('renders title input with label', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -261,7 +217,7 @@ describe('MilestoneFormModal', () => {
 
     it('renders description textarea with label', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -271,7 +227,7 @@ describe('MilestoneFormModal', () => {
 
     it('renders target value input with label', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -284,15 +240,12 @@ describe('MilestoneFormModal', () => {
     // =========================================================================
 
     it('displays title error when present', () => {
-        mockUseForm.mockImplementation((...args: unknown[]) => {
-            const data = (args.length === 2 ? args[1] : args[0]) as Record<string, unknown>;
-            return createMockForm(data, {
-                errors: { title: 'Title is required' },
-            });
-        });
+        mockUseForm.mockImplementation((data: Record<string, unknown>) =>
+            createMockForm(data, { errors: { title: 'Title is required' } }),
+        );
 
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -300,15 +253,14 @@ describe('MilestoneFormModal', () => {
     });
 
     it('displays description error when present', () => {
-        mockUseForm.mockImplementation((...args: unknown[]) => {
-            const data = (args.length === 2 ? args[1] : args[0]) as Record<string, unknown>;
-            return createMockForm(data, {
+        mockUseForm.mockImplementation((data: Record<string, unknown>) =>
+            createMockForm(data, {
                 errors: { description: 'Description is too long' },
-            });
-        });
+            }),
+        );
 
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -316,15 +268,14 @@ describe('MilestoneFormModal', () => {
     });
 
     it('displays target_value error when present', () => {
-        mockUseForm.mockImplementation((...args: unknown[]) => {
-            const data = (args.length === 2 ? args[1] : args[0]) as Record<string, unknown>;
-            return createMockForm(data, {
+        mockUseForm.mockImplementation((data: Record<string, unknown>) =>
+            createMockForm(data, {
                 errors: { target_value: 'Target value must be a number' },
-            });
-        });
+            }),
+        );
 
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -333,7 +284,7 @@ describe('MilestoneFormModal', () => {
 
     it('does not display any errors when form has no errors', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -346,13 +297,12 @@ describe('MilestoneFormModal', () => {
     // =========================================================================
 
     it('disables submit button when form is processing', () => {
-        mockUseForm.mockImplementation((...args: unknown[]) => {
-            const data = (args.length === 2 ? args[1] : args[0]) as Record<string, unknown>;
-            return createMockForm(data, { processing: true });
-        });
+        mockUseForm.mockImplementation((data: Record<string, unknown>) =>
+            createMockForm(data, { processing: true }),
+        );
 
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -363,7 +313,7 @@ describe('MilestoneFormModal', () => {
 
     it('does not disable submit button when form is not processing', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -373,13 +323,12 @@ describe('MilestoneFormModal', () => {
     });
 
     it('shows spinner when form is processing', () => {
-        mockUseForm.mockImplementation((...args: unknown[]) => {
-            const data = (args.length === 2 ? args[1] : args[0]) as Record<string, unknown>;
-            return createMockForm(data, { processing: true });
-        });
+        mockUseForm.mockImplementation((data: Record<string, unknown>) =>
+            createMockForm(data, { processing: true }),
+        );
 
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -388,7 +337,7 @@ describe('MilestoneFormModal', () => {
 
     it('does not show spinner when form is not processing', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -401,7 +350,7 @@ describe('MilestoneFormModal', () => {
 
     it('renders a cancel button', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
@@ -414,19 +363,23 @@ describe('MilestoneFormModal', () => {
 
     it('opens dialog when open prop is true', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal, open: true },
+            props: { goal_id: 1, open: true },
             global: { stubs },
         });
 
-        expect(wrapper.findComponent({ name: 'Dialog' }).props('open')).toBe(true);
+        expect(wrapper.findComponent({ name: 'Dialog' }).props('open')).toBe(
+            true,
+        );
     });
 
     it('does not open dialog when open prop is not provided', () => {
         const wrapper = mount(MilestoneFormModal, {
-            props: { goal: baseGoal },
+            props: { goal_id: 1 },
             global: { stubs },
         });
 
-        expect(wrapper.findComponent({ name: 'Dialog' }).props('open')).toBe(false);
+        expect(wrapper.findComponent({ name: 'Dialog' }).props('open')).toBe(
+            false,
+        );
     });
 });

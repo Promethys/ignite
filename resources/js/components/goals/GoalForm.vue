@@ -11,14 +11,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 // import { Switch } from '../ui/switch';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
     getGoalDirectionOptions,
     getGoalPriorityOptions,
@@ -47,15 +40,11 @@ const props = defineProps<{
 const formState = props.record
     ? {
           formName: null,
-          cardTitle: 'Edit a goal',
-          cardDescription: 'Edit your goal.',
           action: update(props.record),
           submitBtnLabel: 'Edit',
       }
     : {
           formName: 'GoalCreateForm',
-          cardTitle: 'Create a goal',
-          cardDescription: 'Create your new goal.',
           action: store(),
           submitBtnLabel: 'Create',
       };
@@ -109,13 +98,7 @@ form.transform((data) => ({
 
 <template>
     <form @submit.prevent="form.submit(formState.action)">
-        <Card class="m-4">
-            <CardHeader>
-                <CardTitle>{{ formState.cardTitle }}</CardTitle>
-                <CardDescription>{{
-                    formState.cardDescription
-                }}</CardDescription>
-            </CardHeader>
+        <Card>
             <CardContent>
                 <div
                     class="grid gap-6 sm:grid-cols-1 sm:gap-4 md:grid-cols-2 lg:grid-cols-3"
