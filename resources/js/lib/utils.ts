@@ -34,10 +34,7 @@ export function getDateDiffFromNow(date: string) {
 }
 
 export function formatDate(date: string) {
-    let lang = undefined;
-
-    if (navigator.languages !== undefined) lang = navigator.languages[0];
-    lang = navigator.language;
+    const lang = navigator.languages?.[0] ?? navigator.language;
 
     return new Date(date).toLocaleDateString(lang ?? 'en-US', {
         month: 'short',
