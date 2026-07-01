@@ -3,12 +3,22 @@ import { getBinaryTheme } from '@/composables/useAppearance';
 import { GoalEntry } from '@/types/models';
 
 const props = defineProps<{
-    entries: GoalEntry[];
+    entries: Pick<GoalEntry, 'entry_date' | 'value'>[];
     targetValue: number | string | null;
     unit: string | null;
 }>();
 
 const theme = getBinaryTheme();
+
+const cssVar = (name: string) =>
+    typeof document !== 'undefined'
+        ? getComputedStyle(document.documentElement)
+              .getPropertyValue(name)
+              .trim()
+        : '';
+
+// Series 1 (progress) uses the brand colour; series 2 (target) stays muted.
+const chartColors = [cssVar('--chart-1'), cssVar('--muted-foreground')];
 
 const sortedEntries = [...props.entries].sort(
     (a, b) =>
@@ -33,6 +43,7 @@ const chartSeries = [
 ];
 
 const chartOptions = {
+    colors: chartColors,
     chart: {
         height: 350,
         type: 'line',
@@ -48,6 +59,8 @@ const chartOptions = {
     },
     stroke: {
         curve: 'smooth',
+        width: [3, 2],
+        dashArray: [0, 6],
     },
     grid: {
         row: {

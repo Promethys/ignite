@@ -7,11 +7,11 @@ defineProps<{
 
 <template>
     <div
-        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+        class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
     >
         <div>
             <h1
-                class="text-2xl font-bold tracking-tight text-balance sm:text-3xl"
+                class="font-display text-2xl font-semibold tracking-tight text-balance sm:text-3xl"
             >
                 {{ title }}
             </h1>
@@ -22,6 +22,8 @@ defineProps<{
                 {{ description }}
             </p>
         </div>
-        <slot name="actions" />
+        <div class="shrink-0 sm:mt-1">
+            <slot name="actions" />
+        </div>
     </div>
 </template>

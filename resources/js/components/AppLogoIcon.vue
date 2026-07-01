@@ -13,5 +13,5 @@ defineProps<Props>();
 </script>
 
 <template>
-    <img src="../../../public/favicon.svg" />
+    <img src="/favicon.svg" alt="Ignite" v-bind="$attrs" />
 </template>

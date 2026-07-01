@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import GoalCard from '@/components/goals/GoalCard.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import {
     Empty,
@@ -41,36 +42,52 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const statusFilters = [
+    { value: 'all', label: 'All' },
+    { value: 'in_progress', label: 'In progress' },
+    { value: 'paused', label: 'Paused' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'abandoned', label: 'Abandoned' },
+];
+
 const selectedCategoryId = ref(
     props.category_id ? parseInt(props.category_id) : 'all',
 );
+const selectedStatus = ref('all');
 const searchQuery = ref('');
+
+const activeCount = computed(
+    () => props.items.filter((item) => item.status === 'in_progress').length,
+);
+
+const subtitle = computed(
+    () =>
+        `${props.items.length} ${props.items.length === 1 ? 'goal' : 'goals'} · ${activeCount.value} active`,
+);
 
 const filteredItems = computed(() => {
     let items = props.items;
 
-    // Search input
     if (searchQuery.value !== null && searchQuery.value !== '') {
-        items = items.filter((item) => {
-            return (
-                item.title
-                    .toLowerCase()
-                    .includes(searchQuery.value.toLowerCase()) ||
-                item.description
-                    ?.toLowerCase()
-                    .includes(searchQuery.value.toLowerCase())
-            );
-        });
+        const query = searchQuery.value.toLowerCase();
+        items = items.filter(
+            (item) =>
+                item.title.toLowerCase().includes(query) ||
+                item.description?.toLowerCase().includes(query),
+        );
     }
 
-    // Filter input
-    if (selectedCategoryId.value === 'all') {
-        return items;
-    } else {
-        return items.filter(
+    if (selectedCategoryId.value !== 'all') {
+        items = items.filter(
             (item) => item.category_id === selectedCategoryId.value,
         );
     }
+
+    if (selectedStatus.value !== 'all') {
+        items = items.filter((item) => item.status === selectedStatus.value);
+    }
+
+    return items;
 });
 </script>
 
@@ -79,57 +96,40 @@ const filteredItems = computed(() => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="space-y-6 p-4">
-            <div
-                class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-            >
-                <div>
-                    <h1
-                        class="text-2xl font-bold tracking-tight text-balance sm:text-3xl"
+            <PageHeader title="Goals" :description="subtitle">
+                <template #actions>
+                    <Button
+                        v-if="items.length > 0"
+                        as-child
+                        class="w-full sm:w-auto"
                     >
-                        All Goals
-                    </h1>
-                    <p
-                        class="mt-1 text-sm text-pretty text-muted-foreground sm:text-base"
-                    >
-                        Manage and track all your goals in one place
-                    </p>
-                </div>
-                <Button
-                    v-if="items.length > 0"
-                    as-child
-                    class="w-full sm:w-auto"
-                >
-                    <Link :href="goals.create().url">
-                        <Plus />
-                        Goal
-                    </Link>
-                </Button>
-            </div>
+                        <Link :href="goals.create().url">
+                            <Plus />
+                            New goal
+                        </Link>
+                    </Button>
+                </template>
+            </PageHeader>
 
-            <div
-                v-if="items.length > 0"
-                class="flex flex-col gap-3 sm:flex-row sm:gap-4"
-            >
-                <div class="relative flex-1">
-                    <Search
-                        class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                    />
-                    <Input
-                        v-model="searchQuery"
-                        placeholder="Search goals..."
-                        class="pl-9"
-                    />
-                </div>
-                <div>
+            <template v-if="items.length > 0">
+                <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                    <div class="relative flex-1">
+                        <Search
+                            class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                        />
+                        <Input
+                            v-model="searchQuery"
+                            placeholder="Search goals..."
+                            class="pl-9"
+                        />
+                    </div>
                     <Select v-model="selectedCategoryId">
-                        <SelectTrigger>
+                        <SelectTrigger class="sm:w-48">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">
-                                All categories
-                            </SelectItem>
-                            <SelectItem :value="null"> No category </SelectItem>
+                            <SelectItem value="all">All categories</SelectItem>
+                            <SelectItem :value="null">No category</SelectItem>
                             <template v-if="categories.length > 0">
                                 <Separator class="my-2" />
                             </template>
@@ -143,7 +143,28 @@ const filteredItems = computed(() => {
                         </SelectContent>
                     </Select>
                 </div>
-            </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="mr-1 text-xs text-muted-foreground">
+                        Status
+                    </span>
+                    <Button
+                        v-for="filter in statusFilters"
+                        :key="filter.value"
+                        size="sm"
+                        class="rounded-full"
+                        :variant="
+                            selectedStatus === filter.value
+                                ? 'default'
+                                : 'outline'
+                        "
+                        @click="selectedStatus = filter.value"
+                    >
+                        {{ filter.label }}
+                    </Button>
+                </div>
+            </template>
+
             <Empty v-if="items.length === 0 || filteredItems.length === 0">
                 <EmptyHeader>
                     <EmptyMedia variant="icon">
@@ -153,37 +174,32 @@ const filteredItems = computed(() => {
                         <template v-if="items.length === 0"
                             >No Goal Yet</template
                         >
-                        <template v-else-if="filteredItems.length === 0"
-                            >No Goal found</template
-                        >
+                        <template v-else>No Goal found</template>
                     </EmptyTitle>
                     <EmptyDescription>
                         <template v-if="items.length === 0"
                             >You don't have any goal yet. Get started by
                             creating your first goal.</template
                         >
-                        <template v-else-if="filteredItems.length === 0"
-                            >You don't have any goals that match this
-                            search/filter</template
+                        <template v-else
+                            >No goals match this search or filter.</template
                         >
                     </EmptyDescription>
                 </EmptyHeader>
                 <EmptyContent v-if="items.length === 0">
-                    <div class="flex gap-2">
-                        <Button as-child>
-                            <Link :href="goals.create().url">
-                                <Plus />
-                                Define a Goal
-                            </Link>
-                        </Button>
-                    </div>
+                    <Button as-child>
+                        <Link :href="goals.create().url">
+                            <Plus />
+                            Define a Goal
+                        </Link>
+                    </Button>
                 </EmptyContent>
             </Empty>
-            <div v-else class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+            <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <GoalCard
-                    :item="goal"
                     v-for="goal in filteredItems"
                     :key="goal.id"
+                    :item="goal"
                 />
             </div>
         </div>

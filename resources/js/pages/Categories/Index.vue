@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CategoryFormModal from '@/components/categories/CategoryFormModal.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -12,7 +13,6 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Empty,
     EmptyContent,
@@ -26,15 +26,15 @@ import categories from '@/routes/categories';
 import goals from '@/routes/goals';
 import { BreadcrumbItem } from '@/types';
 import { Category } from '@/types/models';
-import { Link, router } from '@inertiajs/vue3';
-import { ArrowRight, Target, Trash } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { Plus, Tags, Trash } from 'lucide-vue-next';
 
 interface Props {
     items: Category[];
     openCreate: boolean;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -42,136 +42,177 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: categories.index().url,
     },
 ];
+
+const subtitle = `${props.items.length} ${props.items.length === 1 ? 'category' : 'categories'}`;
+
+const filterUrl = (category: Category) =>
+    `${goals.index().url}?category=${category.id}`;
+
+const completion = (category: Category) => {
+    const total = category.goals_count ?? 0;
+    if (total === 0) return 0;
+    return Math.round(((category.completed_goals_count ?? 0) / total) * 100);
+};
 </script>
 
 <template>
+    <Head title="Categories" />
+
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Empty v-if="items.length === 0">
-            <EmptyHeader>
-                <EmptyMedia variant="icon">
-                    <Target />
-                </EmptyMedia>
-                <EmptyTitle>No Category Yet</EmptyTitle>
-                <EmptyDescription>
-                    You don't have any category yet.
-                </EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-                <div class="flex gap-2">
+        <div class="space-y-6 p-4">
+            <PageHeader title="Categories" :description="subtitle">
+                <template #actions>
                     <CategoryFormModal :open="openCreate" />
-                </div>
-            </EmptyContent>
-        </Empty>
-        <div v-else>
-            <div class="space-y-6 p-4">
-                <div
-                    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+                </template>
+            </PageHeader>
+
+            <Empty v-if="items.length === 0">
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <Tags />
+                    </EmptyMedia>
+                    <EmptyTitle>No Category Yet</EmptyTitle>
+                    <EmptyDescription>
+                        You don't have any category yet. Create one to organize
+                        your goals.
+                    </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                    <CategoryFormModal :open="openCreate" />
+                </EmptyContent>
+            </Empty>
+
+            <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <Link
+                    v-for="category in items"
+                    :key="category.id"
+                    :href="filterUrl(category)"
+                    class="block h-full"
                 >
-                    <div>
-                        <h1
-                            class="text-2xl font-bold tracking-tight text-balance sm:text-3xl"
-                        >
-                            Categories
-                        </h1>
-                        <p
-                            class="mt-1 text-sm text-pretty text-muted-foreground sm:text-base"
-                        >
-                            Organize your goals by category
-                        </p>
-                    </div>
-                    <div>
-                        <CategoryFormModal :open="openCreate" />
-                    </div>
-                </div>
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    <Card
-                        v-for="category in items"
-                        :key="category.id"
-                        class="group cursor-pointer transition-shadow hover:shadow-md"
+                    <div
+                        class="flex h-full flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm transition-colors hover:border-primary/40"
                     >
-                        <CardHeader>
-                            <CardTitle>
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        {{ category.name }}
-                                    </div>
-                                    <div class="flex items-center">
-                                        <CategoryFormModal :record="category" />
-                                        <AlertDialog>
-                                            <AlertDialogTrigger as-child>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    class="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/30 dark:hover:bg-destructive/30"
-                                                >
-                                                    <Trash class="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle
-                                                        >Are you absolutely
-                                                        sure?</AlertDialogTitle
-                                                    >
-                                                    <AlertDialogDescription>
-                                                        This action cannot be
-                                                        undone. This will
-                                                        permanently delete your
-                                                        category.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel
-                                                        >Cancel</AlertDialogCancel
-                                                    >
-                                                    <AlertDialogAction
-                                                        class="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40"
-                                                        @click="
-                                                            router.delete(
-                                                                categories.destroy(
-                                                                    category,
-                                                                ),
-                                                            )
-                                                        "
-                                                    >
-                                                        Delete
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </div>
-                                </div>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent class="space-y-3">
-                            <p class="text-sm text-muted-foreground">
-                                {{ category.description }}
-                            </p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-muted-foreground">
-                                    {{ category.goals_count ?? 0 }}
-                                    {{
-                                        (category.goals_count ?? 0) === 1
-                                            ? 'goal'
-                                            : 'goals'
-                                    }}
-                                </span>
-                                <Button
-                                    variant="link"
-                                    class="h-auto p-0"
-                                    as-child
+                        <!-- Head: name + controls -->
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex min-w-0 items-center gap-2">
+                                <span
+                                    class="size-3 shrink-0 rounded-full"
+                                    :style="{ backgroundColor: category.color }"
+                                />
+                                <span
+                                    class="truncate font-display text-base font-semibold"
                                 >
-                                    <Link
-                                        :href="`${goals.index().url}?category=${category.id}`"
-                                    >
-                                        View Goals
-                                        <ArrowRight />
-                                    </Link>
-                                </Button>
+                                    {{ category.name }}
+                                </span>
                             </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                            <div
+                                class="flex shrink-0 items-center"
+                                @click.stop.prevent
+                            >
+                                <CategoryFormModal :record="category" />
+                                <AlertDialog>
+                                    <AlertDialogTrigger as-child>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            class="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                                        >
+                                            <Trash class="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle
+                                                >Are you absolutely
+                                                sure?</AlertDialogTitle
+                                            >
+                                            <AlertDialogDescription>
+                                                This action cannot be undone.
+                                                This will permanently delete
+                                                your category.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel
+                                                >Cancel</AlertDialogCancel
+                                            >
+                                            <AlertDialogAction
+                                                variant="destructive"
+                                                @click="
+                                                    router.delete(
+                                                        categories.destroy(
+                                                            category,
+                                                        ),
+                                                    )
+                                                "
+                                            >
+                                                Delete
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                        </div>
+
+                        <!-- Description (hidden when empty) -->
+                        <p
+                            v-if="category.description"
+                            class="line-clamp-1 text-xs text-muted-foreground"
+                        >
+                            {{ category.description }}
+                        </p>
+
+                        <!-- Footer: counts + completion bar -->
+                        <div class="mt-auto space-y-2 pt-2">
+                            <div
+                                class="flex gap-4 text-xs text-muted-foreground"
+                            >
+                                <span>
+                                    <span class="font-semibold text-foreground">
+                                        {{ category.goals_count ?? 0 }} </span
+                                    >&nbsp;goals
+                                </span>
+                                <span>
+                                    <span class="font-semibold text-foreground">
+                                        {{
+                                            category.active_goals_count ?? 0
+                                        }} </span
+                                    >&nbsp;active
+                                </span>
+                                <span>
+                                    <span class="font-semibold text-foreground">
+                                        {{
+                                            category.completed_goals_count ?? 0
+                                        }} </span
+                                    >&nbsp;done
+                                </span>
+                            </div>
+                            <div
+                                class="h-1.5 overflow-hidden rounded-full bg-muted"
+                            >
+                                <div
+                                    class="h-full rounded-full transition-all"
+                                    :style="{
+                                        width: `${completion(category)}%`,
+                                        backgroundColor: category.color,
+                                    }"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </Link>
+
+                <!-- Dashed new-category tile -->
+                <CategoryFormModal>
+                    <template #trigger>
+                        <button
+                            class="flex min-h-32 w-full items-center justify-center gap-2 rounded-xl border border-dashed text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                        >
+                            <Plus class="size-4" />
+                            New category
+                        </button>
+                    </template>
+                </CategoryFormModal>
             </div>
         </div>
     </AppLayout>

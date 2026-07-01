@@ -70,18 +70,15 @@ const open = ref<boolean>(props.open ?? false);
 <template>
     <Dialog v-model:open="open">
         <DialogTrigger as-child>
-            <Button v-if="!record">
-                <Plus />
-                Category
-            </Button>
-            <Button
-                v-else
-                variant="ghost"
-                size="icon"
-                class="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-            >
-                <Edit class="h-4 w-4" />
-            </Button>
+            <slot name="trigger">
+                <Button v-if="!record">
+                    <Plus />
+                    Category
+                </Button>
+                <Button v-else variant="ghost" size="icon" class="h-8 w-8">
+                    <Edit class="h-4 w-4" />
+                </Button>
+            </slot>
         </DialogTrigger>
         <DialogContent class="sm:max-w-[425px]">
             <DialogHeader>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import GoalCard from '@/components/goals/GoalCard.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
     Empty,
     EmptyContent,
@@ -33,10 +33,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const stats = [
-    { label: 'Active Goals', value: props.activeGoalsCount },
-    { label: 'Total Goals', value: props.totalGoalsCount },
+    { label: 'Active', value: props.activeGoalsCount },
     { label: 'Completed', value: props.completedGoalsCount },
-    { label: 'Completion Rate', value: `${props.completionRate}%` },
+    { label: 'Completion', value: `${props.completionRate}%` },
+    { label: 'Total', value: props.totalGoalsCount },
 ];
 </script>
 
@@ -44,55 +44,46 @@ const stats = [
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
-            <div>
-                <h1
-                    class="text-3xl font-bold tracking-tight text-balance md:text-4xl"
-                >
-                    Welcome back!
-                </h1>
-                <p class="mt-2 text-pretty text-muted-foreground">
-                    Here's your progress overview. Keep the momentum going!
-                </p>
-            </div>
-            <!-- Stat Cards -->
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card v-for="item in stats" :key="item.label">
-                    <CardContent class="flex items-center gap-4 p-6">
-                        <div>
-                            <p
-                                class="text-sm font-medium text-muted-foreground"
-                            >
-                                {{ item.label }}
-                            </p>
-                            <p class="text-2xl font-bold">{{ item.value }}</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <!-- Active goals Section -->
-            <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-2xl font-bold">Active Goals</h2>
-                        <p class="text-sm text-muted-foreground">
-                            Track your current goals and progress
-                        </p>
-                    </div>
-                    <Button as-child v-if="activeGoalsList.length > 0">
+        <div class="flex h-full flex-1 flex-col gap-6 p-4">
+            <PageHeader
+                title="Welcome back!"
+                description="Your momentum at a glance."
+            >
+                <template #actions>
+                    <Button as-child class="w-full sm:w-auto">
                         <Link :href="goals.create().url">
-                            <Plus class="mr-2 h-4 w-4" />
-                            New Goal
+                            <Plus />
+                            New goal
                         </Link>
                     </Button>
+                </template>
+            </PageHeader>
+
+            <!-- Stat band -->
+            <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <div
+                    v-for="item in stats"
+                    :key="item.label"
+                    class="rounded-lg bg-muted px-4 py-3"
+                >
+                    <p class="font-display text-2xl font-semibold">
+                        {{ item.value }}
+                    </p>
+                    <p class="mt-0.5 text-xs text-muted-foreground">
+                        {{ item.label }}
+                    </p>
                 </div>
+            </div>
+
+            <!-- Active goals -->
+            <section class="space-y-3">
+                <h2 class="font-display text-base font-semibold">
+                    Active goals
+                </h2>
 
                 <div
                     v-if="activeGoalsList.length > 0"
-                    class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3"
+                    class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
                 >
                     <GoalCard
                         v-for="goal in activeGoalsList"
@@ -100,28 +91,24 @@ const stats = [
                         :item="goal"
                     />
                 </div>
-                <div v-else>
-                    <Empty>
-                        <EmptyTitle>
-                            <EmptyMedia class="mx-auto" variant="icon">
-                                <GoalIcon />
-                            </EmptyMedia>
-                            No active goal
-                        </EmptyTitle>
-                        <EmptyDescription
-                            >It's cold up here...</EmptyDescription
-                        >
-                        <EmptyContent>
-                            <Button as-child>
-                                <Link :href="goals.create().url">
-                                    <Plus class="mr-2 h-4 w-4" />
-                                    New Goal
-                                </Link>
-                            </Button>
-                        </EmptyContent>
-                    </Empty>
-                </div>
-            </div>
+                <Empty v-else>
+                    <EmptyTitle>
+                        <EmptyMedia class="mx-auto" variant="icon">
+                            <GoalIcon />
+                        </EmptyMedia>
+                        No active goal
+                    </EmptyTitle>
+                    <EmptyDescription>It's cold up here...</EmptyDescription>
+                    <EmptyContent>
+                        <Button as-child>
+                            <Link :href="goals.create().url">
+                                <Plus />
+                                New goal
+                            </Link>
+                        </Button>
+                    </EmptyContent>
+                </Empty>
+            </section>
         </div>
     </AppLayout>
 </template>

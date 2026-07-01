@@ -40,7 +40,7 @@ const isTableEmpty = computed(() => {
 </script>
 
 <template>
-    <div class="relative overflow-x-auto bg-primary-foreground shadow-xs rounded-lg border border-border">
+    <div class="relative overflow-x-auto bg-card shadow-xs rounded-lg border border-border">
         <!-- <div class="p-4 flex items-center justify-between space-x-4">
             <label for="input-group" class="sr-only">Search</label>
             <div class="relative">
@@ -89,7 +89,7 @@ const isTableEmpty = computed(() => {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in table.getRowModel().rows" :key="row.id" class="bg-primary-foreground border-b border-border hover:bg-muted">
+                <tr v-for="row in table.getRowModel().rows" :key="row.id" class="bg-card border-b border-border hover:bg-muted">
                     <!-- <td class="p-4 w-0">
                         <Checkbox id="table-checkbox-2" name="table-checkbox-2" value="" />
                         <label for="table-checkbox-2" class="sr-only">Table checkbox</label>

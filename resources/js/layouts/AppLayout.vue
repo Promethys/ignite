@@ -22,6 +22,5 @@ withDefaults(defineProps<Props>(), {
         close-button
         close-button-position="top-right"
         theme="system"
-        rich-colors
     />
 </template>
