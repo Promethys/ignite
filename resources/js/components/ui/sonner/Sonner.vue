@@ -16,7 +16,7 @@ const delegatedProps = reactiveOmit(props, "toastOptions")
         toast: 'group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg',
         description: 'group-[.toast]:text-muted-foreground',
         actionButton:
-          'group-[.toast]:bg-transparent group-[.toast]:text-primary group-[.toast]:px-0 group-[.toast]:font-medium group-[.toast]:underline-offset-4 group-[.toast]:hover:underline',
+          'group-[.toast]:!bg-transparent group-[.toast]:!text-primary group-[.toast]:!px-0 group-[.toast]:!shadow-none group-[.toast]:font-medium group-[.toast]:underline-offset-4 group-[.toast]:hover:underline',
         cancelButton:
           'group-[.toast]:bg-muted group-[.toast]:text-muted-foreground',
       },
