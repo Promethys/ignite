@@ -277,4 +277,157 @@ class GoalControllerTest extends TestCase
             ->patch(route('goals.update-status', $goal), ['status' => 'invalid_status'])
             ->assertSessionHasErrors('status');
     }
+
+    // =========================================================================
+    // COMPLETE
+    // =========================================================================
+
+    public function test_user_can_complete_a_goal()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'simple',
+            'status' => 'in_progress',
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('goals.complete', $goal))
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Goal completed.');
+
+        $goal->refresh();
+        $this->assertEquals('completed', $goal->status);
+        $this->assertNotNull($goal->completed_at);
+    }
+
+    public function test_complete_flashes_an_undo_action_carrying_the_previous_status()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'simple',
+            'status' => 'in_progress',
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('goals.complete', $goal))
+            ->assertInertiaFlash('toast.action.label', 'Undo')
+            ->assertInertiaFlash('toast.action.method', 'patch')
+            ->assertInertiaFlash('toast.action.data.status', 'in_progress');
+    }
+
+    public function test_user_cannot_complete_another_users_goal()
+    {
+        $goal = Goal::factory()->create(['user_id' => $this->otherUser->id, 'current_value' => 0]);
+
+        $this->actingAs($this->user)
+            ->patch(route('goals.complete', $goal))
+            ->assertForbidden();
+    }
+
+    // =========================================================================
+    // UNCOMPLETE
+    // =========================================================================
+
+    public function test_user_can_uncomplete_a_goal()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'simple',
+            'status' => 'completed',
+            'completed_at' => now(),
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('goals.uncomplete', $goal), ['status' => 'in_progress'])
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Goal completion reverted.');
+
+        $goal->refresh();
+        $this->assertEquals('in_progress', $goal->status);
+        $this->assertNull($goal->completed_at);
+    }
+
+    public function test_uncomplete_restores_a_not_started_goal()
+    {
+        // Regression: a goal completed while still "not_started" must be restorable.
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'simple',
+            'status' => 'completed',
+            'completed_at' => now(),
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('goals.uncomplete', $goal), ['status' => 'not_started'])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $goal->refresh();
+        $this->assertEquals('not_started', $goal->status);
+        $this->assertNull($goal->completed_at);
+    }
+
+    public function test_uncomplete_rejects_the_completed_status()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'completed',
+            'completed_at' => now(),
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('goals.uncomplete', $goal), ['status' => 'completed'])
+            ->assertSessionHasErrors('status');
+
+        $this->assertEquals('completed', $goal->fresh()->status);
+    }
+
+    public function test_uncomplete_rejects_an_invalid_status()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'completed',
+            'completed_at' => now(),
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('goals.uncomplete', $goal), ['status' => 'banana'])
+            ->assertSessionHasErrors('status');
+    }
+
+    public function test_uncomplete_requires_a_status()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'completed',
+            'completed_at' => now(),
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('goals.uncomplete', $goal))
+            ->assertSessionHasErrors('status');
+    }
+
+    public function test_user_cannot_uncomplete_another_users_goal()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->otherUser->id,
+            'status' => 'completed',
+            'completed_at' => now(),
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('goals.uncomplete', $goal), ['status' => 'in_progress'])
+            ->assertForbidden();
+    }
 }
