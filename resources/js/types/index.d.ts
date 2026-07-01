@@ -28,3 +28,5 @@ export type AppPageProps<
 };
 
 export type BreadcrumbItemType = BreadcrumbItem;
+
+export type { User } from './models';
