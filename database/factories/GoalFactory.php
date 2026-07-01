@@ -60,11 +60,16 @@ class GoalFactory extends Factory
             $unit = $goal['unit'];
             $recurrence = null;
 
-            // Generate realistic progress based on status
+            // Generate realistic progress based on status. Note: no branch may
+            // emit current_value >= target_value, otherwise overriding `status`
+            // to a non-completed value (without overriding current_value) leaves
+            // an "in progress" goal sitting at its target, which the
+            // GoalObserver then auto-completes — a source of flaky tests. Tests
+            // that need an at-target goal set current_value explicitly.
             $currentValue = match ($status) {
                 'not_started' => 0,
                 'in_progress' => fake()->numberBetween($targetValue * 0.1, $targetValue * 0.9),
-                'completed' => $targetValue,
+                'completed' => fake()->numberBetween($targetValue * 0.5, $targetValue * 0.9),
                 'paused' => fake()->numberBetween($targetValue * 0.2, $targetValue * 0.6),
                 'abandoned' => fake()->numberBetween(0, $targetValue * 0.3),
             };

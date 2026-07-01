@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // Quick actions (optional, for better UX)
             Route::patch('/{goal}/status', 'updateStatus')->name('goals.update-status');
             Route::patch('/{goal}/complete', 'complete')->name('goals.complete');
+            Route::patch('/{goal}/uncomplete', 'uncomplete')->name('goals.uncomplete');
         });
 
         Route::controller(GoalEntryController::class)->group(function () {

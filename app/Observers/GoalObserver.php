@@ -42,6 +42,7 @@ class GoalObserver
     {
         if (
             $goal->status !== 'completed'
+            && $goal->isDirty('current_value')
             && $goal->target_value
             && (
                 ($goal->direction === 'descending' && $goal->current_value <= $goal->target_value)

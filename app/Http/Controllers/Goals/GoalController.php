@@ -160,9 +160,39 @@ class GoalController extends Controller
     {
         Gate::authorize('update', $goal);
 
+        $oldStatus = $goal->status;
         $goal->markAsCompleted();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal completed.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal completed.', 'action' => [
+            'label' => 'Undo',
+            'method' => 'patch',
+            'url' => route('goals.uncomplete', [
+                'goal' => $goal,
+            ]),
+            'data' => [
+                'status' => $oldStatus,
+            ],
+        ]]);
+
+        return back(303);
+    }
+
+    public function uncomplete(Request $request, Goal $goal)
+    {
+        Gate::authorize('update', $goal);
+
+        $validated = $request->validate([
+            'status' => 'required|in:not_started,in_progress,paused,abandoned',
+        ]);
+
+        Goal::withoutEvents(function () use ($goal, $validated) {
+            $goal->update([
+                'status' => $validated['status'],
+                'completed_at' => null,
+            ]);
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal completion reverted.']);
 
         return back(303);
     }
