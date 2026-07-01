@@ -7,6 +7,6 @@ export type FlashToast = {
         label: string;
         method: 'patch' | 'post' | 'put' | 'delete';
         url: string;
-        data?: Record<string, FormDataConvertible>
-    }
+        data?: Record<string, FormDataConvertible>;
+    };
 };
