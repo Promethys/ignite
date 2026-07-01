@@ -3,7 +3,7 @@ import { getBinaryTheme } from '@/composables/useAppearance';
 import { GoalEntry } from '@/types/models';
 
 const props = defineProps<{
-    entries: GoalEntry[];
+    entries: Pick<GoalEntry, 'entry_date' | 'value'>[];
     targetValue: number | string | null;
     unit: string | null;
 }>();
@@ -59,6 +59,8 @@ const chartOptions = {
     },
     stroke: {
         curve: 'smooth',
+        width: [3, 2],
+        dashArray: [0, 6],
     },
     grid: {
         row: {

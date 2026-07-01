@@ -7,7 +7,7 @@ defineProps<{
 
 <template>
     <div
-        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+        class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
     >
         <div>
             <h1
@@ -22,6 +22,8 @@ defineProps<{
                 {{ description }}
             </p>
         </div>
-        <slot name="actions" />
+        <div class="shrink-0 sm:mt-1">
+            <slot name="actions" />
+        </div>
     </div>
 </template>
