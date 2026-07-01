@@ -836,6 +836,5 @@ import 'vue-sonner/style.css';
         close-button
         close-button-position="top-right"
         theme="system"
-        rich-colors
     />
 </template>
