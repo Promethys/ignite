@@ -129,7 +129,7 @@ describe('QuantifiableGoalCard', () => {
             global: { stubs },
         });
 
-        const deadlineSpan = wrapper.find('span.text-orange-400');
+        const deadlineSpan = wrapper.find('span.text-warning');
         expect(deadlineSpan.exists()).toBe(true);
     });
 
