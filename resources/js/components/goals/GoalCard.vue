@@ -1,21 +1,29 @@
 <script setup lang="ts">
 import { Goal } from '@/types/models';
-import MultiStepGoalCard from './MultiStepGoalCard.vue';
-import QuantifiableGoalCard from './QuantifiableGoalCard.vue';
-import RecurringGoalCard from './RecurringGoalCard.vue';
-import SimpleGoalCard from './SimpleGoalCard.vue';
+import BaseGoalCard from './BaseGoalCard.vue';
+import MultiStepProgress from './progress/MultiStepProgress.vue';
+import QuantifiableProgress from './progress/QuantifiableProgress.vue';
+import RecurringProgress from './progress/RecurringProgress.vue';
 
-defineProps<{
-    item: Goal;
-}>();
+defineProps<{ item: Goal }>();
 </script>
 
 <template>
-    <SimpleGoalCard v-if="item.type === 'simple'" :item="item" />
-    <QuantifiableGoalCard
-        v-else-if="item.type === 'quantifiable'"
-        :item="item"
-    />
-    <RecurringGoalCard v-else-if="item.type === 'recurring'" :item="item" />
-    <MultiStepGoalCard v-else-if="item.type === 'multi_step'" :item="item" />
+    <BaseGoalCard :item="item">
+        <template #progress>
+            <QuantifiableProgress
+                v-if="item.type === 'quantifiable'"
+                :item="item"
+            />
+            <RecurringProgress
+                v-else-if="item.type === 'recurring'"
+                :item="item"
+            />
+            <MultiStepProgress
+                v-else-if="item.type === 'multi_step'"
+                :item="item"
+            />
+            <!-- simple: no progress zone -->
+        </template>
+    </BaseGoalCard>
 </template>
