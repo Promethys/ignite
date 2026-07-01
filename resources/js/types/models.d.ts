@@ -35,6 +35,8 @@ export interface Category {
     goals?: Goal[];
 
     goals_count?: number;
+    active_goals_count?: number;
+    completed_goals_count?: number;
 }
 
 export interface Goal {
