@@ -47,7 +47,7 @@ const isPaused = computed(() => {
 <template>
     <Link :href="goals.show(item.id).url">
         <Card
-            class="h-full cursor-pointer gap-2 rounded-4xl border-2 border-accent px-6 py-8 text-sm transition-all hover:bg-accent/50"
+            class="h-full cursor-pointer gap-2 rounded-xl border px-6 py-8 text-sm transition-all hover:bg-accent/50"
             :class="{ 'opacity-60': isCompleted }"
         >
             <div class="flex w-full items-center justify-between">
@@ -95,41 +95,44 @@ const isPaused = computed(() => {
                                     >Edit</Link
                                 >
                             </DropdownMenuItem>
-                            <DropdownMenuItem variant="destructive" as-child>
-                                <AlertDialog>
-                                    <AlertDialogTrigger>
+                            <AlertDialog>
+                                <AlertDialogTrigger as-child>
+                                    <DropdownMenuItem
+                                        variant="destructive"
+                                        class="cursor-pointer"
+                                        @select.prevent
+                                    >
                                         Delete
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle
-                                                >Are you absolutely
-                                                sure?</AlertDialogTitle
-                                            >
-                                            <AlertDialogDescription>
-                                                This action cannot be undone.
-                                                This will permanently delete
-                                                your goal.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel
-                                                >Cancel</AlertDialogCancel
-                                            >
-                                            <AlertDialogAction
-                                                variant="destructive"
-                                                @click="
-                                                    router.delete(
-                                                        goals.destroy(item),
-                                                    )
-                                                "
-                                            >
-                                                Delete
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </DropdownMenuItem>
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle
+                                            >Are you absolutely
+                                            sure?</AlertDialogTitle
+                                        >
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This
+                                            will permanently delete your goal.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel
+                                            >Cancel</AlertDialogCancel
+                                        >
+                                        <AlertDialogAction
+                                            variant="destructive"
+                                            @click="
+                                                router.delete(
+                                                    goals.destroy(item),
+                                                )
+                                            "
+                                        >
+                                            Delete
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
