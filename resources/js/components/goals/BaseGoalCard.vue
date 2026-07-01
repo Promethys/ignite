@@ -48,7 +48,7 @@ const deadlineState = computed(() => {
 <template>
     <Link :href="goals.show(item.id).url" class="block h-full">
         <Card
-            class="h-full gap-4 rounded-xl border px-6 py-6 text-sm shadow-sm transition-colors hover:bg-accent/40"
+            class="h-full gap-3 rounded-xl border px-5 py-5 text-sm shadow-sm transition-colors hover:bg-accent/40"
             :class="
                 isCompleted
                     ? 'border-success-subtle-border bg-success-subtle hover:bg-success-subtle'
@@ -56,7 +56,7 @@ const deadlineState = computed(() => {
             "
         >
             <!-- Header: badges + menu -->
-            <div class="flex w-full items-start justify-between gap-2">
+            <div class="flex w-full items-center justify-between gap-2">
                 <GoalBadges :goal="item" />
                 <DropdownMenu>
                     <DropdownMenuTrigger as-child @click.stop.prevent>
@@ -140,12 +140,15 @@ const deadlineState = computed(() => {
                 </DropdownMenu>
             </div>
 
-            <!-- Title + description (height-reserved) -->
+            <!-- Title + description -->
             <div class="space-y-1">
                 <h3 class="font-display text-lg font-semibold">
                     {{ item.title }}
                 </h3>
-                <p class="line-clamp-1 min-h-5 text-sm text-muted-foreground">
+                <p
+                    v-if="item.description"
+                    class="line-clamp-1 text-sm text-muted-foreground"
+                >
                     {{ item.description }}
                 </p>
             </div>
@@ -155,7 +158,8 @@ const deadlineState = computed(() => {
 
             <!-- Footer: category + deadline -->
             <div
-                class="mt-auto flex items-center justify-between text-xs text-muted-foreground"
+                v-if="item.category?.name || item.deadline"
+                class="mt-auto flex items-center justify-between border-t border-border/60 pt-2.5 text-xs text-muted-foreground"
             >
                 <span>{{ item.category?.name }}</span>
                 <span

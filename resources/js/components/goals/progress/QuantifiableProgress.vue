@@ -7,7 +7,7 @@ const props = defineProps<{ item: Goal }>();
 
 <template>
     <div v-if="props.item.target_value" class="space-y-2">
-        <Progress :model-value="props.item.progress_percentage" />
+        <Progress :model-value="props.item.progress_percentage" class="h-1.5" />
         <div class="flex items-center justify-between text-xs">
             <span class="font-semibold"
                 >{{ Math.round(props.item.progress_percentage) }}%</span
