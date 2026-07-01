@@ -1,7 +1,8 @@
+import GoalBadges from '@/components/goals/GoalBadges.vue';
+import StatusDot from '@/components/ui/badge/StatusDot.vue';
+import type { Category, Goal } from '@/types/models';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import GoalBadges from '@/components/goals/GoalBadges.vue';
-import type { Goal } from '@/types/models';
 
 const baseGoal: Goal = {
     id: 1,
@@ -68,5 +69,33 @@ describe('GoalBadges', () => {
         });
 
         expect(wrapper.text()).toContain('High Priority');
+    });
+
+    it('renders a status dot alongside the status badge', () => {
+        const wrapper = mount(GoalBadges, {
+            props: { goal: baseGoal },
+            global: { stubs: { Badge: BadgeStub } },
+        });
+
+        expect(wrapper.findComponent(StatusDot).exists()).toBe(true);
+    });
+
+    it('shows the category badge only when a category is set', () => {
+        const withoutCategory = mount(GoalBadges, {
+            props: { goal: baseGoal },
+            global: { stubs: { Badge: BadgeStub } },
+        });
+        expect(withoutCategory.text()).not.toContain('Health');
+
+        const withCategory = mount(GoalBadges, {
+            props: {
+                goal: {
+                    ...baseGoal,
+                    category: { name: 'Health' } as Category,
+                },
+            },
+            global: { stubs: { Badge: BadgeStub } },
+        });
+        expect(withCategory.text()).toContain('Health');
     });
 });

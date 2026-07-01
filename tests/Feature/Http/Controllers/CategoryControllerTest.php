@@ -67,6 +67,40 @@ class CategoryControllerTest extends TestCase
             );
     }
 
+    public function test_categories_include_active_and_completed_counts()
+    {
+        $category = Category::factory()->create(['user_id' => $this->user->id]);
+
+        Goal::factory()->count(2)->create([
+            'category_id' => $category->id,
+            'user_id' => $this->user->id,
+            'status' => 'in_progress',
+            'current_value' => 0,
+        ]);
+        Goal::factory()->create([
+            'category_id' => $category->id,
+            'user_id' => $this->user->id,
+            'status' => 'completed',
+            'current_value' => 0,
+        ]);
+        Goal::factory()->create([
+            'category_id' => $category->id,
+            'user_id' => $this->user->id,
+            'status' => 'paused',
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->get(route('categories.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Categories/Index')
+                ->has('items', 1)
+                ->where('items.0.goals_count', 4)
+                ->where('items.0.active_goals_count', 2)
+                ->where('items.0.completed_goals_count', 1)
+            );
+    }
+
     public function test_user_does_not_see_other_users_categories()
     {
         Category::factory()->create(['user_id' => $this->otherUser->id]);
