@@ -30,7 +30,7 @@ const passwordInput = ref<InstanceType<typeof Input> | null>(null);
             description="Delete your account and all of its resources"
         />
         <div
-            class="space-y-4 rounded-lg border border-destructive/20 bg-destructive/5 p-4 dark:border-destructive/20 dark:bg-destructive/10"
+            class="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6 dark:border-destructive/30 dark:bg-destructive/10"
         >
             <div class="relative space-y-0.5 text-destructive">
                 <p class="font-medium">Warning</p>
