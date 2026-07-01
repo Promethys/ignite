@@ -12,9 +12,9 @@ const getStatusDisplayName = function (name: string) {
 };
 
 const goalStatusBadgeColors = {
-    'bg-green-700 text-white': props.goal.status === 'completed',
-    'bg-yellow-300 text-black': props.goal.status === 'paused',
-    'bg-orange-500 text-white': props.goal.status === 'abandoned',
+    'bg-success text-success-foreground': props.goal.status === 'completed',
+    'bg-warning text-warning-foreground': props.goal.status === 'paused',
+    'bg-muted text-muted-foreground': props.goal.status === 'abandoned',
 };
 </script>
 

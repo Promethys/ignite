@@ -10,6 +10,16 @@ const props = defineProps<{
 
 const theme = getBinaryTheme();
 
+const cssVar = (name: string) =>
+    typeof document !== 'undefined'
+        ? getComputedStyle(document.documentElement)
+              .getPropertyValue(name)
+              .trim()
+        : '';
+
+// Series 1 (progress) uses the brand colour; series 2 (target) stays muted.
+const chartColors = [cssVar('--chart-1'), cssVar('--muted-foreground')];
+
 const sortedEntries = [...props.entries].sort(
     (a, b) =>
         new Date(a.entry_date).getTime() - new Date(b.entry_date).getTime(),
@@ -33,6 +43,7 @@ const chartSeries = [
 ];
 
 const chartOptions = {
+    colors: chartColors,
     chart: {
         height: 350,
         type: 'line',

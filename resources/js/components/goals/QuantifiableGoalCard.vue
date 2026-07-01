@@ -173,7 +173,7 @@ const isPaused = computed(() => {
                             Deadline:
                             <span
                                 :class="{
-                                    'font-semibold text-orange-400':
+                                    'font-semibold text-warning':
                                         !isCompleted &&
                                         getDateDiffFromNow(item.deadline) === 0,
                                     'font-semibold text-destructive':
