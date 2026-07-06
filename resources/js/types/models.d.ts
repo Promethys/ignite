@@ -63,6 +63,7 @@ export interface Goal {
         | 'paused'
         | 'abandoned';
     priority: 'low' | 'medium' | 'high';
+    polarity: 'positive' | 'negative';
     points: number;
     is_public: boolean;
     order: number;

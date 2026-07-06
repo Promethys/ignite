@@ -42,6 +42,7 @@ class Goal extends Model
         'points',
         'is_public',
         'order',
+        'polarity',
     ];
 
     /**

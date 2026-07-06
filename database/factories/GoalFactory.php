@@ -115,6 +115,7 @@ class GoalFactory extends Factory
             'completed_at' => $completedAt,
             'status' => $status,
             'priority' => fake()->randomElement(['low', 'medium', 'high']),
+            'polarity' => 'positive',
             'points' => fake()->numberBetween(0, 500),
             'is_public' => fake()->boolean(20),
             'order' => fake()->numberBetween(0, 10),
@@ -183,6 +184,15 @@ class GoalFactory extends Factory
             'initial_value' => $attributes['initial_value'] ?? 100,
             'target_value' => $attributes['target_value'] ?? 0,
             'current_value' => $attributes['current_value'] ?? $attributes['initial_value'] ?? 100,
+        ]);
+    }
+
+    public function negative(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'recurring',
+            'polarity' => 'negative',
+            'recurrence' => fake()->randomElement(['daily', 'weekly', 'monthly', 'annually']),
         ]);
     }
 }
