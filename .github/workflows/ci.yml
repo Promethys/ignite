@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: postgres
+      DB_USERNAME: postgres
+      DB_PASSWORD: dummy_password
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: dummy_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports: 
+          - 5432:5432
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          extensions: pdo_pgsql
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          npm ci
+
+      - name: Copy Environment File
+        run: cp .env.example .env
+
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      - name: Run Pint
+        run: vendor/bin/pint --test
+
+      - name: Run ESLint
+        run: npm run lint:check
+
+      - name: Run Prettier
+        run: npm run format:check
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=512M
+
+      - name: Build Assets
+        run: npm run build
+
+      - name: Tests Back-End
+        run: ./vendor/bin/phpunit
+
+      - name: Tests Front-End
+        run: LARAVEL_BYPASS_ENV_CHECK=1 npx vitest --run

@@ -6,6 +6,7 @@ use App\Models\Goal;
 use App\Models\GoalEntry;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -74,17 +75,20 @@ class GoalEntryControllerTest extends TestCase
 
     public function test_entries_are_paginated()
     {
-        GoalEntry::factory()->count(25)->create([
+        GoalEntry::factory()->count(30)->create([
             'goal_id' => $this->goal->id,
             'entry_date' => now()->subDays(rand(0, 30)),
         ]);
 
-        $this->actingAs($this->user)
+        $response = $this->actingAs($this->user)
             ->get(route('goals.entries', $this->goal))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('GoalEntries/Index')
-                ->has('entries')
+                ->has('entries.data')
             );
+
+        $this->assertEquals($this->goal->id, $response->inertiaProps('goal.id'));
+        $this->assertEquals(20, count($response->inertiaProps('entries.data')));
     }
 
     public function test_entries_can_be_searched_by_note()
@@ -100,12 +104,18 @@ class GoalEntryControllerTest extends TestCase
             'entry_date' => now(),
         ]);
 
-        $this->actingAs($this->user)
-            ->get(route('goals.entries', array_merge(['goal' => $this->goal->id], ['search' => 'Unique progress'])))
+        $response = $this->actingAs($this->user)
+            ->get(route('goals.entries', ['goal' => $this->goal->id, 'search' => 'Unique progress']))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('GoalEntries/Index')
-                ->has('entries')
+                ->has('entries.data')
             );
+
+        $data = $response->inertiaProps('entries.data');
+
+        $this->assertEquals($this->goal->id, $response->inertiaProps('goal.id'));
+        $this->assertEquals(1, count($data));
+        $this->assertEquals('Unique progress note', $data[0]['note']);
     }
 
     public function test_entries_can_be_filtered_by_date_from()
@@ -119,12 +129,18 @@ class GoalEntryControllerTest extends TestCase
             'entry_date' => '2026-03-15',
         ]);
 
-        $this->actingAs($this->user)
-            ->get(route('goals.entries', array_merge(['goal' => $this->goal->id], ['from' => '2026-03-01'])))
+        $response = $this->actingAs($this->user)
+            ->get(route('goals.entries', ['goal' => $this->goal->id, 'from' => '2026-03-01']))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('GoalEntries/Index')
-                ->has('entries')
+                ->has('entries.data')
             );
+
+        $data = $response->inertiaProps('entries.data');
+
+        $this->assertEquals($this->goal->id, $response->inertiaProps('goal.id'));
+        $this->assertEquals(1, count($data));
+        $this->assertTrue(Carbon::parse($data[0]['entry_date'])->gt(Carbon::parse('2026-03-01')));
     }
 
     public function test_entries_can_be_filtered_by_date_to()
@@ -138,12 +154,18 @@ class GoalEntryControllerTest extends TestCase
             'entry_date' => '2026-03-15',
         ]);
 
-        $this->actingAs($this->user)
-            ->get(route('goals.entries', array_merge(['goal' => $this->goal->id], ['to' => '2026-02-01'])))
+        $response = $this->actingAs($this->user)
+            ->get(route('goals.entries', ['goal' => $this->goal->id, 'to' => '2026-02-01']))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('GoalEntries/Index')
-                ->has('entries')
+                ->has('entries.data')
             );
+
+        $data = $response->inertiaProps('entries.data');
+
+        $this->assertEquals($this->goal->id, $response->inertiaProps('goal.id'));
+        $this->assertEquals(1, count($data));
+        $this->assertTrue(Carbon::parse($data[0]['entry_date'])->lt(Carbon::parse('2026-03-01')));
     }
 
     // =========================================================================

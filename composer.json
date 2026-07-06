@@ -1,12 +1,19 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/vue-starter-kit",
+    "name": "promethys/ignite",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Ignite is a self-hostable goal tracking app that fights project abandonment with visual progress tracking, gamification, and multiple goal types.",
     "keywords": [
         "laravel",
-        "framework"
+        "vue",
+        "inertia",
+        "goal-tracking",
+        "habit-tracker",
+        "productivity",
+        "self-hosted",
+        "gamification"
     ],
+    "homepage": "https://github.com/Promethys/ignite",
     "license": "MIT",
     "require": {
         "php": "^8.5",

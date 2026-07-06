@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Goals;
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
 use App\Models\GoalEntry;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -26,11 +25,7 @@ class GoalEntryController extends Controller
         $query = $goal->entries();
 
         if (isset($validated['search']) && ! empty($validated['search'])) {
-            $query->where(function (Builder $query) use ($validated) {
-                $query->whereRaw('LOWER(note) like ?', ['%'.strtolower($validated['search']).'%'])
-                    ->orWhereRaw('LOWER(value) like ?', ['%'.strtolower($validated['search']).'%'])
-                    ->orWhereRaw('LOWER(entry_date) like ?', ['%'.strtolower($validated['search']).'%']);
-            });
+            $query->whereRaw('LOWER(note) like ?', ['%'.strtolower($validated['search']).'%']);
         }
 
         if (isset($validated['from']) && ! empty($validated['from'])) {

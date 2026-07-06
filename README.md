@@ -23,20 +23,19 @@ Ignite is a full-stack web application designed to combat project abandonment by
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Laravel 11
+- **Backend**: Laravel 13
 - **Frontend**: Vue.js 3 + Inertia.js
-- **Database**: MySQL/PostgreSQL
-- **Styling**: Tailwind CSS
-- **Charts**: Chart.js / ApexCharts
-
-## 📋 Requirements
-
-- PHP 8.2 or higher
-- Composer
-- Node.js & NPM
-- MySQL 8.0+ or PostgreSQL 13+
+- **Database**: PostgreSQL
+- **Styling**: Tailwind CSS v4
+- **Charts**: ApexCharts
 
 ## 🚀 Installation
+
+There are two ways to set up a development environment. **Docker is the recommended path** — it needs nothing on your machine besides Docker itself and guarantees the same stack for everyone (nginx, PHP-FPM, PostgreSQL 18, queue worker).
+
+### Option A — Docker (recommended)
+
+**Requirements:** [Docker Desktop](https://docs.docker.com/get-docker/) for Windows (or Docker Engine + Compose)
 
 1. **Clone the repository**
    ```bash
@@ -44,50 +43,81 @@ Ignite is a full-stack web application designed to combat project abandonment by
    cd ignite
    ```
 
-2. **Install PHP dependencies**
+2. **Environment setup**
    ```bash
-   composer install
+   cp .env.example .env
    ```
 
-3. **Install JavaScript dependencies**
+3. **Build and start the stack**
    ```bash
+   docker compose -f compose.dev.yaml up --build -d
+   ```
+   Migrations run automatically on startup. Five services come up: `web` (nginx), `php-fpm`, `workspace` (CLI tools), `postgres`, and `queue` (queue worker).
+
+4. **Generate the app key and seed (first run only)**
+   ```bash
+   docker compose -f compose.dev.yaml exec workspace php artisan key:generate
+   docker compose -f compose.dev.yaml exec workspace php artisan db:seed
+   ```
+
+5. **Start Vite for hot module reload** (optional, for frontend work)
+   ```bash
+   docker compose -f compose.dev.yaml exec workspace npm install
+   docker compose -f compose.dev.yaml exec workspace npm run dev
+   ```
+
+Visit `http://localhost:8080` in your browser.
+
+Useful commands:
+```bash
+docker compose -f compose.dev.yaml exec workspace php artisan <cmd>   # any artisan command
+docker compose -f compose.dev.yaml logs -f php-fpm                    # tail logs
+docker compose -f compose.dev.yaml down                               # stop (data persists)
+docker compose -f compose.dev.yaml down -v                            # stop + wipe database
+```
+
+> **Note:** the Docker PostgreSQL is published on host port **5433** (to avoid clashing with a native PostgreSQL on 5432). Connect from your host tools with `localhost:5433`.
+
+### Option B — Native setup
+
+**Requirements:** PHP 8.5+, Composer, Node.js & NPM, PostgreSQL 18+
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Promethys/ignite.git
+   cd ignite
+   ```
+
+2. **Install dependencies**
+   ```bash
+   composer install
    npm install
    ```
 
-4. **Environment setup**
+3. **Environment setup**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
-5. **Configure your database** in `.env`
+4. **Configure your database** in `.env`
    ```env
-   DB_CONNECTION=mysql
+   DB_CONNECTION=pgsql
    DB_HOST=127.0.0.1
-   DB_PORT=3306
+   DB_PORT=5432
    DB_DATABASE=ignite
-   DB_USERNAME=root
-   DB_PASSWORD=
+   DB_USERNAME=postgres
+   DB_PASSWORD=secret
    ```
 
-6. **Run migrations**
+5. **Run migrations**
    ```bash
    php artisan migrate
    ```
 
-7. **Build assets**
+6. **Start everything** (server, queue worker, and Vite in one command)
    ```bash
-   npm run build
-   ```
-
-8. **Start the development server**
-   ```bash
-   php artisan serve
-   ```
-
-9. **In another terminal, start Vite** (for development)
-   ```bash
-   npm run dev
+   composer run dev
    ```
 
 Visit `http://localhost:8000` in your browser.
