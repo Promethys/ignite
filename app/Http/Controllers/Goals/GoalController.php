@@ -28,6 +28,7 @@ class GoalController extends Controller
         'completed_at' => 'nullable|date|after:start_date',
         'status' => 'required|in:not_started,in_progress,completed,paused,abandoned',
         'priority' => 'required|in:low,medium,high',
+        'polarity' => 'nullable|in:positive,negative',
         'points' => 'required|integer|min:0',
         'is_public' => 'required|boolean',
         'order' => 'nullable|integer',

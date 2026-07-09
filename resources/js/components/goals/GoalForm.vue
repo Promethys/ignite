@@ -14,6 +14,7 @@ import { Textarea } from '../ui/textarea';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import {
     getGoalDirectionOptions,
+    getGoalPolarityOptions,
     getGoalPriorityOptions,
     getGoalRecurrenceOptions,
     getGoalStatusOptions,
@@ -71,6 +72,7 @@ const formData = {
         : undefined,
     status: props.record?.status ?? 'not_started',
     priority: props.record?.priority ?? 'medium',
+    polarity: props.record?.polarity ?? 'positive',
     points: props.record?.points ?? 0,
     is_public: props.record?.is_public ?? false,
     order: props.record?.order ?? 0,
@@ -392,18 +394,38 @@ form.transform((data) => ({
                         <InputError :message="form.errors.direction" />
                     </div>
 
-                    <!-- Icon -->
+                    <!-- Polarity -->
                     <div class="grid gap-2">
-                        <Label for="icon">Icon</Label>
-                        <Input
-                            id="icon"
-                            v-model="form.icon"
-                            type="text"
-                            name="icon"
-                            placeholder="📕, 🚀, 🏃‍♀️"
-                            :tabindex="15"
-                        />
-                        <InputError :message="form.errors.icon" />
+                        <Label for="polarity" class="space-x-2">
+                            Polarity
+                            <HelpTooltip>
+                                Controls how the streak is counted. Positive
+                                counts consecutive periods where you log
+                                progress, for building a habit. Negative counts
+                                how long you go without an entry, for breaking
+                                one. Only applies to recurring goals.
+                            </HelpTooltip>
+                        </Label>
+                        <Select
+                            id="polarity"
+                            v-model="form.polarity"
+                            name="polarity"
+                            :disabled="form.type !== 'recurring'"
+                        >
+                            <SelectTrigger :tabindex="15">
+                                <SelectValue placeholder="Select a polarity" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem
+                                    v-for="polarity in getGoalPolarityOptions()"
+                                    :key="polarity.value"
+                                    :value="polarity.value"
+                                >
+                                    {{ polarity.label }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <InputError :message="form.errors.polarity" />
                     </div>
 
                     <!-- Recurrence -->

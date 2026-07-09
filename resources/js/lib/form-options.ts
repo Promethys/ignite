@@ -15,6 +15,13 @@ export function getGoalPriorityOptions() {
     ];
 }
 
+export function getGoalPolarityOptions() {
+    return [
+        { value: 'positive', label: 'Positive' },
+        { value: 'negative', label: 'Negative' },
+    ];
+}
+
 export function getGoalStatusOptions() {
     return [
         { value: 'not_started', label: 'Not Started' },

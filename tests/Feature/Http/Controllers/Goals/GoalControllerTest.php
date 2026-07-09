@@ -170,6 +170,16 @@ class GoalControllerTest extends TestCase
             ->assertSessionHasErrors('deadline');
     }
 
+    public function test_polarity_must_be_valid()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'type' => 'recurring',
+                'polarity' => 'not-valid',
+            ]))
+            ->assertSessionHasErrors('polarity');
+    }
+
     // =========================================================================
     // EDIT / UPDATE
     // =========================================================================
@@ -205,6 +215,25 @@ class GoalControllerTest extends TestCase
         $this->actingAs($this->user)
             ->put(route('goals.update', $goal), $this->validGoalData(['title' => '']))
             ->assertSessionHasErrors('title');
+    }
+
+    public function test_update_persists_polarity()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.update', $goal), $this->validGoalData([
+                'polarity' => 'positive',
+            ]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('goals', [
+            'id' => $goal->id,
+            'polarity' => 'positive',
+        ]);
     }
 
     // =========================================================================
