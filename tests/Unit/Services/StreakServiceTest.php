@@ -320,4 +320,56 @@ class StreakServiceTest extends TestCase
 
         $this->assertNull(StreakService::for($goal));
     }
+
+    public function test_it_handles_a_single_entry()
+    {
+        Carbon::setTestNow('2026-07-06 10:00:00');
+
+        $user = User::factory()->create();
+
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+        ]);
+
+        GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-06',
+        ]);
+
+        $streakData = StreakService::for($goal);
+
+        $this->assertEquals(1, $streakData?->current);
+        $this->assertEquals(1, $streakData?->longest);
+    }
+
+    public function test_it_computes_the_streak_regardless_of_entry_insertion_order()
+    {
+        Carbon::setTestNow('2026-07-06 10:00:00');
+
+        $user = User::factory()->create();
+
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+        ]);
+
+        GoalEntry::factory()
+            ->count(3)
+            ->sequence(
+                ['entry_date' => '2026-07-05'],
+                ['entry_date' => '2026-07-04'],
+                ['entry_date' => '2026-07-06'],
+            )
+            ->create([
+                'goal_id' => $goal->id,
+            ]);
+
+        $streakData = StreakService::for($goal);
+
+        $this->assertEquals(3, $streakData?->current);
+        $this->assertEquals(3, $streakData?->longest);
+    }
 }
