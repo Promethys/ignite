@@ -31,11 +31,11 @@ class StreakService
             ->orderBy('entry_date')
             ->distinct()
             ->get()
-            ->pluck('entry_date');
+            ->map(fn (GoalEntry $entry) => $entry->entry_date);
 
         $now = Carbon::now()->timezone($timezone);
-        $currentStreak = static::evaluateCurrentStreak($now->copy(), $cadence, $entryDates);
-        $longestStreak = static::evaluateLongestStreak($entryDates, $cadence['unit']);
+        $currentStreak = self::evaluateCurrentStreak($now->copy(), $cadence, $entryDates);
+        $longestStreak = self::evaluateLongestStreak($entryDates, $cadence['unit']);
 
         return new StreakData(
             $currentStreak['streak'],

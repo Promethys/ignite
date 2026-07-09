@@ -75,6 +75,8 @@ class Goal extends Model
 
     /**
      * Get the user that owns the goal.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
