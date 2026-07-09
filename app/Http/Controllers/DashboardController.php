@@ -15,7 +15,8 @@ class DashboardController extends Controller
             ->with(['category', 'entries'])
             ->whereNull('completed_at')
             ->where('status', 'in_progress')
-            ->get();
+            ->get()
+            ->append('streak');
         $activeGoalsCount = $activeGoalsList->count();
         $totalGoalsCount = $user->goals()->count();
         $completedGoalsCount = $user->goals()

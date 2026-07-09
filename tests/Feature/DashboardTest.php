@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Goal;
+use App\Models\GoalEntry;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -109,6 +111,62 @@ class DashboardTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->has('activeGoalsList', 1)
                 ->where('activeGoalsList.0.title', 'Active Goal')
+            );
+    }
+
+    public function test_dashboard_attaches_streak_to_active_recurring_goals()
+    {
+        Carbon::setTestNow('2026-07-06 10:00:00');
+
+        $user = User::factory()->create();
+
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+            'status' => 'in_progress',
+            'completed_at' => null,
+            'title' => 'Daily meditation',
+        ]);
+
+        GoalEntry::factory()
+            ->count(3)
+            ->sequence(
+                ['entry_date' => '2026-07-04'],
+                ['entry_date' => '2026-07-05'],
+                ['entry_date' => '2026-07-06'],
+            )
+            ->create(['goal_id' => $goal->id]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('activeGoalsList.0.streak')
+                ->where('activeGoalsList.0.streak.current', 3)
+                ->where('activeGoalsList.0.streak.unit', 'day')
+                ->where('activeGoalsList.0.streak.current_period_satisfied', true)
+            );
+
+        Carbon::setTestNow();
+    }
+
+    public function test_dashboard_attaches_null_streak_to_non_recurring_goals()
+    {
+        $user = User::factory()->create();
+
+        Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'simple',
+            'recurrence' => null,
+            'status' => 'in_progress',
+            'completed_at' => null,
+            'title' => 'Simple goal',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('activeGoalsList.0.streak', null)
             );
     }
 }
