@@ -197,6 +197,53 @@ class GoalTest extends TestCase
         $this->assertTrue($goal->is_completed);
     }
 
+    public function test_streak_returns_streak_data_for_recurring_goals()
+    {
+        $goal = Goal::factory()->create([
+            'type' => 'recurring',
+            'recurrence' => 'weekly',
+        ]);
+
+        GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+        ]);
+
+        $this->assertNotNull($goal->streak);
+    }
+
+    public function test_streak_returns_null_for_non_recurring_goals()
+    {
+        $goal = Goal::factory()->create([
+            'type' => 'simple',
+            'recurrence' => null,
+        ]);
+
+        $this->assertNull($goal->streak);
+    }
+
+    public function test_streak_returns_correct_serialized_array()
+    {
+        $goal = Goal::factory()->create([
+            'type' => 'recurring',
+            'recurrence' => 'weekly',
+        ]);
+
+        GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+        ]);
+
+        $streakData = $goal
+            ->append('streak')
+            ->toArray()['streak'];
+
+        $this->assertIsArray($streakData);
+        $this->assertArrayHasKey('current', $streakData);
+        $this->assertArrayHasKey('longest', $streakData);
+        $this->assertArrayHasKey('unit', $streakData);
+        $this->assertArrayHasKey('current_period_satisfied', $streakData);
+        $this->assertCount(4, $streakData);
+    }
+
     // =========================================================================
     // METHOD TESTS
     // =========================================================================

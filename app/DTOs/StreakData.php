@@ -3,8 +3,9 @@
 namespace App\DTOs;
 
 use Carbon\CarbonInterface;
+use Illuminate\Contracts\Support\Arrayable;
 
-readonly class StreakData
+readonly class StreakData implements Arrayable
 {
     /**
      * Create a new class instance.
@@ -16,4 +17,14 @@ readonly class StreakData
         public bool $currentPeriodSatisfied,
         public ?CarbonInterface $anchorDate
     ) {}
+
+    public function toArray(): array
+    {
+        return [
+            'current' => $this->current,
+            'longest' => $this->longest,
+            'unit' => $this->unit,
+            'current_period_satisfied' => $this->currentPeriodSatisfied,
+        ];
+    }
 }

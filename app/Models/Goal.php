@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Observers\GoalObserver;
+use App\Services\StreakService;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -142,6 +143,15 @@ class Goal extends Model
         return Attribute::make(
             get: fn () => ($this->status === 'completed')
                 && ($this->completed_at !== null)
+        );
+    }
+
+    public function streak(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => ($this->type === 'recurring')
+                ? StreakService::for($this)
+                : null
         );
     }
 

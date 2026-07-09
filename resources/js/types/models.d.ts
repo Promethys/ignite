@@ -74,6 +74,7 @@ export interface Goal {
     progress_percentage: number;
     is_overdue: boolean;
     is_completed: boolean;
+    streak?: StreakData;
 
     // Relationships (if loaded)
     user?: User;
@@ -147,6 +148,13 @@ export interface UserAchievement {
 
     user?: User;
     achievement?: Achievement;
+}
+
+export interface StreakData {
+    current: number;
+    longest: number;
+    unit: string;
+    current_period_satisfied: boolean;
 }
 
 // Define the structure of criteria based on achievement type
