@@ -162,4 +162,30 @@ describe('Goals/Show', () => {
         );
         expect(wrapper.text()).toContain('1 / 3');
     });
+
+    it('shows current and longest streak for a recurring goal', () => {
+        const wrapper = mountShow(
+            makeGoal({
+                type: 'recurring',
+                recurrence: 'daily',
+                streak: {
+                    current: 3,
+                    longest: 5,
+                    unit: 'day',
+                    current_period_satisfied: true,
+                },
+            }),
+        );
+
+        expect(wrapper.text()).toContain('3-day streak');
+        expect(wrapper.text()).toContain('Longest: 5-day streak');
+    });
+
+    it('shows an empty streak state for a recurring goal with no streak', () => {
+        const wrapper = mountShow(
+            makeGoal({ type: 'recurring', recurrence: 'daily' }),
+        );
+
+        expect(wrapper.text()).toContain('No active streak');
+    });
 });

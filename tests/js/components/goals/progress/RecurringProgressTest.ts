@@ -66,7 +66,7 @@ describe('RecurringProgress', () => {
     it('renders an empty state when no streak is provided', () => {
         const wrapper = mountProgress({ ...baseGoal, streak: undefined });
 
-        expect(wrapper.text()).toContain('No streak yet');
+        expect(wrapper.text()).toContain('No active streak');
     });
 
     it('renders an empty state when the streak count is zero', () => {
@@ -79,7 +79,7 @@ describe('RecurringProgress', () => {
 
         const wrapper = mountProgress({ ...baseGoal, streak });
 
-        expect(wrapper.text()).toContain('No streak yet');
+        expect(wrapper.text()).toContain('No active streak');
     });
 
     it('renders a flame icon', () => {

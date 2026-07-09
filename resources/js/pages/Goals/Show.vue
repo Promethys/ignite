@@ -39,6 +39,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { getDateDiffFromNow, toTitleCase } from '@/lib/utils';
+import { streakUnit as streakUnitHelper } from '@/lib/streak';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
@@ -93,6 +94,10 @@ const deadlineLabel = computed(() => {
 });
 
 const fmtDate = (d: string) => moment(d).format('MMM D, YYYY');
+
+const currentStreak = computed(() => props.goal.streak?.current ?? 0);
+const longestStreak = computed(() => props.goal.streak?.longest ?? 0);
+const streakUnit = computed(() => streakUnitHelper(props.goal));
 
 const summaryTiles = computed(() => {
     const status = {
@@ -471,7 +476,7 @@ const submitEntry = () => {
                         </p>
                     </section>
 
-                    <!-- Recurring streak scaffold -->
+                    <!-- Recurring streak -->
                     <section
                         v-else-if="goal.type === 'recurring'"
                         class="rounded-xl border bg-card p-4"
@@ -482,12 +487,29 @@ const submitEntry = () => {
                         <div
                             class="flex items-center gap-2 text-sm font-medium"
                         >
-                            <Flame class="size-5 text-primary" />
-                            0-day streak
+                            <Flame
+                                class="size-5"
+                                :class="
+                                    currentStreak > 0
+                                        ? 'text-primary'
+                                        : 'text-muted-foreground'
+                                "
+                            />
+                            <template v-if="currentStreak > 0"
+                                >{{ currentStreak }}-{{ streakUnit }}
+                                streak</template
+                            >
+                            <template v-else>No active streak</template>
                         </div>
-                        <p class="mt-2 text-sm text-muted-foreground">
-                            Streak tracking will appear here once recurrence
-                            data is available.
+                        <p
+                            v-if="longestStreak > 0"
+                            class="mt-2 text-sm text-muted-foreground"
+                        >
+                            Longest:
+                            <span class="font-medium text-foreground"
+                                >{{ longestStreak }}-{{ streakUnit }}
+                                streak</span
+                            >
                         </p>
                     </section>
 

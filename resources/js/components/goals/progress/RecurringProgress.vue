@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Goal } from '@/types/models';
+import { streakUnit } from '@/lib/streak';
 import { computed } from 'vue';
 import { Flame } from 'lucide-vue-next';
 
@@ -7,18 +8,9 @@ const props = defineProps<{ item: Goal }>();
 
 const slots = 7;
 
-const unitByRecurrence: Record<NonNullable<Goal['recurrence']>, string> = {
-    daily: 'day',
-    weekly: 'week',
-    monthly: 'month',
-    annually: 'year',
-};
-
 const streak = computed(() => props.item.streak);
 const current = computed(() => streak.value?.current ?? 0);
-const unit = computed(
-    () => streak.value?.unit ?? unitByRecurrence[props.item.recurrence ?? 'daily'] ?? 'day',
-);
+const unit = computed(() => streakUnit(props.item));
 const hasStreak = computed(() => current.value > 0);
 const filledDots = computed(() => Math.min(current.value, slots));
 </script>
