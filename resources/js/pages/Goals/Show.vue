@@ -36,10 +36,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { pluralizeUnit, streakUnit as streakUnitHelper } from '@/lib/streak';
 import { getDateDiffFromNow, toTitleCase } from '@/lib/utils';
-import { streakUnit as streakUnitHelper } from '@/lib/streak';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
@@ -98,6 +99,28 @@ const fmtDate = (d: string) => moment(d).format('MMM D, YYYY');
 const currentStreak = computed(() => props.goal.streak?.current ?? 0);
 const longestStreak = computed(() => props.goal.streak?.longest ?? 0);
 const streakUnit = computed(() => streakUnitHelper(props.goal));
+const isNegativeStreak = computed(() => props.goal.polarity === 'negative');
+const streakUnitNoun = computed(() =>
+    isNegativeStreak.value
+        ? pluralizeUnit(streakUnit.value, currentStreak.value)
+        : streakUnit.value,
+);
+const longestUnitNoun = computed(() =>
+    pluralizeUnit(streakUnit.value, longestStreak.value),
+);
+const deadlineProgress = computed(() => {
+    if (!props.goal.deadline || !props.goal.start_date) return null;
+    const total = moment(props.goal.deadline).diff(
+        moment(props.goal.start_date),
+        'days',
+    );
+    if (total <= 0) return null;
+    const elapsed = Math.min(
+        Math.max(moment().diff(moment(props.goal.start_date), 'days'), 0),
+        total,
+    );
+    return { elapsed, total, percent: Math.round((elapsed / total) * 100) };
+});
 
 const summaryTiles = computed(() => {
     const status = {
@@ -484,33 +507,79 @@ const submitEntry = () => {
                         <h4 class="mb-3 font-display text-base font-semibold">
                             Streak
                         </h4>
-                        <div
-                            class="flex items-center gap-2 text-sm font-medium"
-                        >
-                            <Flame
-                                class="size-5"
-                                :class="
-                                    currentStreak > 0
-                                        ? 'text-primary'
-                                        : 'text-muted-foreground'
-                                "
-                            />
-                            <template v-if="currentStreak > 0"
-                                >{{ currentStreak }}-{{ streakUnit }}
-                                streak</template
+                        <template v-if="isNegativeStreak">
+                            <div
+                                class="flex items-center gap-2 text-sm font-medium"
                             >
-                            <template v-else>No active streak</template>
-                        </div>
-                        <p
-                            v-if="longestStreak > 0"
-                            class="mt-2 text-sm text-muted-foreground"
-                        >
-                            Longest:
-                            <span class="font-medium text-foreground"
-                                >{{ longestStreak }}-{{ streakUnit }}
-                                streak</span
+                                <Flame
+                                    class="size-5"
+                                    :class="
+                                        currentStreak > 0
+                                            ? 'text-primary'
+                                            : 'text-muted-foreground'
+                                    "
+                                />
+                                {{ currentStreak }} {{ streakUnitNoun }}
+                                without a relapse
+                            </div>
+                            <p
+                                v-if="longestStreak > 0"
+                                class="mt-2 text-sm text-muted-foreground"
                             >
-                        </p>
+                                Longest:
+                                <span class="font-medium text-foreground"
+                                    >{{ longestStreak }}
+                                    {{ longestUnitNoun }} without a
+                                    relapse</span
+                                >
+                            </p>
+                            <div
+                                v-if="deadlineProgress"
+                                class="mt-3 space-y-1.5"
+                            >
+                                <Progress
+                                    :model-value="deadlineProgress.percent"
+                                    class="h-1.5"
+                                />
+                                <p class="text-xs text-muted-foreground">
+                                    Day {{ deadlineProgress.elapsed }} of
+                                    {{ deadlineProgress.total }} to deadline
+                                </p>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <div
+                                class="flex items-center gap-2 text-sm font-medium"
+                            >
+                                <Flame
+                                    class="size-5"
+                                    :class="
+                                        currentStreak > 0
+                                            ? 'text-primary'
+                                            : 'text-muted-foreground'
+                                    "
+                                />
+                                <template v-if="currentStreak > 0"
+                                    >{{ currentStreak }}-{{
+                                        streakUnit
+                                    }}
+                                    streak</template
+                                >
+                                <template v-else>No active streak</template>
+                            </div>
+                            <p
+                                v-if="longestStreak > 0"
+                                class="mt-2 text-sm text-muted-foreground"
+                            >
+                                Longest:
+                                <span class="font-medium text-foreground"
+                                    >{{ longestStreak }}-{{
+                                        streakUnit
+                                    }}
+                                    streak</span
+                                >
+                            </p>
+                        </template>
                     </section>
 
                     <!-- Milestones -->

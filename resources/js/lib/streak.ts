@@ -11,5 +11,13 @@ export const unitByRecurrence: Record<
 };
 
 export function streakUnit(goal: Pick<Goal, 'streak' | 'recurrence'>): string {
-    return goal.streak?.unit ?? unitByRecurrence[goal.recurrence ?? 'daily'] ?? 'day';
+    return (
+        goal.streak?.unit ??
+        unitByRecurrence[goal.recurrence ?? 'daily'] ??
+        'day'
+    );
+}
+
+export function pluralizeUnit(unit: string, count: number): string {
+    return count === 1 ? unit : `${unit}s`;
 }

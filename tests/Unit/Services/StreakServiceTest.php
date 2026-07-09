@@ -372,4 +372,101 @@ class StreakServiceTest extends TestCase
         $this->assertEquals(3, $streakData?->current);
         $this->assertEquals(3, $streakData?->longest);
     }
+
+    public function test_negative_current_counts_elapsed_units_since_start_with_no_relapse(): void
+    {
+        Carbon::setTestNow('2026-07-06 10:00:00');
+
+        $user = User::factory()->create();
+
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'recurring',
+            'polarity' => 'negative',
+            'recurrence' => 'daily',
+            'start_date' => '2026-06-26',
+            'status' => 'in_progress',
+        ]);
+
+        $streakData = StreakService::for($goal);
+
+        $this->assertEquals(10, $streakData?->current);
+    }
+
+    public function test_negative_current_resets_from_the_most_recent_relapse(): void
+    {
+        Carbon::setTestNow('2026-07-06 10:00:00');
+
+        $user = User::factory()->create();
+
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'recurring',
+            'polarity' => 'negative',
+            'recurrence' => 'daily',
+            'start_date' => '2026-06-26',
+            'status' => 'in_progress',
+        ]);
+
+        GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-03',
+        ]);
+
+        $streakData = StreakService::for($goal);
+
+        $this->assertEquals(3, $streakData?->current);
+    }
+
+    public function test_negative_longest_is_the_largest_gap_between_relapses(): void
+    {
+        Carbon::setTestNow('2026-07-06 10:00:00');
+
+        $user = User::factory()->create();
+
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'recurring',
+            'polarity' => 'negative',
+            'recurrence' => 'daily',
+            'start_date' => '2026-06-06',
+            'status' => 'in_progress',
+        ]);
+
+        GoalEntry::factory()
+            ->count(2)
+            ->sequence(
+                ['entry_date' => '2026-06-16'],
+                ['entry_date' => '2026-07-01'],
+            )
+            ->create(['goal_id' => $goal->id]);
+
+        $streakData = StreakService::for($goal);
+
+        $this->assertEquals(15, $streakData?->longest);
+        $this->assertEquals(5, $streakData?->current);
+    }
+
+    public function test_negative_current_uses_the_owner_timezone_near_local_midnight(): void
+    {
+        // UTC 2026-07-06 10:30 is 2026-07-07 00:30 in Pacific/Kiritimati (+14).
+        Carbon::setTestNow('2026-07-06 10:30:00');
+
+        $user = User::factory()->create([
+            'timezone' => 'Pacific/Kiritimati',
+        ]);
+
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'recurring',
+            'polarity' => 'negative',
+            'recurrence' => 'daily',
+            'start_date' => '2026-06-27',
+            'status' => 'in_progress',
+        ]);
+
+        $streakData = StreakService::for($goal);
+
+        $this->assertEquals(10, $streakData?->current);
+    }
 }

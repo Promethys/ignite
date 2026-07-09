@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Goals;
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
 use App\Models\User;
+use App\Services\StreakService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -85,6 +86,22 @@ class GoalController extends Controller
     public function show(Goal $goal)
     {
         Gate::authorize('view', $goal);
+
+        if (StreakService::isDeadlineCompletionEligible($goal)) {
+            $previousStatus = $goal->status;
+            $goal->markAsCompleted();
+
+            Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal completed.', 'action' => [
+                'label' => 'Undo',
+                'method' => 'patch',
+                'url' => route('goals.uncomplete', [
+                    'goal' => $goal,
+                ]),
+                'data' => [
+                    'status' => $previousStatus,
+                ],
+            ]]);
+        }
 
         $chartEntries = $goal->entries->map(fn ($entry) => [
             'entry_date' => $entry->entry_date,

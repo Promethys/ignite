@@ -94,4 +94,39 @@ describe('RecurringProgress', () => {
 
         expect(wrapper.findComponent(Flame).exists()).toBe(true);
     });
+
+    it('renders avoidance framing for a negative streak', () => {
+        const streak: StreakData = {
+            current: 27,
+            longest: 27,
+            unit: 'day',
+            current_period_satisfied: true,
+        };
+
+        const wrapper = mountProgress({
+            ...baseGoal,
+            polarity: 'negative',
+            streak,
+        });
+
+        expect(wrapper.text()).toContain('27');
+        expect(wrapper.text()).toContain('without');
+    });
+
+    it('pluralizes the unit noun for negative streaks', () => {
+        const streak: StreakData = {
+            current: 27,
+            longest: 27,
+            unit: 'day',
+            current_period_satisfied: true,
+        };
+
+        const wrapper = mountProgress({
+            ...baseGoal,
+            polarity: 'negative',
+            streak,
+        });
+
+        expect(wrapper.text()).toContain('27 days without');
+    });
 });
