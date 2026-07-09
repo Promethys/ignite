@@ -114,6 +114,6 @@ describe('GoalCard', () => {
             recurrence: 'daily',
         });
 
-        expect(wrapper.text()).toContain('day streak');
+        expect(wrapper.text()).toContain('No active streak');
     });
 });

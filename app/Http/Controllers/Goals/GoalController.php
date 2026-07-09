@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Goals;
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
 use App\Models\User;
+use App\Services\StreakService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -28,6 +29,7 @@ class GoalController extends Controller
         'completed_at' => 'nullable|date|after:start_date',
         'status' => 'required|in:not_started,in_progress,completed,paused,abandoned',
         'priority' => 'required|in:low,medium,high',
+        'polarity' => 'nullable|in:positive,negative',
         'points' => 'required|integer|min:0',
         'is_public' => 'required|boolean',
         'order' => 'nullable|integer',
@@ -40,7 +42,7 @@ class GoalController extends Controller
         ]);
 
         return Inertia::render('Goals/Index', [
-            'items' => auth()->user()->goals,
+            'items' => auth()->user()->goals()->with('user')->get()->append('streak'),
             'categories' => auth()->user()->categories,
             'category_id' => $validated['category'] ?? null,
         ]);
@@ -85,6 +87,22 @@ class GoalController extends Controller
     {
         Gate::authorize('view', $goal);
 
+        if (StreakService::isDeadlineCompletionEligible($goal)) {
+            $previousStatus = $goal->status;
+            $goal->markAsCompleted();
+
+            Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal completed.', 'action' => [
+                'label' => 'Undo',
+                'method' => 'patch',
+                'url' => route('goals.uncomplete', [
+                    'goal' => $goal,
+                ]),
+                'data' => [
+                    'status' => $previousStatus,
+                ],
+            ]]);
+        }
+
         $chartEntries = $goal->entries->map(fn ($entry) => [
             'entry_date' => $entry->entry_date,
             'value' => $entry->value,
@@ -93,7 +111,8 @@ class GoalController extends Controller
         $goal->load([
             'entries' => fn ($query) => $query->orderBy('entry_date', 'desc')->take(20),
             'milestones' => fn ($query) => $query->orderBy('order', 'asc'),
-        ]);
+        ])
+            ->append('streak');
 
         return Inertia::render('Goals/Show', compact('goal', 'chartEntries'));
     }

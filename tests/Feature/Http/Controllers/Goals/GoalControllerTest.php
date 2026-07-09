@@ -3,8 +3,10 @@
 namespace Tests\Feature\Http\Controllers\Goals;
 
 use App\Models\Goal;
+use App\Models\GoalEntry;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -170,6 +172,16 @@ class GoalControllerTest extends TestCase
             ->assertSessionHasErrors('deadline');
     }
 
+    public function test_polarity_must_be_valid()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'type' => 'recurring',
+                'polarity' => 'not-valid',
+            ]))
+            ->assertSessionHasErrors('polarity');
+    }
+
     // =========================================================================
     // EDIT / UPDATE
     // =========================================================================
@@ -205,6 +217,25 @@ class GoalControllerTest extends TestCase
         $this->actingAs($this->user)
             ->put(route('goals.update', $goal), $this->validGoalData(['title' => '']))
             ->assertSessionHasErrors('title');
+    }
+
+    public function test_update_persists_polarity()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'current_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.update', $goal), $this->validGoalData([
+                'polarity' => 'positive',
+            ]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('goals', [
+            'id' => $goal->id,
+            'polarity' => 'positive',
+        ]);
     }
 
     // =========================================================================
@@ -429,5 +460,99 @@ class GoalControllerTest extends TestCase
         $this->actingAs($this->user)
             ->patch(route('goals.uncomplete', $goal), ['status' => 'in_progress'])
             ->assertForbidden();
+    }
+
+    // =========================================================================
+    // LAZY AUTO-COMPLETION (NEGATIVE GOALS)
+    // =========================================================================
+
+    public function test_negative_goal_past_deadline_with_intact_streak_completes_on_view()
+    {
+        Carbon::setTestNow('2026-07-06 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'polarity' => 'negative',
+            'recurrence' => 'daily',
+            'start_date' => '2026-05-27',
+            'deadline' => '2026-07-05',
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($this->user)
+            ->get(route('goals.show', $goal))
+            ->assertInertia(fn (Assert $page) => $page
+                ->hasFlash('toast.message', 'Goal completed.')
+            );
+
+        $goal->refresh();
+
+        $this->assertEquals('completed', $goal->status);
+        $this->assertNotNull($goal->completed_at);
+
+        Carbon::setTestNow();
+    }
+
+    public function test_negative_goal_with_a_relapse_in_window_stays_active_and_overdue()
+    {
+        Carbon::setTestNow('2026-07-06 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'polarity' => 'negative',
+            'recurrence' => 'daily',
+            'start_date' => '2026-05-27',
+            'deadline' => '2026-07-05',
+            'status' => 'in_progress',
+        ]);
+
+        GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-06-15',
+        ]);
+
+        $this->actingAs($this->user)
+            ->get(route('goals.show', $goal))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('goal.is_overdue', true)
+                ->where('goal.status', 'in_progress')
+            );
+
+        $this->assertEquals('in_progress', $goal->fresh()->status);
+
+        Carbon::setTestNow();
+    }
+
+    public function test_viewing_an_already_completed_eligible_goal_does_not_refire()
+    {
+        Carbon::setTestNow('2026-07-06 10:00:00');
+
+        $completedAt = now();
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'polarity' => 'negative',
+            'recurrence' => 'daily',
+            'start_date' => '2026-05-27',
+            'deadline' => '2026-07-05',
+            'status' => 'completed',
+            'completed_at' => $completedAt,
+        ]);
+
+        $this->actingAs($this->user)->get(route('goals.show', $goal));
+        $this->actingAs($this->user)->get(route('goals.show', $goal));
+
+        $goal->refresh();
+
+        $this->assertEquals('completed', $goal->status);
+        $this->assertEquals(
+            $completedAt->timestamp,
+            $goal->completed_at?->timestamp,
+        );
+
+        Carbon::setTestNow();
     }
 }
