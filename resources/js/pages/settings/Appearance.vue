@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/vue3';
 
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
+import LocaleSelect from '@/components/LocaleSelect.vue';
 import { type BreadcrumbItem } from '@/types';
 
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -28,6 +29,14 @@ const breadcrumbItems: BreadcrumbItem[] = [
                     description="Update your account's appearance settings"
                 />
                 <AppearanceTabs />
+            </div>
+
+            <div class="space-y-6">
+                <HeadingSmall
+                    title="Language"
+                    description="Choose the language for your account"
+                />
+                <LocaleSelect />
             </div>
         </SettingsLayout>
     </AppLayout>
