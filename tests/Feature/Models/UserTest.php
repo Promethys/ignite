@@ -65,4 +65,22 @@ class UserTest extends TestCase
         $this->assertCount(1, $completedGoals);
         $this->assertEquals('completed', $completedGoals->first()->status);
     }
+
+    // =========================================================================
+    // LOCALE TESTS
+    // =========================================================================
+
+    public function test_user_defaults_to_english_locale()
+    {
+        $user = User::factory()->create();
+
+        $this->assertEquals('en', $user->locale);
+    }
+
+    public function test_locale_is_mass_assignable()
+    {
+        $user = User::factory()->create(['locale' => 'fr']);
+
+        $this->assertEquals('fr', $user->locale);
+    }
 }
