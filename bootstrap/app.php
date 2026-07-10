@@ -23,6 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        // SetLocale must run before HandleInertiaRequests so the resolved
+        // locale is available when the Inertia shared props are evaluated.
+        $middleware->priority([
+            SetLocale::class,
+            HandleInertiaRequests::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

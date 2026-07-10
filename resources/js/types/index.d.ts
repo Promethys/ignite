@@ -25,6 +25,8 @@ export type AppPageProps<
     quote: { message: string; author: string };
     auth: Auth;
     sidebarOpen: boolean;
+    locale: string;
+    supportedLocales: Record<string, string>;
 };
 
 export type BreadcrumbItemType = BreadcrumbItem;
