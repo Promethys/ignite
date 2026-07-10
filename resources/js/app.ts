@@ -5,6 +5,7 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { i18nVue } from 'laravel-vue-i18n';
 import moment from 'moment';
+import 'moment/locale/fr';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
@@ -19,12 +20,6 @@ if (typeof window !== 'undefined') {
 }
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
-const locale =
-    document.querySelector('html')?.getAttribute('lang') ??
-    navigator.language.split('-')[0] ??
-    'en';
-
-moment.locale(locale);
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -34,10 +29,14 @@ createInertiaApp({
             import.meta.glob<DefineComponent>('./pages/**/*.vue'),
         ),
     setup({ el, App, props, plugin }) {
+        const sharedLocale = props.initialPage.props.locale as string;
+
+        moment.locale(sharedLocale);
+
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(i18nVue, {
-                lang: 'en',
+                lang: sharedLocale,
                 resolve: (lang) => {
                     const langs = import.meta.glob<{
                         default: Record<string, string>;
