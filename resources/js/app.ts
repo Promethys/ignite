@@ -41,7 +41,11 @@ createInertiaApp({
                     const langs = import.meta.glob<{
                         default: Record<string, string>;
                     }>('../../lang/*.json', { eager: true });
-                    return langs[`../../lang/${lang}.json`]?.default ?? {};
+                    return {
+                        ...(langs[`../../lang/php_${lang}.json`]?.default ??
+                            {}),
+                        ...(langs[`../../lang/${lang}.json`]?.default ?? {}),
+                    };
                 },
             })
             .use(VueApexCharts)
