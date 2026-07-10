@@ -37,10 +37,16 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $supported = array_keys(config('locales.supported'));
+        $locale = in_array($request->cookie('locale'), $supported, true)
+            ? $request->cookie('locale')
+            : config('app.fallback_locale');
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'locale' => $locale,
         ]);
 
         event(new Registered($user));
