@@ -20,7 +20,7 @@ class EmailVerificationNotificationController extends Controller
 
         $request->user()->sendEmailVerificationNotification();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Verification link sent.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.auth.verification_sent')]);
 
         return back()->with('status', 'verification-link-sent');
     }

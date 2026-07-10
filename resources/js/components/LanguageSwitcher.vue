@@ -52,7 +52,7 @@ async function change(code: string) {
                 <DropdownMenuRadioItem
                     v-for="(label, code) in supported"
                     :key="code"
-                    :value="(code as string)"
+                    :value="code as string"
                     class="cursor-pointer"
                     @select="change(code as string)"
                 >

@@ -20,8 +20,11 @@ const done = computed(
                 :class="m.is_completed ? 'bg-primary' : 'bg-muted'"
             />
         </div>
-        <span class="text-xs text-muted-foreground"
-            >{{ done }} / {{ total }} steps</span
-        >
+        <span class="text-xs text-muted-foreground">{{
+            $tChoice('goals.progress.steps', total, {
+                done: done.toString(),
+                total: total.toString(),
+            })
+        }}</span>
     </div>
 </template>

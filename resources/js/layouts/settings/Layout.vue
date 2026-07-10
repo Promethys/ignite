@@ -12,19 +12,19 @@ import { Link } from '@inertiajs/vue3';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profile',
+        title: 'settings.nav.profile',
         href: editProfile(),
     },
     {
-        title: 'Password',
+        title: 'settings.nav.password',
         href: editPassword(),
     },
     {
-        title: 'Two-Factor Auth',
+        title: 'settings.nav.two_factor',
         href: show(),
     },
     {
-        title: 'Appearance',
+        title: 'settings.nav.appearance',
         href: editAppearance(),
     },
 ];
@@ -35,8 +35,8 @@ const currentPath = typeof window !== undefined ? window.location.pathname : '';
 <template>
     <div class="px-4 py-6">
         <Heading
-            title="Settings"
-            description="Manage your profile and account settings"
+            :title="$t('settings.nav.heading')"
+            :description="$t('settings.nav.description')"
         />
 
         <div class="flex flex-col lg:flex-row lg:space-x-12">
@@ -56,7 +56,7 @@ const currentPath = typeof window !== undefined ? window.location.pathname : '';
                     >
                         <Link :href="item.href">
                             <component :is="item.icon" class="h-4 w-4" />
-                            {{ item.title }}
+                            {{ $t(item.title) }}
                         </Link>
                     </Button>
                 </nav>

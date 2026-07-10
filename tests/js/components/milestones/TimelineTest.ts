@@ -79,7 +79,7 @@ describe('Timeline', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('Add milestone');
+        expect(wrapper.text()).toContain('milestones.add');
     });
 
     it('renders milestone form modal', () => {
@@ -167,7 +167,7 @@ describe('Timeline', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('Completed');
+        expect(wrapper.text()).toContain('milestones.completed_on');
         expect(wrapper.text()).toContain('formatted:2026-03-15');
     });
 
@@ -213,7 +213,7 @@ describe('Timeline', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('Auto-completes at');
+        expect(wrapper.text()).toContain('milestones.auto_completes');
         expect(wrapper.text()).toContain('500');
     });
 
@@ -227,7 +227,7 @@ describe('Timeline', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).not.toContain('Auto-completes at');
+        expect(wrapper.text()).not.toContain('milestones.auto_completes');
     });
 
     // =========================================================================
@@ -246,7 +246,7 @@ describe('Timeline', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('Next up');
+        expect(wrapper.text()).toContain('milestones.next_up');
         const badges = wrapper.findAll('.badge');
         expect(badges).toHaveLength(1);
     });
@@ -324,7 +324,8 @@ describe('Timeline', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('50% there');
+        expect(wrapper.text()).toContain('milestones.auto_completes');
+        expect(wrapper.text()).toContain('50');
     });
 
     it('caps progress percentage at 100', () => {

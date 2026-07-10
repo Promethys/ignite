@@ -27,33 +27,33 @@ const props = defineProps<{
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'dashboard.breadcrumb',
         href: dashboard().url,
     },
 ];
 
 const stats = [
-    { label: 'Active', value: props.activeGoalsCount },
-    { label: 'Completed', value: props.completedGoalsCount },
-    { label: 'Completion', value: `${props.completionRate}%` },
-    { label: 'Total', value: props.totalGoalsCount },
+    { label: 'dashboard.stats.active', value: props.activeGoalsCount },
+    { label: 'dashboard.stats.completed', value: props.completedGoalsCount },
+    { label: 'dashboard.stats.completion', value: `${props.completionRate}%` },
+    { label: 'dashboard.stats.total', value: props.totalGoalsCount },
 ];
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head :title="$t('dashboard.head')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-4">
             <PageHeader
-                title="Welcome back!"
-                description="Your momentum at a glance."
+                :title="$t('dashboard.title')"
+                :description="$t('dashboard.subtitle')"
             >
                 <template #actions>
                     <Button as-child class="w-full sm:w-auto">
                         <Link :href="goals.create().url">
                             <Plus />
-                            New goal
+                            {{ $t('common.actions.new_goal') }}
                         </Link>
                     </Button>
                 </template>
@@ -70,7 +70,7 @@ const stats = [
                         {{ item.value }}
                     </p>
                     <p class="mt-0.5 text-xs text-muted-foreground">
-                        {{ item.label }}
+                        {{ $t(item.label) }}
                     </p>
                 </div>
             </div>
@@ -78,7 +78,7 @@ const stats = [
             <!-- Active goals -->
             <section class="space-y-3">
                 <h2 class="font-display text-base font-semibold">
-                    Active goals
+                    {{ $t('dashboard.active_goals') }}
                 </h2>
 
                 <div
@@ -96,14 +96,16 @@ const stats = [
                         <EmptyMedia class="mx-auto" variant="icon">
                             <GoalIcon />
                         </EmptyMedia>
-                        No active goal
+                        {{ $t('dashboard.empty.title') }}
                     </EmptyTitle>
-                    <EmptyDescription>It's cold up here...</EmptyDescription>
+                    <EmptyDescription>{{
+                        $t('dashboard.empty.description')
+                    }}</EmptyDescription>
                     <EmptyContent>
                         <Button as-child>
                             <Link :href="goals.create().url">
                                 <Plus />
-                                New goal
+                                {{ $t('common.actions.new_goal') }}
                             </Link>
                         </Button>
                     </EmptyContent>

@@ -47,7 +47,8 @@ describe('RecurringProgress', () => {
 
         const wrapper = mountProgress({ ...baseGoal, streak });
 
-        expect(wrapper.text()).toContain('3-day streak');
+        expect(wrapper.text()).toContain('goals.streak.positive.day');
+        expect(wrapper.text()).toContain('3');
     });
 
     it('derives the noun from the streak unit for other cadences', () => {
@@ -60,13 +61,13 @@ describe('RecurringProgress', () => {
 
         const wrapper = mountProgress({ ...baseGoal, recurrence: 'weekly', streak });
 
-        expect(wrapper.text()).toContain('3-week streak');
+        expect(wrapper.text()).toContain('goals.streak.positive.week');
     });
 
     it('renders an empty state when no streak is provided', () => {
         const wrapper = mountProgress({ ...baseGoal, streak: undefined });
 
-        expect(wrapper.text()).toContain('No active streak');
+        expect(wrapper.text()).toContain('goals.streak.none');
     });
 
     it('renders an empty state when the streak count is zero', () => {
@@ -79,7 +80,7 @@ describe('RecurringProgress', () => {
 
         const wrapper = mountProgress({ ...baseGoal, streak });
 
-        expect(wrapper.text()).toContain('No active streak');
+        expect(wrapper.text()).toContain('goals.streak.none');
     });
 
     it('renders a flame icon', () => {
@@ -110,7 +111,7 @@ describe('RecurringProgress', () => {
         });
 
         expect(wrapper.text()).toContain('27');
-        expect(wrapper.text()).toContain('without');
+        expect(wrapper.text()).toContain('goals.streak.negative.day');
     });
 
     it('pluralizes the unit noun for negative streaks', () => {
@@ -127,6 +128,27 @@ describe('RecurringProgress', () => {
             streak,
         });
 
-        expect(wrapper.text()).toContain('27 days without');
+        expect(wrapper.text()).toContain('27');
+        expect(wrapper.text()).toContain('goals.streak.negative.day');
+    });
+
+    it('renders the French avoidance phrase when $t maps the key', () => {
+        const streak: StreakData = {
+            current: 27,
+            longest: 27,
+            unit: 'day',
+            current_period_satisfied: true,
+        };
+
+        const wrapper = mount(RecurringProgress, {
+            props: { item: { ...baseGoal, polarity: 'negative', streak } },
+            global: {
+                mocks: {
+                    $tChoice: () => '27 jours sans rechute',
+                },
+            },
+        });
+
+        expect(wrapper.text()).toContain('27 jours sans rechute');
     });
 });

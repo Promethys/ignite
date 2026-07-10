@@ -59,7 +59,7 @@ class NewPasswordController extends Controller
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         if ($status == Password::PasswordReset) {
-            Inertia::flash('toast', ['type' => 'success', 'message' => 'Password reset. You can now sign in.']);
+            Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.password.reset')]);
 
             return to_route('login')->with('status', __($status));
         }

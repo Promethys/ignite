@@ -50,7 +50,7 @@ describe('GoalBadges', () => {
             global: { stubs: { Badge: BadgeStub } },
         });
 
-        expect(wrapper.text()).toContain('Daily');
+        expect(wrapper.text()).toContain('goals.recurrences.daily');
     });
 
     it('shows status badge', () => {
@@ -59,7 +59,7 @@ describe('GoalBadges', () => {
             global: { stubs: { Badge: BadgeStub } },
         });
 
-        expect(wrapper.text()).toContain('In Progress');
+        expect(wrapper.text()).toContain('goals.statuses.in_progress');
     });
 
     it('shows priority badge when set', () => {
@@ -68,7 +68,8 @@ describe('GoalBadges', () => {
             global: { stubs: { Badge: BadgeStub } },
         });
 
-        expect(wrapper.text()).toContain('High Priority');
+        expect(wrapper.text()).toContain('goals.badges.priority');
+        expect(wrapper.text()).toContain('goals.priorities.high');
     });
 
     it('renders a status dot alongside the status badge', () => {

@@ -66,7 +66,7 @@ class GoalEntryController extends Controller
             ]);
         });
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Entry saved.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
 
         return to_route('goals.show', ['goal' => $goal]);
     }
@@ -84,7 +84,7 @@ class GoalEntryController extends Controller
             ]);
         });
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Entry deleted.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.deleted')]);
 
         return back();
     }

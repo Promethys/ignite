@@ -63,7 +63,7 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.category.created')]);
 
         return redirect()->back();
     }
@@ -109,7 +109,7 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category updated.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.category.updated')]);
 
         return to_route('categories.index');
     }
@@ -123,7 +123,7 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category deleted.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.category.deleted')]);
 
         return redirect()->back();
     }

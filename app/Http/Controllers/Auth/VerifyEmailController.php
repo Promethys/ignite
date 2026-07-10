@@ -20,7 +20,7 @@ class VerifyEmailController extends Controller
 
         $request->fulfill();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Email verified.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.auth.email_verified')]);
 
         return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
     }

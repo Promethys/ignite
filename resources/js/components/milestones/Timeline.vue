@@ -152,7 +152,7 @@ const activeIndex = computed(() =>
                             v-if="index === activeIndex"
                             class="border-warning/30 bg-warning/20 text-xs text-warning"
                         >
-                            Next up
+                            {{ $t('milestones.next_up') }}
                         </Badge>
                     </div>
 
@@ -179,18 +179,28 @@ const activeIndex = computed(() =>
                         "
                         class="mt-1 text-xs text-muted-foreground"
                     >
-                        Auto-completes at
-                        {{ milestone.target_value?.toLocaleString() }}
-                        {{ record.unit }} ({{
-                            `${Math.round(getProgress(milestone))}% there`
-                        }})
+                        {{
+                            $t('milestones.auto_completes', {
+                                value:
+                                    milestone.target_value?.toLocaleString() ??
+                                    '',
+                                unit: record.unit ?? '',
+                                percent: Math.round(
+                                    getProgress(milestone),
+                                ).toString(),
+                            })
+                        }}
                     </div>
 
                     <div
                         v-if="isCompleted(milestone) && milestone.completed_at"
                         class="text-xs text-success"
                     >
-                        Completed {{ formatDate(milestone.completed_at) }}
+                        {{
+                            $t('milestones.completed_on', {
+                                date: formatDate(milestone.completed_at),
+                            })
+                        }}
                     </div>
                 </div>
             </div>
@@ -206,7 +216,9 @@ const activeIndex = computed(() =>
                         </button>
                     </template>
                 </MilestoneFormModal>
-                <span class="text-sm text-muted-foreground">Add milestone</span>
+                <span class="text-sm text-muted-foreground">{{
+                    $t('milestones.add')
+                }}</span>
             </div>
         </div>
     </div>

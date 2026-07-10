@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LocaleController from '@/actions/App/Http/Controllers/Settings/LocaleController';
 import {
     Select,
     SelectContent,
@@ -7,7 +8,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useLocale } from '@/composables/useLocale';
-import LocaleController from '@/actions/App/Http/Controllers/Settings/LocaleController';
 import { router } from '@inertiajs/vue3';
 import { Globe } from 'lucide-vue-next';
 
@@ -26,17 +26,19 @@ async function change(code: string) {
 
 <template>
     <Select :model-value="current" @update:model-value="change">
-        <SelectTrigger aria-label="Language">
+        <SelectTrigger :aria-label="$t('settings.appearance.language')">
             <span class="flex items-center gap-2">
                 <Globe class="size-4 shrink-0 text-muted-foreground" />
-                <SelectValue placeholder="Select language" />
+                <SelectValue
+                    :placeholder="$t('settings.appearance.select_language')"
+                />
             </span>
         </SelectTrigger>
         <SelectContent>
             <SelectItem
                 v-for="(label, code) in supported"
                 :key="code"
-                :value="(code as string)"
+                :value="code as string"
             >
                 {{ label }}
             </SelectItem>

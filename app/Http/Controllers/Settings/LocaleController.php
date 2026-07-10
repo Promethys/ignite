@@ -17,7 +17,10 @@ class LocaleController extends Controller
 
         $request->user()->update(['locale' => $validated['locale']]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Language updated.']);
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => __('settings.locale_updated', [], $validated['locale']),
+        ]);
 
         return redirect()->back();
     }

@@ -13,10 +13,10 @@ import { LoaderCircle } from 'lucide-vue-next';
 
 <template>
     <AuthBase
-        title="Create an account"
-        description="Enter your details below to create your account"
+        :title="$t('auth_ui.register.title')"
+        :description="$t('auth_ui.register.description')"
     >
-        <Head title="Register" />
+        <Head :title="$t('auth_ui.register.head')" />
 
         <Form
             v-bind="RegisteredUserController.store.form()"
@@ -26,7 +26,7 @@ import { LoaderCircle } from 'lucide-vue-next';
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="name">Name</Label>
+                    <Label for="name">{{ $t('auth_ui.register.name') }}</Label>
                     <Input
                         id="name"
                         type="text"
@@ -35,13 +35,15 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :tabindex="1"
                         autocomplete="name"
                         name="name"
-                        placeholder="Full name"
+                        :placeholder="$t('auth_ui.register.name_placeholder')"
                     />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email">{{
+                        $t('auth_ui.register.email')
+                    }}</Label>
                     <Input
                         id="email"
                         type="email"
@@ -49,13 +51,15 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :tabindex="2"
                         autocomplete="email"
                         name="email"
-                        placeholder="email@example.com"
+                        :placeholder="$t('auth_ui.register.email_placeholder')"
                     />
                     <InputError :message="errors.email" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Password</Label>
+                    <Label for="password">{{
+                        $t('auth_ui.register.password')
+                    }}</Label>
                     <Input
                         id="password"
                         type="password"
@@ -63,13 +67,17 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :tabindex="3"
                         autocomplete="new-password"
                         name="password"
-                        placeholder="Password"
+                        :placeholder="
+                            $t('auth_ui.register.password_placeholder')
+                        "
                     />
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm password</Label>
+                    <Label for="password_confirmation">{{
+                        $t('auth_ui.register.confirm_password')
+                    }}</Label>
                     <Input
                         id="password_confirmation"
                         type="password"
@@ -77,7 +85,9 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :tabindex="4"
                         autocomplete="new-password"
                         name="password_confirmation"
-                        placeholder="Confirm password"
+                        :placeholder="
+                            $t('auth_ui.register.confirm_password_placeholder')
+                        "
                     />
                     <InputError :message="errors.password_confirmation" />
                 </div>
@@ -93,17 +103,17 @@ import { LoaderCircle } from 'lucide-vue-next';
                         v-if="processing"
                         class="h-4 w-4 animate-spin"
                     />
-                    Create account
+                    {{ $t('auth_ui.register.submit') }}
                 </Button>
             </div>
 
             <div class="text-center text-sm text-muted-foreground">
-                Already have an account?
+                {{ $t('auth_ui.register.have_account') }}
                 <TextLink
                     :href="login()"
                     class="underline underline-offset-4"
                     :tabindex="6"
-                    >Log in</TextLink
+                    >{{ $t('auth_ui.register.log_in') }}</TextLink
                 >
             </div>
         </Form>

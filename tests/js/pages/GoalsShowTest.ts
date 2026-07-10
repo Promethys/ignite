@@ -120,7 +120,7 @@ describe('Goals/Show', () => {
 
         expect(wrapper.text()).toContain('62%'); // progress
         expect(wrapper.text()).toContain('26 / 42'); // current / target
-        expect(wrapper.text()).toContain('Entries logged');
+        expect(wrapper.text()).toContain('goals.summary.entries_logged');
     });
 
     it('pluralizes the "view all entries" link', () => {
@@ -128,25 +128,27 @@ describe('Goals/Show', () => {
             { entry_date: '2026-02-01', value: 20 },
             { entry_date: '2026-03-01', value: 26 },
         ]);
-        expect(many.text()).toContain('View all 2 entries');
+        expect(many.text()).toContain('goals.show.view_all');
+        expect(many.text()).toContain('2');
 
         const one = mountShow(makeGoal({ entries: [makeEntry(26, 4)] }), [
             { entry_date: '2026-03-01', value: 26 },
         ]);
-        expect(one.text()).toContain('View all 1 entry');
+        expect(one.text()).toContain('goals.show.view_all');
+        expect(one.text()).toContain('1');
     });
 
     it('labels the deadline tile as overdue when the deadline has passed', () => {
         const wrapper = mountShow(makeGoal({ deadline: '2020-01-01' }));
-        expect(wrapper.text()).toContain('Overdue');
+        expect(wrapper.text()).toContain('goals.summary.overdue');
     });
 
     it('shows the real status for a simple goal, not a hardcoded one', () => {
         const wrapper = mountShow(
             makeGoal({ type: 'simple', status: 'not_started' }),
         );
-        expect(wrapper.text()).toContain('Not Started');
-        expect(wrapper.text()).not.toContain('In progress');
+        expect(wrapper.text()).toContain('goals.statuses.not_started');
+        expect(wrapper.text()).not.toContain('goals.statuses.in_progress');
     });
 
     it('shows steps completed for a multi-step goal', () => {
@@ -177,8 +179,10 @@ describe('Goals/Show', () => {
             }),
         );
 
-        expect(wrapper.text()).toContain('3-day streak');
-        expect(wrapper.text()).toContain('Longest: 5-day streak');
+        expect(wrapper.text()).toContain('goals.streak.positive.day');
+        expect(wrapper.text()).toContain('3');
+        expect(wrapper.text()).toContain('goals.streak.longest_label');
+        expect(wrapper.text()).toContain('5');
     });
 
     it('shows an empty streak state for a recurring goal with no streak', () => {
@@ -186,6 +190,6 @@ describe('Goals/Show', () => {
             makeGoal({ type: 'recurring', recurrence: 'daily' }),
         );
 
-        expect(wrapper.text()).toContain('No active streak');
+        expect(wrapper.text()).toContain('goals.streak.none');
     });
 });

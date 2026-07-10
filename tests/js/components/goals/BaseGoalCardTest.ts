@@ -104,7 +104,9 @@ describe('GoalCard', () => {
             ] as Goal['milestones'],
         });
 
-        expect(wrapper.text()).toContain('1 / 2 steps');
+        expect(wrapper.text()).toContain('goals.progress.steps');
+        expect(wrapper.text()).toContain('1');
+        expect(wrapper.text()).toContain('2');
     });
 
     it('shows a streak scaffold for recurring goals', () => {
@@ -114,6 +116,6 @@ describe('GoalCard', () => {
             recurrence: 'daily',
         });
 
-        expect(wrapper.text()).toContain('No active streak');
+        expect(wrapper.text()).toContain('goals.streak.none');
     });
 });

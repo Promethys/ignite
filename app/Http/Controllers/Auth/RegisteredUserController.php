@@ -55,7 +55,7 @@ class RegisteredUserController extends Controller
 
         $request->session()->regenerate();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Welcome to Ignite!']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.auth.registered')]);
 
         return to_route('dashboard');
     }

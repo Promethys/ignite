@@ -10,6 +10,7 @@ import {
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { store } from '@/routes/two-factor/login';
 import { Form, Head } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import { computed, ref } from 'vue';
 
 interface AuthConfigContent {
@@ -21,18 +22,16 @@ interface AuthConfigContent {
 const authConfigContent = computed<AuthConfigContent>(() => {
     if (showRecoveryInput.value) {
         return {
-            title: 'Recovery Code',
-            description:
-                'Please confirm access to your account by entering one of your emergency recovery codes.',
-            toggleText: 'login using an authentication code',
+            title: trans('auth_ui.two_factor.recovery_title'),
+            description: trans('auth_ui.two_factor.recovery_description'),
+            toggleText: trans('auth_ui.two_factor.toggle_to_auth'),
         };
     }
 
     return {
-        title: 'Authentication Code',
-        description:
-            'Enter the authentication code provided by your authenticator application.',
-        toggleText: 'login using a recovery code',
+        title: trans('auth_ui.two_factor.auth_title'),
+        description: trans('auth_ui.two_factor.auth_description'),
+        toggleText: trans('auth_ui.two_factor.toggle_to_recovery'),
     };
 });
 
@@ -53,7 +52,7 @@ const codeValue = computed<string>(() => code.value.join(''));
         :title="authConfigContent.title"
         :description="authConfigContent.description"
     >
-        <Head title="Two-Factor Authentication" />
+        <Head :title="$t('auth_ui.two_factor.head')" />
 
         <div class="space-y-6">
             <template v-if="!showRecoveryInput">
@@ -89,11 +88,14 @@ const codeValue = computed<string>(() => code.value.join(''));
                         </div>
                         <InputError :message="errors.code" />
                     </div>
-                    <Button type="submit" class="w-full" :disabled="processing"
-                        >Continue</Button
+                    <Button
+                        type="submit"
+                        class="w-full"
+                        :disabled="processing"
+                        >{{ $t('auth_ui.two_factor.continue') }}</Button
                     >
                     <div class="text-center text-sm text-muted-foreground">
-                        <span>or you can </span>
+                        <span>{{ $t('auth_ui.two_factor.or_you_can') }} </span>
                         <button
                             type="button"
                             class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
@@ -115,17 +117,22 @@ const codeValue = computed<string>(() => code.value.join(''));
                     <Input
                         name="recovery_code"
                         type="text"
-                        placeholder="Enter recovery code"
+                        :placeholder="
+                            $t('auth_ui.two_factor.recovery_placeholder')
+                        "
                         :autofocus="showRecoveryInput"
                         required
                     />
                     <InputError :message="errors.recovery_code" />
-                    <Button type="submit" class="w-full" :disabled="processing"
-                        >Continue</Button
+                    <Button
+                        type="submit"
+                        class="w-full"
+                        :disabled="processing"
+                        >{{ $t('auth_ui.two_factor.continue') }}</Button
                     >
 
                     <div class="text-center text-sm text-muted-foreground">
-                        <span>or you can </span>
+                        <span>{{ $t('auth_ui.two_factor.or_you_can') }} </span>
                         <button
                             type="button"
                             class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"

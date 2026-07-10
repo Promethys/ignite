@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getBinaryTheme } from '@/composables/useAppearance';
 import { GoalEntry } from '@/types/models';
+import { trans } from 'laravel-vue-i18n';
 
 const props = defineProps<{
     entries: Pick<GoalEntry, 'entry_date' | 'value'>[];
@@ -27,14 +28,14 @@ const sortedEntries = [...props.entries].sort(
 
 const chartSeries = [
     {
-        name: 'Values',
+        name: trans('goals.chart.values'),
         data: sortedEntries.map((item) => ({
             x: new Date(item.entry_date).getTime(),
             y: item.value,
         })),
     },
     {
-        name: 'Target Value',
+        name: trans('goals.chart.target'),
         data: sortedEntries.map((item) => ({
             x: new Date(item.entry_date).getTime(),
             y: props.targetValue,
@@ -70,7 +71,7 @@ const chartOptions = {
     xaxis: {
         type: 'datetime',
         title: {
-            text: 'Entry date',
+            text: trans('goals.chart.entry_date'),
         },
     },
 };

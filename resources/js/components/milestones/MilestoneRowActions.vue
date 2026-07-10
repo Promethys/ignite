@@ -28,27 +28,34 @@ defineProps<{
             :record="row.original"
         >
             <template #trigger>
-                <Button>Edit</Button>
+                <Button>{{ $t('common.actions.edit') }}</Button>
             </template>
         </MilestoneFormModal>
 
         <Dialog>
             <DialogTrigger as-child>
-                <Button variant="destructive"> Delete </Button>
+                <Button variant="destructive">
+                    {{ $t('common.actions.delete') }}
+                </Button>
             </DialogTrigger>
             <DialogContent class="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Delete this milestone?</DialogTitle>
+                    <DialogTitle>{{
+                        $t('milestones.row.delete_title')
+                    }}</DialogTitle>
                     <DialogDescription>
-                        "{{ row.original.title }}" will be permanently removed
-                        from this goal. This can't be undone.
+                        {{
+                            $t('milestones.row.delete_description', {
+                                title: row.original.title,
+                            })
+                        }}
                     </DialogDescription>
                 </DialogHeader>
 
                 <DialogFooter>
                     <DialogClose as-child>
                         <Button type="button" variant="secondary">
-                            Cancel
+                            {{ $t('common.actions.cancel') }}
                         </Button>
                     </DialogClose>
                     <Button
@@ -65,7 +72,7 @@ defineProps<{
                             )
                         "
                     >
-                        Delete milestone
+                        {{ $t('milestones.row.delete_confirm') }}
                     </Button>
                 </DialogFooter>
             </DialogContent>

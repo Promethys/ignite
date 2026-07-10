@@ -45,7 +45,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Welcome back!']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.auth.welcome_back')]);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
@@ -60,7 +60,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'You have been signed out.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.auth.signed_out')]);
 
         return redirect('/');
     }

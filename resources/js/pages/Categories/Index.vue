@@ -34,16 +34,14 @@ interface Props {
     openCreate: boolean;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Categories',
+        title: 'categories.breadcrumb',
         href: categories.index().url,
     },
 ];
-
-const subtitle = `${props.items.length} ${props.items.length === 1 ? 'category' : 'categories'}`;
 
 const filterUrl = (category: Category) =>
     `${goals.index().url}?category=${category.id}`;
@@ -56,11 +54,18 @@ const completion = (category: Category) => {
 </script>
 
 <template>
-    <Head title="Categories" />
+    <Head :title="$t('categories.head')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="space-y-6 p-4">
-            <PageHeader title="Categories" :description="subtitle">
+            <PageHeader
+                :title="$t('categories.title')"
+                :description="
+                    $tChoice('categories.subtitle', items.length, {
+                        count: items.length.toString(),
+                    })
+                "
+            >
                 <template #actions>
                     <CategoryFormModal :open="openCreate" />
                 </template>
@@ -71,10 +76,9 @@ const completion = (category: Category) => {
                     <EmptyMedia variant="icon">
                         <Tags />
                     </EmptyMedia>
-                    <EmptyTitle>No Category Yet</EmptyTitle>
+                    <EmptyTitle>{{ $t('categories.empty.title') }}</EmptyTitle>
                     <EmptyDescription>
-                        You don't have any category yet. Create one to organize
-                        your goals.
+                        {{ $t('categories.empty.description') }}
                     </EmptyDescription>
                 </EmptyHeader>
                 <EmptyContent>
@@ -122,20 +126,21 @@ const completion = (category: Category) => {
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
-                                            <AlertDialogTitle
-                                                >Are you absolutely
-                                                sure?</AlertDialogTitle
-                                            >
+                                            <AlertDialogTitle>{{
+                                                $t('common.confirm.title')
+                                            }}</AlertDialogTitle>
                                             <AlertDialogDescription>
-                                                This action cannot be undone.
-                                                This will permanently delete
-                                                your category.
+                                                {{
+                                                    $t(
+                                                        'categories.delete.description',
+                                                    )
+                                                }}
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
-                                            <AlertDialogCancel
-                                                >Cancel</AlertDialogCancel
-                                            >
+                                            <AlertDialogCancel>{{
+                                                $t('common.actions.cancel')
+                                            }}</AlertDialogCancel>
                                             <AlertDialogAction
                                                 variant="destructive"
                                                 @click="
@@ -146,7 +151,9 @@ const completion = (category: Category) => {
                                                     )
                                                 "
                                             >
-                                                Delete
+                                                {{
+                                                    $t('common.actions.delete')
+                                                }}
                                             </AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -170,21 +177,21 @@ const completion = (category: Category) => {
                                 <span>
                                     <span class="font-semibold text-foreground">
                                         {{ category.goals_count ?? 0 }} </span
-                                    >&nbsp;goals
+                                    >&nbsp;{{ $t('categories.counts.goals') }}
                                 </span>
                                 <span>
                                     <span class="font-semibold text-foreground">
                                         {{
                                             category.active_goals_count ?? 0
                                         }} </span
-                                    >&nbsp;active
+                                    >&nbsp;{{ $t('categories.counts.active') }}
                                 </span>
                                 <span>
                                     <span class="font-semibold text-foreground">
                                         {{
                                             category.completed_goals_count ?? 0
                                         }} </span
-                                    >&nbsp;done
+                                    >&nbsp;{{ $t('categories.counts.done') }}
                                 </span>
                             </div>
                             <div
@@ -209,7 +216,7 @@ const completion = (category: Category) => {
                             class="flex min-h-32 w-full items-center justify-center gap-2 rounded-xl border border-dashed text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                         >
                             <Plus class="size-4" />
-                            New category
+                            {{ $t('categories.new') }}
                         </button>
                     </template>
                 </CategoryFormModal>

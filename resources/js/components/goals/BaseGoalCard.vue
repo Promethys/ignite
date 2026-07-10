@@ -71,7 +71,9 @@ const deadlineState = computed(() => {
                                     :method="goals.complete(item).method"
                                     :href="goals.complete(item).url"
                                     class="w-full cursor-pointer"
-                                    >Mark as completed</Link
+                                    >{{
+                                        $t('goals.actions.mark_completed')
+                                    }}</Link
                                 >
                             </DropdownMenuItem>
                             <DropdownMenuItem v-if="isInProgress" as-child>
@@ -80,7 +82,7 @@ const deadlineState = computed(() => {
                                     :href="goals.updateStatus(item).url"
                                     :data="{ status: 'paused' }"
                                     class="w-full cursor-pointer"
-                                    >Pause</Link
+                                    >{{ $t('goals.actions.pause') }}</Link
                                 >
                             </DropdownMenuItem>
                             <DropdownMenuItem v-if="isPaused" as-child>
@@ -89,14 +91,14 @@ const deadlineState = computed(() => {
                                     :href="goals.updateStatus(item).url"
                                     :data="{ status: 'in_progress' }"
                                     class="w-full cursor-pointer"
-                                    >Resume</Link
+                                    >{{ $t('goals.actions.resume') }}</Link
                                 >
                             </DropdownMenuItem>
                             <DropdownMenuItem as-child>
                                 <Link
                                     :href="goals.edit(item).url"
                                     class="w-full cursor-pointer"
-                                    >Edit</Link
+                                    >{{ $t('common.actions.edit') }}</Link
                                 >
                             </DropdownMenuItem>
                             <AlertDialog>
@@ -105,24 +107,24 @@ const deadlineState = computed(() => {
                                         variant="destructive"
                                         class="cursor-pointer"
                                         @select.prevent
-                                        >Delete</DropdownMenuItem
+                                        >{{
+                                            $t('common.actions.delete')
+                                        }}</DropdownMenuItem
                                     >
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle
-                                            >Are you absolutely
-                                            sure?</AlertDialogTitle
-                                        >
+                                        <AlertDialogTitle>{{
+                                            $t('common.confirm.title')
+                                        }}</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            This action cannot be undone. This
-                                            will permanently delete your goal.
+                                            {{ $t('goals.delete.description') }}
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                        <AlertDialogCancel
-                                            >Cancel</AlertDialogCancel
-                                        >
+                                        <AlertDialogCancel>{{
+                                            $t('common.actions.cancel')
+                                        }}</AlertDialogCancel>
                                         <AlertDialogAction
                                             variant="destructive"
                                             @click="
@@ -130,7 +132,9 @@ const deadlineState = computed(() => {
                                                     goals.destroy(item),
                                                 )
                                             "
-                                            >Delete</AlertDialogAction
+                                            >{{
+                                                $t('common.actions.delete')
+                                            }}</AlertDialogAction
                                         >
                                     </AlertDialogFooter>
                                 </AlertDialogContent>

@@ -12,7 +12,7 @@ import { edit } from '@/routes/appearance';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Appearance settings',
+        title: 'settings.appearance.breadcrumb',
         href: edit().url,
     },
 ];
@@ -20,21 +20,23 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
-        <Head title="Appearance settings" />
+        <Head :title="$t('settings.appearance.head')" />
 
         <SettingsLayout>
             <div class="space-y-6">
                 <HeadingSmall
-                    title="Appearance settings"
-                    description="Update your account's appearance settings"
+                    :title="$t('settings.appearance.title')"
+                    :description="$t('settings.appearance.description')"
                 />
                 <AppearanceTabs />
             </div>
 
             <div class="space-y-6">
                 <HeadingSmall
-                    title="Language"
-                    description="Choose the language for your account"
+                    :title="$t('settings.appearance.language')"
+                    :description="
+                        $t('settings.appearance.language_description')
+                    "
                 />
                 <LocaleSelect />
             </div>
