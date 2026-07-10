@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import { home } from '@/routes';
 import { Link } from '@inertiajs/vue3';
 
@@ -37,6 +38,7 @@ defineProps<{
                     </div>
                 </div>
                 <slot />
+                <LanguageSwitcher class="mx-auto" />
             </div>
         </div>
     </div>

@@ -37,7 +37,7 @@ class SetLocaleTest extends TestCase
 
     public function test_guest_locale_cookie_is_applied()
     {
-        $response = $this->withCookie('locale', 'fr')->get('/_test/locale');
+        $response = $this->withUnencryptedCookie('locale', 'fr')->get('/_test/locale');
 
         $response->assertOk()->assertSee('fr', false);
     }
@@ -51,7 +51,7 @@ class SetLocaleTest extends TestCase
 
     public function test_unsupported_locale_falls_back_to_english()
     {
-        $response = $this->withCookie('locale', 'de')->get('/_test/locale');
+        $response = $this->withUnencryptedCookie('locale', 'de')->get('/_test/locale');
 
         $response->assertOk()->assertSee('en', false);
     }
@@ -61,7 +61,7 @@ class SetLocaleTest extends TestCase
         $user = User::factory()->create(['locale' => 'fr']);
 
         $response = $this->actingAs($user)
-            ->withCookie('locale', 'en')
+            ->withUnencryptedCookie('locale', 'en')
             ->get('/_test/locale');
 
         $response->assertOk()->assertSee('fr', false);

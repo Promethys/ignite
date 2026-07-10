@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { dashboard, login, register } from '@/routes';
@@ -67,6 +68,7 @@ const features = [
                         </Button>
                     </template>
                     <template v-else>
+                        <LanguageSwitcher />
                         <Button variant="ghost" as-child>
                             <Link :href="login()">Log in</Link>
                         </Button>
