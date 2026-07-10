@@ -38,6 +38,17 @@ Ignite follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
 
 Because the version bump follows from the commit type, keep commit messages accurate.
 
+## Adding Translations
+
+All user-visible strings must use translation keys instead of hardcoded text.
+
+- **Frontend (Vue)**: use `$t('domain.key')` in templates. In `<script setup>`, store the key string in data and render with `$t()` in the template.
+- **Backend (PHP)**: use `__('domain.key')` for flashed toasts, flash messages, and any server-side string.
+- **Lang files**: add keys to both `lang/en/<domain>.php` and `lang/fr/<domain>.php`. Use semantic dotted keys (e.g. `goals.status.active`), never source-string keys.
+- **No em-dashes** (`—`) in any translation value. Use a regular hyphen or rephrase.
+- **Supported locales** are defined in `config/locales.php`. Add a locale there before creating lang files for it.
+- Run `php artisan test --filter=TranslationParityTest` to verify key parity between locales.
+
 ## Code of Conduct
 
 Be respectful, inclusive, and constructive in all interactions.

@@ -39,7 +39,7 @@ defineProps<Props>();
                 as="button"
             >
                 <Settings class="mr-2 h-4 w-4" />
-                Settings
+                {{ $t('common.actions.settings') }}
             </Link>
         </DropdownMenuItem>
     </DropdownMenuGroup>
@@ -53,7 +53,7 @@ defineProps<Props>();
             data-test="logout-button"
         >
             <LogOut class="mr-2 h-4 w-4" />
-            Log out
+            {{ $t('common.actions.log_out') }}
         </Link>
     </DropdownMenuItem>
 </template>

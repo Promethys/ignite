@@ -1,0 +1,206 @@
+<?php
+
+return [
+    'title' => 'Objectifs',
+    'subtitle' => '{1}:count objectif · :active actif|[2,*]:count objectifs · :active actifs',
+
+    'breadcrumb' => [
+        'index' => 'Objectifs',
+        'create' => 'Créer',
+        'edit' => 'Modifier',
+        'all_entries' => 'Toutes les entrées',
+    ],
+
+    'head' => [
+        'index' => 'Objectifs',
+        'create' => 'Nouvel objectif',
+        'entries' => 'Entrées de l\'objectif',
+    ],
+
+    'actions' => [
+        'new' => 'Nouvel objectif',
+        'define' => 'Définir un objectif',
+        'log_progress' => 'Enregistrer une progression',
+        'mark_completed' => 'Marquer comme terminé',
+        'pause' => 'Mettre en pause',
+        'resume' => 'Reprendre',
+    ],
+
+    'filters' => [
+        'search_placeholder' => 'Rechercher des objectifs...',
+        'category' => 'Catégorie',
+        'all_categories' => 'Toutes les catégories',
+        'no_category' => 'Sans catégorie',
+        'status' => 'Statut',
+        'all' => 'Tous',
+    ],
+
+    'empty' => [
+        'none_title' => 'Aucun objectif',
+        'none_description' => 'Vous n\'avez pas encore d\'objectif. Commencez par créer votre premier objectif.',
+        'no_match_title' => 'Aucun objectif trouvé',
+        'no_match_description' => 'Aucun objectif ne correspond à cette recherche ou à ce filtre.',
+    ],
+
+    'delete' => [
+        'description' => 'Cette action est irréversible. Elle supprimera définitivement votre objectif.',
+    ],
+
+    'types' => [
+        'simple' => 'Simple',
+        'quantifiable' => 'Quantifiable',
+        'recurring' => 'Récurrent',
+        'multi_step' => 'À étapes',
+    ],
+    'priorities' => [
+        'low' => 'Basse',
+        'medium' => 'Moyenne',
+        'high' => 'Haute',
+    ],
+    'statuses' => [
+        'not_started' => 'Non commencé',
+        'in_progress' => 'En cours',
+        'completed' => 'Terminé',
+        'paused' => 'En pause',
+        'abandoned' => 'Abandonné',
+    ],
+    'recurrences' => [
+        'daily' => 'Quotidien',
+        'weekly' => 'Hebdomadaire',
+        'monthly' => 'Mensuel',
+        'annually' => 'Annuel',
+    ],
+    'directions' => [
+        'ascending' => 'Croissant',
+        'descending' => 'Décroissant',
+    ],
+    'polarities' => [
+        'positive' => 'Positive',
+        'negative' => 'Négative',
+    ],
+
+    'badges' => [
+        'priority' => 'Priorité :level',
+    ],
+
+    'form' => [
+        'create_title' => 'Créer un objectif',
+        'create_description' => 'Créez votre nouvel objectif',
+        'edit_title' => 'Modifier un objectif',
+        'edit_description' => 'Modifiez votre objectif',
+        'title' => 'Titre',
+        'category' => 'Catégorie',
+        'create_category' => 'Créer une catégorie',
+        'select_category' => 'Sélectionnez une catégorie',
+        'type' => 'Type',
+        'select_type' => 'Sélectionnez un type d\'objectif',
+        'description' => 'Description',
+        'current_value' => 'Valeur actuelle',
+        'target_value' => 'Valeur cible',
+        'unit' => 'Unité',
+        'unit_placeholder' => 'km, livres, séances, etc.',
+        'start_date' => 'Date de début',
+        'deadline' => 'Échéance',
+        'completed_at' => 'Terminé le',
+        'priority' => 'Priorité',
+        'select_priority' => 'Sélectionnez une priorité',
+        'status' => 'Statut',
+        'select_status' => 'Sélectionnez un statut',
+        'points' => 'Points',
+        'direction' => 'Sens',
+        'direction_help' => 'Choisissez si l\'évolution de votre objectif sera croissante ou décroissante',
+        'select_direction' => 'Sélectionnez un sens',
+        'polarity' => 'Polarité',
+        'polarity_help' => 'Contrôle la façon de compter la série. Positive compte les périodes consécutives où vous enregistrez une progression, pour construire une habitude. Négative compte le temps écoulé sans entrée, pour en briser une. Ne s\'applique qu\'aux objectifs récurrents.',
+        'select_polarity' => 'Sélectionnez une polarité',
+        'recurrence' => 'Récurrence',
+        'select_recurrence' => 'Sélectionnez une récurrence',
+        'submit_create' => 'Créer',
+        'submit_edit' => 'Modifier',
+    ],
+
+    'show' => [
+        'log_progress_title' => 'Enregistrer une progression',
+        'log_progress_description' => 'Ajoutez une entrée pour suivre votre progression sur cet objectif.',
+        'progress_value' => 'Valeur de progression',
+        'progress_value_placeholder' => '25',
+        'note' => 'Note (facultatif)',
+        'note_placeholder' => 'Bonne progression aujourd\'hui...',
+        'logging' => 'Enregistrement...',
+        'progress_over_time' => 'Progression dans le temps',
+        'no_chart_data' => 'Aucune donnée de progression pour le moment. Enregistrez votre première entrée pour voir le graphique.',
+        'steps' => 'Étapes',
+        'milestones' => 'Jalons',
+        'milestones_progress' => ':done sur :total terminés',
+        'no_milestones' => 'Aucun jalon pour le moment. Ajoutez des points de contrôle pour découper cet objectif en étapes.',
+        'about' => 'À propos',
+        'about_category' => 'Catégorie',
+        'about_started' => 'Débuté',
+        'about_deadline' => 'Échéance',
+        'about_direction' => 'Sens',
+        'about_recurrence' => 'Récurrence',
+        'about_priority' => 'Priorité',
+        'recent_entries' => 'Entrées récentes',
+        'no_entries' => 'Aucune entrée pour le moment. Enregistrez votre première entrée pour commencer.',
+        'view_all' => '{1}Voir la :count entrée|[2,*]Voir les :count entrées',
+        'simple_completed_on' => 'Terminé le :date',
+        'simple_prompt' => 'Marquez cet objectif comme terminé une fois que vous avez fini.',
+    ],
+
+    'summary' => [
+        'status' => 'Statut',
+        'progress' => 'Progression',
+        'target' => 'Cible',
+        'entries_logged' => 'Entrées enregistrées',
+        'steps_done' => 'Étapes faites',
+        'priority' => 'Priorité',
+        'recurrence' => 'Récurrence',
+        'started' => 'Débuté',
+        'until_deadline' => 'Avant l\'échéance',
+        'past_deadline' => 'Échéance dépassée',
+        'no_deadline' => 'Aucune échéance',
+        'overdue' => 'En retard',
+        'days' => '{1}:count jour|[2,*]:count jours',
+    ],
+
+    'progress' => [
+        'steps' => '{1}:done / :total étape|[2,*]:done / :total étapes',
+    ],
+
+    'chart' => [
+        'values' => 'Valeurs',
+        'target' => 'Valeur cible',
+        'entry_date' => 'Date de saisie',
+    ],
+
+    'streak' => [
+        'title' => 'Série',
+        'none' => 'Aucune série active',
+        'longest_label' => 'Record :',
+        'positive' => [
+            'day' => '{1}Série de :count jour|[2,*]Série de :count jours',
+            'week' => '{1}Série de :count semaine|[2,*]Série de :count semaines',
+            'month' => '{1}Série de :count mois|[2,*]Série de :count mois',
+            'year' => '{1}Série de :count an|[2,*]Série de :count ans',
+        ],
+        'negative' => [
+            'day' => '{1}:count jour sans rechute|[2,*]:count jours sans rechute',
+            'week' => '{1}:count semaine sans rechute|[2,*]:count semaines sans rechute',
+            'month' => '{1}:count mois sans rechute|[2,*]:count mois sans rechute',
+            'year' => '{1}:count an sans rechute|[2,*]:count ans sans rechute',
+        ],
+        'deadline_progress' => 'Jour :elapsed sur :total avant l\'échéance',
+    ],
+
+    'entries' => [
+        'title' => 'Toutes les entrées',
+        'search_placeholder' => 'Rechercher...',
+        'pick_date' => 'Choisir une date',
+        'clear_filters' => 'Effacer les filtres',
+        'load_previous' => 'Charger les précédentes',
+        'load_more' => 'Charger plus',
+        'delete_title' => 'Supprimer l\'entrée',
+        'delete_description' => 'Supprimer cette entrée de l\'historique de progression ?',
+        'no_result' => 'Aucun résultat.',
+    ],
+];

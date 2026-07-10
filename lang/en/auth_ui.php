@@ -1,0 +1,88 @@
+<?php
+
+return [
+    'login' => [
+        'head' => 'Log in',
+        'title' => 'Log in to your account',
+        'description' => 'Enter your email and password below to log in',
+        'email' => 'Email address',
+        'email_placeholder' => 'email@example.com',
+        'password' => 'Password',
+        'password_placeholder' => 'Password',
+        'forgot' => 'Forgot password?',
+        'remember' => 'Remember me',
+        'submit' => 'Log in',
+        'no_account' => "Don't have an account?",
+        'sign_up' => 'Sign up',
+    ],
+
+    'register' => [
+        'head' => 'Register',
+        'title' => 'Create an account',
+        'description' => 'Enter your details below to create your account',
+        'name' => 'Name',
+        'name_placeholder' => 'Full name',
+        'email' => 'Email address',
+        'email_placeholder' => 'email@example.com',
+        'password' => 'Password',
+        'password_placeholder' => 'Password',
+        'confirm_password' => 'Confirm password',
+        'confirm_password_placeholder' => 'Confirm password',
+        'submit' => 'Create account',
+        'have_account' => 'Already have an account?',
+        'log_in' => 'Log in',
+    ],
+
+    'forgot' => [
+        'head' => 'Forgot password',
+        'title' => 'Forgot password',
+        'description' => 'Enter your email to receive a password reset link',
+        'email' => 'Email address',
+        'email_placeholder' => 'email@example.com',
+        'submit' => 'Email password reset link',
+        'return' => 'Or, return to',
+        'log_in' => 'log in',
+    ],
+
+    'reset' => [
+        'head' => 'Reset password',
+        'title' => 'Reset password',
+        'description' => 'Please enter your new password below',
+        'email' => 'Email',
+        'password' => 'Password',
+        'password_placeholder' => 'Password',
+        'confirm' => 'Confirm Password',
+        'confirm_placeholder' => 'Confirm password',
+        'submit' => 'Reset password',
+    ],
+
+    'confirm' => [
+        'head' => 'Confirm password',
+        'title' => 'Confirm your password',
+        'description' => 'This is a secure area of the application. Please confirm your password before continuing.',
+        'password' => 'Password',
+        'submit' => 'Confirm Password',
+    ],
+
+    'verify' => [
+        'head' => 'Email verification',
+        'title' => 'Verify email',
+        'description' => 'Please verify your email address by clicking on the link we just emailed to you.',
+        'sent' => 'A new verification link has been sent to the email address you provided during registration.',
+        'resend' => 'Resend verification email',
+        'log_out' => 'Log out',
+    ],
+
+    'two_factor' => [
+        'head' => 'Two-Factor Authentication',
+        'auth_title' => 'Authentication Code',
+        'auth_description' => 'Enter the authentication code provided by your authenticator application.',
+        'recovery_title' => 'Recovery Code',
+        'recovery_description' => 'Please confirm access to your account by entering one of your emergency recovery codes.',
+        'toggle_to_recovery' => 'login using a recovery code',
+        'toggle_to_auth' => 'login using an authentication code',
+        'recovery_placeholder' => 'Enter recovery code',
+        'continue' => 'Continue',
+        'or_you_can' => 'or you can',
+    ],
+];

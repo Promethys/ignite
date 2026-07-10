@@ -1,0 +1,108 @@
+<?php
+
+return [
+    'locale_updated' => 'Language updated.',
+
+    'nav' => [
+        'heading' => 'Settings',
+        'description' => 'Manage your profile and account settings',
+        'profile' => 'Profile',
+        'password' => 'Password',
+        'two_factor' => 'Two-Factor Auth',
+        'appearance' => 'Appearance',
+    ],
+
+    'profile' => [
+        'head' => 'Profile settings',
+        'breadcrumb' => 'Profile settings',
+        'title' => 'Profile information',
+        'description' => 'Update your name and email address',
+        'name' => 'Name',
+        'name_placeholder' => 'Full name',
+        'email' => 'Email address',
+        'email_placeholder' => 'Email address',
+        'unverified' => 'Your email address is unverified.',
+        'resend' => 'Click here to resend the verification email.',
+        'verification_sent' => 'A new verification link has been sent to your email address.',
+        'timezone' => 'Timezone',
+        'select_timezone' => 'Select a timezone',
+    ],
+
+    'delete' => [
+        'title' => 'Delete account',
+        'description' => 'Delete your account and all of its resources',
+        'warning' => 'Warning',
+        'warning_text' => 'Please proceed with caution, this cannot be undone.',
+        'button' => 'Delete account',
+        'confirm_title' => 'Are you sure you want to delete your account?',
+        'confirm_description' => 'Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.',
+        'password' => 'Password',
+        'password_placeholder' => 'Password',
+    ],
+
+    'password' => [
+        'head' => 'Password settings',
+        'breadcrumb' => 'Password settings',
+        'title' => 'Update password',
+        'description' => 'Ensure your account is using a long, random password to stay secure',
+        'current' => 'Current password',
+        'current_placeholder' => 'Current password',
+        'new' => 'New password',
+        'new_placeholder' => 'New password',
+        'confirm' => 'Confirm password',
+        'confirm_placeholder' => 'Confirm password',
+        'save' => 'Save password',
+    ],
+
+    'appearance' => [
+        'head' => 'Appearance settings',
+        'breadcrumb' => 'Appearance settings',
+        'title' => 'Appearance settings',
+        'description' => "Update your account's appearance settings",
+        'light' => 'Light',
+        'dark' => 'Dark',
+        'system' => 'System',
+        'language' => 'Language',
+        'language_description' => 'Choose the language for your account',
+        'select_language' => 'Select language',
+    ],
+
+    'two_factor' => [
+        'head' => 'Two-Factor Authentication',
+        'breadcrumb' => 'Two-Factor Authentication',
+        'title' => 'Two-Factor Authentication',
+        'description' => 'Manage your two-factor authentication settings',
+        'disabled' => 'Disabled',
+        'enabled' => 'Enabled',
+        'disabled_text' => 'When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.',
+        'enabled_text' => 'With two-factor authentication enabled, you will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.',
+        'continue_setup' => 'Continue Setup',
+        'enable' => 'Enable 2FA',
+        'disable' => 'Disable 2FA',
+
+        'modal' => [
+            'enabled_title' => 'Two-Factor Authentication Enabled',
+            'enabled_description' => 'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.',
+            'verify_title' => 'Verify Authentication Code',
+            'verify_description' => 'Enter the 6-digit code from your authenticator app',
+            'setup_title' => 'Enable Two-Factor Authentication',
+            'setup_description' => 'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app',
+            'close' => 'Close',
+            'continue' => 'Continue',
+            'manual' => 'or, enter the code manually',
+            'back' => 'Back',
+            'confirm' => 'Confirm',
+        ],
+
+        'recovery' => [
+            'title' => '2FA Recovery Codes',
+            'description' => 'Recovery codes let you regain access if you lose your 2FA device. Store them in a secure password manager.',
+            'view' => 'View Recovery Codes',
+            'hide' => 'Hide Recovery Codes',
+            'regenerate' => 'Regenerate Codes',
+            'note_lead' => 'Each recovery code can be used once to access your account and will be removed after use. If you need more, click',
+            'note_action' => 'Regenerate Codes',
+            'note_tail' => 'above.',
+        ],
+    ],
+];

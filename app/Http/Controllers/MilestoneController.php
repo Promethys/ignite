@@ -36,7 +36,7 @@ class MilestoneController extends Controller
             'order' => $order,
         ]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Milestone added.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.milestone.added')]);
 
         return redirect()->back();
     }
@@ -56,7 +56,7 @@ class MilestoneController extends Controller
 
         $milestone->update($validated);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Milestone updated.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.milestone.updated')]);
 
         return redirect()->back();
     }
@@ -74,7 +74,7 @@ class MilestoneController extends Controller
 
         $milestone->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Milestone deleted.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.milestone.deleted')]);
 
         return redirect()->back();
     }
@@ -92,7 +92,7 @@ class MilestoneController extends Controller
 
         $milestone->markAsCompleted();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Milestone completed.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.milestone.completed')]);
 
         return redirect()->back();
     }

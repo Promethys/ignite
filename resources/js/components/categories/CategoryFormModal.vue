@@ -32,18 +32,17 @@ const props = defineProps<{
 const formState = props.record
     ? {
           formName: null,
-          cardTitle: 'Edit a category',
-          cardDescription: 'Edit your category.',
+          cardTitle: 'categories.form.edit_title',
+          cardDescription: 'categories.form.edit_description',
           action: update(props.record),
-          submitBtnLabel: 'Edit',
+          submitBtnLabel: 'categories.form.submit_edit',
       }
     : {
           formName: 'CategoryCreateForm',
-          cardTitle: 'Create a category',
-          cardDescription:
-              'Create a category here. You can use it to organize your goals.',
+          cardTitle: 'categories.form.create_title',
+          cardDescription: 'categories.form.create_description',
           action: store(),
-          submitBtnLabel: 'Create',
+          submitBtnLabel: 'categories.form.submit_create',
       };
 
 const formData = {
@@ -73,7 +72,7 @@ const open = ref<boolean>(props.open ?? false);
             <slot name="trigger">
                 <Button v-if="!record">
                     <Plus />
-                    Category
+                    {{ $t('categories.trigger') }}
                 </Button>
                 <Button v-else variant="ghost" size="icon" class="h-8 w-8">
                     <Edit class="h-4 w-4" />
@@ -82,9 +81,9 @@ const open = ref<boolean>(props.open ?? false);
         </DialogTrigger>
         <DialogContent class="sm:max-w-[425px]">
             <DialogHeader>
-                <DialogTitle>{{ formState.cardTitle }}</DialogTitle>
+                <DialogTitle>{{ $t(formState.cardTitle) }}</DialogTitle>
                 <DialogDescription>{{
-                    formState.cardDescription
+                    $t(formState.cardDescription)
                 }}</DialogDescription>
             </DialogHeader>
             <form
@@ -100,11 +99,15 @@ const open = ref<boolean>(props.open ?? false);
             >
                 <div class="mb-4 grid gap-4">
                     <div class="grid gap-3">
-                        <Label for="name">Name</Label>
+                        <Label for="name">{{
+                            $t('categories.form.name')
+                        }}</Label>
                         <Input
                             id="name"
                             name="name"
-                            placeholder="Sports"
+                            :placeholder="
+                                $t('categories.form.name_placeholder')
+                            "
                             v-model="form.name"
                         />
                         <InputError
@@ -113,11 +116,15 @@ const open = ref<boolean>(props.open ?? false);
                         />
                     </div>
                     <div class="grid gap-3">
-                        <Label for="description">Description</Label>
+                        <Label for="description">{{
+                            $t('categories.form.description')
+                        }}</Label>
                         <Textarea
                             id="description"
                             name="description"
-                            placeholder="All sportive goals like soccer, tennis, gym, ..."
+                            :placeholder="
+                                $t('categories.form.description_placeholder')
+                            "
                             v-model="form.description"
                         />
                         <InputError
@@ -127,7 +134,9 @@ const open = ref<boolean>(props.open ?? false);
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-3">
-                            <Label for="color">Color</Label>
+                            <Label for="color">{{
+                                $t('categories.form.color')
+                            }}</Label>
                             <Input
                                 id="color"
                                 name="color"
@@ -141,7 +150,9 @@ const open = ref<boolean>(props.open ?? false);
                             />
                         </div>
                         <div class="space-y-3">
-                            <Label for="icon">Icon</Label>
+                            <Label for="icon">{{
+                                $t('categories.form.icon')
+                            }}</Label>
                             <Input
                                 id="icon"
                                 name="icon"
@@ -157,13 +168,15 @@ const open = ref<boolean>(props.open ?? false);
                 </div>
                 <DialogFooter>
                     <DialogClose as-child>
-                        <Button variant="outline"> Cancel </Button>
+                        <Button variant="outline">
+                            {{ $t('common.actions.cancel') }}
+                        </Button>
                     </DialogClose>
                     <Button type="submit" :disabled="form.processing">
                         <template v-if="form.processing">
                             <Spinner />
                         </template>
-                        {{ formState.submitBtnLabel }}
+                        {{ $t(formState.submitBtnLabel) }}
                     </Button>
                 </DialogFooter>
             </form>

@@ -62,7 +62,7 @@ const activeItemStyles = computed(
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'common.nav.dashboard',
         href: dashboard(),
         icon: LayoutGrid,
     },
@@ -70,12 +70,12 @@ const mainNavItems: NavItem[] = [
 
 const rightNavItems: NavItem[] = [
     {
-        title: 'Repository',
+        title: 'common.nav.repository',
         href: 'https://github.com/laravel/vue-starter-kit',
         icon: Folder,
     },
     {
-        title: 'Documentation',
+        title: 'common.nav.documentation',
         href: 'https://laravel.com/docs/starter-kits#vue',
         icon: BookOpen,
     },
@@ -99,9 +99,9 @@ const rightNavItems: NavItem[] = [
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" class="w-[300px] p-6">
-                            <SheetTitle class="sr-only"
-                                >Navigation Menu</SheetTitle
-                            >
+                            <SheetTitle class="sr-only">{{
+                                $t('common.nav.menu')
+                            }}</SheetTitle>
                             <SheetHeader class="flex justify-start text-left">
                                 <AppLogoIcon
                                     class="size-6 fill-current text-black dark:text-white"
@@ -123,7 +123,7 @@ const rightNavItems: NavItem[] = [
                                             :is="item.icon"
                                             class="h-5 w-5"
                                         />
-                                        {{ item.title }}
+                                        {{ $t(item.title) }}
                                     </Link>
                                 </nav>
                                 <div class="flex flex-col space-y-4">
@@ -140,7 +140,7 @@ const rightNavItems: NavItem[] = [
                                             :is="item.icon"
                                             class="h-5 w-5"
                                         />
-                                        <span>{{ item.title }}</span>
+                                        <span>{{ $t(item.title) }}</span>
                                     </a>
                                 </div>
                             </div>
@@ -176,7 +176,7 @@ const rightNavItems: NavItem[] = [
                                         :is="item.icon"
                                         class="mr-2 h-4 w-4"
                                     />
-                                    {{ item.title }}
+                                    {{ $t(item.title) }}
                                 </Link>
                                 <div
                                     v-if="isCurrentRoute(item.href)"
@@ -229,7 +229,7 @@ const rightNavItems: NavItem[] = [
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>{{ item.title }}</p>
+                                            <p>{{ $t(item.title) }}</p>
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>

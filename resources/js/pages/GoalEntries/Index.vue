@@ -44,7 +44,7 @@ const props = defineProps<{
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Goals',
+        title: 'goals.breadcrumb.index',
         href: goals.index().url,
     },
     {
@@ -52,7 +52,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: goals.show({ goal: props.goal }).url,
     },
     {
-        title: `All Entries`,
+        title: 'goals.breadcrumb.all_entries',
         href: '',
     },
 ];
@@ -109,18 +109,22 @@ const resetFilters = () => {
 </script>
 
 <template>
-    <Head title="Goal Entries" />
+    <Head :title="$t('goals.head.entries')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="space-y-6 p-4">
             <section class="space-y-2 text-sm">
-                <h3 class="text-xl font-medium">All Entries</h3>
+                <h3 class="text-xl font-medium">
+                    {{ $t('goals.entries.title') }}
+                </h3>
                 <div>
                     <div class="space-y-3">
                         <div class="flex items-center gap-4">
                             <Input
                                 type="search"
-                                placeholder="Search..."
+                                :placeholder="
+                                    $t('goals.entries.search_placeholder')
+                                "
                                 v-model="searchInput"
                                 class="max-w-md"
                                 @input="debouncedSearch"
@@ -145,7 +149,9 @@ const resetFilters = () => {
                                             {{
                                                 dateFrom
                                                     ? dateFrom.toString()
-                                                    : 'Pick a date'
+                                                    : $t(
+                                                          'goals.entries.pick_date',
+                                                      )
                                             }}
                                         </Button>
                                     </PopoverTrigger>
@@ -185,7 +191,9 @@ const resetFilters = () => {
                                             {{
                                                 dateTo
                                                     ? dateTo.toString()
-                                                    : 'Pick a date'
+                                                    : $t(
+                                                          'goals.entries.pick_date',
+                                                      )
                                             }}
                                         </Button>
                                     </PopoverTrigger>
@@ -209,7 +217,7 @@ const resetFilters = () => {
                             <div v-if="hasActiveFilters">
                                 <Button variant="link" @click="resetFilters">
                                     <XIcon />
-                                    Clear filters
+                                    {{ $t('goals.entries.clear_filters') }}
                                 </Button>
                             </div>
                         </div>
@@ -235,8 +243,10 @@ const resetFilters = () => {
                                     >
                                         {{
                                             loading
-                                                ? 'Loading...'
-                                                : 'Load previous'
+                                                ? $t('common.status.loading')
+                                                : $t(
+                                                      'goals.entries.load_previous',
+                                                  )
                                         }}
                                     </Button>
                                 </div>
@@ -285,21 +295,28 @@ const resetFilters = () => {
                                                     <Button
                                                         variant="destructive"
                                                     >
-                                                        Delete
+                                                        {{
+                                                            $t(
+                                                                'common.actions.delete',
+                                                            )
+                                                        }}
                                                     </Button>
                                                 </DialogTrigger>
                                                 <DialogContent
                                                     class="sm:max-w-[425px]"
                                                 >
                                                     <DialogHeader>
-                                                        <DialogTitle
-                                                            >Delete
-                                                            entry</DialogTitle
-                                                        >
+                                                        <DialogTitle>{{
+                                                            $t(
+                                                                'goals.entries.delete_title',
+                                                            )
+                                                        }}</DialogTitle>
                                                         <DialogDescription>
-                                                            Delete that entry
-                                                            from progress
-                                                            history?
+                                                            {{
+                                                                $t(
+                                                                    'goals.entries.delete_description',
+                                                                )
+                                                            }}
                                                         </DialogDescription>
                                                     </DialogHeader>
 
@@ -309,7 +326,11 @@ const resetFilters = () => {
                                                                 type="button"
                                                                 variant="secondary"
                                                             >
-                                                                Cancel
+                                                                {{
+                                                                    $t(
+                                                                        'common.actions.cancel',
+                                                                    )
+                                                                }}
                                                             </Button>
                                                         </DialogClose>
                                                         <Button
@@ -326,7 +347,11 @@ const resetFilters = () => {
                                                                 )
                                                             "
                                                         >
-                                                            Delete
+                                                            {{
+                                                                $t(
+                                                                    'common.actions.delete',
+                                                                )
+                                                            }}
                                                         </Button>
                                                     </DialogFooter>
                                                 </DialogContent>
@@ -346,7 +371,9 @@ const resetFilters = () => {
                                     <EmptyMedia variant="icon">
                                         <XIcon />
                                     </EmptyMedia>
-                                    <EmptyTitle> No result found. </EmptyTitle>
+                                    <EmptyTitle>
+                                        {{ $t('goals.entries.no_result') }}
+                                    </EmptyTitle>
                                 </EmptyHeader>
                             </Empty>
 
@@ -358,7 +385,9 @@ const resetFilters = () => {
                                         :disabled="loading"
                                     >
                                         {{
-                                            loading ? 'Loading...' : 'Load more'
+                                            loading
+                                                ? $t('common.status.loading')
+                                                : $t('goals.entries.load_more')
                                         }}
                                     </Button>
                                 </div>

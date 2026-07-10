@@ -1,50 +1,52 @@
+// Labels are translation keys resolved with `$t()` where the options render.
+
 export function getGoalTypeOptions() {
     return [
-        { value: 'simple', label: 'Simple' },
-        { value: 'quantifiable', label: 'Quantifiable' },
-        { value: 'recurring', label: 'Recurring' },
-        { value: 'multi_step', label: 'Multi Step' },
+        { value: 'simple', label: 'goals.types.simple' },
+        { value: 'quantifiable', label: 'goals.types.quantifiable' },
+        { value: 'recurring', label: 'goals.types.recurring' },
+        { value: 'multi_step', label: 'goals.types.multi_step' },
     ];
 }
 
 export function getGoalPriorityOptions() {
     return [
-        { value: 'low', label: 'Low' },
-        { value: 'medium', label: 'Medium' },
-        { value: 'high', label: 'High' },
+        { value: 'low', label: 'goals.priorities.low' },
+        { value: 'medium', label: 'goals.priorities.medium' },
+        { value: 'high', label: 'goals.priorities.high' },
     ];
 }
 
 export function getGoalPolarityOptions() {
     return [
-        { value: 'positive', label: 'Positive' },
-        { value: 'negative', label: 'Negative' },
+        { value: 'positive', label: 'goals.polarities.positive' },
+        { value: 'negative', label: 'goals.polarities.negative' },
     ];
 }
 
 export function getGoalStatusOptions() {
     return [
-        { value: 'not_started', label: 'Not Started' },
-        { value: 'in_progress', label: 'In Progress' },
-        { value: 'completed', label: 'Completed' },
-        { value: 'paused', label: 'Paused' },
-        { value: 'abandoned', label: 'Abandoned' },
+        { value: 'not_started', label: 'goals.statuses.not_started' },
+        { value: 'in_progress', label: 'goals.statuses.in_progress' },
+        { value: 'completed', label: 'goals.statuses.completed' },
+        { value: 'paused', label: 'goals.statuses.paused' },
+        { value: 'abandoned', label: 'goals.statuses.abandoned' },
     ];
 }
 
 export function getGoalRecurrenceOptions() {
     return [
-        { value: 'daily', label: 'Daily' },
-        { value: 'weekly', label: 'Weekly' },
-        { value: 'monthly', label: 'Monthly' },
-        { value: 'annually', label: 'Annually' },
+        { value: 'daily', label: 'goals.recurrences.daily' },
+        { value: 'weekly', label: 'goals.recurrences.weekly' },
+        { value: 'monthly', label: 'goals.recurrences.monthly' },
+        { value: 'annually', label: 'goals.recurrences.annually' },
     ];
 }
 
 export function getGoalDirectionOptions() {
     return [
-        { value: 'ascending', label: 'Ascending' },
-        { value: 'descending', label: 'Descending' },
+        { value: 'ascending', label: 'goals.directions.ascending' },
+        { value: 'descending', label: 'goals.directions.descending' },
     ];
 }
 

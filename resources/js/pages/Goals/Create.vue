@@ -9,11 +9,11 @@ import { Head } from '@inertiajs/vue3';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Goals',
+        title: 'goals.breadcrumb.index',
         href: goals.index().url,
     },
     {
-        title: 'Create',
+        title: 'goals.breadcrumb.create',
         href: '',
     },
 ];
@@ -24,13 +24,13 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="New goal" />
+    <Head :title="$t('goals.head.create')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="space-y-6 p-4">
             <PageHeader
-                title="Create a goal"
-                description="Create your new goal"
+                :title="$t('goals.form.create_title')"
+                :description="$t('goals.form.create_description')"
             />
 
             <GoalForm :user="user" />

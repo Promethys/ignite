@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { pluralizeUnit, streakUnit } from '@/lib/streak';
+import { streakUnit } from '@/lib/streak';
 import { Goal } from '@/types/models';
 import { Flame } from 'lucide-vue-next';
 import { computed } from 'vue';
@@ -14,9 +14,6 @@ const unit = computed(() => streakUnit(props.item));
 const isNegative = computed(() => props.item.polarity === 'negative');
 const hasStreak = computed(() => current.value > 0);
 const filledDots = computed(() => Math.min(current.value, slots));
-const unitNoun = computed(() =>
-    isNegative.value ? pluralizeUnit(unit.value, current.value) : unit.value,
-);
 </script>
 
 <template>
@@ -26,13 +23,17 @@ const unitNoun = computed(() =>
                 class="size-4"
                 :class="hasStreak ? 'text-primary' : 'text-muted-foreground'"
             />
-            <template v-if="isNegative"
-                >{{ current }} {{ unitNoun }} without a relapse</template
-            >
-            <template v-else-if="hasStreak"
-                >{{ current }}-{{ unitNoun }} streak</template
-            >
-            <template v-else>No active streak</template>
+            <template v-if="isNegative">{{
+                $tChoice(`goals.streak.negative.${unit}`, current, {
+                    count: current.toString(),
+                })
+            }}</template>
+            <template v-else-if="hasStreak">{{
+                $tChoice(`goals.streak.positive.${unit}`, current, {
+                    count: current.toString(),
+                })
+            }}</template>
+            <template v-else>{{ $t('goals.streak.none') }}</template>
         </div>
         <div class="flex gap-1">
             <span

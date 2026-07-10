@@ -32,20 +32,19 @@ const props = defineProps<{
 
 const formState = props.record
     ? {
-          cardTitle: 'Edit a milestone',
-          cardDescription: 'Edit your milestone.',
+          cardTitle: 'milestones.form.edit_title',
+          cardDescription: 'milestones.form.edit_description',
           action: update({
               goal: props.record.goal_id,
               milestone: props.record,
           }),
-          submitBtnLabel: 'Edit',
+          submitBtnLabel: 'milestones.form.submit_edit',
       }
     : {
-          cardTitle: 'Create a milestone',
-          cardDescription:
-              'Create a milestone and track key checkpoints on your journey to completing this goal.',
+          cardTitle: 'milestones.form.create_title',
+          cardDescription: 'milestones.form.create_description',
           action: store({ goal: props.goal_id }),
-          submitBtnLabel: 'Create',
+          submitBtnLabel: 'milestones.form.submit_create',
       };
 
 const formData = {
@@ -72,7 +71,7 @@ const open = ref<boolean>(props.open ?? false);
             <slot name="trigger">
                 <Button v-if="!record">
                     <Plus />
-                    Milestone
+                    {{ $t('milestones.trigger') }}
                 </Button>
                 <Button
                     v-else
@@ -86,9 +85,9 @@ const open = ref<boolean>(props.open ?? false);
         </DialogTrigger>
         <DialogContent class="sm:max-w-[425px]">
             <DialogHeader>
-                <DialogTitle>{{ formState.cardTitle }}</DialogTitle>
+                <DialogTitle>{{ $t(formState.cardTitle) }}</DialogTitle>
                 <DialogDescription>{{
-                    formState.cardDescription
+                    $t(formState.cardDescription)
                 }}</DialogDescription>
             </DialogHeader>
             <form
@@ -104,11 +103,15 @@ const open = ref<boolean>(props.open ?? false);
             >
                 <div class="mb-4 grid gap-4">
                     <div class="grid gap-3">
-                        <Label for="title">Title</Label>
+                        <Label for="title">{{
+                            $t('milestones.form.title')
+                        }}</Label>
                         <Input
                             id="title"
                             name="title"
-                            placeholder="Reach 25% completion"
+                            :placeholder="
+                                $t('milestones.form.title_placeholder')
+                            "
                             v-model="form.title"
                         />
                         <InputError
@@ -117,11 +120,15 @@ const open = ref<boolean>(props.open ?? false);
                         />
                     </div>
                     <div class="grid gap-3">
-                        <Label for="description">Description</Label>
+                        <Label for="description">{{
+                            $t('milestones.form.description')
+                        }}</Label>
                         <Textarea
                             id="description"
                             name="description"
-                            placeholder="Milestone description here..."
+                            :placeholder="
+                                $t('milestones.form.description_placeholder')
+                            "
                             v-model="form.description"
                         />
                         <InputError
@@ -131,7 +138,9 @@ const open = ref<boolean>(props.open ?? false);
                     </div>
                     <div class="grid gap-3">
                         <div class="space-y-3">
-                            <Label for="target_value">Target Value</Label>
+                            <Label for="target_value">{{
+                                $t('milestones.form.target_value')
+                            }}</Label>
                             <Input
                                 id="target_value"
                                 name="target_value"
@@ -161,13 +170,15 @@ const open = ref<boolean>(props.open ?? false);
                 </div>
                 <DialogFooter>
                     <DialogClose as-child>
-                        <Button variant="outline"> Cancel </Button>
+                        <Button variant="outline">
+                            {{ $t('common.actions.cancel') }}
+                        </Button>
                     </DialogClose>
                     <Button type="submit" :disabled="form.processing">
                         <template v-if="form.processing">
                             <Spinner />
                         </template>
-                        {{ formState.submitBtnLabel }}
+                        {{ $t(formState.submitBtnLabel) }}
                     </Button>
                 </DialogFooter>
             </form>

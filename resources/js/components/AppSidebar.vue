@@ -23,18 +23,18 @@ const page = usePage();
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'common.nav.dashboard',
         href: dashboard(),
         icon: LayoutDashboard,
     },
     {
-        title: 'Goals',
+        title: 'common.nav.goals',
         href: goals.index(),
         icon: Crosshair,
         isActive: page.url.includes('/goals'),
     },
     {
-        title: 'Categories',
+        title: 'common.nav.categories',
         href: categories.index(),
         icon: Folder,
     },

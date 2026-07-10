@@ -18,6 +18,7 @@ import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import { confirm } from '@/routes/two-factor';
 import { Form } from '@inertiajs/vue3';
 import { useClipboard } from '@vueuse/core';
+import { trans } from 'laravel-vue-i18n';
 import { Check, Copy, Loader2, ScanLine } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 
@@ -46,26 +47,24 @@ const modalConfig = computed<{
 }>(() => {
     if (props.twoFactorEnabled) {
         return {
-            title: 'Two-Factor Authentication Enabled',
-            description:
-                'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.',
-            buttonText: 'Close',
+            title: trans('settings.two_factor.modal.enabled_title'),
+            description: trans('settings.two_factor.modal.enabled_description'),
+            buttonText: trans('settings.two_factor.modal.close'),
         };
     }
 
     if (showVerificationStep.value) {
         return {
-            title: 'Verify Authentication Code',
-            description: 'Enter the 6-digit code from your authenticator app',
-            buttonText: 'Continue',
+            title: trans('settings.two_factor.modal.verify_title'),
+            description: trans('settings.two_factor.modal.verify_description'),
+            buttonText: trans('settings.two_factor.modal.continue'),
         };
     }
 
     return {
-        title: 'Enable Two-Factor Authentication',
-        description:
-            'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app',
-        buttonText: 'Continue',
+        title: trans('settings.two_factor.modal.setup_title'),
+        description: trans('settings.two_factor.modal.setup_description'),
+        buttonText: trans('settings.two_factor.modal.continue'),
     };
 });
 
@@ -189,9 +188,9 @@ watch(
                             <div
                                 class="absolute inset-0 top-1/2 h-px w-full bg-border"
                             />
-                            <span class="relative bg-card px-2 py-1"
-                                >or, enter the code manually</span
-                            >
+                            <span class="relative bg-card px-2 py-1">{{
+                                $t('settings.two_factor.modal.manual')
+                            }}</span>
                         </div>
 
                         <div
@@ -273,7 +272,7 @@ watch(
                                     @click="showVerificationStep = false"
                                     :disabled="processing"
                                 >
-                                    Back
+                                    {{ $t('settings.two_factor.modal.back') }}
                                 </Button>
                                 <Button
                                     type="submit"
@@ -282,7 +281,9 @@ watch(
                                         processing || codeValue.length < 6
                                     "
                                 >
-                                    Confirm
+                                    {{
+                                        $t('settings.two_factor.modal.confirm')
+                                    }}
                                 </Button>
                             </div>
                         </div>

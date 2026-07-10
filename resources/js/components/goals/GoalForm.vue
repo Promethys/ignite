@@ -42,12 +42,12 @@ const formState = props.record
     ? {
           formName: null,
           action: update(props.record),
-          submitBtnLabel: 'Edit',
+          submitBtnLabel: 'goals.form.submit_edit',
       }
     : {
           formName: 'GoalCreateForm',
           action: store(),
-          submitBtnLabel: 'Create',
+          submitBtnLabel: 'goals.form.submit_create',
       };
 
 const formData = {
@@ -107,7 +107,7 @@ form.transform((data) => ({
                 >
                     <!-- Title -->
                     <div class="grid gap-2">
-                        <Label for="title">Title</Label>
+                        <Label for="title">{{ $t('goals.form.title') }}</Label>
                         <Input
                             id="title"
                             v-model="form.title"
@@ -127,14 +127,14 @@ form.transform((data) => ({
                                 for="category_id"
                                 class="w-full justify-between"
                             >
-                                <span>Category</span>
+                                <span>{{ $t('goals.form.category') }}</span>
                                 <Link
                                     class="hover:underline"
                                     :tabindex="-1"
                                     :href="categories.index()"
                                     :data="{ create: 1 }"
                                 >
-                                    Create a category
+                                    {{ $t('goals.form.create_category') }}
                                 </Link>
                             </Label>
                         </div>
@@ -148,7 +148,11 @@ form.transform((data) => ({
                             "
                         >
                             <SelectTrigger :tabindex="2">
-                                <SelectValue placeholder="Select a category" />
+                                <SelectValue
+                                    :placeholder="
+                                        $t('goals.form.select_category')
+                                    "
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem
@@ -165,7 +169,7 @@ form.transform((data) => ({
 
                     <!-- Type -->
                     <div class="grid gap-2">
-                        <Label for="type">Type</Label>
+                        <Label for="type">{{ $t('goals.form.type') }}</Label>
                         <Select
                             id="type"
                             v-model="form.type"
@@ -173,7 +177,9 @@ form.transform((data) => ({
                             required
                         >
                             <SelectTrigger :tabindex="3">
-                                <SelectValue placeholder="Select a goal type" />
+                                <SelectValue
+                                    :placeholder="$t('goals.form.select_type')"
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem
@@ -181,7 +187,7 @@ form.transform((data) => ({
                                     :key="type.value"
                                     :value="type.value"
                                 >
-                                    {{ type.label }}
+                                    {{ $t(type.label) }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -190,7 +196,9 @@ form.transform((data) => ({
 
                     <!-- Description -->
                     <div class="col-span-full grid gap-2">
-                        <Label for="description">Description</Label>
+                        <Label for="description">{{
+                            $t('goals.form.description')
+                        }}</Label>
                         <Textarea
                             id="description"
                             v-model="form.description"
@@ -202,7 +210,9 @@ form.transform((data) => ({
 
                     <!-- Current Value -->
                     <div class="grid gap-2">
-                        <Label for="current_value">Current value</Label>
+                        <Label for="current_value">{{
+                            $t('goals.form.current_value')
+                        }}</Label>
                         <Input
                             id="current_value"
                             v-model="form.current_value"
@@ -217,7 +227,9 @@ form.transform((data) => ({
 
                     <!-- Target Value -->
                     <div class="grid gap-2">
-                        <Label for="target_value">Target value</Label>
+                        <Label for="target_value">{{
+                            $t('goals.form.target_value')
+                        }}</Label>
                         <Input
                             id="target_value"
                             v-model="form.target_value"
@@ -232,13 +244,13 @@ form.transform((data) => ({
 
                     <!-- Unit -->
                     <div class="grid gap-2">
-                        <Label for="unit">Unit</Label>
+                        <Label for="unit">{{ $t('goals.form.unit') }}</Label>
                         <Input
                             id="unit"
                             v-model="form.unit"
                             type="text"
                             name="unit"
-                            placeholder="km, books, sessions, etc."
+                            :placeholder="$t('goals.form.unit_placeholder')"
                             :tabindex="7"
                             :disabled="form.type !== 'quantifiable'"
                         />
@@ -247,7 +259,9 @@ form.transform((data) => ({
 
                     <!-- Start Date -->
                     <div class="grid gap-2">
-                        <Label for="start_date">Start date</Label>
+                        <Label for="start_date">{{
+                            $t('goals.form.start_date')
+                        }}</Label>
                         <Input
                             id="start_date"
                             v-model="form.start_date"
@@ -260,7 +274,9 @@ form.transform((data) => ({
 
                     <!-- Deadline -->
                     <div class="grid gap-2">
-                        <Label for="deadline">Deadline</Label>
+                        <Label for="deadline">{{
+                            $t('goals.form.deadline')
+                        }}</Label>
                         <Input
                             id="deadline"
                             v-model="form.deadline"
@@ -273,7 +289,9 @@ form.transform((data) => ({
 
                     <!-- Completed At -->
                     <div class="grid gap-2">
-                        <Label for="completed_at">Completed at</Label>
+                        <Label for="completed_at">{{
+                            $t('goals.form.completed_at')
+                        }}</Label>
                         <Input
                             id="completed_at"
                             v-model="form.completed_at"
@@ -287,7 +305,9 @@ form.transform((data) => ({
 
                     <!-- Priority -->
                     <div class="grid gap-2">
-                        <Label for="priority">Priority</Label>
+                        <Label for="priority">{{
+                            $t('goals.form.priority')
+                        }}</Label>
                         <Select
                             id="priority"
                             v-model="form.priority"
@@ -296,7 +316,9 @@ form.transform((data) => ({
                         >
                             <SelectTrigger :tabindex="11">
                                 <SelectValue
-                                    placeholder="Select a goal priority"
+                                    :placeholder="
+                                        $t('goals.form.select_priority')
+                                    "
                                 />
                             </SelectTrigger>
                             <SelectContent>
@@ -305,7 +327,7 @@ form.transform((data) => ({
                                     :key="priority.value"
                                     :value="priority.value"
                                 >
-                                    {{ priority.label }}
+                                    {{ $t(priority.label) }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -314,7 +336,9 @@ form.transform((data) => ({
 
                     <!-- Status -->
                     <div class="grid gap-2">
-                        <Label for="status">Status</Label>
+                        <Label for="status">{{
+                            $t('goals.form.status')
+                        }}</Label>
                         <Select
                             id="status"
                             v-model="form.status"
@@ -322,7 +346,11 @@ form.transform((data) => ({
                             required
                         >
                             <SelectTrigger :tabindex="12">
-                                <SelectValue placeholder="Select a status" />
+                                <SelectValue
+                                    :placeholder="
+                                        $t('goals.form.select_status')
+                                    "
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem
@@ -330,7 +358,7 @@ form.transform((data) => ({
                                     :key="status.value"
                                     :value="status.value"
                                 >
-                                    {{ status.label }}
+                                    {{ $t(status.label) }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -339,7 +367,9 @@ form.transform((data) => ({
 
                     <!-- Points -->
                     <div class="grid gap-2">
-                        <Label for="points">Points</Label>
+                        <Label for="points">{{
+                            $t('goals.form.points')
+                        }}</Label>
                         <Input
                             id="points"
                             v-model="form.points"
@@ -367,10 +397,9 @@ form.transform((data) => ({
                     <!-- Direction -->
                     <div class="grid gap-2">
                         <Label for="direction" class="space-x-2">
-                            Direction
+                            {{ $t('goals.form.direction') }}
                             <HelpTooltip>
-                                Choose if your goal's evolution will be
-                                ascending or descending
+                                {{ $t('goals.form.direction_help') }}
                             </HelpTooltip>
                         </Label>
                         <Select
@@ -379,7 +408,11 @@ form.transform((data) => ({
                             name="direction"
                         >
                             <SelectTrigger :tabindex="14">
-                                <SelectValue placeholder="Select a direction" />
+                                <SelectValue
+                                    :placeholder="
+                                        $t('goals.form.select_direction')
+                                    "
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem
@@ -387,7 +420,7 @@ form.transform((data) => ({
                                     :key="direction.value"
                                     :value="direction.value"
                                 >
-                                    {{ direction.label }}
+                                    {{ $t(direction.label) }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -397,13 +430,9 @@ form.transform((data) => ({
                     <!-- Polarity -->
                     <div class="grid gap-2">
                         <Label for="polarity" class="space-x-2">
-                            Polarity
+                            {{ $t('goals.form.polarity') }}
                             <HelpTooltip>
-                                Controls how the streak is counted. Positive
-                                counts consecutive periods where you log
-                                progress, for building a habit. Negative counts
-                                how long you go without an entry, for breaking
-                                one. Only applies to recurring goals.
+                                {{ $t('goals.form.polarity_help') }}
                             </HelpTooltip>
                         </Label>
                         <Select
@@ -413,7 +442,11 @@ form.transform((data) => ({
                             :disabled="form.type !== 'recurring'"
                         >
                             <SelectTrigger :tabindex="15">
-                                <SelectValue placeholder="Select a polarity" />
+                                <SelectValue
+                                    :placeholder="
+                                        $t('goals.form.select_polarity')
+                                    "
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem
@@ -421,7 +454,7 @@ form.transform((data) => ({
                                     :key="polarity.value"
                                     :value="polarity.value"
                                 >
-                                    {{ polarity.label }}
+                                    {{ $t(polarity.label) }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -430,7 +463,9 @@ form.transform((data) => ({
 
                     <!-- Recurrence -->
                     <div class="grid gap-2">
-                        <Label for="recurrence">Recurrence</Label>
+                        <Label for="recurrence">{{
+                            $t('goals.form.recurrence')
+                        }}</Label>
                         <Select
                             id="recurrence"
                             v-model="form.recurrence"
@@ -439,7 +474,9 @@ form.transform((data) => ({
                         >
                             <SelectTrigger :tabindex="16">
                                 <SelectValue
-                                    placeholder="Select a recurrence"
+                                    :placeholder="
+                                        $t('goals.form.select_recurrence')
+                                    "
                                 />
                             </SelectTrigger>
                             <SelectContent>
@@ -448,7 +485,7 @@ form.transform((data) => ({
                                     :key="recurrence.value"
                                     :value="recurrence.value"
                                 >
-                                    {{ recurrence.label }}
+                                    {{ $t(recurrence.label) }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -458,14 +495,14 @@ form.transform((data) => ({
             </CardContent>
             <CardFooter class="flex justify-between px-6">
                 <TextLink :href="goals.index().url" :tabindex="17">
-                    Cancel
+                    {{ $t('common.actions.cancel') }}
                 </TextLink>
                 <Button
                     :tabindex="18"
                     type="submit"
                     :disabled="form.processing"
                 >
-                    {{ formState.submitBtnLabel }}
+                    {{ $t(formState.submitBtnLabel) }}
                 </Button>
             </CardFooter>
         </Card>

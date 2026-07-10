@@ -39,8 +39,8 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { pluralizeUnit, streakUnit as streakUnitHelper } from '@/lib/streak';
-import { getDateDiffFromNow, toTitleCase } from '@/lib/utils';
+import { streakUnit as streakUnitHelper } from '@/lib/streak';
+import { getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
@@ -64,7 +64,7 @@ const props = defineProps<{
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Goals', href: goals.index().url },
+    { title: 'goals.breadcrumb.index', href: goals.index().url },
     { title: props.goal.title, href: goals.show(props.goal.id).url },
 ];
 
@@ -73,9 +73,7 @@ const isCompleted = computed(
 );
 const isInProgress = computed(() => props.goal.status === 'in_progress');
 const isPaused = computed(() => props.goal.status === 'paused');
-const statusLabel = computed(() =>
-    toTitleCase(props.goal.status.replace('_', ' ')),
-);
+const statusLabel = computed(() => `goals.statuses.${props.goal.status}`);
 
 const MILESTONEABLE_GOAL_TYPES = ['quantifiable', 'multi_step'];
 const isMilestoneable = computed(() =>
@@ -87,11 +85,18 @@ const doneMilestones = computed(
 );
 const totalMilestones = computed(() => props.goal.milestones?.length ?? 0);
 
-const deadlineLabel = computed(() => {
-    if (!props.goal.deadline) return { n: '—', l: 'No deadline' };
+type SummaryTile = { n: string; l: string; nCount?: number };
+
+const deadlineLabel = computed<SummaryTile>(() => {
+    if (!props.goal.deadline) return { n: '—', l: 'goals.summary.no_deadline' };
     const diff = getDateDiffFromNow(props.goal.deadline);
-    if (diff < 0) return { n: 'Overdue', l: 'Past deadline' };
-    return { n: `${diff} days`, l: 'Until deadline' };
+    if (diff < 0)
+        return { n: 'goals.summary.overdue', l: 'goals.summary.past_deadline' };
+    return {
+        n: 'goals.summary.days',
+        nCount: diff,
+        l: 'goals.summary.until_deadline',
+    };
 });
 
 const fmtDate = (d: string) => moment(d).format('MMM D, YYYY');
@@ -100,14 +105,6 @@ const currentStreak = computed(() => props.goal.streak?.current ?? 0);
 const longestStreak = computed(() => props.goal.streak?.longest ?? 0);
 const streakUnit = computed(() => streakUnitHelper(props.goal));
 const isNegativeStreak = computed(() => props.goal.polarity === 'negative');
-const streakUnitNoun = computed(() =>
-    isNegativeStreak.value
-        ? pluralizeUnit(streakUnit.value, currentStreak.value)
-        : streakUnit.value,
-);
-const longestUnitNoun = computed(() =>
-    pluralizeUnit(streakUnit.value, longestStreak.value),
-);
 const deadlineProgress = computed(() => {
     if (!props.goal.deadline || !props.goal.start_date) return null;
     const total = moment(props.goal.deadline).diff(
@@ -122,26 +119,32 @@ const deadlineProgress = computed(() => {
     return { elapsed, total, percent: Math.round((elapsed / total) * 100) };
 });
 
-const summaryTiles = computed(() => {
+const summaryTiles = computed<SummaryTile[]>(() => {
     const status = {
-        n: props.goal.status.replace('_', ' '),
-        l: 'Status',
+        n: `goals.statuses.${props.goal.status}`,
+        l: 'goals.summary.status',
     };
     const deadline = deadlineLabel.value;
-    const priority = { n: props.goal.priority, l: 'Priority' };
+    const priority = {
+        n: `goals.priorities.${props.goal.priority}`,
+        l: 'goals.summary.priority',
+    };
 
     if (props.goal.type === 'quantifiable') {
         return [
             {
                 n: `${Math.round(props.goal.progress_percentage)}%`,
-                l: 'Progress',
+                l: 'goals.summary.progress',
             },
             {
                 n: `${props.goal.current_value} / ${props.goal.target_value}`,
-                l: props.goal.unit ?? 'Target',
+                l: props.goal.unit ?? 'goals.summary.target',
             },
             deadline,
-            { n: `${props.chartEntries.length}`, l: 'Entries logged' },
+            {
+                n: `${props.chartEntries.length}`,
+                l: 'goals.summary.entries_logged',
+            },
         ];
     }
 
@@ -149,7 +152,7 @@ const summaryTiles = computed(() => {
         return [
             {
                 n: `${doneMilestones.value} / ${totalMilestones.value}`,
-                l: 'Steps done',
+                l: 'goals.summary.steps_done',
             },
             status,
             deadline,
@@ -160,7 +163,12 @@ const summaryTiles = computed(() => {
     if (props.goal.type === 'recurring') {
         return [
             status,
-            { n: props.goal.recurrence ?? '—', l: 'Recurrence' },
+            {
+                n: props.goal.recurrence
+                    ? `goals.recurrences.${props.goal.recurrence}`
+                    : '—',
+                l: 'goals.summary.recurrence',
+            },
             deadline,
             priority,
         ];
@@ -171,7 +179,7 @@ const summaryTiles = computed(() => {
         status,
         {
             n: props.goal.start_date ? fmtDate(props.goal.start_date) : '—',
-            l: 'Started',
+            l: 'goals.summary.started',
         },
         deadline,
         priority,
@@ -220,15 +228,20 @@ const submitEntry = () => {
                                 <DialogTrigger as-child>
                                     <Button>
                                         <Plus />
-                                        Log progress
+                                        {{ $t('goals.actions.log_progress') }}
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent class="sm:max-w-md">
                                     <DialogHeader>
-                                        <DialogTitle>Log progress</DialogTitle>
+                                        <DialogTitle>{{
+                                            $t('goals.show.log_progress_title')
+                                        }}</DialogTitle>
                                         <DialogDescription>
-                                            Add an entry to track your progress
-                                            on this goal.
+                                            {{
+                                                $t(
+                                                    'goals.show.log_progress_description',
+                                                )
+                                            }}
                                         </DialogDescription>
                                     </DialogHeader>
                                     <form
@@ -237,9 +250,9 @@ const submitEntry = () => {
                                         @submit.prevent="submitEntry"
                                     >
                                         <div class="space-y-2">
-                                            <Label for="increment"
-                                                >Progress value</Label
-                                            >
+                                            <Label for="increment">{{
+                                                $t('goals.show.progress_value')
+                                            }}</Label>
                                             <div class="flex items-end gap-2">
                                                 <Input
                                                     id="increment"
@@ -248,7 +261,11 @@ const submitEntry = () => {
                                                     "
                                                     type="number"
                                                     step="0.01"
-                                                    placeholder="25"
+                                                    :placeholder="
+                                                        $t(
+                                                            'goals.show.progress_value_placeholder',
+                                                        )
+                                                    "
                                                     required
                                                 />
                                                 <span
@@ -263,13 +280,17 @@ const submitEntry = () => {
                                             />
                                         </div>
                                         <div class="space-y-2">
-                                            <Label for="note"
-                                                >Note (optional)</Label
-                                            >
+                                            <Label for="note">{{
+                                                $t('goals.show.note')
+                                            }}</Label>
                                             <Textarea
                                                 id="note"
                                                 v-model="entryForm.note"
-                                                placeholder="Good progress today..."
+                                                :placeholder="
+                                                    $t(
+                                                        'goals.show.note_placeholder',
+                                                    )
+                                                "
                                                 rows="3"
                                             />
                                             <InputError
@@ -282,7 +303,9 @@ const submitEntry = () => {
                                             <Button
                                                 type="button"
                                                 variant="secondary"
-                                                >Cancel</Button
+                                                >{{
+                                                    $t('common.actions.cancel')
+                                                }}</Button
                                             >
                                         </DialogClose>
                                         <Button
@@ -292,8 +315,10 @@ const submitEntry = () => {
                                         >
                                             {{
                                                 entryForm.processing
-                                                    ? 'Logging...'
-                                                    : 'Log progress'
+                                                    ? $t('goals.show.logging')
+                                                    : $t(
+                                                          'goals.actions.log_progress',
+                                                      )
                                             }}
                                         </Button>
                                     </DialogFooter>
@@ -306,14 +331,14 @@ const submitEntry = () => {
                                     :href="goals.complete(goal).url"
                                 >
                                     <CheckCircle2 />
-                                    Mark as completed
+                                    {{ $t('goals.actions.mark_completed') }}
                                 </Link>
                             </Button>
 
                             <Button variant="outline" as-child>
                                 <Link :href="goals.edit(goal).url">
                                     <Pencil />
-                                    Edit
+                                    {{ $t('common.actions.edit') }}
                                 </Link>
                             </Button>
 
@@ -338,7 +363,11 @@ const submitEntry = () => {
                                                 "
                                                 :href="goals.complete(goal).url"
                                                 class="w-full cursor-pointer"
-                                                >Mark as completed</Link
+                                                >{{
+                                                    $t(
+                                                        'goals.actions.mark_completed',
+                                                    )
+                                                }}</Link
                                             >
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
@@ -355,7 +384,9 @@ const submitEntry = () => {
                                                 "
                                                 :data="{ status: 'paused' }"
                                                 class="w-full cursor-pointer"
-                                                >Pause</Link
+                                                >{{
+                                                    $t('goals.actions.pause')
+                                                }}</Link
                                             >
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
@@ -374,7 +405,9 @@ const submitEntry = () => {
                                                     status: 'in_progress',
                                                 }"
                                                 class="w-full cursor-pointer"
-                                                >Resume</Link
+                                                >{{
+                                                    $t('goals.actions.resume')
+                                                }}</Link
                                             >
                                         </DropdownMenuItem>
                                         <AlertDialog>
@@ -383,26 +416,34 @@ const submitEntry = () => {
                                                     variant="destructive"
                                                     class="cursor-pointer"
                                                     @select.prevent
-                                                    >Delete</DropdownMenuItem
+                                                    >{{
+                                                        $t(
+                                                            'common.actions.delete',
+                                                        )
+                                                    }}</DropdownMenuItem
                                                 >
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle
-                                                        >Are you absolutely
-                                                        sure?</AlertDialogTitle
-                                                    >
+                                                    <AlertDialogTitle>{{
+                                                        $t(
+                                                            'common.confirm.title',
+                                                        )
+                                                    }}</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        This action cannot be
-                                                        undone. This will
-                                                        permanently delete your
-                                                        goal.
+                                                        {{
+                                                            $t(
+                                                                'goals.delete.description',
+                                                            )
+                                                        }}
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
-                                                    <AlertDialogCancel
-                                                        >Cancel</AlertDialogCancel
-                                                    >
+                                                    <AlertDialogCancel>{{
+                                                        $t(
+                                                            'common.actions.cancel',
+                                                        )
+                                                    }}</AlertDialogCancel>
                                                     <AlertDialogAction
                                                         variant="destructive"
                                                         @click="
@@ -412,7 +453,11 @@ const submitEntry = () => {
                                                                 ),
                                                             )
                                                         "
-                                                        >Delete</AlertDialogAction
+                                                        >{{
+                                                            $t(
+                                                                'common.actions.delete',
+                                                            )
+                                                        }}</AlertDialogAction
                                                     >
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
@@ -433,10 +478,16 @@ const submitEntry = () => {
                     class="rounded-lg bg-muted px-4 py-3"
                 >
                     <p class="font-display text-xl font-semibold capitalize">
-                        {{ tile.n }}
+                        {{
+                            tile.nCount !== undefined
+                                ? $tChoice(tile.n, tile.nCount, {
+                                      count: tile.nCount.toString(),
+                                  })
+                                : $t(tile.n)
+                        }}
                     </p>
                     <p class="mt-0.5 text-xs text-muted-foreground">
-                        {{ tile.l }}
+                        {{ $t(tile.l) }}
                     </p>
                 </div>
             </div>
@@ -465,16 +516,20 @@ const submitEntry = () => {
                             "
                         />
                         <p class="mt-3 font-display text-xl font-semibold">
-                            {{ statusLabel }}
+                            {{ $t(statusLabel) }}
                         </p>
                         <p
                             v-if="isCompleted && goal.completed_at"
                             class="mt-1 text-sm text-muted-foreground"
                         >
-                            Completed on {{ fmtDate(goal.completed_at) }}
+                            {{
+                                $t('goals.show.simple_completed_on', {
+                                    date: fmtDate(goal.completed_at),
+                                })
+                            }}
                         </p>
                         <p v-else class="mt-1 text-sm text-muted-foreground">
-                            Mark this goal complete when you're done.
+                            {{ $t('goals.show.simple_prompt') }}
                         </p>
                     </section>
 
@@ -484,7 +539,7 @@ const submitEntry = () => {
                         class="rounded-xl border bg-card p-4"
                     >
                         <h4 class="mb-3 font-display text-base font-semibold">
-                            Progress over time
+                            {{ $t('goals.show.progress_over_time') }}
                         </h4>
                         <div v-if="chartEntries && chartEntries.length > 0">
                             <ProgressChart
@@ -494,8 +549,7 @@ const submitEntry = () => {
                             />
                         </div>
                         <p v-else class="text-sm text-muted-foreground">
-                            No progress data yet. Log your first entry to see
-                            the chart.
+                            {{ $t('goals.show.no_chart_data') }}
                         </p>
                     </section>
 
@@ -505,7 +559,7 @@ const submitEntry = () => {
                         class="rounded-xl border bg-card p-4"
                     >
                         <h4 class="mb-3 font-display text-base font-semibold">
-                            Streak
+                            {{ $t('goals.streak.title') }}
                         </h4>
                         <template v-if="isNegativeStreak">
                             <div
@@ -519,19 +573,26 @@ const submitEntry = () => {
                                             : 'text-muted-foreground'
                                     "
                                 />
-                                {{ currentStreak }} {{ streakUnitNoun }}
-                                without a relapse
+                                {{
+                                    $tChoice(
+                                        `goals.streak.negative.${streakUnit}`,
+                                        currentStreak,
+                                        { count: currentStreak.toString() },
+                                    )
+                                }}
                             </div>
                             <p
                                 v-if="longestStreak > 0"
                                 class="mt-2 text-sm text-muted-foreground"
                             >
-                                Longest:
-                                <span class="font-medium text-foreground"
-                                    >{{ longestStreak }}
-                                    {{ longestUnitNoun }} without a
-                                    relapse</span
-                                >
+                                {{ $t('goals.streak.longest_label') }}
+                                <span class="font-medium text-foreground">{{
+                                    $tChoice(
+                                        `goals.streak.negative.${streakUnit}`,
+                                        longestStreak,
+                                        { count: longestStreak.toString() },
+                                    )
+                                }}</span>
                             </p>
                             <div
                                 v-if="deadlineProgress"
@@ -542,8 +603,13 @@ const submitEntry = () => {
                                     class="h-1.5"
                                 />
                                 <p class="text-xs text-muted-foreground">
-                                    Day {{ deadlineProgress.elapsed }} of
-                                    {{ deadlineProgress.total }} to deadline
+                                    {{
+                                        $t('goals.streak.deadline_progress', {
+                                            elapsed:
+                                                deadlineProgress.elapsed.toString(),
+                                            total: deadlineProgress.total.toString(),
+                                        })
+                                    }}
                                 </p>
                             </div>
                         </template>
@@ -559,25 +625,29 @@ const submitEntry = () => {
                                             : 'text-muted-foreground'
                                     "
                                 />
-                                <template v-if="currentStreak > 0"
-                                    >{{ currentStreak }}-{{
-                                        streakUnit
-                                    }}
-                                    streak</template
-                                >
-                                <template v-else>No active streak</template>
+                                <template v-if="currentStreak > 0">{{
+                                    $tChoice(
+                                        `goals.streak.positive.${streakUnit}`,
+                                        currentStreak,
+                                        { count: currentStreak.toString() },
+                                    )
+                                }}</template>
+                                <template v-else>{{
+                                    $t('goals.streak.none')
+                                }}</template>
                             </div>
                             <p
                                 v-if="longestStreak > 0"
                                 class="mt-2 text-sm text-muted-foreground"
                             >
-                                Longest:
-                                <span class="font-medium text-foreground"
-                                    >{{ longestStreak }}-{{
-                                        streakUnit
-                                    }}
-                                    streak</span
-                                >
+                                {{ $t('goals.streak.longest_label') }}
+                                <span class="font-medium text-foreground">{{
+                                    $tChoice(
+                                        `goals.streak.positive.${streakUnit}`,
+                                        longestStreak,
+                                        { count: longestStreak.toString() },
+                                    )
+                                }}</span>
                             </p>
                         </template>
                     </section>
@@ -596,13 +666,17 @@ const submitEntry = () => {
                                 >
                                     {{
                                         goal.type === 'multi_step'
-                                            ? 'Steps'
-                                            : 'Milestones'
+                                            ? $t('goals.show.steps')
+                                            : $t('goals.show.milestones')
                                     }}
                                 </h4>
                                 <p class="text-xs text-muted-foreground">
-                                    {{ doneMilestones }} of
-                                    {{ totalMilestones }} completed
+                                    {{
+                                        $t('goals.show.milestones_progress', {
+                                            done: doneMilestones.toString(),
+                                            total: totalMilestones.toString(),
+                                        })
+                                    }}
                                 </p>
                             </div>
                             <div class="flex items-center gap-1">
@@ -610,7 +684,7 @@ const submitEntry = () => {
                                     <template #trigger>
                                         <Button variant="outline" size="sm">
                                             <Plus class="size-4" />
-                                            Add
+                                            {{ $t('common.actions.add') }}
                                         </Button>
                                     </template>
                                 </MilestoneFormModal>
@@ -619,15 +693,14 @@ const submitEntry = () => {
                                         :href="`${goals.edit(goal).url}?tab=milestones`"
                                     >
                                         <ListChecks class="size-4" />
-                                        Manage
+                                        {{ $t('common.actions.manage') }}
                                     </Link>
                                 </Button>
                             </div>
                         </div>
                         <Timeline v-if="totalMilestones > 0" :record="goal" />
                         <p v-else class="text-sm text-muted-foreground">
-                            No milestones yet. Add checkpoints to break this
-                            goal into steps.
+                            {{ $t('goals.show.no_milestones') }}
                         </p>
                     </section>
                 </div>
@@ -637,52 +710,52 @@ const submitEntry = () => {
                     <!-- About -->
                     <section class="rounded-xl border bg-card p-4">
                         <h4 class="mb-3 font-display text-base font-semibold">
-                            About
+                            {{ $t('goals.show.about') }}
                         </h4>
                         <dl class="space-y-1.5 text-sm text-muted-foreground">
                             <div v-if="goal.category?.name">
-                                <span class="font-medium text-foreground"
-                                    >Category</span
-                                >
+                                <span class="font-medium text-foreground">{{
+                                    $t('goals.show.about_category')
+                                }}</span>
                                 · {{ goal.category.name }}
                             </div>
                             <div v-if="goal.start_date">
-                                <span class="font-medium text-foreground"
-                                    >Started</span
-                                >
+                                <span class="font-medium text-foreground">{{
+                                    $t('goals.show.about_started')
+                                }}</span>
                                 · {{ fmtDate(goal.start_date) }}
                             </div>
                             <div v-if="goal.deadline">
-                                <span class="font-medium text-foreground"
-                                    >Deadline</span
-                                >
+                                <span class="font-medium text-foreground">{{
+                                    $t('goals.show.about_deadline')
+                                }}</span>
                                 · {{ fmtDate(goal.deadline) }}
                             </div>
                             <div v-if="goal.type === 'quantifiable'">
-                                <span class="font-medium text-foreground"
-                                    >Direction</span
-                                >
+                                <span class="font-medium text-foreground">{{
+                                    $t('goals.show.about_direction')
+                                }}</span>
                                 ·
                                 <span class="capitalize">{{
-                                    goal.direction
+                                    $t(`goals.directions.${goal.direction}`)
                                 }}</span>
                             </div>
                             <div v-if="goal.recurrence">
-                                <span class="font-medium text-foreground"
-                                    >Recurrence</span
-                                >
+                                <span class="font-medium text-foreground">{{
+                                    $t('goals.show.about_recurrence')
+                                }}</span>
                                 ·
                                 <span class="capitalize">{{
-                                    goal.recurrence
+                                    $t(`goals.recurrences.${goal.recurrence}`)
                                 }}</span>
                             </div>
                             <div>
-                                <span class="font-medium text-foreground"
-                                    >Priority</span
-                                >
+                                <span class="font-medium text-foreground">{{
+                                    $t('goals.show.about_priority')
+                                }}</span>
                                 ·
                                 <span class="capitalize">{{
-                                    goal.priority
+                                    $t(`goals.priorities.${goal.priority}`)
                                 }}</span>
                             </div>
                         </dl>
@@ -694,7 +767,7 @@ const submitEntry = () => {
                         class="rounded-xl border bg-card p-4"
                     >
                         <h4 class="mb-3 font-display text-base font-semibold">
-                            Recent entries
+                            {{ $t('goals.show.recent_entries') }}
                         </h4>
                         <div v-if="recentEntries.length > 0">
                             <div
@@ -732,18 +805,21 @@ const submitEntry = () => {
                                 as-child
                             >
                                 <Link :href="goals.entries.get(goal).url">
-                                    View all {{ chartEntries.length }}
                                     {{
-                                        chartEntries.length === 1
-                                            ? 'entry'
-                                            : 'entries'
+                                        $tChoice(
+                                            'goals.show.view_all',
+                                            chartEntries.length,
+                                            {
+                                                count: chartEntries.length.toString(),
+                                            },
+                                        )
                                     }}
                                     <ArrowRight class="size-4" />
                                 </Link>
                             </Button>
                         </div>
                         <p v-else class="text-sm text-muted-foreground">
-                            No entries yet. Log your first entry to get started.
+                            {{ $t('goals.show.no_entries') }}
                         </p>
                     </section>
                 </div>

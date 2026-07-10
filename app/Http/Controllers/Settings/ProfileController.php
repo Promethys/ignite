@@ -42,7 +42,7 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Profile updated.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.profile.updated')]);
 
         return to_route('profile.edit');
     }
@@ -65,7 +65,7 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Your account has been deleted.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.profile.deleted')]);
 
         return redirect('/');
     }

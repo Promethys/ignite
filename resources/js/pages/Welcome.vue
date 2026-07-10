@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { dashboard, login, register } from '@/routes';
@@ -7,36 +8,33 @@ import { Flame, LayoutGrid, Target, Trophy } from 'lucide-vue-next';
 import 'vue-sonner/style.css';
 
 const stats = [
-    { n: '8', l: 'Active' },
-    { n: '12', l: 'Completed' },
-    { n: '61%', l: 'Completion' },
-    { n: '20', l: 'Total' },
+    { n: '8', l: 'landing.stats.active' },
+    { n: '12', l: 'landing.stats.completed' },
+    { n: '61%', l: 'landing.stats.completion' },
+    { n: '20', l: 'landing.stats.total' },
 ];
 
 const previewGoals = [
-    { title: 'Run a marathon', progress: 62 },
-    { title: 'Launch portfolio', progress: 60 },
-    { title: 'Daily meditation', progress: 71 },
+    { title: 'landing.preview.marathon', progress: 62 },
+    { title: 'landing.preview.portfolio', progress: 60 },
+    { title: 'landing.preview.meditation', progress: 71 },
 ];
 
 const features = [
     {
         icon: Target,
-        title: 'Visual progress',
-        description:
-            "Charts, bars and streaks make momentum tangible. See how far you've come at a glance.",
+        title: 'landing.features.visual.title',
+        description: 'landing.features.visual.description',
     },
     {
         icon: LayoutGrid,
-        title: 'Four goal types',
-        description:
-            'Simple, quantifiable, recurring or multi-step. Model any ambition the right way.',
+        title: 'landing.features.types.title',
+        description: 'landing.features.types.description',
     },
     {
         icon: Trophy,
-        title: 'Milestones & wins',
-        description:
-            'Break big goals into checkpoints and celebrate every completion.',
+        title: 'landing.features.milestones.title',
+        description: 'landing.features.milestones.description',
     },
 ];
 </script>
@@ -63,15 +61,22 @@ const features = [
                 <nav class="flex items-center gap-2">
                     <template v-if="$page.props.auth.user">
                         <Button as-child>
-                            <Link :href="dashboard()">Dashboard</Link>
+                            <Link :href="dashboard()">{{
+                                $t('common.nav.dashboard')
+                            }}</Link>
                         </Button>
                     </template>
                     <template v-else>
+                        <LanguageSwitcher />
                         <Button variant="ghost" as-child>
-                            <Link :href="login()">Log in</Link>
+                            <Link :href="login()">{{
+                                $t('common.actions.log_in')
+                            }}</Link>
                         </Button>
                         <Button as-child>
-                            <Link :href="register()">Get started</Link>
+                            <Link :href="register()">{{
+                                $t('common.actions.get_started')
+                            }}</Link>
                         </Button>
                     </template>
                 </nav>
@@ -85,27 +90,32 @@ const features = [
                 <p
                     class="text-xs font-semibold tracking-wide text-primary uppercase"
                 >
-                    Goal tracking that sticks
+                    {{ $t('landing.hero.eyebrow') }}
                 </p>
                 <h1
                     class="mx-auto mt-3 max-w-2xl font-display text-4xl font-bold text-balance sm:text-5xl"
                 >
-                    Turn intentions into
-                    <em class="text-primary italic">momentum</em>.
+                    {{ $t('landing.hero.title_lead') }}
+                    <em class="text-primary italic">{{
+                        $t('landing.hero.title_highlight')
+                    }}</em
+                    >.
                 </h1>
                 <p
                     class="mx-auto mt-4 max-w-xl text-pretty text-muted-foreground sm:text-lg"
                 >
-                    Track any goal (simple, measurable, recurring or multi-step)
-                    with visual progress, milestones and streaks that keep you
-                    going.
+                    {{ $t('landing.hero.subtitle') }}
                 </p>
                 <div class="mt-7 flex justify-center gap-3">
                     <Button size="lg" as-child>
-                        <Link :href="register()">Start free</Link>
+                        <Link :href="register()">{{
+                            $t('landing.hero.start')
+                        }}</Link>
                     </Button>
                     <Button size="lg" variant="outline" as-child>
-                        <a href="#features">See how it works</a>
+                        <a href="#features">{{
+                            $t('landing.hero.how_it_works')
+                        }}</a>
                     </Button>
                 </div>
             </section>
@@ -124,7 +134,7 @@ const features = [
                             {{ stat.n }}
                         </p>
                         <p class="text-[10px] text-muted-foreground">
-                            {{ stat.l }}
+                            {{ $t(stat.l) }}
                         </p>
                     </div>
                 </div>
@@ -135,7 +145,7 @@ const features = [
                         class="rounded-lg border bg-card p-3"
                     >
                         <p class="mb-2 font-display text-xs font-semibold">
-                            {{ goal.title }}
+                            {{ $t(goal.title) }}
                         </p>
                         <div
                             class="h-1.5 overflow-hidden rounded-full bg-muted"
@@ -161,10 +171,10 @@ const features = [
                         <component :is="feature.icon" class="size-5" />
                     </span>
                     <h4 class="mt-3 font-display text-base font-semibold">
-                        {{ feature.title }}
+                        {{ $t(feature.title) }}
                     </h4>
                     <p class="mt-1 text-sm text-muted-foreground">
-                        {{ feature.description }}
+                        {{ $t(feature.description) }}
                     </p>
                 </div>
             </section>
@@ -176,7 +186,10 @@ const features = [
                 class="mx-auto flex max-w-5xl items-center justify-between px-4 py-5 text-xs text-muted-foreground sm:px-6"
             >
                 <span>© Ignite</span>
-                <span>Privacy · Terms</span>
+                <span
+                    >{{ $t('landing.footer.privacy') }} ·
+                    {{ $t('landing.footer.terms') }}</span
+                >
             </div>
         </footer>
     </div>

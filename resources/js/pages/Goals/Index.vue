@@ -37,17 +37,17 @@ const props = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Goals',
+        title: 'goals.breadcrumb.index',
         href: goals.index().url,
     },
 ];
 
 const statusFilters = [
-    { value: 'all', label: 'All' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'paused', label: 'Paused' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'abandoned', label: 'Abandoned' },
+    { value: 'all', label: 'goals.filters.all' },
+    { value: 'in_progress', label: 'goals.statuses.in_progress' },
+    { value: 'paused', label: 'goals.statuses.paused' },
+    { value: 'completed', label: 'goals.statuses.completed' },
+    { value: 'abandoned', label: 'goals.statuses.abandoned' },
 ];
 
 const selectedCategoryId = ref(
@@ -58,11 +58,6 @@ const searchQuery = ref('');
 
 const activeCount = computed(
     () => props.items.filter((item) => item.status === 'in_progress').length,
-);
-
-const subtitle = computed(
-    () =>
-        `${props.items.length} ${props.items.length === 1 ? 'goal' : 'goals'} · ${activeCount.value} active`,
 );
 
 const filteredItems = computed(() => {
@@ -92,11 +87,19 @@ const filteredItems = computed(() => {
 </script>
 
 <template>
-    <Head title="Goals" />
+    <Head :title="$t('goals.head.index')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="space-y-6 p-4">
-            <PageHeader title="Goals" :description="subtitle">
+            <PageHeader
+                :title="$t('goals.title')"
+                :description="
+                    $tChoice('goals.subtitle', items.length, {
+                        count: items.length.toString(),
+                        active: activeCount.toString(),
+                    })
+                "
+            >
                 <template #actions>
                     <Button
                         v-if="items.length > 0"
@@ -105,7 +108,7 @@ const filteredItems = computed(() => {
                     >
                         <Link :href="goals.create().url">
                             <Plus />
-                            New goal
+                            {{ $t('goals.actions.new') }}
                         </Link>
                     </Button>
                 </template>
@@ -119,17 +122,25 @@ const filteredItems = computed(() => {
                         />
                         <Input
                             v-model="searchQuery"
-                            placeholder="Search goals..."
+                            :placeholder="
+                                $t('goals.filters.search_placeholder')
+                            "
                             class="pl-9"
                         />
                     </div>
                     <Select v-model="selectedCategoryId">
                         <SelectTrigger class="sm:w-48">
-                            <SelectValue placeholder="Category" />
+                            <SelectValue
+                                :placeholder="$t('goals.filters.category')"
+                            />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">All categories</SelectItem>
-                            <SelectItem :value="null">No category</SelectItem>
+                            <SelectItem value="all">{{
+                                $t('goals.filters.all_categories')
+                            }}</SelectItem>
+                            <SelectItem :value="null">{{
+                                $t('goals.filters.no_category')
+                            }}</SelectItem>
                             <template v-if="categories.length > 0">
                                 <Separator class="my-2" />
                             </template>
@@ -146,7 +157,7 @@ const filteredItems = computed(() => {
 
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="mr-1 text-xs text-muted-foreground">
-                        Status
+                        {{ $t('goals.filters.status') }}
                     </span>
                     <Button
                         v-for="filter in statusFilters"
@@ -160,7 +171,7 @@ const filteredItems = computed(() => {
                         "
                         @click="selectedStatus = filter.value"
                     >
-                        {{ filter.label }}
+                        {{ $t(filter.label) }}
                     </Button>
                 </div>
             </template>
@@ -171,26 +182,27 @@ const filteredItems = computed(() => {
                         <Target />
                     </EmptyMedia>
                     <EmptyTitle>
-                        <template v-if="items.length === 0"
-                            >No Goal Yet</template
-                        >
-                        <template v-else>No Goal found</template>
+                        <template v-if="items.length === 0">{{
+                            $t('goals.empty.none_title')
+                        }}</template>
+                        <template v-else>{{
+                            $t('goals.empty.no_match_title')
+                        }}</template>
                     </EmptyTitle>
                     <EmptyDescription>
-                        <template v-if="items.length === 0"
-                            >You don't have any goal yet. Get started by
-                            creating your first goal.</template
-                        >
-                        <template v-else
-                            >No goals match this search or filter.</template
-                        >
+                        <template v-if="items.length === 0">{{
+                            $t('goals.empty.none_description')
+                        }}</template>
+                        <template v-else>{{
+                            $t('goals.empty.no_match_description')
+                        }}</template>
                     </EmptyDescription>
                 </EmptyHeader>
                 <EmptyContent v-if="items.length === 0">
                     <Button as-child>
                         <Link :href="goals.create().url">
                             <Plus />
-                            Define a Goal
+                            {{ $t('goals.actions.define') }}
                         </Link>
                     </Button>
                 </EmptyContent>

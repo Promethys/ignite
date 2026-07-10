@@ -78,7 +78,7 @@ class GoalController extends Controller
             'order' => $order,
         ]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal created.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.created')]);
 
         return to_route('goals.index');
     }
@@ -91,8 +91,8 @@ class GoalController extends Controller
             $previousStatus = $goal->status;
             $goal->markAsCompleted();
 
-            Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal completed.', 'action' => [
-                'label' => 'Undo',
+            Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.completed'), 'action' => [
+                'label' => __('toasts.undo'),
                 'method' => 'patch',
                 'url' => route('goals.uncomplete', [
                     'goal' => $goal,
@@ -144,7 +144,7 @@ class GoalController extends Controller
 
         $goal->update($validated);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal updated.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.updated')]);
 
         return back(303);
     }
@@ -155,7 +155,7 @@ class GoalController extends Controller
 
         $goal->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal deleted.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.deleted')]);
 
         return back(303);
     }
@@ -170,7 +170,7 @@ class GoalController extends Controller
 
         $goal->updateStatus($validated['status']);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal status updated.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.status_updated')]);
 
         return back(303);
     }
@@ -182,8 +182,8 @@ class GoalController extends Controller
         $oldStatus = $goal->status;
         $goal->markAsCompleted();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal completed.', 'action' => [
-            'label' => 'Undo',
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.completed'), 'action' => [
+            'label' => __('toasts.undo'),
             'method' => 'patch',
             'url' => route('goals.uncomplete', [
                 'goal' => $goal,
@@ -211,7 +211,7 @@ class GoalController extends Controller
             ]);
         });
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Goal completion reverted.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.completion_reverted')]);
 
         return back(303);
     }

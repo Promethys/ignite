@@ -27,11 +27,11 @@ const page = usePage();
                     :is-active="
                         item.isActive ?? urlIsActive(item.href, page.url)
                     "
-                    :tooltip="item.title"
+                    :tooltip="$t(item.title)"
                 >
                     <Link :href="item.href">
                         <component :is="item.icon" />
-                        <span>{{ item.title }}</span>
+                        <span>{{ $t(item.title) }}</span>
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>

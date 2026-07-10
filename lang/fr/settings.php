@@ -1,0 +1,108 @@
+<?php
+
+return [
+    'locale_updated' => 'Langue mise à jour.',
+
+    'nav' => [
+        'heading' => 'Paramètres',
+        'description' => 'Gérez votre profil et les paramètres de votre compte',
+        'profile' => 'Profil',
+        'password' => 'Mot de passe',
+        'two_factor' => 'Double authentification',
+        'appearance' => 'Apparence',
+    ],
+
+    'profile' => [
+        'head' => 'Paramètres du profil',
+        'breadcrumb' => 'Paramètres du profil',
+        'title' => 'Informations du profil',
+        'description' => 'Mettez à jour votre nom et votre adresse e-mail',
+        'name' => 'Nom',
+        'name_placeholder' => 'Nom complet',
+        'email' => 'Adresse e-mail',
+        'email_placeholder' => 'Adresse e-mail',
+        'unverified' => 'Votre adresse e-mail n\'est pas vérifiée.',
+        'resend' => 'Cliquez ici pour renvoyer l\'e-mail de vérification.',
+        'verification_sent' => 'Un nouveau lien de vérification a été envoyé à votre adresse e-mail.',
+        'timezone' => 'Fuseau horaire',
+        'select_timezone' => 'Sélectionnez un fuseau horaire',
+    ],
+
+    'delete' => [
+        'title' => 'Supprimer le compte',
+        'description' => 'Supprimez votre compte et toutes ses ressources',
+        'warning' => 'Attention',
+        'warning_text' => 'Veuillez procéder avec prudence, cette action est irréversible.',
+        'button' => 'Supprimer le compte',
+        'confirm_title' => 'Voulez-vous vraiment supprimer votre compte ?',
+        'confirm_description' => 'Une fois votre compte supprimé, toutes ses ressources et données seront elles aussi définitivement supprimées. Veuillez saisir votre mot de passe pour confirmer la suppression définitive de votre compte.',
+        'password' => 'Mot de passe',
+        'password_placeholder' => 'Mot de passe',
+    ],
+
+    'password' => [
+        'head' => 'Paramètres du mot de passe',
+        'breadcrumb' => 'Paramètres du mot de passe',
+        'title' => 'Mettre à jour le mot de passe',
+        'description' => 'Assurez-vous que votre compte utilise un mot de passe long et aléatoire pour rester sécurisé',
+        'current' => 'Mot de passe actuel',
+        'current_placeholder' => 'Mot de passe actuel',
+        'new' => 'Nouveau mot de passe',
+        'new_placeholder' => 'Nouveau mot de passe',
+        'confirm' => 'Confirmer le mot de passe',
+        'confirm_placeholder' => 'Confirmer le mot de passe',
+        'save' => 'Enregistrer le mot de passe',
+    ],
+
+    'appearance' => [
+        'head' => 'Paramètres d\'apparence',
+        'breadcrumb' => 'Paramètres d\'apparence',
+        'title' => 'Paramètres d\'apparence',
+        'description' => 'Mettez à jour les paramètres d\'apparence de votre compte',
+        'light' => 'Clair',
+        'dark' => 'Sombre',
+        'system' => 'Système',
+        'language' => 'Langue',
+        'language_description' => 'Choisissez la langue de votre compte',
+        'select_language' => 'Sélectionner une langue',
+    ],
+
+    'two_factor' => [
+        'head' => 'Double authentification',
+        'breadcrumb' => 'Double authentification',
+        'title' => 'Double authentification',
+        'description' => 'Gérez les paramètres de votre double authentification',
+        'disabled' => 'Désactivée',
+        'enabled' => 'Activée',
+        'disabled_text' => 'Lorsque vous activez la double authentification, un code sécurisé vous sera demandé à la connexion. Ce code peut être obtenu depuis une application compatible TOTP sur votre téléphone.',
+        'enabled_text' => 'Avec la double authentification activée, un code sécurisé et aléatoire vous sera demandé à la connexion, que vous pouvez obtenir depuis l\'application compatible TOTP de votre téléphone.',
+        'continue_setup' => 'Continuer la configuration',
+        'enable' => 'Activer la 2FA',
+        'disable' => 'Désactiver la 2FA',
+
+        'modal' => [
+            'enabled_title' => 'Double authentification activée',
+            'enabled_description' => 'La double authentification est maintenant activée. Scannez le QR code ou saisissez la clé de configuration dans votre application d\'authentification.',
+            'verify_title' => 'Vérifier le code d\'authentification',
+            'verify_description' => 'Saisissez le code à 6 chiffres de votre application d\'authentification',
+            'setup_title' => 'Activer la double authentification',
+            'setup_description' => 'Pour terminer l\'activation de la double authentification, scannez le QR code ou saisissez la clé de configuration dans votre application d\'authentification',
+            'close' => 'Fermer',
+            'continue' => 'Continuer',
+            'manual' => 'ou saisissez le code manuellement',
+            'back' => 'Retour',
+            'confirm' => 'Confirmer',
+        ],
+
+        'recovery' => [
+            'title' => 'Codes de récupération 2FA',
+            'description' => 'Les codes de récupération vous permettent de retrouver l\'accès si vous perdez votre appareil 2FA. Conservez-les dans un gestionnaire de mots de passe sécurisé.',
+            'view' => 'Afficher les codes de récupération',
+            'hide' => 'Masquer les codes de récupération',
+            'regenerate' => 'Régénérer les codes',
+            'note_lead' => 'Chaque code de récupération peut être utilisé une seule fois pour accéder à votre compte et sera supprimé après usage. S\'il vous en faut d\'autres, cliquez sur',
+            'note_action' => 'Régénérer les codes',
+            'note_tail' => 'ci-dessus.',
+        ],
+    ],
+];

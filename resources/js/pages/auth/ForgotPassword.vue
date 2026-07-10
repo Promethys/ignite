@@ -17,10 +17,10 @@ defineProps<{
 
 <template>
     <AuthLayout
-        title="Forgot password"
-        description="Enter your email to receive a password reset link"
+        :title="$t('auth_ui.forgot.title')"
+        :description="$t('auth_ui.forgot.description')"
     >
-        <Head title="Forgot password" />
+        <Head :title="$t('auth_ui.forgot.head')" />
 
         <div
             v-if="status"
@@ -35,14 +35,14 @@ defineProps<{
                 v-slot="{ errors, processing }"
             >
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email">{{ $t('auth_ui.forgot.email') }}</Label>
                     <Input
                         id="email"
                         type="email"
                         name="email"
                         autocomplete="off"
                         autofocus
-                        placeholder="email@example.com"
+                        :placeholder="$t('auth_ui.forgot.email_placeholder')"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -57,14 +57,16 @@ defineProps<{
                             v-if="processing"
                             class="h-4 w-4 animate-spin"
                         />
-                        Email password reset link
+                        {{ $t('auth_ui.forgot.submit') }}
                     </Button>
                 </div>
             </Form>
 
             <div class="space-x-1 text-center text-sm text-muted-foreground">
-                <span>Or, return to</span>
-                <TextLink :href="login()">log in</TextLink>
+                <span>{{ $t('auth_ui.forgot.return') }}</span>
+                <TextLink :href="login()">{{
+                    $t('auth_ui.forgot.log_in')
+                }}</TextLink>
             </div>
         </div>
     </AuthLayout>

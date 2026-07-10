@@ -106,11 +106,26 @@ describe('MilestoneFormModal', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('Create a milestone');
-        expect(wrapper.text()).toContain(
-            'Create a milestone and track key checkpoints',
-        );
-        expect(wrapper.text()).toContain('Create');
+        expect(wrapper.text()).toContain('milestones.form.create_title');
+        expect(wrapper.text()).toContain('milestones.form.create_description');
+        expect(wrapper.text()).toContain('milestones.form.submit_create');
+    });
+
+    it('renders the French title when $t maps the key', () => {
+        const wrapper = mount(MilestoneFormModal, {
+            props: { goal_id: 1 },
+            global: {
+                stubs,
+                mocks: {
+                    $t: (key: string) =>
+                        key === 'milestones.form.create_title'
+                            ? 'Créer un jalon'
+                            : key,
+                },
+            },
+        });
+
+        expect(wrapper.text()).toContain('Créer un jalon');
     });
 
     it('shows the default create trigger button with Plus icon and Milestone text', () => {
@@ -120,7 +135,7 @@ describe('MilestoneFormModal', () => {
         });
 
         expect(wrapper.find('.icon-plus').exists()).toBe(true);
-        expect(wrapper.text()).toContain('Milestone');
+        expect(wrapper.text()).toContain('milestones.trigger');
     });
 
     it('initializes form with empty fields in create mode', () => {
@@ -158,9 +173,9 @@ describe('MilestoneFormModal', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('Edit a milestone');
-        expect(wrapper.text()).toContain('Edit your milestone.');
-        expect(wrapper.text()).toContain('Edit');
+        expect(wrapper.text()).toContain('milestones.form.edit_title');
+        expect(wrapper.text()).toContain('milestones.form.edit_description');
+        expect(wrapper.text()).toContain('milestones.form.submit_edit');
     });
 
     it('shows edit trigger button with Edit icon in edit mode', () => {
@@ -212,7 +227,9 @@ describe('MilestoneFormModal', () => {
         });
 
         const labels = wrapper.findAll('label');
-        expect(labels.some((l) => l.text() === 'Title')).toBe(true);
+        expect(labels.some((l) => l.text() === 'milestones.form.title')).toBe(
+            true,
+        );
     });
 
     it('renders description textarea with label', () => {
@@ -222,7 +239,9 @@ describe('MilestoneFormModal', () => {
         });
 
         const labels = wrapper.findAll('label');
-        expect(labels.some((l) => l.text() === 'Description')).toBe(true);
+        expect(
+            labels.some((l) => l.text() === 'milestones.form.description'),
+        ).toBe(true);
     });
 
     it('renders target value input with label', () => {
@@ -232,7 +251,9 @@ describe('MilestoneFormModal', () => {
         });
 
         const labels = wrapper.findAll('label');
-        expect(labels.some((l) => l.text() === 'Target Value')).toBe(true);
+        expect(
+            labels.some((l) => l.text() === 'milestones.form.target_value'),
+        ).toBe(true);
     });
 
     // =========================================================================
@@ -307,7 +328,9 @@ describe('MilestoneFormModal', () => {
         });
 
         const buttons = wrapper.findAll('button');
-        const submitBtn = buttons.find((b) => b.text().includes('Create'));
+        const submitBtn = buttons.find((b) =>
+            b.text().includes('milestones.form.submit_create'),
+        );
         expect(submitBtn?.attributes('disabled')).toBeDefined();
     });
 
@@ -318,7 +341,9 @@ describe('MilestoneFormModal', () => {
         });
 
         const buttons = wrapper.findAll('button');
-        const submitBtn = buttons.find((b) => b.text().includes('Create'));
+        const submitBtn = buttons.find((b) =>
+            b.text().includes('milestones.form.submit_create'),
+        );
         expect(submitBtn?.attributes('disabled')).toBeUndefined();
     });
 
@@ -354,7 +379,7 @@ describe('MilestoneFormModal', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('Cancel');
+        expect(wrapper.text()).toContain('common.actions.cancel');
     });
 
     // =========================================================================

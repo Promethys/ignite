@@ -48,8 +48,8 @@ describe('CategoryFormModal', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('Create a category');
-        expect(wrapper.text()).toContain('Create');
+        expect(wrapper.text()).toContain('categories.form.create_title');
+        expect(wrapper.text()).toContain('categories.form.submit_create');
     });
 
     it('renders in edit mode with pre-filled values when record is provided', () => {
@@ -71,7 +71,23 @@ describe('CategoryFormModal', () => {
             global: { stubs },
         });
 
-        expect(wrapper.text()).toContain('Edit a category');
-        expect(wrapper.text()).toContain('Edit');
+        expect(wrapper.text()).toContain('categories.form.edit_title');
+        expect(wrapper.text()).toContain('categories.form.submit_edit');
+    });
+
+    it('renders the French title when $t maps the key', () => {
+        const wrapper = mount(CategoryFormModal, {
+            global: {
+                stubs,
+                mocks: {
+                    $t: (key: string) =>
+                        key === 'categories.form.create_title'
+                            ? 'Créer une catégorie'
+                            : key,
+                },
+            },
+        });
+
+        expect(wrapper.text()).toContain('Créer une catégorie');
     });
 });

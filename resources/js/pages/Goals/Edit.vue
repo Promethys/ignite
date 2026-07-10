@@ -15,6 +15,7 @@ import {
     getCoreRowModel,
     useVueTable,
 } from '@tanstack/vue-table';
+import { trans } from 'laravel-vue-i18n';
 import { ListChecks, Pencil } from 'lucide-vue-next';
 import { h, ref, watch } from 'vue';
 
@@ -36,7 +37,7 @@ watch(tab, (v) => {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Goals',
+        title: 'goals.breadcrumb.index',
         href: goals.index().url,
     },
     {
@@ -44,7 +45,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: goals.show(props.goal).url,
     },
     {
-        title: `Edit`,
+        title: 'goals.breadcrumb.edit',
         href: '',
     },
 ];
@@ -53,13 +54,13 @@ const columnHelper = createColumnHelper<Milestone>();
 
 const columns = [
     columnHelper.accessor('title', {
-        header: 'Title',
+        header: trans('milestones.table.title'),
     }),
     columnHelper.accessor('target_value', {
-        header: 'Target Value',
+        header: trans('milestones.table.target_value'),
     }),
     columnHelper.accessor('completed_at', {
-        header: 'Completed At',
+        header: trans('milestones.table.completed_at'),
         cell: (props) => props.getValue() ?? '-',
     }),
     columnHelper.display({
@@ -81,7 +82,7 @@ const table = useVueTable({
 </script>
 
 <template>
-    <Head :title="'Edit ' + goal.title" />
+    <Head :title="$t('goals.form.edit_title')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="m-4">
@@ -90,21 +91,21 @@ const table = useVueTable({
                     <TabsTrigger value="goal">
                         <span class="flex items-center gap-2">
                             <Pencil class="size-4" />
-                            General
+                            {{ $t('milestones.manage.tab_general') }}
                         </span>
                     </TabsTrigger>
                     <TabsTrigger value="milestones">
                         <span class="flex items-center gap-2">
                             <ListChecks class="size-4" />
-                            Milestones
+                            {{ $t('milestones.manage.tab_milestones') }}
                         </span>
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value="goal">
                     <div class="space-y-6">
                         <PageHeader
-                            title="Edit a goal"
-                            description="Edit your goal"
+                            :title="$t('goals.form.edit_title')"
+                            :description="$t('goals.form.edit_description')"
                         />
 
                         <GoalForm :record="goal" :user="user" />
@@ -113,8 +114,8 @@ const table = useVueTable({
                 <TabsContent value="milestones">
                     <div class="space-y-6">
                         <PageHeader
-                            title="Milestones"
-                            description="Break this goal into checkpoints to track progress along the way."
+                            :title="$t('milestones.manage.title')"
+                            :description="$t('milestones.manage.description')"
                         >
                             <template #actions>
                                 <MilestoneFormModal :goal_id="goal.id" />

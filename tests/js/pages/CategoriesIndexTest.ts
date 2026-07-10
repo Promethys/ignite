@@ -101,6 +101,6 @@ describe('Categories/Index', () => {
     it('renders the empty state when there are no categories', () => {
         const wrapper = mountIndex([]);
 
-        expect(wrapper.text()).toContain('No Category Yet');
+        expect(wrapper.text()).toContain('categories.empty.title');
     });
 });

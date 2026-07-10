@@ -100,7 +100,7 @@ describe('Goals/Index filtering', () => {
         const wrapper = mountIndex();
         const completed = wrapper
             .findAll('button')
-            .find((b) => b.text() === 'Completed');
+            .find((b) => b.text() === 'goals.statuses.completed');
         await completed!.trigger('click');
 
         const cards = wrapper.findAll('.goal-card');
