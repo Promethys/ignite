@@ -3,6 +3,7 @@ import '../css/app.css';
 import formbricks from '@formbricks/js';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { i18nVue } from 'laravel-vue-i18n';
 import moment from 'moment';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
@@ -35,6 +36,15 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(i18nVue, {
+                lang: 'en',
+                resolve: (lang) => {
+                    const langs = import.meta.glob<{
+                        default: Record<string, string>;
+                    }>('../../lang/*.json', { eager: true });
+                    return langs[`../../lang/${lang}.json`]?.default ?? {};
+                },
+            })
             .use(VueApexCharts)
             .mount(el);
     },
