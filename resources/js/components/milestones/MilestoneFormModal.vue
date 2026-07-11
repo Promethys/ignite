@@ -69,7 +69,7 @@ const open = ref<boolean>(props.open ?? false);
     <Dialog v-model:open="open">
         <DialogTrigger as-child>
             <slot name="trigger">
-                <Button v-if="!record">
+                <Button v-if="!record" class="w-full sm:w-auto">
                     <Plus />
                     {{ $t('milestones.trigger') }}
                 </Button>
