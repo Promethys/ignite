@@ -49,6 +49,10 @@ class RegisteredUserController extends Controller
             'locale' => $locale,
         ]);
 
+        if (! config('auth.verify_email')) {
+            $user->markEmailAsVerified();
+        }
+
         event(new Registered($user));
 
         Auth::login($user);

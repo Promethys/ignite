@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -78,5 +81,52 @@ class RegistrationTest extends TestCase
             'email' => 'german@example.com',
             'locale' => 'en',
         ]);
+    }
+
+    public function test_new_user_is_unverified_when_email_verification_is_required()
+    {
+        Notification::fake();
+
+        $this->post(route('register.store'), [
+            'name' => 'Unverified User',
+            'email' => 'unverified@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $user = User::where('email', 'unverified@example.com')->first();
+
+        $this->assertNotNull($user);
+        $this->assertFalse($user->hasVerifiedEmail());
+        $this->assertNull($user->email_verified_at);
+
+        Notification::assertSentTo($user, VerifyEmail::class);
+    }
+
+    public function test_new_user_is_auto_verified_when_email_verification_is_disabled()
+    {
+        config(['auth.verify_email' => false]);
+
+        Notification::fake();
+
+        $this->post(route('register.store'), [
+            'name' => 'Auto Verified User',
+            'email' => 'autoverified@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $user = User::where('email', 'autoverified@example.com')->first();
+
+        $this->assertNotNull($user);
+        $this->assertTrue($user->hasVerifiedEmail());
+        $this->assertNotNull($user->email_verified_at);
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_email_verification_is_required_by_default()
+    {
+        $this->assertTrue(config('auth.verify_email'));
     }
 }
