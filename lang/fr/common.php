@@ -34,4 +34,8 @@ return [
         'saved' => 'Enregistré.',
         'loading' => 'Chargement...',
     ],
+    'support' => [
+        'report_issue' => 'Signaler un problème',
+        'email_subject' => 'Retour Ignite',
+    ],
 ];

@@ -35,4 +35,17 @@ class HandleInertiaRequestsTest extends TestCase
                 ->where('supportedLocales', config('locales.supported'))
             );
     }
+
+    public function test_support_email_is_shared_with_inertia()
+    {
+        config(['app.support_email' => 'help@example.test']);
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (AssertableJson $page) => $page
+                ->where('supportEmail', 'help@example.test')
+            );
+    }
 }

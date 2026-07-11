@@ -34,4 +34,8 @@ return [
         'saved' => 'Saved.',
         'loading' => 'Loading...',
     ],
+    'support' => [
+        'report_issue' => 'Report an issue',
+        'email_subject' => 'Ignite feedback',
+    ],
 ];
