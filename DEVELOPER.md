@@ -1,6 +1,6 @@
 # Ignite - Developer Documentation 🔥
 
-A Laravel 11 + Vue 3 + Inertia.js goal tracking application with comprehensive authentication, gamification, and progress visualization features.
+A Laravel 13 + Vue 3 + Inertia.js goal tracking application with authentication, gamification, internationalization, and progress visualization features.
 
 ## 📋 Table of Contents
 
@@ -21,28 +21,29 @@ A Laravel 11 + Vue 3 + Inertia.js goal tracking application with comprehensive a
 ## 🛠️ Tech Stack
 
 ### Backend
-- **PHP**: 8.3.12
-- **Laravel**: 11.x
-- **Database**: MySQL
-- **Authentication**: Laravel Fortify (with 2FA support)
+- **PHP**: 8.5
+- **Laravel**: 13.x
+- **Database**: PostgreSQL (SQLite `:memory:` for the test suite)
+- **Authentication**: Laravel Fortify (session-based, with 2FA support)
+- **Internationalization**: `laravel-vue-i18n` bridging Laravel `lang/` files to Vue (English + French)
 
 ### Frontend
 - **Node.js**: 22.14.0
 - **Vue.js**: 3.x (Composition API with `<script setup>`)
 - **TypeScript**: Full TypeScript support
 - **Inertia.js**: Server-side routing with SPA experience
-- **UI Components**: shadcn-vue (Radix Vue primitives)
-- **Styling**: Tailwind CSS
+- **UI Components**: Reka UI primitives (shadcn-vue-style components live in `resources/js/components/ui/`)
+- **Styling**: Tailwind CSS v4 (via the `@tailwindcss/vite` plugin; no `tailwind.config.js`, theme tokens live in `resources/css/app.css`)
 - **Icons**: Lucide Vue
 
 ### Development Tools
 - **Build Tool**: Vite
-- **Testing**: PHPUnit
+- **Testing**: PHPUnit (backend) + Vitest (frontend, `tests/js/`)
 - **Code Quality**: 
-  - PHP: Laravel Pint (code formatting)
+  - PHP: Laravel Pint (formatting) + Larastan/PHPStan (static analysis, level 3)
   - JavaScript/TypeScript: ESLint + Prettier
 - **Routing**: Wayfinder (type-safe Laravel routes for TypeScript)
-- **CI/CD**: GitHub Actions (linting + tests)
+- **CI/CD**: GitHub Actions (single `ci.yml`: lint + PHPUnit + Vitest, PostgreSQL service container)
 
 ---
 
@@ -59,7 +60,7 @@ A Laravel 11 + Vue 3 + Inertia.js goal tracking application with comprehensive a
                      │
 ┌────────────────────▼────────────────────────────────────┐
 │                   Laravel Backend                       │
-│  Controllers → Models → Database (MySQL)                │
+│  Controllers → Models → Database (PostgreSQL)           │
 │  Fortify (Auth) + Inertia Server + Eloquent ORM         │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -94,11 +95,11 @@ A Laravel 11 + Vue 3 + Inertia.js goal tracking application with comprehensive a
 
 ```bash
 # Check versions
-php --version    # Should be 8.3.12+
-node --version   # Should be 22.14.0+
+php --version        # Should be 8.5+
+node --version       # Should be 22+
 composer --version
 npm --version
-mysql --version
+psql --version       # PostgreSQL client
 ```
 
 ### Initial Setup
@@ -127,22 +128,26 @@ mysql --version
 
 5. **Configure database**
    
-   Edit `.env`:
+   Edit `.env` (PostgreSQL):
    ```env
-   DB_CONNECTION=mysql
+   DB_CONNECTION=pgsql
    DB_HOST=127.0.0.1
-   DB_PORT=3306
+   DB_PORT=5432
    DB_DATABASE=ignite
-   DB_USERNAME=root
+   DB_USERNAME=postgres
    DB_PASSWORD=your_password
    ```
 
    Create the database:
    ```bash
-   mysql -u root -p
-   CREATE DATABASE ignite CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   exit;
+   createdb ignite
+   # or via psql:
+   # psql -U postgres -c "CREATE DATABASE ignite;"
    ```
+
+   > On Windows, ensure `pdo_pgsql` is enabled in `php.ini`.
+
+   **Optional local auth toggle:** set `VERIFY_EMAIL=false` in `.env` to skip the email-verification wall in development. It defaults to `true`, so an unset value keeps verification enforced in production.
 
 6. **Run migrations**
    ```bash
@@ -170,11 +175,12 @@ mysql --version
 
 9. **Start the development server**
    ```bash
-   # Terminal 1: Laravel server
-   php artisan serve
-   
-   # Terminal 2: Vite dev server (for HMR)
-   npm run dev
+   # One command runs server + queue worker + Vite concurrently:
+   composer dev
+
+   # Or start them individually:
+   php artisan serve   # Terminal 1: Laravel server
+   npm run dev         # Terminal 2: Vite dev server (HMR)
    ```
 
 10. **Visit the application**
@@ -189,14 +195,15 @@ mysql --version
 ### Daily Development
 
 ```bash
-# Start both servers (requires 2 terminals)
+# Preferred: one command runs server + queue worker + Vite concurrently
+composer dev
 
-# Terminal 1: Backend
-php artisan serve
-
-# Terminal 2: Frontend with Hot Module Replacement
-npm run dev
+# Or the individual processes:
+php artisan serve   # Backend
+npm run dev         # Frontend (HMR)
 ```
+
+> A Docker Compose dev environment (`compose.dev.yaml`, 5 services) also exists but is currently experimental and not the supported path. The native flow above is what we run day to day.
 
 ### Working with Routes
 
@@ -642,7 +649,8 @@ app/
 │   │   │   └── GoalEntryController.php
 │   │   └── Settings/          # User settings
 │   ├── Middleware/
-│   │   ├── HandleInertiaRequests.php  # Share data with frontend
+│   │   ├── HandleInertiaRequests.php  # Share data with frontend (auth, locale, flash)
+│   │   ├── SetLocale.php              # Resolve + apply the request locale
 │   │   └── HandleAppearance.php       # Dark mode middleware
 │   └── Requests/              # Form request validation
 │       ├── Auth/
@@ -760,8 +768,10 @@ public function share(Request $request): array
         'auth' => [
             'user' => $request->user(),
         ],
+        'locale' => app()->getLocale(),
+        'supportedLocales' => config('locales.supported'),
         'flash' => [
-            'message' => fn () => $request->session()->get('message')
+            'toast' => fn () => $request->session()->get('toast'),
         ],
     ];
 }
@@ -808,35 +818,33 @@ Route::middleware('auth')->prefix('/goals')->group(function () {
 
 ### Authentication (Fortify)
 
-#### **Features Enabled**
-- Registration
-- Login
-- Password reset
-- Email verification
-- Two-factor authentication (2FA)
-- Password confirmation
+Auth is session-based via Fortify, but the app ships its **own** auth controllers and Vue pages (`app/Http/Controllers/Auth/`, `resources/js/pages/auth/`) rather than Fortify's built-in views. Fortify provides the action pipeline (login, registration, password reset, 2FA, password confirmation).
 
-#### **2FA Implementation**
-- QR code generation
-- Recovery codes
-- Challenge verification
-- Custom Vue components for UI
+#### **Features**
+- Registration, login, password reset, password confirmation
+- Email verification (via `MustVerifyEmail` + the `verified` middleware; skippable in local dev with `VERIFY_EMAIL=false`, see Getting Started)
+- Two-factor authentication (2FA): QR code, recovery codes, challenge verification, custom Vue components
 
 #### **Configuration**
 ```php
 // config/fortify.php
+// Most optional features are left commented because the app uses its own
+// auth controllers; two-factor is the active Fortify feature.
 'features' => [
-    Features::registration(),
-    Features::resetPasswords(),
-    Features::emailVerification(),
-    Features::updateProfileInformation(),
-    Features::updatePasswords(),
     Features::twoFactorAuthentication([
         'confirm' => true,
         'confirmPassword' => true,
     ]),
 ],
 ```
+
+The email-verification toggle lives in `config/auth.php`:
+```php
+'verify_email' => (bool) env('VERIFY_EMAIL', true),
+```
+
+#### **Error pages**
+Production HTTP errors (403 / 404 / 500 / 503) render a branded Inertia page (`resources/js/pages/ErrorPage.vue`) via a `respond()` interceptor in `bootstrap/app.php`, gated on `! app()->hasDebugModeEnabled()` so development still shows the real exception.
 
 ---
 
@@ -845,28 +853,32 @@ Route::middleware('auth')->prefix('/goals')->group(function () {
 ### Running Tests
 
 ```bash
-# Run all tests
+# Backend (PHPUnit): all suites (Unit / Feature / Integration)
 php artisan test
 
-# Run specific test file
-php artisan test tests/Feature/Goals/GoalTest.php
+# Backend: a specific file or filter
+php artisan test tests/Feature/Http/Controllers/Goals/GoalControllerTest.php
+php artisan test --filter=GoalControllerTest
 
-# Run with coverage
-php artisan test --coverage
+# Frontend (Vitest)
+LARAVEL_BYPASS_ENV_CHECK=1 npx vitest --run
 
-# Run in parallel (faster)
-php artisan test --parallel
+# Static analysis (Larastan / PHPStan, level 3)
+./vendor/bin/phpstan analyse --memory-limit=512M
 ```
 
 ### Test Structure
 
 ```
 tests/
-├── Feature/              # Integration tests
-│   ├── Auth/            # Authentication tests
-│   ├── Settings/        # Settings tests
-│   └── DashboardTest.php
-└── Unit/                # Unit tests
+├── Feature/              # Feature tests, mirror app/ structure
+│   ├── Auth/            # Authentication flows
+│   ├── Http/Controllers/ # Controller tests (e.g. Goals/GoalControllerTest.php)
+│   ├── Localization/    # i18n guards (translation parity, default locale)
+│   └── Settings/
+├── Integration/         # Cross-layer flow tests
+├── Unit/                # Isolated unit tests
+└── js/                  # Vitest frontend tests (components/, pages/)
 ```
 
 ### Example Test
@@ -928,11 +940,7 @@ $response->assertInertia(fn (Assert $page) =>
 
 ### CI/CD (GitHub Actions)
 
-**Workflows:**
-- `.github/workflows/tests.yml` - Run PHPUnit tests
-- `.github/workflows/lint.yml` - Run Pint + ESLint
-
-Automatically run on push and pull requests.
+A single workflow `.github/workflows/ci.yml` runs on push and pull requests: lint (Pint + ESLint + Prettier), PHPUnit, and Vitest, against a PostgreSQL service container for parity with local and production.
 
 ---
 
@@ -1130,6 +1138,17 @@ npx shadcn-vue@latest add card dialog dropdown-menu
 ```
 
 Components are added to `resources/js/components/ui/`
+
+### Adding or Editing Translations
+
+UI strings are localized (English + French). Laravel `lang/` files are the single source of truth, bridged to Vue by `laravel-vue-i18n`.
+
+- Add keys to both `lang/en/<domain>.php` and `lang/fr/<domain>.php` (semantic dotted keys, e.g. `goals.actions.create`).
+- Use them in Vue via `$t('goals.actions.create')` (or `trans()` in `<script setup>`).
+- Every `en` key must have an `fr` counterpart in both directions - the `TranslationParityTest` enforces this.
+- No em-dashes in any translation value (project style rule).
+
+See `CONTRIBUTING.md` for the full translation workflow.
 
 ### Creating a Custom Composable
 
@@ -1330,20 +1349,22 @@ APP_URL=http://localhost:8000
 
 #### **Issue: Database connection failed**
 
-**Symptom**: `SQLSTATE[HY000] [2002] Connection refused`
+**Symptom**: `SQLSTATE[08006]` / connection refused
 
 **Solution**:
 ```bash
-# Check MySQL is running
-mysql -u root -p
+# Check PostgreSQL is running and reachable
+psql -U postgres -c "\l"
 
 # Verify .env credentials
-DB_CONNECTION=mysql
+DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=5432
 DB_DATABASE=ignite
-DB_USERNAME=root
+DB_USERNAME=postgres
 DB_PASSWORD=your_password
+
+# On Windows, ensure pdo_pgsql is enabled in php.ini
 
 # Test connection
 php artisan db:show
@@ -1618,15 +1639,18 @@ Included in Vue DevTools - shows Inertia visits and page data.
 # Application
 APP_NAME=Ignite
 APP_ENV=local                 # local | production
-APP_DEBUG=true                # true for development
+APP_DEBUG=true                # true for development; false triggers the branded error pages
 APP_URL=http://localhost:8000
 
-# Database
-DB_CONNECTION=mysql
+# Auth (local dev convenience)
+VERIFY_EMAIL=false            # false skips email verification locally; defaults to true (prod stays enforced)
+
+# Database (PostgreSQL)
+DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=5432
 DB_DATABASE=ignite
-DB_USERNAME=root
+DB_USERNAME=postgres
 DB_PASSWORD=
 
 # Mail (optional, for email features)
@@ -1902,5 +1926,4 @@ For questions or suggestions about this documentation, please open an issue or r
 
 ---
 
-*Last updated: [Current Date]*
-*Version: 1.0.0*
+*Last updated: 2026-07-11*
