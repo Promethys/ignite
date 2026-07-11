@@ -12,6 +12,10 @@ import { router } from '@inertiajs/vue3';
 import { ChevronDown, Globe } from 'lucide-vue-next';
 import { computed } from 'vue';
 
+const { responsive = true } = defineProps<{
+    responsive?: boolean;
+}>();
+
 const { current, supported, switchTo } = useLocale();
 
 const currentLabel = computed(() => supported[current.value] ?? current.value);
@@ -41,9 +45,12 @@ async function change(code: string) {
                 :aria-label="`Change language, current: ${currentLabel}`"
             >
                 <Globe class="size-4" />
-                <span class="hidden sm:inline">{{ currentLabel }}</span>
+                <span :class="{ 'hidden sm:inline': responsive }">{{
+                    currentLabel
+                }}</span>
                 <ChevronDown
-                    class="hidden size-4 text-muted-foreground sm:inline"
+                    class="size-4 text-muted-foreground"
+                    :class="{ 'hidden sm:inline': responsive }"
                 />
             </Button>
         </DropdownMenuTrigger>

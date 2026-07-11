@@ -38,7 +38,7 @@ defineProps<{
                     </div>
                 </div>
                 <slot />
-                <LanguageSwitcher class="mx-auto" />
+                <LanguageSwitcher class="mx-auto" :responsive="false" />
             </div>
         </div>
     </div>
