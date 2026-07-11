@@ -48,15 +48,21 @@ class GoalController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $user = auth()->user()->load('categories');
+
+        $requested = $request->query('category');
+        $selectedCategory = is_numeric($requested) && $user->categories->contains('id', (int) $requested)
+            ? (string) $requested
+            : null;
 
         return Inertia::render('Goals/Create', [
             'user' => [
                 'id' => $user->id,
                 'categories' => $user->categories->pluck('name', 'id'),
             ],
+            'selectedCategory' => $selectedCategory,
         ]);
     }
 

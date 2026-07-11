@@ -20,6 +20,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 defineProps<{
     user: User;
+    selectedCategory?: string | null;
 }>();
 </script>
 
@@ -33,7 +34,10 @@ defineProps<{
                 :description="$t('goals.form.create_description')"
             />
 
-            <GoalForm :user="user" />
+            <GoalForm
+                :user="user"
+                :selected-category="selectedCategory ?? undefined"
+            />
         </div>
     </AppLayout>
 </template>
