@@ -22,6 +22,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Email Verification Toggle
+    |--------------------------------------------------------------------------
+    |
+    | When true (the default), email verification is required: newly registered
+    | users are left unverified and must confirm their email. When false, the
+    | registration flow marks new users as already verified so local
+    | development is not blocked by the email-verification wall.
+    |
+    | This MUST stay true (or unset) in production. An unset env keeps
+    | verification enforced.
+    |
+    */
+
+    'verify_email' => (bool) env('VERIFY_EMAIL', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Authentication Guards
     |--------------------------------------------------------------------------
     |
