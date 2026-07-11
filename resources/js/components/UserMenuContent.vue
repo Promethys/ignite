@@ -8,9 +8,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
-import type { User } from '@/types';
-import { Link, router } from '@inertiajs/vue3';
-import { LogOut, Settings } from 'lucide-vue-next';
+import type { AppPageProps, User } from '@/types';
+import { Link, router, usePage } from '@inertiajs/vue3';
+import { LifeBuoy, LogOut, Settings } from 'lucide-vue-next';
 
 interface Props {
     user: User;
@@ -19,6 +19,8 @@ interface Props {
 const handleLogout = () => {
     router.flushAll();
 };
+
+const supportEmail = usePage<AppPageProps>().props.supportEmail;
 
 defineProps<Props>();
 </script>
@@ -41,6 +43,17 @@ defineProps<Props>();
                 <Settings class="mr-2 h-4 w-4" />
                 {{ $t('common.actions.settings') }}
             </Link>
+        </DropdownMenuItem>
+    </DropdownMenuGroup>
+    <DropdownMenuGroup>
+        <DropdownMenuItem :as-child="true">
+            <a
+                class="block w-full cursor-pointer"
+                :href="`mailto:${supportEmail}?subject=${encodeURIComponent($t('common.support.email_subject'))}`"
+            >
+                <LifeBuoy class="mr-2 h-4 w-4" />
+                {{ $t('common.support.report_issue') }}
+            </a>
         </DropdownMenuItem>
     </DropdownMenuGroup>
     <DropdownMenuSeparator />

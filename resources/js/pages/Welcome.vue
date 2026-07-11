@@ -3,9 +3,11 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { dashboard, login, register } from '@/routes';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { Flame, LayoutGrid, Target, Trophy } from 'lucide-vue-next';
 import 'vue-sonner/style.css';
+
+const supportEmail = usePage().props.supportEmail;
 
 const stats = [
     { n: '8', l: 'landing.stats.active' },
@@ -186,9 +188,14 @@ const features = [
                 class="mx-auto flex max-w-5xl items-center justify-between px-4 py-5 text-xs text-muted-foreground sm:px-6"
             >
                 <span>© Ignite</span>
-                <span
+                <span class="flex items-center gap-3"
                     >{{ $t('landing.footer.privacy') }} ·
-                    {{ $t('landing.footer.terms') }}</span
+                    {{ $t('landing.footer.terms') }}
+                    <a
+                        :href="`mailto:${supportEmail}`"
+                        class="underline-offset-2 hover:underline"
+                        >{{ $t('landing.footer.contact') }}</a
+                    ></span
                 >
             </div>
         </footer>

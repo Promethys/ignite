@@ -27,6 +27,7 @@ export type AppPageProps<
     sidebarOpen: boolean;
     locale: string;
     supportedLocales: Record<string, string>;
+    supportEmail: string;
 };
 
 export type BreadcrumbItemType = BreadcrumbItem;

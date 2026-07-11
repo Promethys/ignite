@@ -37,5 +37,6 @@ return [
     'footer' => [
         'privacy' => 'Privacy',
         'terms' => 'Terms',
+        'contact' => 'Contact',
     ],
 ];

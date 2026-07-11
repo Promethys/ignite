@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Support Email
+    |--------------------------------------------------------------------------
+    |
+    | Address shown to users for bug reports, feedback, and security
+    | disclosures. Set the real value via the SUPPORT_EMAIL env var.
+    |
+    */
+
+    'support_email' => env('SUPPORT_EMAIL', 'support@example.com'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
