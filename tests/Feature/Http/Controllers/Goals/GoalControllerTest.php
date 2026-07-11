@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Http\Controllers\Goals;
 
+use App\Models\Category;
 use App\Models\Goal;
 use App\Models\GoalEntry;
 use App\Models\User;
@@ -139,6 +140,47 @@ class GoalControllerTest extends TestCase
             'title' => 'Test Goal',
             'user_id' => $this->user->id,
         ]);
+    }
+
+    public function test_create_page_passes_selected_category_when_owned_by_user()
+    {
+        $category = Category::factory()->create(['user_id' => $this->user->id]);
+
+        $this->actingAs($this->user)
+            ->get(route('goals.create', ['category' => $category->id]))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Goals/Create')
+                ->where('selectedCategory', (string) $category->id)
+            );
+    }
+
+    public function test_create_page_does_not_pass_category_owned_by_another_user()
+    {
+        $otherCategory = Category::factory()->create(['user_id' => $this->otherUser->id]);
+
+        $this->actingAs($this->user)
+            ->get(route('goals.create', ['category' => $otherCategory->id]))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Goals/Create')
+                ->where('selectedCategory', null)
+            );
+    }
+
+    public function test_create_page_has_null_selected_category_without_category_param()
+    {
+        $this->actingAs($this->user)
+            ->get(route('goals.create'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Goals/Create')
+                ->where('selectedCategory', null)
+            );
+
+        $this->actingAs($this->user)
+            ->get(route('goals.create', ['category' => 'not-a-number']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Goals/Create')
+                ->where('selectedCategory', null)
+            );
     }
 
     public function test_title_is_required()

@@ -60,7 +60,7 @@ const categories = [
 const stubs = {
     AppLayout: { template: '<div><slot /></div>' },
     PageHeader: { template: '<div><slot name="actions" /></div>' },
-    Link: { template: '<a><slot /></a>' },
+    Link: { props: ['href'], template: '<a :href="href"><slot /></a>' },
     Button: { template: '<button><slot /></button>' },
     Input: {
         template:
@@ -89,6 +89,11 @@ const mountIndex = () =>
         props: { items: goalsData, categories },
         global: { stubs },
     });
+
+const findCreateLink = (wrapper: ReturnType<typeof mountIndex>) =>
+    wrapper
+        .findAll('a')
+        .find((a) => a.text().includes('goals.actions.new'));
 
 describe('Goals/Index filtering', () => {
     it('renders every goal by default', () => {
@@ -123,5 +128,26 @@ describe('Goals/Index filtering', () => {
 
         expect(wrapper.findAll('.goal-card')).toHaveLength(0);
         expect(wrapper.find('.empty').exists()).toBe(true);
+    });
+});
+
+describe('Goals/Index new goal link', () => {
+    it('carries the selected category into the create link', () => {
+        const wrapper = mount(GoalsIndex, {
+            props: { items: goalsData, categories, category_id: '1' },
+            global: { stubs },
+        });
+
+        const createLink = findCreateLink(wrapper);
+        expect(createLink).toBeTruthy();
+        expect(createLink!.attributes('href')).toContain('?category=1');
+    });
+
+    it('has no category query when the filter is set to all', () => {
+        const wrapper = mountIndex();
+
+        const createLink = findCreateLink(wrapper);
+        expect(createLink).toBeTruthy();
+        expect(createLink!.attributes('href')).not.toContain('category=');
     });
 });

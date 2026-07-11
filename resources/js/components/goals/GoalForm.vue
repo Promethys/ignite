@@ -36,6 +36,7 @@ import {
 const props = defineProps<{
     record?: Goal;
     user: User;
+    selectedCategory?: string;
 }>();
 
 const formState = props.record
@@ -51,7 +52,10 @@ const formState = props.record
       };
 
 const formData = {
-    category_id: props.record?.category_id?.toString() ?? undefined,
+    category_id:
+        props.record?.category_id?.toString() ??
+        props.selectedCategory ??
+        undefined,
     title: nullToEmpty(props.record?.title),
     description: nullToEmpty(props.record?.description),
     icon: nullToEmpty(props.record?.icon),

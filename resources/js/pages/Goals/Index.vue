@@ -60,6 +60,14 @@ const activeCount = computed(
     () => props.items.filter((item) => item.status === 'in_progress').length,
 );
 
+const createHref = computed(() => {
+    const base = goals.create().url;
+
+    return typeof selectedCategoryId.value === 'number'
+        ? `${base}?category=${selectedCategoryId.value}`
+        : base;
+});
+
 const filteredItems = computed(() => {
     let items = props.items;
 
@@ -106,7 +114,7 @@ const filteredItems = computed(() => {
                         as-child
                         class="w-full sm:w-auto"
                     >
-                        <Link :href="goals.create().url">
+                        <Link :href="createHref">
                             <Plus />
                             {{ $t('goals.actions.new') }}
                         </Link>
@@ -200,7 +208,7 @@ const filteredItems = computed(() => {
                 </EmptyHeader>
                 <EmptyContent v-if="items.length === 0">
                     <Button as-child>
-                        <Link :href="goals.create().url">
+                        <Link :href="createHref">
                             <Plus />
                             {{ $t('goals.actions.define') }}
                         </Link>
