@@ -5,6 +5,7 @@ import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/ui/password-input';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/vue3';
@@ -60,9 +61,8 @@ import { LoaderCircle } from 'lucide-vue-next';
                     <Label for="password">{{
                         $t('auth_ui.register.password')
                     }}</Label>
-                    <Input
+                    <PasswordInput
                         id="password"
-                        type="password"
                         required
                         :tabindex="3"
                         autocomplete="new-password"
@@ -78,9 +78,8 @@ import { LoaderCircle } from 'lucide-vue-next';
                     <Label for="password_confirmation">{{
                         $t('auth_ui.register.confirm_password')
                     }}</Label>
-                    <Input
+                    <PasswordInput
                         id="password_confirmation"
-                        type="password"
                         required
                         :tabindex="4"
                         autocomplete="new-password"
