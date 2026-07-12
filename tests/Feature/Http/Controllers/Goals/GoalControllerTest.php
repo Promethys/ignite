@@ -214,6 +214,26 @@ class GoalControllerTest extends TestCase
             ->assertSessionHasErrors('deadline');
     }
 
+    public function test_deadline_can_equal_the_start_date()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'start_date' => '2026-07-12',
+                'deadline' => '2026-07-12',
+            ]))
+            ->assertRedirect(route('goals.index'));
+    }
+
+    public function test_deadline_before_start_date_fails_validation()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'start_date' => '2026-07-12',
+                'deadline' => '2026-07-11',
+            ]))
+            ->assertSessionHasErrors('deadline');
+    }
+
     public function test_polarity_must_be_valid()
     {
         $this->actingAs($this->user)
