@@ -37,7 +37,7 @@
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {
-        "@formbricks/js": "^4.2.1",
+        "@formbricks/js": "^5.0.0",
         "@inertiajs/vite": "^3.5.0",
         "@inertiajs/vue3": "^3.5.0",
         "@internationalized/date": "^3.12.1",

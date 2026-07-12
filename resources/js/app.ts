@@ -12,14 +12,21 @@ import VueApexCharts from 'vue3-apexcharts';
 import { initializeTheme } from './composables/useAppearance';
 import { initializeFlashToast } from './lib/flashToast';
 
-if (typeof window !== 'undefined') {
+const ENV = import.meta.env;
+const formbricksWorkspaceID = ENV.VITE_FORMBRICKS_WORKSPACE_ID;
+const formbricksAppURL = ENV.VITE_FORMBRICKS_APP_URL;
+
+if (
+    typeof window !== 'undefined' &&
+    typeof formbricksWorkspaceID !== 'undefined'
+) {
     formbricks.setup({
-        environmentId: 'cmh7uef6q0rtzad01j1mpxxwl',
-        appUrl: 'https://app.formbricks.com',
+        workspaceId: formbricksWorkspaceID,
+        appUrl: formbricksAppURL ?? 'https://app.formbricks.com',
     });
 }
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = ENV.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
