@@ -31,8 +31,8 @@ class PasswordUpdateTest extends TestCase
             ->from(route('password.edit'))
             ->put(route('password.update'), [
                 'current_password' => 'password',
-                'password' => 'new-password',
-                'password_confirmation' => 'new-password',
+                'password' => 'New-P@ssw0rd123',
+                'password_confirmation' => 'New-P@ssw0rd123',
             ]);
 
         $response
@@ -41,7 +41,7 @@ class PasswordUpdateTest extends TestCase
             ->assertInertiaFlash('toast.type', 'success')
             ->assertInertiaFlash('toast.message', 'Password updated.');
 
-        $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+        $this->assertTrue(Hash::check('New-P@ssw0rd123', $user->refresh()->password));
     }
 
     public function test_correct_password_must_be_provided_to_update_password()
@@ -53,8 +53,8 @@ class PasswordUpdateTest extends TestCase
             ->from(route('password.edit'))
             ->put(route('password.update'), [
                 'current_password' => 'wrong-password',
-                'password' => 'new-password',
-                'password_confirmation' => 'new-password',
+                'password' => 'New-P@ssw0rd123',
+                'password_confirmation' => 'New-P@ssw0rd123',
             ]);
 
         $response

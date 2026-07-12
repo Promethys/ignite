@@ -49,6 +49,7 @@ return [
         'current_placeholder' => 'Mot de passe actuel',
         'new' => 'Nouveau mot de passe',
         'new_placeholder' => 'Nouveau mot de passe',
+        'password_requirements' => 'Exigences du mot de passe : au moins 8 caractères, majuscules et minuscules, un chiffre et un symbole.',
         'confirm' => 'Confirmer le mot de passe',
         'confirm_placeholder' => 'Confirmer le mot de passe',
         'save' => 'Enregistrer le mot de passe',
