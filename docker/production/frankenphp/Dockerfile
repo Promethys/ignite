@@ -28,6 +28,12 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 ARG VITE_APP_NAME=Ignite
 ENV VITE_APP_NAME=$VITE_APP_NAME
 
+ARG VITE_FORMBRICKS_WORKSPACE_ID
+ENV VITE_FORMBRICKS_WORKSPACE_ID=$VITE_FORMBRICKS_WORKSPACE_ID
+
+ARG VITE_FORMBRICKS_APP_URL
+ENV VITE_FORMBRICKS_APP_URL=$VITE_FORMBRICKS_APP_URL
+
 # Build the client bundle (emits public/build). Drop node_modules afterward.
 RUN npm ci && npm run build && rm -rf node_modules
 
