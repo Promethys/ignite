@@ -24,8 +24,8 @@ class RegistrationTest extends TestCase
         $response = $this->post(route('register.store'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'Strong-P@ssw0rd',
+            'password_confirmation' => 'Strong-P@ssw0rd',
         ]);
 
         $this->assertAuthenticated();
@@ -41,8 +41,8 @@ class RegistrationTest extends TestCase
         $this->post(route('register.store'), [
             'name' => 'French User',
             'email' => 'french@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'Strong-P@ssw0rd',
+            'password_confirmation' => 'Strong-P@ssw0rd',
         ]);
 
         $this->assertDatabaseHas('users', [
@@ -56,8 +56,8 @@ class RegistrationTest extends TestCase
         $this->post(route('register.store'), [
             'name' => 'No Cookie User',
             'email' => 'nocookie@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'Strong-P@ssw0rd',
+            'password_confirmation' => 'Strong-P@ssw0rd',
         ]);
 
         $this->assertDatabaseHas('users', [
@@ -73,8 +73,8 @@ class RegistrationTest extends TestCase
         $this->post(route('register.store'), [
             'name' => 'German User',
             'email' => 'german@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'Strong-P@ssw0rd',
+            'password_confirmation' => 'Strong-P@ssw0rd',
         ]);
 
         $this->assertDatabaseHas('users', [
@@ -90,8 +90,8 @@ class RegistrationTest extends TestCase
         $this->post(route('register.store'), [
             'name' => 'Unverified User',
             'email' => 'unverified@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'Strong-P@ssw0rd',
+            'password_confirmation' => 'Strong-P@ssw0rd',
         ]);
 
         $user = User::where('email', 'unverified@example.com')->first();
@@ -112,8 +112,8 @@ class RegistrationTest extends TestCase
         $this->post(route('register.store'), [
             'name' => 'Auto Verified User',
             'email' => 'autoverified@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'Strong-P@ssw0rd',
+            'password_confirmation' => 'Strong-P@ssw0rd',
         ]);
 
         $user = User::where('email', 'autoverified@example.com')->first();
@@ -128,5 +128,18 @@ class RegistrationTest extends TestCase
     public function test_email_verification_is_required_by_default()
     {
         $this->assertTrue(config('auth.verify_email'));
+    }
+
+    public function test_registration_rejects_a_weak_password(): void
+    {
+        $response = $this->from(route('register'))->post(route('register.store'), [
+            'name' => 'Weak',
+            'email' => 'weak@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+        $this->assertGuest();
     }
 }

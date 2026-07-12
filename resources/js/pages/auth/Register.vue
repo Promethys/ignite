@@ -71,6 +71,9 @@ import { LoaderCircle } from 'lucide-vue-next';
                             $t('auth_ui.register.password_placeholder')
                         "
                     />
+                    <p class="text-xs text-muted-foreground">
+                        {{ $t('auth_ui.register.password_requirements') }}
+                    </p>
                     <InputError :message="errors.password" />
                 </div>
 

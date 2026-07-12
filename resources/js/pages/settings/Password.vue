@@ -74,6 +74,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
                                 $t('settings.password.new_placeholder')
                             "
                         />
+                        <p class="text-xs text-muted-foreground">
+                            {{ $t('settings.password.password_requirements') }}
+                        </p>
                         <InputError :message="errors.password" />
                     </div>
 

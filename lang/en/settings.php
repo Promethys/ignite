@@ -49,6 +49,7 @@ return [
         'current_placeholder' => 'Current password',
         'new' => 'New password',
         'new_placeholder' => 'New password',
+        'password_requirements' => 'Password requirements: at least 8 characters, uppercase and lowercase letters, a number, and a symbol.',
         'confirm' => 'Confirm password',
         'confirm_placeholder' => 'Confirm password',
         'save' => 'Save password',
