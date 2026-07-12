@@ -25,6 +25,9 @@ COPY . /app
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
 
+ARG VITE_APP_NAME=Ignite
+ENV VITE_APP_NAME=$VITE_APP_NAME
+
 # Build the client bundle (emits public/build). Drop node_modules afterward.
 RUN npm ci && npm run build && rm -rf node_modules
 

@@ -10,5 +10,6 @@ public/build
 public/hot
 z_inspos
 docs
+tests
 compose.dev.yaml
 compose.prod.yaml
