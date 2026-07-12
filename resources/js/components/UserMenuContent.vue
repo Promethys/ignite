@@ -51,6 +51,7 @@ defineProps<Props>();
                 class="block w-full cursor-pointer"
                 :href="`mailto:${supportEmail}?subject=${encodeURIComponent($t('common.support.email_subject'))}`"
                 target="_blank"
+                rel="noopener"
             >
                 <LifeBuoy class="mr-2 h-4 w-4" />
                 {{ $t('common.support.report_issue') }}
