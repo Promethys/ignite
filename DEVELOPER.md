@@ -1684,12 +1684,14 @@ VITE_APP_NAME="${APP_NAME}"
 - [ ] Set `APP_ENV=production` in `.env`
 - [ ] Set `APP_DEBUG=false` in `.env`
 - [ ] Generate new `APP_KEY`: `php artisan key:generate`
-- [ ] Configure production database credentials
-- [ ] Set up mail driver (SMTP, Mailgun, etc.)
-- [ ] Configure session/cache drivers (Redis recommended)
-- [ ] Set up queue worker for background jobs
+- [ ] Configure production database (PostgreSQL) credentials
+- [ ] Set up a mail driver if sending email (SMTP, Mailgun, etc.); defaults to `log`
 
-### Deployment Steps
+> Session, cache, and queue all default to the database driver, so a basic instance needs no Redis and no separate queue worker.
+
+### Manual deploy (non-container)
+
+The supported path is the container in **Deployment (self-hosting)** below. For a manual deploy on a plain server without Docker:
 
 ```bash
 # 1. Pull latest code
@@ -1710,10 +1712,10 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# 6. Restart queue workers (if using)
+# 6. Restart queue workers (only if you switched QUEUE_CONNECTION off sync)
 php artisan queue:restart
 
-# 7. Set correct permissions
+# 7. Set correct permissions (adjust the user to your web server)
 chmod -R 755 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 ```
@@ -1721,19 +1723,27 @@ chown -R www-data:www-data storage bootstrap/cache
 ### Post-Deployment
 
 - [ ] Test critical user flows (login, create goal, etc.)
-- [ ] Check error logs: `tail -f storage/logs/laravel.log`
+- [ ] Check application logs (stdout/stderr on a container platform, or `storage/logs/`)
 - [ ] Monitor performance and database queries
 - [ ] Set up monitoring (Laravel Telescope, Sentry, etc.)
 - [ ] Configure automated backups
 
-### Deployment Platforms
+### Deployment (self-hosting)
 
-**Recommended platforms:**
-- **Laravel Forge** - Automated deployments, server management
-- **Laravel Vapor** - Serverless deployment on AWS
-- **Ploi** - Similar to Forge, alternative option
-- **DigitalOcean App Platform** - Simple deployments
-- **AWS / GCP / Azure** - Full control, more complex setup
+Ignite is self-hostable and ships a production container that runs on any Docker host (a VPS, a PaaS, your own cluster).
+
+**What a production instance needs**
+- **App server:** a single FrankenPHP container (Caddy + PHP fused) built from `docker/production/frankenphp/Dockerfile`. It serves HTTP on `$PORT` and expects TLS to be terminated in front of it (by your proxy, load balancer, or PaaS edge).
+- **Database:** PostgreSQL.
+- All state lives in Postgres: sessions, cache, and the queue (`QUEUE_CONNECTION=sync`, so a basic instance needs no separate worker).
+
+**Required env** (never commit secrets): `APP_KEY` (`php artisan key:generate --show`), `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, `PORT`, the `DB_*` block, `SESSION_DRIVER=database`, `SESSION_SECURE_COOKIE=true` (behind TLS), `CACHE_STORE=database`, `QUEUE_CONNECTION=sync`, `VERIFY_EMAIL`, `SUPPORT_EMAIL`, `MAIL_MAILER`, `LOG_CHANNEL=stderr`.
+
+**On deploy:** run `php artisan migrate --force` as a release step, then warm caches with `config:cache` / `route:cache` / `view:cache`. The provided container entrypoint warms caches at startup automatically.
+
+**Behind a TLS-terminating proxy:** the app trusts forwarded headers (`trustProxies` in `bootstrap/app.php`) so HTTPS is detected correctly, and the bundled `Caddyfile` disables Caddy's own auto-HTTPS since your proxy handles TLS.
+
+> A ready-made `railway.json` is included for those deploying to Railway (the platform the maintainers' own hosted instance uses), but nothing about the app is Railway-specific.
 
 ---
 
@@ -1926,4 +1936,4 @@ For questions or suggestions about this documentation, please open an issue or r
 
 ---
 
-*Last updated: 2026-07-11*
+*Last updated: 2026-07-12*
