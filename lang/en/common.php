@@ -38,4 +38,8 @@ return [
         'report_issue' => 'Report an issue',
         'email_subject' => 'Ignite feedback',
     ],
+    'password' => [
+        'show' => 'Show password',
+        'hide' => 'Hide password',
+    ],
 ];

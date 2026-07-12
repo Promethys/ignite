@@ -83,4 +83,23 @@ describe('UserMenuContent', () => {
             `subject=${encodeURIComponent('Ignite feedback')}`,
         );
     });
+
+    it('opens the mailto link in a new tab', () => {
+        const wrapper = mount(UserMenuContent, {
+            props: { user },
+            global: {
+                mocks: {
+                    $t: (key: string) => en[key] ?? key,
+                },
+            },
+        });
+
+        const links = wrapper.findAll('a');
+        const mailto = links.find((a) =>
+            (a.attributes('href') ?? '').startsWith(`mailto:${supportEmail}`),
+        );
+
+        expect(mailto?.attributes('target')).toBe('_blank');
+        expect(mailto?.attributes('rel')).toBe('noopener');
+    });
 });

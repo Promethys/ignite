@@ -193,6 +193,8 @@ const features = [
                     {{ $t('landing.footer.terms') }}
                     <a
                         :href="`mailto:${supportEmail}`"
+                        target="_blank"
+                        rel="noopener"
                         class="underline-offset-2 hover:underline"
                         >{{ $t('landing.footer.contact') }}</a
                     ></span

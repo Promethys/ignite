@@ -38,4 +38,8 @@ return [
         'report_issue' => 'Signaler un problème',
         'email_subject' => 'Retour Ignite',
     ],
+    'password' => [
+        'show' => 'Afficher le mot de passe',
+        'hide' => 'Masquer le mot de passe',
+    ],
 ];
