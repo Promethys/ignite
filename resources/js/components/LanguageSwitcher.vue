@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LocaleController from '@/actions/App/Http/Controllers/Settings/LocaleController';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -8,7 +9,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useLocale } from '@/composables/useLocale';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { ChevronDown, Globe } from 'lucide-vue-next';
 import { computed } from 'vue';
 
@@ -17,6 +18,7 @@ const { responsive = true } = defineProps<{
 }>();
 
 const { current, supported, switchTo } = useLocale();
+const page = usePage();
 
 const currentLabel = computed(() => supported[current.value] ?? current.value);
 
@@ -25,13 +27,17 @@ async function change(code: string) {
         return;
     }
 
-    const maxAge = 365 * 24 * 60 * 60;
+    const isAuthenticated = !!page.props.auth.user;
 
-    document.cookie = `locale=${code};path=/;max-age=${maxAge};SameSite=Lax`;
-
-    await switchTo(code);
-
-    router.reload();
+    if (isAuthenticated) {
+        await switchTo(code);
+        router.patch(LocaleController.update.url(), { locale: code });
+    } else {
+        const maxAge = 365 * 24 * 60 * 60;
+        document.cookie = `locale=${code};path=/;max-age=${maxAge};SameSite=Lax`;
+        await switchTo(code);
+        router.reload();
+    }
 }
 </script>
 

@@ -61,6 +61,7 @@ const features = [
                     </span>
                 </div>
                 <nav class="flex items-center gap-2">
+                    <LanguageSwitcher />
                     <template v-if="$page.props.auth.user">
                         <Button as-child>
                             <Link :href="dashboard()">{{
@@ -69,7 +70,6 @@ const features = [
                         </Button>
                     </template>
                     <template v-else>
-                        <LanguageSwitcher />
                         <Button variant="ghost" as-child>
                             <Link :href="login()">{{
                                 $t('common.actions.log_in')
