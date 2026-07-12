@@ -1,0 +1,14 @@
+.git
+.github
+node_modules
+vendor
+.env
+.env.*
+!.env.example
+storage/logs/*.log
+public/build
+public/hot
+z_inspos
+docs
+compose.dev.yaml
+compose.prod.yaml

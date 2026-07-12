@@ -1,0 +1,16 @@
+{
+	frankenphp
+	# Railway terminates TLS at its edge and forwards plain HTTP to $PORT.
+	# No hostname in the site address + auto_https off => Caddy never tries to
+	# provision its own certificates.
+	auto_https off
+	admin off
+}
+
+# Bind to the port Railway injects (fallback 8080 for local experiments).
+:{$PORT:8080} {
+	root * /app/public
+	encode zstd br gzip
+	# php_server sets up try_files -> index.php and serves static assets.
+	php_server
+}
