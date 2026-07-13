@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const supportEmail = 'help@example.test';
+const githubUrl = 'https://github.com/example/repo';
 
 const mocks = vi.hoisted(() => ({
     flushAll: vi.fn(),
@@ -13,7 +14,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@inertiajs/vue3', () => ({
     Link: { template: '<a><slot /></a>' },
     router: { flushAll: mocks.flushAll },
-    usePage: () => ({ props: { supportEmail } }),
+    usePage: () => ({ props: { supportEmail, githubUrl } }),
 }));
 
 vi.mock('@formbricks/js', () => ({
@@ -48,6 +49,7 @@ const en: Record<string, string> = {
     'common.support.report_issue': 'Report an issue',
     'common.support.email_subject': 'Ignite feedback',
     'common.support.send_feedback': 'Send feedback',
+    'common.nav.repository': 'Repository',
 };
 
 const user = {
@@ -94,6 +96,15 @@ describe('UserMenuContent', () => {
 
         expect(mailto?.attributes('target')).toBe('_blank');
         expect(mailto?.attributes('rel')).toBe('noopener');
+    });
+
+    it('renders a link to the shared source repository', () => {
+        const repoLink = mountMenu()
+            .findAll('a')
+            .find((a) => a.attributes('href') === githubUrl);
+
+        expect(repoLink).toBeTruthy();
+        expect(repoLink?.text()).toContain('Repository');
     });
 
     it('renders the feedback trigger the survey listens for', () => {

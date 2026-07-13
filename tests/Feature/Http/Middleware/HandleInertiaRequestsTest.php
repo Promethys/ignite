@@ -48,4 +48,17 @@ class HandleInertiaRequestsTest extends TestCase
                 ->where('supportEmail', 'help@example.test')
             );
     }
+
+    public function test_github_url_is_shared_with_inertia()
+    {
+        config(['app.github_url' => 'https://github.com/example/repo']);
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (AssertableJson $page) => $page
+                ->where('githubUrl', 'https://github.com/example/repo')
+            );
+    }
 }
