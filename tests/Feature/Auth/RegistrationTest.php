@@ -51,6 +51,18 @@ class RegistrationTest extends TestCase
         ]);
     }
 
+    public function test_registration_clears_the_locale_cookie()
+    {
+        $response = $this->withUnencryptedCookie('locale', 'fr')->post(route('register.store'), [
+            'name' => 'French User',
+            'email' => 'french2@example.com',
+            'password' => 'Strong-P@ssw0rd',
+            'password_confirmation' => 'Strong-P@ssw0rd',
+        ]);
+
+        $response->assertCookieExpired('locale');
+    }
+
     public function test_new_user_defaults_to_english_without_locale_cookie()
     {
         $this->post(route('register.store'), [

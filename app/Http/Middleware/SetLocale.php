@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\GuestLocale;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -41,11 +42,11 @@ class SetLocale
         $fallback = config('app.fallback_locale', 'en');
 
         $resolved = $request->user()?->locale
-            ?? $request->cookie('locale')
+            ?? GuestLocale::fromRequest($request)
             ?? $this->negotiateAcceptLanguage($request, $supported)
             ?? $fallback;
 
-        if (! in_array($resolved, $supported, true)) {
+        if (! GuestLocale::supported($resolved)) {
             return $fallback;
         }
 

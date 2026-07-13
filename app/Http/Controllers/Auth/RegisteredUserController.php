@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\GuestLocale;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
@@ -37,10 +39,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $supported = array_keys(config('locales.supported'));
-        $locale = in_array($request->cookie('locale'), $supported, true)
-            ? $request->cookie('locale')
-            : config('app.fallback_locale');
+        $locale = GuestLocale::fromRequest($request) ?? config('app.fallback_locale');
 
         $user = User::create([
             'name' => $request->name,
@@ -52,6 +51,8 @@ class RegisteredUserController extends Controller
         if (! config('auth.verify_email')) {
             $user->markEmailAsVerified();
         }
+
+        Cookie::queue(Cookie::forget('locale'));
 
         event(new Registered($user));
 
