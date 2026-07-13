@@ -1,13 +1,23 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
 import UserMenuContent from '@/components/UserMenuContent.vue';
+import { mount } from '@vue/test-utils';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const supportEmail = 'help@example.test';
 
+const mocks = vi.hoisted(() => ({
+    flushAll: vi.fn(),
+    fbLogout: vi.fn().mockResolvedValue(undefined),
+    fbSetLanguage: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock('@inertiajs/vue3', () => ({
     Link: { template: '<a><slot /></a>' },
-    router: { flushAll: vi.fn() },
+    router: { flushAll: mocks.flushAll },
     usePage: () => ({ props: { supportEmail } }),
+}));
+
+vi.mock('@formbricks/js', () => ({
+    default: { logout: mocks.fbLogout, setLanguage: mocks.fbSetLanguage },
 }));
 
 vi.mock('@/components/ui/dropdown-menu', () => ({
@@ -37,6 +47,7 @@ const en: Record<string, string> = {
     'common.actions.log_out': 'Log out',
     'common.support.report_issue': 'Report an issue',
     'common.support.email_subject': 'Ignite feedback',
+    'common.support.send_feedback': 'Send feedback',
 };
 
 const user = {
@@ -45,61 +56,58 @@ const user = {
     email: 'jane@example.test',
 };
 
-describe('UserMenuContent', () => {
-    it('renders a mailto link to the shared support address', () => {
-        const wrapper = mount(UserMenuContent, {
-            props: { user },
-            global: {
-                mocks: {
-                    $t: (key: string) => en[key] ?? key,
-                },
-            },
-        });
+const mountMenu = () =>
+    mount(UserMenuContent, {
+        props: { user },
+        global: { mocks: { $t: (key: string) => en[key] ?? key } },
+    });
 
-        const links = wrapper.findAll('a');
-        const mailto = links.find((a) =>
+const findMailto = (wrapper: ReturnType<typeof mountMenu>) =>
+    wrapper
+        .findAll('a')
+        .find((a) =>
             (a.attributes('href') ?? '').startsWith(`mailto:${supportEmail}`),
         );
 
-        expect(mailto).toBeTruthy();
+describe('UserMenuContent', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.stubEnv('VITE_FORMBRICKS_WORKSPACE_ID', 'ws_test');
+    });
+
+    afterEach(() => {
+        vi.unstubAllEnvs();
+    });
+
+    it('renders a mailto link to the shared support address', () => {
+        expect(findMailto(mountMenu())).toBeTruthy();
     });
 
     it('includes a url-encoded subject in the mailto href', () => {
-        const wrapper = mount(UserMenuContent, {
-            props: { user },
-            global: {
-                mocks: {
-                    $t: (key: string) => en[key] ?? key,
-                },
-            },
-        });
-
-        const links = wrapper.findAll('a');
-        const mailto = links.find((a) =>
-            (a.attributes('href') ?? '').startsWith(`mailto:${supportEmail}`),
-        );
-
-        expect(mailto?.attributes('href')).toContain(
+        expect(findMailto(mountMenu())?.attributes('href')).toContain(
             `subject=${encodeURIComponent('Ignite feedback')}`,
         );
     });
 
     it('opens the mailto link in a new tab', () => {
-        const wrapper = mount(UserMenuContent, {
-            props: { user },
-            global: {
-                mocks: {
-                    $t: (key: string) => en[key] ?? key,
-                },
-            },
-        });
-
-        const links = wrapper.findAll('a');
-        const mailto = links.find((a) =>
-            (a.attributes('href') ?? '').startsWith(`mailto:${supportEmail}`),
-        );
+        const mailto = findMailto(mountMenu());
 
         expect(mailto?.attributes('target')).toBe('_blank');
         expect(mailto?.attributes('rel')).toBe('noopener');
+    });
+
+    it('renders the feedback trigger the survey listens for', () => {
+        const trigger = mountMenu().get('#send-feedback');
+
+        expect(trigger.text()).toContain('Send feedback');
+    });
+
+    it('logs out of Formbricks and flushes Inertia state on logout', async () => {
+        const wrapper = mountMenu();
+
+        await wrapper.get('[data-test="logout-button"]').trigger('click');
+
+        expect(mocks.fbLogout).toHaveBeenCalledTimes(1);
+        expect(mocks.flushAll).toHaveBeenCalledTimes(1);
     });
 });

@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
     loadLanguageAsync: vi.fn().mockResolvedValue(undefined),
@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
     usePage: vi.fn(),
     routerReload: vi.fn(),
     routerPatch: vi.fn(),
+    fbSetLanguage: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('laravel-vue-i18n', () => ({
@@ -21,6 +22,10 @@ vi.mock('moment', () => ({
 vi.mock('@inertiajs/vue3', () => ({
     usePage: mocks.usePage,
     router: { reload: mocks.routerReload, patch: mocks.routerPatch },
+}));
+
+vi.mock('@formbricks/js', () => ({
+    default: { setLanguage: mocks.fbSetLanguage },
 }));
 
 // Stub the Reka dropdown wrappers so menu items render inline (no teleport,
@@ -50,6 +55,7 @@ describe('LanguageSwitcher', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.stubEnv('VITE_FORMBRICKS_WORKSPACE_ID', 'ws_test');
         mocks.usePage.mockReturnValue({
             props: {
                 locale: 'en',
@@ -58,6 +64,10 @@ describe('LanguageSwitcher', () => {
             },
         });
         cookieSpy = vi.spyOn(document, 'cookie', 'set');
+    });
+
+    afterEach(() => {
+        vi.unstubAllEnvs();
     });
 
     it('renders one menu item per supported locale', () => {
@@ -88,6 +98,15 @@ describe('LanguageSwitcher', () => {
         expect(mocks.momentLocale).toHaveBeenCalledWith('fr');
     });
 
+    it('updates the feedback survey language when switching', async () => {
+        const wrapper = mount(LanguageSwitcher);
+
+        await wrapper.get('[data-locale="fr"]').trigger('click');
+        await flushPromises();
+
+        expect(mocks.fbSetLanguage).toHaveBeenCalledWith('fr');
+    });
+
     it('does nothing when selecting the already active locale', async () => {
         const wrapper = mount(LanguageSwitcher);
 
@@ -96,6 +115,7 @@ describe('LanguageSwitcher', () => {
 
         expect(cookieSpy).not.toHaveBeenCalled();
         expect(mocks.routerReload).not.toHaveBeenCalled();
+        expect(mocks.fbSetLanguage).not.toHaveBeenCalled();
     });
 
     it('patches the locale route and skips the cookie when authenticated', async () => {
@@ -112,10 +132,9 @@ describe('LanguageSwitcher', () => {
         await wrapper.get('[data-locale="fr"]').trigger('click');
         await flushPromises();
 
-        expect(mocks.routerPatch).toHaveBeenCalledWith(
-            expect.any(String),
-            { locale: 'fr' },
-        );
+        expect(mocks.routerPatch).toHaveBeenCalledWith(expect.any(String), {
+            locale: 'fr',
+        });
         expect(cookieSpy).not.toHaveBeenCalled();
         expect(mocks.routerReload).not.toHaveBeenCalled();
     });

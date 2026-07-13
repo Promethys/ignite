@@ -9,14 +9,18 @@ import {
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import type { AppPageProps, User } from '@/types';
+import formbricks from '@formbricks/js';
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { LifeBuoy, LogOut, Settings } from 'lucide-vue-next';
+import { LifeBuoy, LogOut, MessageSquare, Settings } from 'lucide-vue-next';
 
 interface Props {
     user: User;
 }
 
 const handleLogout = () => {
+    if (typeof import.meta.env.VITE_FORMBRICKS_WORKSPACE_ID !== 'undefined') {
+        void formbricks.logout();
+    }
     router.flushAll();
 };
 
@@ -56,6 +60,18 @@ defineProps<Props>();
                 <LifeBuoy class="mr-2 h-4 w-4" />
                 {{ $t('common.support.report_issue') }}
             </a>
+        </DropdownMenuItem>
+    </DropdownMenuGroup>
+    <DropdownMenuGroup>
+        <DropdownMenuItem :as-child="true">
+            <button
+                id="send-feedback"
+                type="button"
+                class="block w-full cursor-pointer text-left"
+            >
+                <MessageSquare class="mr-2 inline h-4 w-4" />
+                {{ $t('common.support.send_feedback') }}
+            </button>
         </DropdownMenuItem>
     </DropdownMenuGroup>
     <DropdownMenuSeparator />

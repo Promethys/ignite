@@ -1,16 +1,21 @@
 import { flushPromises, mount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
     loadLanguageAsync: vi.fn().mockResolvedValue(undefined),
     momentLocale: vi.fn(),
     usePage: vi.fn(),
     routerPatch: vi.fn(),
+    fbSetLanguage: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('laravel-vue-i18n', () => ({
     loadLanguageAsync: mocks.loadLanguageAsync,
     i18nVue: { install: () => {} },
+}));
+
+vi.mock('@formbricks/js', () => ({
+    default: { setLanguage: mocks.fbSetLanguage },
 }));
 
 vi.mock('moment', () => ({
@@ -53,8 +58,12 @@ vi.mock('@/components/ui/select', async () => {
         SelectItem: {
             props: ['value'],
             setup(props: any) {
-                const emit = inject(key) as ((event: string, ...args: unknown[]) => void) | undefined;
-                return { select: () => emit?.('update:modelValue', props.value) };
+                const emit = inject(key) as
+                    | ((event: string, ...args: unknown[]) => void)
+                    | undefined;
+                return {
+                    select: () => emit?.('update:modelValue', props.value),
+                };
             },
             template:
                 '<button type="button" :data-locale="value" @click="select"><slot /></button>',
@@ -67,12 +76,17 @@ import LocaleSelect from '@/components/LocaleSelect.vue';
 describe('LocaleSelect', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.stubEnv('VITE_FORMBRICKS_WORKSPACE_ID', 'ws_test');
         mocks.usePage.mockReturnValue({
             props: {
                 locale: 'en',
                 supportedLocales: { en: 'English', fr: 'Fran\u00e7ais' },
             },
         });
+    });
+
+    afterEach(() => {
+        vi.unstubAllEnvs();
     });
 
     it('renders one option per supported locale', () => {
@@ -102,6 +116,15 @@ describe('LocaleSelect', () => {
         expect(mocks.momentLocale).toHaveBeenCalledWith('fr');
     });
 
+    it('updates the feedback survey language when switching', async () => {
+        const wrapper = mount(LocaleSelect);
+
+        await wrapper.get('[data-locale="fr"]').trigger('click');
+        await flushPromises();
+
+        expect(mocks.fbSetLanguage).toHaveBeenCalledWith('fr');
+    });
+
     it('does nothing when selecting the already active locale', async () => {
         const wrapper = mount(LocaleSelect);
 
@@ -109,5 +132,6 @@ describe('LocaleSelect', () => {
         await flushPromises();
 
         expect(mocks.routerPatch).not.toHaveBeenCalled();
+        expect(mocks.fbSetLanguage).not.toHaveBeenCalled();
     });
 });

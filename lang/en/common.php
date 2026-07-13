@@ -37,6 +37,7 @@ return [
     'support' => [
         'report_issue' => 'Report an issue',
         'email_subject' => 'Ignite feedback',
+        'send_feedback' => 'Send feedback',
     ],
     'password' => [
         'show' => 'Show password',
