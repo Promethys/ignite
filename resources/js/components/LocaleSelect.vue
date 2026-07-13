@@ -8,6 +8,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useLocale } from '@/composables/useLocale';
+import formbricks from '@formbricks/js';
 import { router } from '@inertiajs/vue3';
 import { Globe } from 'lucide-vue-next';
 
@@ -16,6 +17,10 @@ const { current, supported, switchTo } = useLocale();
 async function change(code: string) {
     if (current.value === code) {
         return;
+    }
+
+    if (typeof import.meta.env.VITE_FORMBRICKS_WORKSPACE_ID !== 'undefined') {
+        void formbricks.setLanguage(code);
     }
 
     await switchTo(code);

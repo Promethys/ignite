@@ -9,6 +9,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useLocale } from '@/composables/useLocale';
+import formbricks from '@formbricks/js';
 import { router, usePage } from '@inertiajs/vue3';
 import { ChevronDown, Globe } from 'lucide-vue-next';
 import { computed } from 'vue';
@@ -25,6 +26,10 @@ const currentLabel = computed(() => supported[current.value] ?? current.value);
 async function change(code: string) {
     if (current.value === code) {
         return;
+    }
+
+    if (typeof import.meta.env.VITE_FORMBRICKS_WORKSPACE_ID !== 'undefined') {
+        void formbricks.setLanguage(code);
     }
 
     const isAuthenticated = !!page.props.auth.user;

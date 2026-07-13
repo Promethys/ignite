@@ -37,6 +37,7 @@ return [
     'support' => [
         'report_issue' => 'Signaler un problème',
         'email_subject' => 'Retour Ignite',
+        'send_feedback' => 'Envoyer un retour',
     ],
     'password' => [
         'show' => 'Afficher le mot de passe',
