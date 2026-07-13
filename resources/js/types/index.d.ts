@@ -28,6 +28,7 @@ export type AppPageProps<
     locale: string;
     supportedLocales: Record<string, string>;
     supportEmail: string;
+    githubUrl: string;
 };
 
 export type BreadcrumbItemType = BreadcrumbItem;

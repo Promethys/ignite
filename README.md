@@ -148,7 +148,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License
 
-This project is open-source and available under the [MIT License](LICENSE).
+This project is open-source and available under the [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE).
+
+Ignite is free to self-host. Because it is a network service, the AGPLv3 requires that if you run a modified version and let others use it over a network, you make your modified source available to them.
 
 ## 👤 Author
 

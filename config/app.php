@@ -65,6 +65,7 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'github_url' => env('APP_GITHUB_URL', 'https://github.com/Promethys/ignite'),
 
     /*
     |--------------------------------------------------------------------------
