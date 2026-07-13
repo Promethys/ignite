@@ -104,4 +104,80 @@ class AuthenticationTest extends TestCase
 
         $this->assertStringContainsString('Too many login attempts', $errors->first('email'));
     }
+
+    public function test_login_adopts_a_valid_guest_locale_cookie()
+    {
+        $user = User::factory()->withoutTwoFactor()->create(['locale' => 'en']);
+
+        $this->withUnencryptedCookie('locale', 'fr')->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertSame('fr', $user->fresh()->locale);
+    }
+
+    public function test_login_ignores_an_unsupported_locale_cookie()
+    {
+        $user = User::factory()->withoutTwoFactor()->create(['locale' => 'en']);
+
+        $this->withUnencryptedCookie('locale', 'de')->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertSame('en', $user->fresh()->locale);
+    }
+
+    public function test_login_keeps_the_saved_locale_without_a_cookie()
+    {
+        $user = User::factory()->withoutTwoFactor()->create(['locale' => 'fr']);
+
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertSame('fr', $user->fresh()->locale);
+    }
+
+    public function test_login_clears_the_locale_cookie_after_adopting_it()
+    {
+        $user = User::factory()->withoutTwoFactor()->create(['locale' => 'en']);
+
+        $response = $this->withUnencryptedCookie('locale', 'fr')->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertCookieExpired('locale');
+    }
+
+    public function test_two_factor_login_still_adopts_the_guest_locale_cookie()
+    {
+        if (! Features::canManageTwoFactorAuthentication()) {
+            $this->markTestSkipped('Two-factor authentication is not enabled.');
+        }
+
+        Features::twoFactorAuthentication([
+            'confirm' => true,
+            'confirmPassword' => true,
+        ]);
+
+        $user = User::factory()->create(['locale' => 'en']);
+
+        $user->forceFill([
+            'two_factor_secret' => encrypt('test-secret'),
+            'two_factor_recovery_codes' => encrypt(json_encode(['code1', 'code2'])),
+            'two_factor_confirmed_at' => now(),
+        ])->save();
+
+        $response = $this->withUnencryptedCookie('locale', 'fr')->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect(route('two-factor.login'));
+        $this->assertSame('fr', $user->fresh()->locale);
+    }
 }
