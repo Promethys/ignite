@@ -14,7 +14,7 @@
         "gamification"
     ],
     "homepage": "https://github.com/Promethys/ignite",
-    "license": "MIT",
+    "license": "AGPL-3.0-only",
     "require": {
         "php": "^8.5",
         "cviebrock/eloquent-sluggable": "^13.0",

@@ -11,7 +11,13 @@ import { edit } from '@/routes/profile';
 import type { AppPageProps, User } from '@/types';
 import formbricks from '@formbricks/js';
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { LifeBuoy, LogOut, MessageSquare, Settings } from 'lucide-vue-next';
+import {
+    Code,
+    LifeBuoy,
+    LogOut,
+    MessageSquare,
+    Settings,
+} from 'lucide-vue-next';
 
 interface Props {
     user: User;
@@ -24,7 +30,9 @@ const handleLogout = () => {
     router.flushAll();
 };
 
-const supportEmail = usePage<AppPageProps>().props.supportEmail;
+const props = usePage<AppPageProps>().props;
+const supportEmail = props.supportEmail;
+const appPublicRepo = props.githubUrl;
 
 defineProps<Props>();
 </script>
@@ -72,6 +80,17 @@ defineProps<Props>();
                 <MessageSquare class="mr-2 inline h-4 w-4" />
                 {{ $t('common.support.send_feedback') }}
             </button>
+        </DropdownMenuItem>
+    </DropdownMenuGroup>
+    <DropdownMenuGroup>
+        <DropdownMenuItem :as-child="true">
+            <a
+                :href="appPublicRepo"
+                class="block w-full cursor-pointer text-left"
+            >
+                <Code class="mr-2 inline h-4 w-4" />
+                {{ $t('common.nav.repository') }}
+            </a>
         </DropdownMenuItem>
     </DropdownMenuGroup>
     <DropdownMenuSeparator />

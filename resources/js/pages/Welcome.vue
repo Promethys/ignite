@@ -3,6 +3,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { dashboard, login, register } from '@/routes';
+import { AppPageProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { Flame, LayoutGrid, Target, Trophy } from 'lucide-vue-next';
 import 'vue-sonner/style.css';
@@ -39,6 +40,8 @@ const features = [
         description: 'landing.features.milestones.description',
     },
 ];
+
+const appPublicRepo = usePage<AppPageProps>().props.githubUrl;
 </script>
 
 <template>
@@ -188,15 +191,29 @@ const features = [
                 class="mx-auto flex max-w-5xl items-center justify-between px-4 py-5 text-xs text-muted-foreground sm:px-6"
             >
                 <span>© Ignite</span>
-                <span class="flex items-center gap-3"
-                    >{{ $t('landing.footer.privacy') }} ·
-                    {{ $t('landing.footer.terms') }}
+                <span class="flex items-center gap-3">
+                    <span>
+                        {{ $t('landing.footer.privacy') }}
+                    </span>
+                    ·
+                    <span>
+                        {{ $t('landing.footer.terms') }}
+                    </span>
+                    ·
                     <a
                         :href="`mailto:${supportEmail}`"
                         target="_blank"
                         rel="noopener"
                         class="underline-offset-2 hover:underline"
                         >{{ $t('landing.footer.contact') }}</a
+                    >
+                    ·
+                    <a
+                        :href="appPublicRepo"
+                        target="_blank"
+                        rel="noopener"
+                        class="underline-offset-2 hover:underline"
+                        >{{ $t('common.nav.repository') }}</a
                     ></span
                 >
             </div>

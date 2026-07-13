@@ -49,6 +49,7 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'supportedLocales' => config('locales.supported'),
             'supportEmail' => config('app.support_email'),
+            'githubUrl' => config('app.github_url'),
         ];
     }
 }
