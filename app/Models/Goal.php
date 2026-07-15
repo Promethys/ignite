@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Observers\GoalObserver;
 use App\Services\StreakService;
+use App\Traits\Models\HasRecentScope;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,9 @@ use Illuminate\Notifications\Notifiable;
 #[ObservedBy(GoalObserver::class)]
 class Goal extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use HasRecentScope;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.

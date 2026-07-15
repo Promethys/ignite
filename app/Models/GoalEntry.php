@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Models\HasRecentScope;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class GoalEntry extends Model
 {
     use HasFactory;
+    use HasRecentScope;
 
     /**
      * The attributes that are mass assignable.

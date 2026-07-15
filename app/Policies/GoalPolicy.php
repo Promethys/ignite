@@ -12,7 +12,7 @@ class GoalPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->isAdmin();
     }
 
     /**
@@ -20,7 +20,7 @@ class GoalPolicy
      */
     public function view(User $user, Goal $goal): bool
     {
-        return $user->is($goal->user);
+        return $user->is($goal->user) || $user->isAdmin();
     }
 
     /**
@@ -36,7 +36,7 @@ class GoalPolicy
      */
     public function update(User $user, Goal $goal): bool
     {
-        return $user->is($goal->user);
+        return $user->is($goal->user) || $user->isAdmin();
     }
 
     /**
@@ -44,7 +44,7 @@ class GoalPolicy
      */
     public function delete(User $user, Goal $goal): bool
     {
-        return $user->is($goal->user);
+        return $user->is($goal->user) || $user->isAdmin();
     }
 
     /**
@@ -52,7 +52,7 @@ class GoalPolicy
      */
     public function restore(User $user, Goal $goal): bool
     {
-        return false;
+        return $user->isAdmin();
     }
 
     /**
@@ -60,6 +60,6 @@ class GoalPolicy
      */
     public function forceDelete(User $user, Goal $goal): bool
     {
-        return false;
+        return $user->isAdmin();
     }
 }
