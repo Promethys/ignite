@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Observers\GoalObserver;
 use App\Services\StreakService;
+use App\Traits\Models\HasRecentScope;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,10 +13,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Appended accessors. Declared here because Larastan does not resolve
+ * new style Attribute accessors, only the legacy get*Attribute form.
+ *
+ * @property-read float|int|null $progress_percentage
+ * @property-read bool $is_overdue
+ * @property-read bool $is_completed
+ */
 #[ObservedBy(GoalObserver::class)]
 class Goal extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use HasRecentScope;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.

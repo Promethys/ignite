@@ -31,12 +31,6 @@ parameters:
 			path: app/Models/Category.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Goal\:\:\$is_completed\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Goal.php
-
-		-
 			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Goal\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
 			identifier: property.phpDocType
 			count: 1
