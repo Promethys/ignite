@@ -13,6 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Appended accessors. Declared here because Larastan does not resolve
+ * new style Attribute accessors, only the legacy get*Attribute form.
+ *
+ * @property-read float|int|null $progress_percentage
+ * @property-read bool $is_overdue
+ * @property-read bool $is_completed
+ */
 #[ObservedBy(GoalObserver::class)]
 class Goal extends Model
 {

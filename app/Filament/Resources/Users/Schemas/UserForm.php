@@ -28,7 +28,7 @@ class UserForm
                     ->searchable(),
                 Select::make('timezone')
                     ->required()
-                    ->options(\DateTimezone::listIdentifiers())
+                    ->options(array_combine($timezones = \DateTimezone::listIdentifiers(), $timezones))
                     ->default('UTC')
                     ->searchable(),
                 TextInput::make('password')

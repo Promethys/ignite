@@ -51,10 +51,10 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                'password.confirm',
             ])
             ->authMiddleware([
                 Authenticate::class,
+                'password.confirm',
             ]);
     }
 }

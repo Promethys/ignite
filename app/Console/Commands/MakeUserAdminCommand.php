@@ -27,14 +27,14 @@ class MakeUserAdminCommand extends Command
         $user = $this->resolveUser();
         $option = $this->argument('user');
 
-        if(!$user) {
+        if (! $user) {
             $this->error("User not found with ID or email matching '$option'.");
 
             return 1;
         }
 
         if (
-            $this->option('force') 
+            $this->option('force')
             || $this->confirm("Admin role will be assigned to '{$user->name}'.Do you wish to continue?", false)
         ) {
             if (! $user->hasRole('admin')) {
@@ -49,6 +49,7 @@ class MakeUserAdminCommand extends Command
         }
 
         $this->warn('Aborted.');
+
         return 1;
     }
 
@@ -56,7 +57,7 @@ class MakeUserAdminCommand extends Command
     {
         $option = $this->argument('user');
 
-        $user = is_numeric($option) 
+        $user = is_numeric($option)
             ? User::find($option)
             : User::where('email', $option)->first();
 

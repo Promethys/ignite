@@ -19,10 +19,10 @@ class StatsOverviewWidget extends BaseWidget
         $goalsCreated = Goal::query()->recent()->count();
         $entriesLogged = GoalEntry::query()->recent()->count();
         $totalGoalCreated = Goal::count();
-        $completionRate = $totalGoalCreated > 0 
+        $completionRate = $totalGoalCreated > 0
             ? round(Goal::where('status', 'completed')->count() / $totalGoalCreated, 2)
             : 0;
-        $abandonmentRate = $totalGoalCreated > 0 
+        $abandonmentRate = $totalGoalCreated > 0
             ? round(Goal::where('status', 'abandoned')->count() / $totalGoalCreated, 2)
             : 0;
 
