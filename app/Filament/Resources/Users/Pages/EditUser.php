@@ -14,6 +14,7 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            UserResource::verifyEmailAction(),
             ViewAction::make(),
             DeleteAction::make(),
         ];

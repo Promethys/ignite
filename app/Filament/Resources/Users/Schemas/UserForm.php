@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -20,7 +19,6 @@ class UserForm
                     ->email()
                     ->unique(ignoreRecord: true)
                     ->required(),
-                DateTimePicker::make('email_verified_at'),
                 Select::make('locale')
                     ->required()
                     ->options(config('locales.supported'))
