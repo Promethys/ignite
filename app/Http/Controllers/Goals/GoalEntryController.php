@@ -156,6 +156,14 @@ class GoalEntryController extends Controller
     {
         Gate::authorize('delete', $goalEntry);
 
+        if ($goal->type === 'recurring') {
+            $goalEntry->delete();
+
+            Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.deleted')]);
+
+            return back();
+        }
+
         $newEntryValue = $goal->current_value - $goalEntry->increment_value;
 
         \DB::transaction(function () use ($goal, $newEntryValue, $goalEntry) {

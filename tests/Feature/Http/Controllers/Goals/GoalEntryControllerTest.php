@@ -28,6 +28,7 @@ class GoalEntryControllerTest extends TestCase
         $this->otherUser = User::factory()->create();
         $this->goal = Goal::factory()->create([
             'user_id' => $this->user->id,
+            'type' => 'quantifiable',
             'current_value' => 0,
             'target_value' => 100,
             'direction' => 'ascending',
@@ -543,6 +544,35 @@ class GoalEntryControllerTest extends TestCase
     // =========================================================================
     // DESTROY
     // =========================================================================
+
+    public function test_user_can_delete_a_recurring_check_in()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+            'current_value' => 0,
+            'status' => 'in_progress',
+        ]);
+
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-16',
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->delete(route('goals.entries.destroy', [$goal, $entry]))
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Entry deleted.');
+
+        $this->assertModelMissing($entry);
+        $this->assertSame(0, (int) $goal->fresh()->current_value);
+    }
 
     public function test_user_can_delete_their_entry()
     {
