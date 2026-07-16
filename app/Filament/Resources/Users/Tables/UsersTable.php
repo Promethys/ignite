@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
 use Carbon\Carbon;
-use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -110,10 +110,7 @@ class UsersTable
                 ViewAction::make(),
                 EditAction::make(),
                 ActionGroup::make([
-                    Action::make('verify')
-                        ->icon('heroicon-o-check-badge')
-                        ->authorize(fn (User $record) => $record->email_verified_at === null)
-                        ->action(fn (User $record) => $record->update(['email_verified_at' => now()])),
+                    UserResource::verifyEmailAction(),
                     DeleteAction::make()
                         ->authorize(fn (User $record) => auth()->user()->isNot($record)),
                 ]),
