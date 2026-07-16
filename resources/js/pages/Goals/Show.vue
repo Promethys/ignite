@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ProgressChart from '@/components/charts/ProgressChart.vue';
 import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
+import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInModal.vue';
 import GoalBadges from '@/components/goals/GoalBadges.vue';
 import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
 import Timeline from '@/components/milestones/Timeline.vue';
@@ -41,9 +42,10 @@ import {
     ListChecks,
     Pencil,
     Plus,
+    Trash,
 } from 'lucide-vue-next';
 import moment from 'moment';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
     goal: Goal;
@@ -192,6 +194,10 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                         <div class="flex items-center gap-2">
                             <GoalEntryFormModal :goal v-if="
                                 goal.type === 'quantifiable' && !isCompleted
+                            " />
+
+                            <RecurringCheckInModal :goal v-else-if="
+                                goal.type === 'recurring' && !isCompleted
                             " />
 
                             <Button v-else-if="!isCompleted" as-child>
@@ -680,6 +686,104 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                             chartEntries.length,
                                             {
                                                 count: chartEntries.length.toString(),
+                                            },
+                                        )
+                                    }}
+                                    <ArrowRight class="size-4" />
+                                </Link>
+                            </Button>
+                        </div>
+                        <p v-else class="text-sm text-muted-foreground">
+                            {{ $t('goals.show.no_entries') }}
+                        </p>
+                    </section>
+
+                    <!-- Check-ins (recurring) -->
+                    <section
+                        v-if="goal.type === 'recurring'"
+                        class="rounded-xl border bg-card p-4"
+                    >
+                        <h4 class="mb-3 font-display text-base font-semibold">
+                            {{ $t('goals.show.recent_entries') }}
+                        </h4>
+                        <div v-if="recentEntries.length > 0">
+                            <div
+                                v-for="entry in recentEntries"
+                                :key="entry.id"
+                                class="flex items-start justify-between gap-2 border-b border-border/60 py-2 text-sm last:border-0"
+                            >
+                                <div class="space-y-0.5">
+                                    <span class="text-muted-foreground">
+                                        {{ fmtDate(entry.entry_date) }}
+                                    </span>
+                                    <p
+                                        v-if="entry.note"
+                                        class="text-foreground"
+                                    >
+                                        {{ entry.note }}
+                                    </p>
+                                </div>
+                                <AlertDialog>
+                                    <AlertDialogTrigger as-child>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            class="size-7 text-muted-foreground"
+                                        >
+                                            <Trash class="size-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>{{
+                                                $t('common.confirm.title')
+                                            }}</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                {{
+                                                    $t(
+                                                        'goals.entries.delete_description',
+                                                    )
+                                                }}
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>{{
+                                                $t('common.actions.cancel')
+                                            }}</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                variant="destructive"
+                                                @click="
+                                                    router.delete(
+                                                        goals.entries.destroy(
+                                                            {
+                                                                goal,
+                                                                goalEntry:
+                                                                    entry.id,
+                                                            },
+                                                        ),
+                                                    )
+                                                "
+                                                >{{
+                                                    $t('common.actions.delete')
+                                                }}</AlertDialogAction
+                                            >
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                class="mt-3 w-full"
+                                as-child
+                            >
+                                <Link :href="goals.entries.get(goal).url">
+                                    {{
+                                        $tChoice(
+                                            'goals.show.view_all',
+                                            recentEntries.length,
+                                            {
+                                                count: recentEntries.length.toString(),
                                             },
                                         )
                                     }}
