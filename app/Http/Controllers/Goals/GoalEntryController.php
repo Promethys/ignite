@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Goals;
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
 use App\Models\GoalEntry;
+use App\Services\StreakService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class GoalEntryController extends Controller
@@ -75,6 +78,10 @@ class GoalEntryController extends Controller
     {
         Gate::authorize('update', $goal);
 
+        if ($goal->type === 'recurring') {
+            return $this->storeCheckIn($request, $goal);
+        }
+
         $validated = $request->validate([
             'increment' => 'required|numeric',
             'note' => 'nullable|string|max:500',
@@ -93,6 +100,52 @@ class GoalEntryController extends Controller
                 'current_value' => $newEntryValue,
             ]);
         });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
+
+        return back();
+    }
+
+    /**
+     * Record a dated check-in for a recurring goal without touching current_value.
+     */
+    protected function storeCheckIn(Request $request, Goal $goal)
+    {
+        $timezone = $goal->user?->timezone ?? config('app.timezone');
+        $recurrence = $goal->recurrence ?? 'daily';
+        $today = Carbon::now()->timezone($timezone)->toDateString();
+
+        $rules = [
+            'entry_date' => ['required', 'date', "before_or_equal:{$today}"],
+            'note' => ['nullable', 'string', 'max:500'],
+        ];
+
+        if ($goal->start_date) {
+            $rules['entry_date'][] = 'after_or_equal:'.$goal->start_date->toDateString();
+        }
+
+        $validated = $request->validate($rules);
+
+        $newKey = StreakService::periodKey($recurrence, Carbon::parse($validated['entry_date']), $timezone);
+        $existingKey = $goal->entries()
+            ->orderBy('entry_date')
+            ->pluck('entry_date')
+            ->map(fn ($date) => StreakService::periodKey($recurrence, Carbon::parse($date), $timezone))
+            ->unique()
+            ->first(fn (string $key) => $key === $newKey);
+
+        if ($existingKey !== null) {
+            throw ValidationException::withMessages([
+                'entry_date' => __('validation.custom.entry_date.check_in_period_taken'),
+            ]);
+        }
+
+        $goal->entries()->create([
+            'entry_date' => $validated['entry_date'],
+            'note' => $validated['note'] ?? null,
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
 

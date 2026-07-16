@@ -182,6 +182,9 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'entry_date' => [
+            'check_in_period_taken' => 'A check-in already exists for this period.',
+        ],
     ],
 
     /*

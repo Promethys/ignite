@@ -169,6 +169,203 @@ class GoalEntryControllerTest extends TestCase
     }
 
     // =========================================================================
+    // STORE (RECURRING CHECK-IN)
+    // =========================================================================
+
+    public function test_user_can_check_in_on_a_recurring_goal()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+            'current_value' => 0,
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($this->user)
+            ->from(route('goals.show', $goal))
+            ->post(route('goals.entries.store', $goal), [
+                'entry_date' => '2026-07-16',
+            ])
+            ->assertRedirectBack()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Entry saved.');
+
+        $this->assertDatabaseHas('goal_entries', [
+            'goal_id' => $goal->id,
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+        $this->assertSame('2026-07-16', GoalEntry::where('goal_id', $goal->id)->sole()->entry_date->toDateString());
+
+        $this->assertSame(0, (int) $goal->fresh()->current_value);
+    }
+
+    public function test_recurring_check_in_rejects_a_future_date()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('goals.entries.store', $goal), [
+                'entry_date' => '2026-07-17',
+            ])
+            ->assertSessionHasErrors('entry_date');
+
+        $this->assertDatabaseMissing('goal_entries', ['goal_id' => $goal->id]);
+    }
+
+    public function test_recurring_check_in_allows_a_past_date()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+            'start_date' => '2026-07-01',
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($this->user)
+            ->from(route('goals.show', $goal))
+            ->post(route('goals.entries.store', $goal), [
+                'entry_date' => '2026-07-13',
+            ])
+            ->assertRedirectBack();
+
+        $this->assertSame('2026-07-13', GoalEntry::where('goal_id', $goal->id)->sole()->entry_date->toDateString());
+    }
+
+    public function test_recurring_check_in_rejects_a_date_before_start_date()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+            'start_date' => '2026-07-10',
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('goals.entries.store', $goal), [
+                'entry_date' => '2026-07-05',
+            ])
+            ->assertSessionHasErrors('entry_date');
+
+        $this->assertDatabaseMissing('goal_entries', ['goal_id' => $goal->id]);
+    }
+
+    public function test_recurring_check_in_rejects_a_second_entry_in_the_same_period()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+            'start_date' => '2026-07-01',
+            'status' => 'in_progress',
+        ]);
+
+        GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-16',
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('goals.entries.store', $goal), [
+                'entry_date' => '2026-07-16',
+            ])
+            ->assertSessionHasErrors('entry_date');
+
+        $this->assertSame(1, GoalEntry::where('goal_id', $goal->id)->count());
+    }
+
+    public function test_recurring_check_in_rejects_a_second_entry_in_the_same_weekly_period()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'weekly',
+            'start_date' => '2026-06-01',
+            'status' => 'in_progress',
+        ]);
+
+        // 2026-07-13 (Monday) and 2026-07-16 (Thursday) share ISO week 29.
+        GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-13',
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('goals.entries.store', $goal), [
+                'entry_date' => '2026-07-16',
+            ])
+            ->assertSessionHasErrors('entry_date');
+
+        $this->assertSame(1, GoalEntry::where('goal_id', $goal->id)->count());
+    }
+
+    public function test_recurring_check_in_does_not_change_current_value()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+            'current_value' => 0,
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('goals.entries.store', $goal), [
+                'entry_date' => '2026-07-16',
+            ]);
+
+        $this->assertSame(0, (int) $goal->fresh()->current_value);
+    }
+
+    public function test_a_relapse_can_be_logged_on_a_negative_recurring_goal()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'polarity' => 'negative',
+            'recurrence' => 'daily',
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($this->user)
+            ->from(route('goals.show', $goal))
+            ->post(route('goals.entries.store', $goal), [
+                'entry_date' => '2026-07-16',
+            ])
+            ->assertRedirectBack();
+
+        $this->assertSame('2026-07-16', GoalEntry::where('goal_id', $goal->id)->sole()->entry_date->toDateString());
+    }
+
+    // =========================================================================
     // STORE
     // =========================================================================
 
