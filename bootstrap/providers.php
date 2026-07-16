@@ -5,6 +5,7 @@ use App\Providers\DatabaseMonitoringServiceProvider;
 use App\Providers\Filament\AdminPanelProvider;
 use App\Providers\FortifyServiceProvider;
 use App\Providers\PasswordServiceProvider;
+use App\Providers\RequestsServiceProvider;
 
 return [
     AppServiceProvider::class,
@@ -12,4 +13,5 @@ return [
     AdminPanelProvider::class,
     FortifyServiceProvider::class,
     PasswordServiceProvider::class,
+    RequestsServiceProvider::class,
 ];
