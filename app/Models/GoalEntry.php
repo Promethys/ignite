@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Appended accessors. Declared here because Larastan does not resolve
+ * new style Attribute accessors, only the legacy get*Attribute form.
+ *
+ * @property-read float $increment_value
+ */
 class GoalEntry extends Model
 {
     use HasFactory;
