@@ -9,22 +9,30 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Concerns\WithAdminRole;
 use Tests\TestCase;
 
 class GoalControllerTest extends TestCase
 {
     use RefreshDatabase;
+    use WithAdminRole;
 
     private User $user;
 
     private User $otherUser;
 
+    private User $admin;
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->setUpAdminRole();
+
         $this->user = User::factory()->create();
         $this->otherUser = User::factory()->create();
+        $this->admin = User::factory()->create();
+        $this->admin->assignRole('admin');
     }
 
     private function validGoalData(array $overrides = []): array
@@ -85,6 +93,56 @@ class GoalControllerTest extends TestCase
 
         $this->actingAs($this->user)
             ->patch(route('goals.update-status', $goal), ['status' => 'paused'])
+            ->assertForbidden();
+    }
+
+    // =========================================================================
+    // ADMIN AUTHORIZATION — an admin gets no read/write access to another
+    // user's goal on the normal app surface (the admin grant is panel-scoped)
+    // =========================================================================
+
+    public function test_admin_cannot_view_another_users_goal_via_the_app()
+    {
+        $goal = Goal::factory()->create(['user_id' => $this->otherUser->id, 'current_value' => 0]);
+
+        $this->actingAs($this->admin)
+            ->get(route('goals.show', $goal))
+            ->assertForbidden();
+    }
+
+    public function test_admin_cannot_update_another_users_goal()
+    {
+        $goal = Goal::factory()->create(['user_id' => $this->otherUser->id, 'current_value' => 0]);
+
+        $this->actingAs($this->admin)
+            ->put(route('goals.update', $goal), $this->validGoalData(['title' => 'Hijacked']))
+            ->assertForbidden();
+    }
+
+    public function test_admin_cannot_delete_another_users_goal_via_the_app()
+    {
+        $goal = Goal::factory()->create(['user_id' => $this->otherUser->id, 'current_value' => 0]);
+
+        $this->actingAs($this->admin)
+            ->delete(route('goals.destroy', $goal))
+            ->assertForbidden();
+    }
+
+    public function test_admin_cannot_change_status_of_another_users_goal()
+    {
+        $goal = Goal::factory()->create(['user_id' => $this->otherUser->id, 'current_value' => 0]);
+
+        $this->actingAs($this->admin)
+            ->patch(route('goals.update-status', $goal), ['status' => 'paused'])
+            ->assertForbidden();
+    }
+
+    public function test_admin_cannot_complete_another_users_goal()
+    {
+        $goal = Goal::factory()->create(['user_id' => $this->otherUser->id, 'current_value' => 0]);
+
+        $this->actingAs($this->admin)
+            ->patch(route('goals.complete', $goal))
             ->assertForbidden();
     }
 
