@@ -202,5 +202,13 @@ return [
         'delete_title' => 'Delete entry',
         'delete_description' => 'Delete that entry from progress history?',
         'no_result' => 'No result found.',
+        'form' => [
+            'create_title' => 'Log progress',
+            'create_description' => 'Add an entry to track your progress on this goal.',
+            'edit_title' => 'Edit entry',
+            'edit_description' => 'Update the value and note for this entry.',
+            'submit_create' => 'Log progress',
+            'submit_edit' => 'Save',
+        ],
     ],
 ];

@@ -43,6 +43,34 @@ class GoalEntryController extends Controller
         return Inertia::render('GoalEntries/Index', compact('goal', 'entries'));
     }
 
+    public function update(Request $request, Goal $goal, GoalEntry $goalEntry)
+    {
+        Gate::authorize('update', $goalEntry);
+
+        $validated = $request->validate([
+            'increment' => 'required|numeric',
+            'note' => 'nullable|string|max:500',
+        ]);
+        $newEntryValue = $goalEntry->previous_value + $validated['increment'];
+        $entryData = [
+            'value' => $newEntryValue,
+            'note' => $validated['note'] ?? null,
+        ];
+
+        \DB::transaction(function () use ($goal, $goalEntry, $entryData, $validated) {
+            $newValue = $goal->current_value + $validated['increment'] - $goalEntry->increment_value;
+
+            $goalEntry->update($entryData);
+            $goal->update([
+                'current_value' => $newValue,
+            ]);
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
+
+        return back();
+    }
+
     public function store(Request $request, Goal $goal)
     {
         Gate::authorize('update', $goal);
@@ -51,36 +79,36 @@ class GoalEntryController extends Controller
             'increment' => 'required|numeric',
             'note' => 'nullable|string|max:500',
         ]);
-        $newValue = $goal->current_value + $validated['increment'];
+        $newEntryValue = $goal->current_value + $validated['increment'];
         $entryData = [
-            'value' => $newValue,
+            'value' => $newEntryValue,
             'previous_value' => $goal->current_value,
             'note' => $validated['note'] ?? null,
             'entry_date' => now()->toDateString(),
         ];
 
-        \DB::transaction(function () use ($goal, $entryData, $newValue) {
+        \DB::transaction(function () use ($goal, $entryData, $newEntryValue) {
             $goal->entries()->create($entryData);
             $goal->update([
-                'current_value' => $newValue,
+                'current_value' => $newEntryValue,
             ]);
         });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
 
-        return to_route('goals.show', ['goal' => $goal]);
+        return back();
     }
 
     public function destroy(Request $request, Goal $goal, GoalEntry $goalEntry)
     {
         Gate::authorize('delete', $goalEntry);
 
-        $newValue = $goal->current_value - $goalEntry->increment_value;
+        $newEntryValue = $goal->current_value - $goalEntry->increment_value;
 
-        \DB::transaction(function () use ($goal, $newValue, $goalEntry) {
+        \DB::transaction(function () use ($goal, $newEntryValue, $goalEntry) {
             $goalEntry->delete();
             $goal->update([
-                'current_value' => $newValue,
+                'current_value' => $newEntryValue,
             ]);
         });
 

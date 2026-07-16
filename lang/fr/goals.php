@@ -202,5 +202,13 @@ return [
         'delete_title' => 'Supprimer l\'entrée',
         'delete_description' => 'Supprimer cette entrée de l\'historique de progression ?',
         'no_result' => 'Aucun résultat.',
+        'form' => [
+            'create_title' => 'Enregistrer une progression',
+            'create_description' => 'Ajoutez une entrée pour suivre votre progression sur cet objectif.',
+            'edit_title' => 'Modifier l\'entrée',
+            'edit_description' => 'Mettez à jour la valeur et la note de cette entrée.',
+            'submit_create' => 'Enregistrer une progression',
+            'submit_edit' => 'Enregistrer',
+        ],
     ],
 ];

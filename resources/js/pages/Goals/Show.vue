@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ProgressChart from '@/components/charts/ProgressChart.vue';
+import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
 import GoalBadges from '@/components/goals/GoalBadges.vue';
-import InputError from '@/components/InputError.vue';
 import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
 import Timeline from '@/components/milestones/Timeline.vue';
 import PageHeader from '@/components/PageHeader.vue';
@@ -18,33 +18,20 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { streakUnit as streakUnitHelper } from '@/lib/streak';
 import { getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import {
     ArrowRight,
     CheckCircle2,
@@ -187,22 +174,6 @@ const summaryTiles = computed<SummaryTile[]>(() => {
 });
 
 const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
-
-const logOpen = ref(false);
-const entryForm = useForm({
-    increment: undefined as number | undefined,
-    note: '' as string,
-});
-
-const submitEntry = () => {
-    entryForm.post(goals.entries.store(props.goal).url, {
-        preserveScroll: true,
-        onSuccess: () => {
-            entryForm.reset();
-            logOpen.value = false;
-        },
-    });
-};
 </script>
 
 <template>
@@ -219,111 +190,9 @@ const submitEntry = () => {
                 >
                     <template #actions>
                         <div class="flex items-center gap-2">
-                            <Dialog
-                                v-if="
-                                    goal.type === 'quantifiable' && !isCompleted
-                                "
-                                v-model:open="logOpen"
-                            >
-                                <DialogTrigger as-child>
-                                    <Button>
-                                        <Plus />
-                                        {{ $t('goals.actions.log_progress') }}
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent class="sm:max-w-md">
-                                    <DialogHeader>
-                                        <DialogTitle>{{
-                                            $t('goals.show.log_progress_title')
-                                        }}</DialogTitle>
-                                        <DialogDescription>
-                                            {{
-                                                $t(
-                                                    'goals.show.log_progress_description',
-                                                )
-                                            }}
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <form
-                                        id="log-progress-form"
-                                        class="space-y-4"
-                                        @submit.prevent="submitEntry"
-                                    >
-                                        <div class="space-y-2">
-                                            <Label for="increment">{{
-                                                $t('goals.show.progress_value')
-                                            }}</Label>
-                                            <div class="flex items-end gap-2">
-                                                <Input
-                                                    id="increment"
-                                                    v-model="
-                                                        entryForm.increment
-                                                    "
-                                                    type="number"
-                                                    step="0.01"
-                                                    :placeholder="
-                                                        $t(
-                                                            'goals.show.progress_value_placeholder',
-                                                        )
-                                                    "
-                                                    required
-                                                />
-                                                <span
-                                                    class="pb-2 text-sm text-muted-foreground"
-                                                    >{{ goal.unit }}</span
-                                                >
-                                            </div>
-                                            <InputError
-                                                :message="
-                                                    entryForm.errors.increment
-                                                "
-                                            />
-                                        </div>
-                                        <div class="space-y-2">
-                                            <Label for="note">{{
-                                                $t('goals.show.note')
-                                            }}</Label>
-                                            <Textarea
-                                                id="note"
-                                                v-model="entryForm.note"
-                                                :placeholder="
-                                                    $t(
-                                                        'goals.show.note_placeholder',
-                                                    )
-                                                "
-                                                rows="3"
-                                            />
-                                            <InputError
-                                                :message="entryForm.errors.note"
-                                            />
-                                        </div>
-                                    </form>
-                                    <DialogFooter>
-                                        <DialogClose as-child>
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                >{{
-                                                    $t('common.actions.cancel')
-                                                }}</Button
-                                            >
-                                        </DialogClose>
-                                        <Button
-                                            type="submit"
-                                            form="log-progress-form"
-                                            :disabled="entryForm.processing"
-                                        >
-                                            {{
-                                                entryForm.processing
-                                                    ? $t('goals.show.logging')
-                                                    : $t(
-                                                          'goals.actions.log_progress',
-                                                      )
-                                            }}
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
+                            <GoalEntryFormModal :goal v-if="
+                                goal.type === 'quantifiable' && !isCompleted
+                            " />
 
                             <Button v-else-if="!isCompleted" as-child>
                                 <Link

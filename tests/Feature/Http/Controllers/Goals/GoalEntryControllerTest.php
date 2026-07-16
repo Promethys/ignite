@@ -175,10 +175,11 @@ class GoalEntryControllerTest extends TestCase
     public function test_user_can_add_entry_to_their_goal()
     {
         $this->actingAs($this->user)
+            ->from(route('goals.show', $this->goal))
             ->post(route('goals.entries.store', $this->goal), [
                 'increment' => 10,
             ])
-            ->assertRedirect(route('goals.show', $this->goal))
+            ->assertRedirectBack()
             ->assertInertiaFlash('toast.type', 'success')
             ->assertInertiaFlash('toast.message', 'Entry saved.');
 
@@ -219,6 +220,126 @@ class GoalEntryControllerTest extends TestCase
             ->post(route('goals.entries.store', $otherGoal), [
                 'increment' => 10,
             ])
+            ->assertForbidden();
+    }
+
+    // =========================================================================
+    // UPDATE
+    // =========================================================================
+
+    public function test_guest_is_redirected_to_login_when_updating()
+    {
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $this->goal->id,
+            'value' => 10,
+            'previous_value' => 0,
+        ]);
+
+        $this->put(route('goals.entries.update', [$this->goal, $entry]), ['increment' => 20])
+            ->assertRedirect(route('login'));
+    }
+
+    public function test_user_can_update_their_entry()
+    {
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $this->goal->id,
+            'value' => 10,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->from(route('goals.entries', $this->goal))
+            ->put(route('goals.entries.update', [$this->goal, $entry]), [
+                'increment' => 25,
+                'note' => 'Updated note',
+            ])
+            ->assertRedirectBack()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Entry saved.');
+
+        $this->assertDatabaseHas('goal_entries', [
+            'id' => $entry->id,
+            'value' => 25,
+            'previous_value' => 0,
+            'note' => 'Updated note',
+        ]);
+    }
+
+    public function test_updating_latest_entry_recalculates_goal_current_value()
+    {
+        $this->goal->update(['current_value' => 30]);
+
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $this->goal->id,
+            'value' => 30,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', [$this->goal, $entry]), [
+                'increment' => 20,
+            ]);
+
+        // current_value = 30 + 20(new increment) - 30(old increment) = 20
+        $this->assertEquals(20, $this->goal->fresh()->current_value);
+    }
+
+    public function test_updating_historical_entry_recalculates_goal_current_value()
+    {
+        $this->goal->update(['current_value' => 30]);
+
+        $historicalEntry = GoalEntry::factory()->create([
+            'goal_id' => $this->goal->id,
+            'value' => 10,
+            'previous_value' => 0,
+            'entry_date' => now()->subDay(),
+        ]);
+        GoalEntry::factory()->create([
+            'goal_id' => $this->goal->id,
+            'value' => 30,
+            'previous_value' => 10,
+            'entry_date' => now(),
+        ]);
+
+        // Edit the historical entry: change increment from 10 to 5
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', [$this->goal, $historicalEntry]), [
+                'increment' => 5,
+            ]);
+
+        // current_value = 30 + 5(new) - 10(old increment) = 25
+        $this->assertEquals(25, $this->goal->fresh()->current_value);
+        // entry value = previous_value(0) + 5 = 5
+        $this->assertEquals(5, $historicalEntry->fresh()->value);
+    }
+
+    public function test_entry_increment_is_required_on_update()
+    {
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $this->goal->id,
+            'value' => 10,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', [$this->goal, $entry]), ['increment' => null])
+            ->assertSessionHasErrors('increment');
+    }
+
+    public function test_user_cannot_update_other_users_entry()
+    {
+        $otherGoal = Goal::factory()->create([
+            'user_id' => $this->otherUser->id,
+            'current_value' => 10,
+        ]);
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $otherGoal->id,
+            'value' => 10,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', [$otherGoal, $entry]), ['increment' => 20])
             ->assertForbidden();
     }
 
