@@ -161,7 +161,7 @@ return [
             'rule-name' => 'custom-message',
         ],
         'entry_date' => [
-            'check_in_period_taken' => 'Un pointage existe deja pour cette periode.',
+            'check_in_period_taken' => 'Un pointage existe déjà pour cette période.',
         ],
     ],
 

@@ -195,13 +195,13 @@ return [
     'checkin' => [
         'title_positive' => 'Enregistrer votre progression',
         'title_negative' => 'Enregistrer une rechute',
-        'description_positive' => 'Marquez cette periode comme faite pour maintenir votre serie.',
-        'description_negative' => 'Enregistrez un incident. Votre serie reinitialise, une nouvelle commence.',
+        'description_positive' => 'Marquez cette période comme faite pour maintenir votre série.',
+        'description_negative' => 'Enregistrez un incident. Votre série se réinitialise, une nouvelle commence.',
         'submit_positive' => 'Pointer',
         'submit_negative' => 'Enregistrer une rechute',
         'date_label' => 'Date',
         'note_label' => 'Note (facultatif)',
-        'note_placeholder' => 'Comment s\'est-ce passe ?',
+        'note_placeholder' => 'Comment ça s\'est-il passé ?',
         'submitting' => 'Enregistrement...',
     ],
 
