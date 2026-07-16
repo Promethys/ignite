@@ -3,8 +3,11 @@
 namespace Tests\Feature\Database\Seeders;
 
 use App\Models\User;
+use Database\Seeders\RolesTableSeeder;
+use Database\Seeders\UsersTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class DatabaseSeederTest extends TestCase
@@ -31,5 +34,24 @@ class DatabaseSeederTest extends TestCase
         Artisan::call('db:seed', ['--force' => true]);
 
         $this->assertDatabaseHas('roles', ['name' => 'admin']);
+    }
+
+    public function test_the_roles_seeder_is_idempotent()
+    {
+        $this->seed(RolesTableSeeder::class);
+        $this->seed(RolesTableSeeder::class);
+
+        $this->assertEquals(1, Role::where('name', 'admin')->count());
+    }
+
+    public function test_the_users_seeder_assigns_the_admin_role_outside_production()
+    {
+        $this->seed(RolesTableSeeder::class);
+        $this->seed(UsersTableSeeder::class);
+
+        $admin = User::where('email', 'admin@example.com')->first();
+
+        $this->assertNotNull($admin);
+        $this->assertTrue($admin->hasRole('admin'));
     }
 }
