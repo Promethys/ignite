@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import {
+    store,
+    update,
+} from '@/actions/App/Http/Controllers/Goals/GoalEntryController.js';
+import {
     Dialog,
     DialogClose,
     DialogContent,
@@ -18,7 +22,6 @@ import { Plus } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import InputError from '../InputError.vue';
 import { Button } from '../ui/button';
-import { store, update } from '@/actions/App/Http/Controllers/Goals/GoalEntryController.js';
 
 const props = defineProps<{
     goal: Goal;
@@ -26,10 +29,10 @@ const props = defineProps<{
     open?: boolean;
 }>();
 
-const buildDefaults = (record: GoalEntry|undefined) => {
+const buildDefaults = (record: GoalEntry | undefined) => {
     return {
-        increment: record?.increment_value ?? undefined as number | undefined,
-        note: record?.note ?? '' as string,
+        increment: record?.increment_value ?? (undefined as number | undefined),
+        note: record?.note ?? ('' as string),
     };
 };
 
@@ -37,19 +40,19 @@ const formData = buildDefaults(props.record);
 
 const formState = props.record
     ? {
-        formName: null,
-        cardTitle: 'goals.entries.form.edit_title',
-        cardDescription: 'goals.entries.form.edit_description',
-        action: update({ goal: props.goal, goalEntry: props.record }),
-        submitBtnLabel: 'goals.entries.form.submit_edit',
-    }
+          formName: null,
+          cardTitle: 'goals.entries.form.edit_title',
+          cardDescription: 'goals.entries.form.edit_description',
+          action: update({ goal: props.goal, goalEntry: props.record }),
+          submitBtnLabel: 'goals.entries.form.submit_edit',
+      }
     : {
-        formName: 'GoalEntryCreateForm',
-        cardTitle: 'goals.entries.form.create_title',
-        cardDescription: 'goals.entries.form.create_description',
-        action: store(props.goal),
-        submitBtnLabel: 'goals.entries.form.submit_create',
-    };
+          formName: 'GoalEntryCreateForm',
+          cardTitle: 'goals.entries.form.create_title',
+          cardDescription: 'goals.entries.form.create_description',
+          action: store(props.goal),
+          submitBtnLabel: 'goals.entries.form.submit_create',
+      };
 
 const form = formState.formName
     ? useForm(formState.formName, formData)
@@ -58,8 +61,8 @@ const form = formState.formName
 watch(
     () => props.record,
     () => {
-        form.defaults(buildDefaults(props.record))
-    }
+        form.defaults(buildDefaults(props.record));
+    },
 );
 
 const open = ref<boolean>(props.open ?? false);
@@ -77,45 +80,53 @@ const open = ref<boolean>(props.open ?? false);
         </DialogTrigger>
         <DialogContent class="sm:max-w-md">
             <DialogHeader>
-                <DialogTitle>{{
-                    $t(formState.cardTitle)
-                }}</DialogTitle>
+                <DialogTitle>{{ $t(formState.cardTitle) }}</DialogTitle>
                 <DialogDescription>
-                    {{
-                        $t(formState.cardDescription)
-                    }}
+                    {{ $t(formState.cardDescription) }}
                 </DialogDescription>
             </DialogHeader>
-            <form id="log-progress-form" class="space-y-4" @submit.prevent="form.submit(formState.action, {
-                onSuccess: () => {
-                    form.reset();
-                    form.clearErrors();
-                    open = false;
-                },
-            })">
+            <form
+                id="log-progress-form"
+                class="space-y-4"
+                @submit.prevent="
+                    form.submit(formState.action, {
+                        onSuccess: () => {
+                            form.reset();
+                            form.clearErrors();
+                            open = false;
+                        },
+                    })
+                "
+            >
                 <div class="space-y-2">
                     <Label for="increment">{{
                         $t('goals.show.progress_value')
                     }}</Label>
                     <div class="flex items-end gap-2">
-                        <Input id="increment" v-model="form.increment
-                            " type="number" step="0.01" :placeholder="$t(
-                                'goals.show.progress_value_placeholder',
-                            )
-                                " required />
-                        <span class="pb-2 text-sm text-muted-foreground">{{ goal.unit }}</span>
+                        <Input
+                            id="increment"
+                            v-model="form.increment"
+                            type="number"
+                            step="0.01"
+                            :placeholder="
+                                $t('goals.show.progress_value_placeholder')
+                            "
+                            required
+                        />
+                        <span class="pb-2 text-sm text-muted-foreground">{{
+                            goal.unit
+                        }}</span>
                     </div>
-                    <InputError :message="form.errors.increment
-                        " />
+                    <InputError :message="form.errors.increment" />
                 </div>
                 <div class="space-y-2">
-                    <Label for="note">{{
-                        $t('goals.show.note')
-                    }}</Label>
-                    <Textarea id="note" v-model="form.note" :placeholder="$t(
-                        'goals.show.note_placeholder',
-                    )
-                        " rows="3" />
+                    <Label for="note">{{ $t('goals.show.note') }}</Label>
+                    <Textarea
+                        id="note"
+                        v-model="form.note"
+                        :placeholder="$t('goals.show.note_placeholder')"
+                        rows="3"
+                    />
                     <InputError :message="form.errors.note" />
                 </div>
             </form>
@@ -125,13 +136,15 @@ const open = ref<boolean>(props.open ?? false);
                         $t('common.actions.cancel')
                     }}</Button>
                 </DialogClose>
-                <Button type="submit" form="log-progress-form" :disabled="form.processing">
+                <Button
+                    type="submit"
+                    form="log-progress-form"
+                    :disabled="form.processing"
+                >
                     {{
                         form.processing
                             ? $t('goals.show.logging')
-                            : $t(
-                                formState.submitBtnLabel,
-                            )
+                            : $t(formState.submitBtnLabel)
                     }}
                 </Button>
             </DialogFooter>

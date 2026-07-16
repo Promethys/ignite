@@ -117,7 +117,7 @@ const resetFilters = () => {
         <div class="space-y-6 p-4">
             <PageHeader :title="$t('goals.entries.title')">
                 <template #actions>
-                    <GoalEntryFormModal :goal/>
+                    <GoalEntryFormModal :goal />
                 </template>
             </PageHeader>
             <section class="space-y-2 text-sm">
@@ -294,11 +294,18 @@ const resetFilters = () => {
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <!-- Edit button -->
-                                            <GoalEntryFormModal :goal :record="entry">
+                                            <GoalEntryFormModal
+                                                :goal
+                                                :record="entry"
+                                            >
                                                 <template #trigger>
                                                     <Button>
                                                         <Pencil />
-                                                        {{ $t('common.actions.edit') }}
+                                                        {{
+                                                            $t(
+                                                                'common.actions.edit',
+                                                            )
+                                                        }}
                                                     </Button>
                                                 </template>
                                             </GoalEntryFormModal>
@@ -337,7 +344,9 @@ const resetFilters = () => {
                                                         </DialogHeader>
 
                                                         <DialogFooter>
-                                                            <DialogClose as-child>
+                                                            <DialogClose
+                                                                as-child
+                                                            >
                                                                 <Button
                                                                     type="button"
                                                                     variant="secondary"
