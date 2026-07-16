@@ -192,13 +192,19 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                 >
                     <template #actions>
                         <div class="flex items-center gap-2">
-                            <GoalEntryFormModal :goal v-if="
-                                goal.type === 'quantifiable' && !isCompleted
-                            " />
+                            <GoalEntryFormModal
+                                :goal
+                                v-if="
+                                    goal.type === 'quantifiable' && !isCompleted
+                                "
+                            />
 
-                            <RecurringCheckInModal :goal v-else-if="
-                                goal.type === 'recurring' && !isCompleted
-                            " />
+                            <RecurringCheckInModal
+                                :goal
+                                v-else-if="
+                                    goal.type === 'recurring' && !isCompleted
+                                "
+                            />
 
                             <Button v-else-if="!isCompleted" as-child>
                                 <Link
@@ -754,13 +760,10 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                                 variant="destructive"
                                                 @click="
                                                     router.delete(
-                                                        goals.entries.destroy(
-                                                            {
-                                                                goal,
-                                                                goalEntry:
-                                                                    entry.id,
-                                                            },
-                                                        ),
+                                                        goals.entries.destroy({
+                                                            goal,
+                                                            goalEntry: entry.id,
+                                                        }),
                                                     )
                                                 "
                                                 >{{

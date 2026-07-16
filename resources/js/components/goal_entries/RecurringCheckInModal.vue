@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { store } from '@/actions/App/Http/Controllers/Goals/GoalEntryController.js';
 import {
     Dialog,
     DialogClose,
@@ -18,7 +19,6 @@ import { Check } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import InputError from '../InputError.vue';
 import { Button } from '../ui/button';
-import { store } from '@/actions/App/Http/Controllers/Goals/GoalEntryController.js';
 
 const props = defineProps<{
     goal: Goal;
