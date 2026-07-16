@@ -10,6 +10,31 @@ use Illuminate\Support\Collection;
 
 class StreakService
 {
+    /**
+     * The period-bucket format for each recurrence cadence.
+     *
+     * @return array<string, string>
+     */
+    public static function cadenceFormats(): array
+    {
+        return [
+            'daily' => 'Y-m-d',
+            'weekly' => 'o-W',
+            'monthly' => 'Y-m',
+            'annually' => 'Y',
+        ];
+    }
+
+    /**
+     * Bucket a date into its recurrence period key, resolved in the given timezone.
+     */
+    public static function periodKey(string $recurrence, Carbon $date, string $timezone): string
+    {
+        $format = self::cadenceFormats()[$recurrence] ?? 'Y-m-d';
+
+        return $date->copy()->timezone($timezone)->format($format);
+    }
+
     public static function for(Goal $goal): ?StreakData
     {
         $recurrence = $goal->recurrence;
