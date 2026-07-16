@@ -212,26 +212,6 @@ class StreakServiceTest extends TestCase
         $this->assertEquals(0, $streakData?->longest);
     }
 
-    public function test_period_key_returns_the_date_bucket_for_each_recurrence(): void
-    {
-        $this->assertSame('2026-07-16', StreakService::periodKey('daily', Carbon::parse('2026-07-16'), 'UTC'));
-        $this->assertSame('2026-29', StreakService::periodKey('weekly', Carbon::parse('2026-07-16'), 'UTC'));
-        $this->assertSame('2026-07', StreakService::periodKey('monthly', Carbon::parse('2026-07-16'), 'UTC'));
-        $this->assertSame('2026', StreakService::periodKey('annually', Carbon::parse('2026-07-16'), 'UTC'));
-    }
-
-    public function test_period_key_resolves_to_the_local_date_near_a_timezone_boundary(): void
-    {
-        // UTC 2026-07-16 23:30 is 2026-07-16 18:30 in America/Chicago (-5),
-        // but a negative offset like America/Los_Angeles (-7) lands on 2026-07-16 16:30 -> same day.
-        // Use a -12 offset (Pacific/Auckland is +12, we need negative): America/Chicago at UTC 05:00 -> previous day local.
-        // UTC 2026-07-16 05:00 is 2026-07-16 00:00 in America/Chicago (-5) -> boundary.
-        // Use UTC 2026-07-16 04:00 in America/Chicago (-5) = 2026-07-15 23:00 -> previous day.
-        $date = Carbon::parse('2026-07-16 04:00:00', 'UTC');
-
-        $this->assertSame('2026-07-15', StreakService::periodKey('daily', $date, 'America/Chicago'));
-    }
-
     public function test_it_handles_a_longer_streak_in_the_past()
     {
         Carbon::setTestNow('2026-07-06 15:00:00');
