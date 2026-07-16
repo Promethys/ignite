@@ -192,6 +192,19 @@ return [
         'deadline_progress' => 'Day :elapsed of :total to deadline',
     ],
 
+    'checkin' => [
+        'title_positive' => 'Log your progress',
+        'title_negative' => 'Record a relapse',
+        'description_positive' => 'Mark this period as done to keep your streak alive.',
+        'description_negative' => 'Log a slip. Your streak resets, and a new one begins.',
+        'submit_positive' => 'Check in',
+        'submit_negative' => 'Log a slip',
+        'date_label' => 'Date',
+        'note_label' => 'Note (optional)',
+        'note_placeholder' => 'How did it go?',
+        'submitting' => 'Saving...',
+    ],
+
     'entries' => [
         'title' => 'All Entries',
         'search_placeholder' => 'Search...',
