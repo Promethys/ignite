@@ -366,6 +366,40 @@ class GoalEntryControllerTest extends TestCase
         $this->assertSame('2026-07-16', GoalEntry::where('goal_id', $goal->id)->sole()->entry_date->toDateString());
     }
 
+    public function test_recurring_check_in_period_guard_uses_the_user_timezone_at_a_month_boundary()
+    {
+        // The user is in America/Chicago (UTC-5). A check-in dated the 1st of
+        // the month must be bucketed into that calendar month by both the guard
+        // and the streak. UTC-midnight parsing would shift it into the previous
+        // month, letting a second same-month check-in slip through.
+        Carbon::setTestNow('2026-07-20 10:00:00');
+
+        $user = User::factory()->create(['timezone' => 'America/Chicago']);
+
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'recurring',
+            'recurrence' => 'monthly',
+            'start_date' => '2026-01-01',
+            'status' => 'in_progress',
+        ]);
+
+        GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-01',
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('goals.entries.store', $goal), [
+                'entry_date' => '2026-07-15',
+            ])
+            ->assertSessionHasErrors('entry_date');
+
+        $this->assertSame(1, GoalEntry::where('goal_id', $goal->id)->count());
+    }
+
     // =========================================================================
     // STORE
     // =========================================================================

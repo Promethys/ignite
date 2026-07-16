@@ -126,15 +126,21 @@ class GoalEntryController extends Controller
 
         $validated = $request->validate($rules);
 
-        $newKey = StreakService::periodKey($recurrence, Carbon::parse($validated['entry_date']), $timezone);
-        $existingKey = $goal->entries()
+        $format = StreakService::cadenceFormats()[$recurrence] ?? 'Y-m-d';
+
+        // Calendar dates (the stored entries and the user-typed check-in date)
+        // are bucketed by formatting directly, mirroring how the streak logic
+        // buckets stored entry dates. A timezone conversion only applies to
+        // the live "now" instant used for the upper bound above.
+        $newKey = Carbon::parse($validated['entry_date'])->format($format);
+        $periodTaken = $goal->entries()
             ->orderBy('entry_date')
             ->pluck('entry_date')
-            ->map(fn ($date) => StreakService::periodKey($recurrence, Carbon::parse($date), $timezone))
+            ->map(fn ($date) => Carbon::parse($date)->format($format))
             ->unique()
-            ->first(fn (string $key) => $key === $newKey);
+            ->contains($newKey);
 
-        if ($existingKey !== null) {
+        if ($periodTaken) {
             throw ValidationException::withMessages([
                 'entry_date' => __('validation.custom.entry_date.check_in_period_taken'),
             ]);

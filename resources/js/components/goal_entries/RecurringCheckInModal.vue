@@ -22,16 +22,21 @@ import { Button } from '../ui/button';
 
 const props = defineProps<{
     goal: Goal;
+    today?: string;
     open?: boolean;
 }>();
 
 const isNegative = computed(() => props.goal.polarity === 'negative');
 const polarity = computed(() => (isNegative.value ? 'negative' : 'positive'));
 
-const today = () => new Date().toISOString().slice(0, 10);
+// Server-authoritative "today" in the user's stored timezone, with a
+// browser-local fallback so the field stays usable without a prop.
+const today = computed(
+    () => props.today ?? new Date().toLocaleDateString('en-CA'),
+);
 
 const form = useForm('RecurringCheckInForm', {
-    entry_date: today(),
+    entry_date: today.value,
     note: '',
 });
 
@@ -80,7 +85,7 @@ const submit = () => {
                         id="entry_date"
                         v-model="form.entry_date"
                         type="date"
-                        :max="today()"
+                        :max="today"
                         required
                     />
                     <InputError :message="form.errors.entry_date" />

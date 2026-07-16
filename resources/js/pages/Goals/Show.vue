@@ -50,6 +50,7 @@ import { computed } from 'vue';
 const props = defineProps<{
     goal: Goal;
     chartEntries: { entry_date: string; value: number }[];
+    today: string;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -201,6 +202,7 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
 
                             <RecurringCheckInModal
                                 :goal
+                                :today
                                 v-else-if="
                                     goal.type === 'recurring' && !isCompleted
                                 "
