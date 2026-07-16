@@ -33,7 +33,7 @@ class UserResourceTest extends TestCase
 
     protected function admin(): User
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         return $admin;
@@ -159,7 +159,7 @@ class UserResourceTest extends TestCase
 
     public function test_it_can_filter_users_by_locale()
     {
-        $admin = User::factory()->withoutTwoFactor()->create(['locale' => 'en']);
+        $admin = User::factory()->create(['locale' => 'en']);
         $admin->assignRole('admin');
         $french = User::factory()->create(['locale' => 'fr']);
         $english = User::factory()->create(['locale' => 'en']);

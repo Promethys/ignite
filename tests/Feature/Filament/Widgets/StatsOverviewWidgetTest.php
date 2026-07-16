@@ -31,7 +31,7 @@ class StatsOverviewWidgetTest extends TestCase
 
     public function test_the_stats_widget_renders_with_an_empty_database()
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         Livewire::actingAs($admin)
@@ -41,7 +41,7 @@ class StatsOverviewWidgetTest extends TestCase
 
     public function test_it_computes_the_abandonment_rate()
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         // Two abandoned of four total -> rate of 0.5.
@@ -57,7 +57,7 @@ class StatsOverviewWidgetTest extends TestCase
 
     public function test_it_computes_the_completion_rate()
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         // One completed of four total -> rate of 0.25.
@@ -75,7 +75,7 @@ class StatsOverviewWidgetTest extends TestCase
     {
         Carbon::setTestNow('2026-07-15 12:00:00');
 
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         $goal = Goal::factory()->create(['user_id' => $admin->id, 'category_id' => null]);

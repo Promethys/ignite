@@ -24,7 +24,7 @@ class GoalResourceTest extends TestCase
 
     public function test_admin_can_list_goals()
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
         Goal::factory()->create(['title' => 'Listable Goal']);
 
@@ -35,7 +35,7 @@ class GoalResourceTest extends TestCase
 
     public function test_admin_can_view_a_goal_owned_by_another_user()
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         $owner = User::factory()->create();
@@ -48,7 +48,7 @@ class GoalResourceTest extends TestCase
 
     public function test_a_non_admin_cannot_list_goals_in_the_panel()
     {
-        $user = User::factory()->withoutTwoFactor()->create();
+        $user = User::factory()->create();
         Goal::factory()->create(['user_id' => $user->id]);
 
         $this->actingAsPanelUser($user)
@@ -66,7 +66,7 @@ class GoalResourceTest extends TestCase
 
     public function test_it_can_filter_goals_by_status()
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         $abandoned = Goal::factory()->create(['status' => 'abandoned', 'title' => 'Dropped']);
@@ -81,7 +81,7 @@ class GoalResourceTest extends TestCase
 
     public function test_it_can_filter_goals_by_type_and_user()
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         $owner = User::factory()->create();

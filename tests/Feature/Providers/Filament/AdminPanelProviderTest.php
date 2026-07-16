@@ -26,7 +26,7 @@ class AdminPanelProviderTest extends TestCase
 
     public function test_user_without_admin_role_cannot_access_the_admin_panel()
     {
-        $user = User::factory()->withoutTwoFactor()->create();
+        $user = User::factory()->create();
 
         $this->actingAsPanelUser($user)
             ->get('/admin')
@@ -35,7 +35,7 @@ class AdminPanelProviderTest extends TestCase
 
     public function test_user_with_admin_role_can_access_the_admin_panel()
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         $this->actingAsPanelUser($admin)
@@ -57,7 +57,7 @@ class AdminPanelProviderTest extends TestCase
 
     public function test_unverified_admin_can_still_access_the_panel()
     {
-        $admin = User::factory()->unverified()->withoutTwoFactor()->create();
+        $admin = User::factory()->unverified()->create();
         $admin->assignRole('admin');
 
         $this->actingAsPanelUser($admin)
