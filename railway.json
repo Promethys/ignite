@@ -5,7 +5,7 @@
 		"dockerfilePath": "docker/production/frankenphp/Dockerfile"
 	},
 	"deploy": {
-		"preDeployCommand": "php artisan migrate --force && php artisan db:seed --force",
+		"preDeployCommand": "/bin/sh -c 'php artisan migrate --force && php artisan db:seed --force'",
 		"healthcheckPath": "/up",
 		"healthcheckTimeout": 300,
 		"restartPolicyType": "ON_FAILURE",
