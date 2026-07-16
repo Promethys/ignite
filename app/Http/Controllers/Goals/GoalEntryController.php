@@ -86,18 +86,18 @@ class GoalEntryController extends Controller
             'increment' => 'required|numeric',
             'note' => 'nullable|string|max:500',
         ]);
-        $newEntryValue = $goal->current_value + $validated['increment'];
+        $newValue = $goal->current_value + $validated['increment'];
         $entryData = [
-            'value' => $newEntryValue,
+            'value' => $newValue,
             'previous_value' => $goal->current_value,
             'note' => $validated['note'] ?? null,
             'entry_date' => now()->toDateString(),
         ];
 
-        \DB::transaction(function () use ($goal, $entryData, $newEntryValue) {
+        \DB::transaction(function () use ($goal, $entryData, $newValue) {
             $goal->entries()->create($entryData);
             $goal->update([
-                'current_value' => $newEntryValue,
+                'current_value' => $newValue,
             ]);
         });
 
@@ -170,12 +170,12 @@ class GoalEntryController extends Controller
             return back();
         }
 
-        $newEntryValue = $goal->current_value - $goalEntry->increment_value;
+        $newValue = $goal->current_value - $goalEntry->increment_value;
 
-        \DB::transaction(function () use ($goal, $newEntryValue, $goalEntry) {
+        \DB::transaction(function () use ($goal, $newValue, $goalEntry) {
             $goalEntry->delete();
             $goal->update([
-                'current_value' => $newEntryValue,
+                'current_value' => $newValue,
             ]);
         });
 
