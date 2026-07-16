@@ -20,7 +20,7 @@ class GoalPolicy
      */
     public function view(User $user, Goal $goal): bool
     {
-        return $user->is($goal->user) || $user->isAdmin();
+        return $user->is($goal->user) || ($user->isAdmin() && filament()->getCurrentPanel()?->getId() === 'admin');
     }
 
     /**
@@ -36,7 +36,7 @@ class GoalPolicy
      */
     public function update(User $user, Goal $goal): bool
     {
-        return $user->is($goal->user) || $user->isAdmin();
+        return $user->is($goal->user);
     }
 
     /**
@@ -44,22 +44,6 @@ class GoalPolicy
      */
     public function delete(User $user, Goal $goal): bool
     {
-        return $user->is($goal->user) || $user->isAdmin();
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Goal $goal): bool
-    {
-        return $user->isAdmin();
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Goal $goal): bool
-    {
-        return $user->isAdmin();
+        return $user->is($goal->user) || ($user->isAdmin() && filament()->getCurrentPanel()?->getId() === 'admin');
     }
 }

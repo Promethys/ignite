@@ -192,6 +192,19 @@ return [
         'deadline_progress' => 'Jour :elapsed sur :total avant l\'échéance',
     ],
 
+    'checkin' => [
+        'title_positive' => 'Enregistrer votre progression',
+        'title_negative' => 'Enregistrer une rechute',
+        'description_positive' => 'Marquez cette période comme faite pour maintenir votre série.',
+        'description_negative' => 'Enregistrez un incident. Votre série se réinitialise, une nouvelle commence.',
+        'submit_positive' => 'Pointer',
+        'submit_negative' => 'Enregistrer une rechute',
+        'date_label' => 'Date',
+        'note_label' => 'Note (facultatif)',
+        'note_placeholder' => 'Comment ça s\'est-il passé ?',
+        'submitting' => 'Enregistrement...',
+    ],
+
     'entries' => [
         'title' => 'Toutes les entrées',
         'search_placeholder' => 'Rechercher...',
@@ -202,5 +215,13 @@ return [
         'delete_title' => 'Supprimer l\'entrée',
         'delete_description' => 'Supprimer cette entrée de l\'historique de progression ?',
         'no_result' => 'Aucun résultat.',
+        'form' => [
+            'create_title' => 'Enregistrer une progression',
+            'create_description' => 'Ajoutez une entrée pour suivre votre progression sur cet objectif.',
+            'edit_title' => 'Modifier l\'entrée',
+            'edit_description' => 'Mettez à jour la valeur et la note de cette entrée.',
+            'submit_create' => 'Enregistrer une progression',
+            'submit_edit' => 'Enregistrer',
+        ],
     ],
 ];

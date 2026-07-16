@@ -13,12 +13,6 @@ parameters:
 			path: app/Http/Controllers/Goals/GoalController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\GoalEntry\:\:\$increment_value\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Goals/GoalEntryController.php
-
-		-
 			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Achievement\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
 			identifier: property.phpDocType
 			count: 1

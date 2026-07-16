@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -32,7 +34,7 @@ import { Goal } from '@/types/models';
 import { Head, InfiniteScroll, router } from '@inertiajs/vue3';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { useDebounceFn } from '@vueuse/core';
-import { CalendarIcon, XIcon } from 'lucide-vue-next';
+import { CalendarIcon, Pencil, Trash, XIcon } from 'lucide-vue-next';
 import moment from 'moment';
 import { DateValue } from 'reka-ui';
 import { computed, ref } from 'vue';
@@ -113,10 +115,12 @@ const resetFilters = () => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="space-y-6 p-4">
+            <PageHeader :title="$t('goals.entries.title')">
+                <template #actions>
+                    <GoalEntryFormModal :goal />
+                </template>
+            </PageHeader>
             <section class="space-y-2 text-sm">
-                <h3 class="text-xl font-medium">
-                    {{ $t('goals.entries.title') }}
-                </h3>
                 <div>
                     <div class="space-y-3">
                         <div class="flex items-center gap-4">
@@ -288,74 +292,96 @@ const resetFilters = () => {
                                                 </span>
                                             </p>
                                         </div>
-                                        <!-- Delete button -->
-                                        <div class="max-w-md space-y-4">
-                                            <Dialog>
-                                                <DialogTrigger as-child>
-                                                    <Button
-                                                        variant="destructive"
-                                                    >
+                                        <div class="flex items-center gap-2">
+                                            <!-- Edit button -->
+                                            <GoalEntryFormModal
+                                                :goal
+                                                :record="entry"
+                                            >
+                                                <template #trigger>
+                                                    <Button>
+                                                        <Pencil />
                                                         {{
                                                             $t(
-                                                                'common.actions.delete',
+                                                                'common.actions.edit',
                                                             )
                                                         }}
                                                     </Button>
-                                                </DialogTrigger>
-                                                <DialogContent
-                                                    class="sm:max-w-[425px]"
-                                                >
-                                                    <DialogHeader>
-                                                        <DialogTitle>{{
-                                                            $t(
-                                                                'goals.entries.delete_title',
-                                                            )
-                                                        }}</DialogTitle>
-                                                        <DialogDescription>
-                                                            {{
-                                                                $t(
-                                                                    'goals.entries.delete_description',
-                                                                )
-                                                            }}
-                                                        </DialogDescription>
-                                                    </DialogHeader>
+                                                </template>
+                                            </GoalEntryFormModal>
 
-                                                    <DialogFooter>
-                                                        <DialogClose as-child>
-                                                            <Button
-                                                                type="button"
-                                                                variant="secondary"
-                                                            >
-                                                                {{
-                                                                    $t(
-                                                                        'common.actions.cancel',
-                                                                    )
-                                                                }}
-                                                            </Button>
-                                                        </DialogClose>
+                                            <!-- Delete button -->
+                                            <div class="max-w-md space-y-4">
+                                                <Dialog>
+                                                    <DialogTrigger as-child>
                                                         <Button
                                                             variant="destructive"
-                                                            @click="
-                                                                router.delete(
-                                                                    goals.entries.destroy(
-                                                                        {
-                                                                            goal,
-                                                                            goalEntry:
-                                                                                entry.id,
-                                                                        },
-                                                                    ),
-                                                                )
-                                                            "
                                                         >
+                                                            <Trash />
                                                             {{
                                                                 $t(
                                                                     'common.actions.delete',
                                                                 )
                                                             }}
                                                         </Button>
-                                                    </DialogFooter>
-                                                </DialogContent>
-                                            </Dialog>
+                                                    </DialogTrigger>
+                                                    <DialogContent
+                                                        class="sm:max-w-[425px]"
+                                                    >
+                                                        <DialogHeader>
+                                                            <DialogTitle>{{
+                                                                $t(
+                                                                    'goals.entries.delete_title',
+                                                                )
+                                                            }}</DialogTitle>
+                                                            <DialogDescription>
+                                                                {{
+                                                                    $t(
+                                                                        'goals.entries.delete_description',
+                                                                    )
+                                                                }}
+                                                            </DialogDescription>
+                                                        </DialogHeader>
+
+                                                        <DialogFooter>
+                                                            <DialogClose
+                                                                as-child
+                                                            >
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="secondary"
+                                                                >
+                                                                    {{
+                                                                        $t(
+                                                                            'common.actions.cancel',
+                                                                        )
+                                                                    }}
+                                                                </Button>
+                                                            </DialogClose>
+                                                            <Button
+                                                                variant="destructive"
+                                                                @click="
+                                                                    router.delete(
+                                                                        goals.entries.destroy(
+                                                                            {
+                                                                                goal,
+                                                                                goalEntry:
+                                                                                    entry.id,
+                                                                            },
+                                                                        ),
+                                                                    )
+                                                                "
+                                                            >
+                                                                {{
+                                                                    $t(
+                                                                        'common.actions.delete',
+                                                                    )
+                                                                }}
+                                                            </Button>
+                                                        </DialogFooter>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            </div>
                                         </div>
                                     </div>
 

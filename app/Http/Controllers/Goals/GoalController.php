@@ -7,6 +7,7 @@ use App\Models\Goal;
 use App\Models\User;
 use App\Services\StreakService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -120,7 +121,9 @@ class GoalController extends Controller
         ])
             ->append('streak');
 
-        return Inertia::render('Goals/Show', compact('goal', 'chartEntries'));
+        $today = Carbon::now()->timezone($goal->user?->timezone ?? config('app.timezone'))->toDateString();
+
+        return Inertia::render('Goals/Show', compact('goal', 'chartEntries', 'today'));
     }
 
     public function edit(Goal $goal)

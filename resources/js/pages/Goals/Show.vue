@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import ProgressChart from '@/components/charts/ProgressChart.vue';
+import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
+import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInModal.vue';
 import GoalBadges from '@/components/goals/GoalBadges.vue';
-import InputError from '@/components/InputError.vue';
 import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
 import Timeline from '@/components/milestones/Timeline.vue';
 import PageHeader from '@/components/PageHeader.vue';
@@ -18,33 +19,20 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { streakUnit as streakUnitHelper } from '@/lib/streak';
 import { getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import {
     ArrowRight,
     CheckCircle2,
@@ -54,13 +42,15 @@ import {
     ListChecks,
     Pencil,
     Plus,
+    Trash,
 } from 'lucide-vue-next';
 import moment from 'moment';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
     goal: Goal;
     chartEntries: { entry_date: string; value: number }[];
+    today: string;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -187,22 +177,6 @@ const summaryTiles = computed<SummaryTile[]>(() => {
 });
 
 const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
-
-const logOpen = ref(false);
-const entryForm = useForm({
-    increment: undefined as number | undefined,
-    note: '' as string,
-});
-
-const submitEntry = () => {
-    entryForm.post(goals.entries.store(props.goal).url, {
-        preserveScroll: true,
-        onSuccess: () => {
-            entryForm.reset();
-            logOpen.value = false;
-        },
-    });
-};
 </script>
 
 <template>
@@ -219,111 +193,20 @@ const submitEntry = () => {
                 >
                     <template #actions>
                         <div class="flex items-center gap-2">
-                            <Dialog
+                            <GoalEntryFormModal
+                                :goal
                                 v-if="
                                     goal.type === 'quantifiable' && !isCompleted
                                 "
-                                v-model:open="logOpen"
-                            >
-                                <DialogTrigger as-child>
-                                    <Button>
-                                        <Plus />
-                                        {{ $t('goals.actions.log_progress') }}
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent class="sm:max-w-md">
-                                    <DialogHeader>
-                                        <DialogTitle>{{
-                                            $t('goals.show.log_progress_title')
-                                        }}</DialogTitle>
-                                        <DialogDescription>
-                                            {{
-                                                $t(
-                                                    'goals.show.log_progress_description',
-                                                )
-                                            }}
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <form
-                                        id="log-progress-form"
-                                        class="space-y-4"
-                                        @submit.prevent="submitEntry"
-                                    >
-                                        <div class="space-y-2">
-                                            <Label for="increment">{{
-                                                $t('goals.show.progress_value')
-                                            }}</Label>
-                                            <div class="flex items-end gap-2">
-                                                <Input
-                                                    id="increment"
-                                                    v-model="
-                                                        entryForm.increment
-                                                    "
-                                                    type="number"
-                                                    step="0.01"
-                                                    :placeholder="
-                                                        $t(
-                                                            'goals.show.progress_value_placeholder',
-                                                        )
-                                                    "
-                                                    required
-                                                />
-                                                <span
-                                                    class="pb-2 text-sm text-muted-foreground"
-                                                    >{{ goal.unit }}</span
-                                                >
-                                            </div>
-                                            <InputError
-                                                :message="
-                                                    entryForm.errors.increment
-                                                "
-                                            />
-                                        </div>
-                                        <div class="space-y-2">
-                                            <Label for="note">{{
-                                                $t('goals.show.note')
-                                            }}</Label>
-                                            <Textarea
-                                                id="note"
-                                                v-model="entryForm.note"
-                                                :placeholder="
-                                                    $t(
-                                                        'goals.show.note_placeholder',
-                                                    )
-                                                "
-                                                rows="3"
-                                            />
-                                            <InputError
-                                                :message="entryForm.errors.note"
-                                            />
-                                        </div>
-                                    </form>
-                                    <DialogFooter>
-                                        <DialogClose as-child>
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                >{{
-                                                    $t('common.actions.cancel')
-                                                }}</Button
-                                            >
-                                        </DialogClose>
-                                        <Button
-                                            type="submit"
-                                            form="log-progress-form"
-                                            :disabled="entryForm.processing"
-                                        >
-                                            {{
-                                                entryForm.processing
-                                                    ? $t('goals.show.logging')
-                                                    : $t(
-                                                          'goals.actions.log_progress',
-                                                      )
-                                            }}
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
+                            />
+
+                            <RecurringCheckInModal
+                                :goal
+                                :today
+                                v-else-if="
+                                    goal.type === 'recurring' && !isCompleted
+                                "
+                            />
 
                             <Button v-else-if="!isCompleted" as-child>
                                 <Link
@@ -811,6 +694,101 @@ const submitEntry = () => {
                                             chartEntries.length,
                                             {
                                                 count: chartEntries.length.toString(),
+                                            },
+                                        )
+                                    }}
+                                    <ArrowRight class="size-4" />
+                                </Link>
+                            </Button>
+                        </div>
+                        <p v-else class="text-sm text-muted-foreground">
+                            {{ $t('goals.show.no_entries') }}
+                        </p>
+                    </section>
+
+                    <!-- Check-ins (recurring) -->
+                    <section
+                        v-if="goal.type === 'recurring'"
+                        class="rounded-xl border bg-card p-4"
+                    >
+                        <h4 class="mb-3 font-display text-base font-semibold">
+                            {{ $t('goals.show.recent_entries') }}
+                        </h4>
+                        <div v-if="recentEntries.length > 0">
+                            <div
+                                v-for="entry in recentEntries"
+                                :key="entry.id"
+                                class="flex items-start justify-between gap-2 border-b border-border/60 py-2 text-sm last:border-0"
+                            >
+                                <div class="space-y-0.5">
+                                    <span class="text-muted-foreground">
+                                        {{ fmtDate(entry.entry_date) }}
+                                    </span>
+                                    <p
+                                        v-if="entry.note"
+                                        class="text-foreground"
+                                    >
+                                        {{ entry.note }}
+                                    </p>
+                                </div>
+                                <AlertDialog>
+                                    <AlertDialogTrigger as-child>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            class="size-7 text-muted-foreground"
+                                        >
+                                            <Trash class="size-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>{{
+                                                $t('common.confirm.title')
+                                            }}</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                {{
+                                                    $t(
+                                                        'goals.entries.delete_description',
+                                                    )
+                                                }}
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>{{
+                                                $t('common.actions.cancel')
+                                            }}</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                variant="destructive"
+                                                @click="
+                                                    router.delete(
+                                                        goals.entries.destroy({
+                                                            goal,
+                                                            goalEntry: entry.id,
+                                                        }),
+                                                    )
+                                                "
+                                                >{{
+                                                    $t('common.actions.delete')
+                                                }}</AlertDialogAction
+                                            >
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                class="mt-3 w-full"
+                                as-child
+                            >
+                                <Link :href="goals.entries.get(goal).url">
+                                    {{
+                                        $tChoice(
+                                            'goals.show.view_all',
+                                            recentEntries.length,
+                                            {
+                                                count: recentEntries.length.toString(),
                                             },
                                         )
                                     }}

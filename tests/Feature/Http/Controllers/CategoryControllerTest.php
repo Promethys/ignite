@@ -7,22 +7,30 @@ use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Concerns\WithAdminRole;
 use Tests\TestCase;
 
 class CategoryControllerTest extends TestCase
 {
     use RefreshDatabase;
+    use WithAdminRole;
 
     private User $user;
 
     private User $otherUser;
 
+    private User $admin;
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->setUpAdminRole();
+
         $this->user = User::factory()->create();
         $this->otherUser = User::factory()->create();
+        $this->admin = User::factory()->create();
+        $this->admin->assignRole('admin');
     }
 
     // =========================================================================
@@ -222,6 +230,29 @@ class CategoryControllerTest extends TestCase
         $category = Category::factory()->create(['user_id' => $this->otherUser->id]);
 
         $this->actingAs($this->user)
+            ->delete(route('categories.destroy', $category))
+            ->assertForbidden();
+    }
+
+    // =========================================================================
+    // ADMIN AUTHORIZATION — an admin has no elevated access to another user's
+    // category; categories have no admin panel, so an admin is just a non-owner
+    // =========================================================================
+
+    public function test_admin_cannot_update_another_users_category()
+    {
+        $category = Category::factory()->create(['user_id' => $this->otherUser->id]);
+
+        $this->actingAs($this->admin)
+            ->put(route('categories.update', $category), ['name' => 'Hijacked'])
+            ->assertForbidden();
+    }
+
+    public function test_admin_cannot_delete_another_users_category()
+    {
+        $category = Category::factory()->create(['user_id' => $this->otherUser->id]);
+
+        $this->actingAs($this->admin)
             ->delete(route('categories.destroy', $category))
             ->assertForbidden();
     }

@@ -10,6 +10,21 @@ use Illuminate\Support\Collection;
 
 class StreakService
 {
+    /**
+     * The period-bucket format for each recurrence cadence.
+     *
+     * @return array<string, string>
+     */
+    public static function cadenceFormats(): array
+    {
+        return [
+            'daily' => 'Y-m-d',
+            'weekly' => 'o-W',
+            'monthly' => 'Y-m',
+            'annually' => 'Y',
+        ];
+    }
+
     public static function for(Goal $goal): ?StreakData
     {
         $recurrence = $goal->recurrence;
@@ -20,10 +35,10 @@ class StreakService
 
         $timezone = $goal->user?->timezone ?? config('app.timezone');
         $cadence = match ($recurrence) {
-            'daily' => ['unit' => 'day', 'format' => 'Y-m-d'],
-            'weekly' => ['unit' => 'week', 'format' => 'o-W'],
-            'monthly' => ['unit' => 'month', 'format' => 'Y-m'],
-            'annually' => ['unit' => 'year', 'format' => 'Y'],
+            'daily' => ['unit' => 'day', 'format' => self::cadenceFormats()['daily']],
+            'weekly' => ['unit' => 'week', 'format' => self::cadenceFormats()['weekly']],
+            'monthly' => ['unit' => 'month', 'format' => self::cadenceFormats()['monthly']],
+            'annually' => ['unit' => 'year', 'format' => self::cadenceFormats()['annually']],
         };
 
         $entryDates = GoalEntry::select('entry_date')
