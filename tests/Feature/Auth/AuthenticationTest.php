@@ -21,7 +21,7 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen()
     {
-        $user = User::factory()->withoutTwoFactor()->create();
+        $user = User::factory()->create();
 
         $response = $this->post(route('login.store'), [
             'email' => $user->email,
@@ -107,7 +107,7 @@ class AuthenticationTest extends TestCase
 
     public function test_login_adopts_a_valid_guest_locale_cookie()
     {
-        $user = User::factory()->withoutTwoFactor()->create(['locale' => 'en']);
+        $user = User::factory()->create(['locale' => 'en']);
 
         $this->withUnencryptedCookie('locale', 'fr')->post(route('login.store'), [
             'email' => $user->email,
@@ -119,7 +119,7 @@ class AuthenticationTest extends TestCase
 
     public function test_login_ignores_an_unsupported_locale_cookie()
     {
-        $user = User::factory()->withoutTwoFactor()->create(['locale' => 'en']);
+        $user = User::factory()->create(['locale' => 'en']);
 
         $this->withUnencryptedCookie('locale', 'de')->post(route('login.store'), [
             'email' => $user->email,
@@ -131,7 +131,7 @@ class AuthenticationTest extends TestCase
 
     public function test_login_keeps_the_saved_locale_without_a_cookie()
     {
-        $user = User::factory()->withoutTwoFactor()->create(['locale' => 'fr']);
+        $user = User::factory()->create(['locale' => 'fr']);
 
         $this->post(route('login.store'), [
             'email' => $user->email,
@@ -143,7 +143,7 @@ class AuthenticationTest extends TestCase
 
     public function test_login_clears_the_locale_cookie_after_adopting_it()
     {
-        $user = User::factory()->withoutTwoFactor()->create(['locale' => 'en']);
+        $user = User::factory()->create(['locale' => 'en']);
 
         $response = $this->withUnencryptedCookie('locale', 'fr')->post(route('login.store'), [
             'email' => $user->email,

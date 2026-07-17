@@ -25,7 +25,7 @@ class MilestonesRelationManagerTest extends TestCase
 
     public function test_the_goal_milestones_relation_manager_lists_the_goal_milestones()
     {
-        $admin = User::factory()->withoutTwoFactor()->create();
+        $admin = User::factory()->create();
         $admin->assignRole('admin');
 
         $goal = Goal::factory()->create();

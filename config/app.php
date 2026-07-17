@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | A coarse, human-facing version string used to identify the application
+    | on outbound HTTP requests (User-Agent) and anywhere the running build
+    | needs a label. Major-only by intent, so it rarely changes.
+    |
+    */
+
+    'version' => env('APP_VERSION', '1.0'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Support Email
     |--------------------------------------------------------------------------
     |
