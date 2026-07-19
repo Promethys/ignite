@@ -134,6 +134,13 @@ return [
             'days' => 14, // SQL logs can be large
         ],
 
+        'formbricks' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/formbricks/formbricks.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+        ],
+
     ],
 
 ];

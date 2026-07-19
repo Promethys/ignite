@@ -1,0 +1,51 @@
+{
+  "event": "responseFinished",
+  "data": {
+    "id": "resp_anonymizedid000000001",
+    "createdAt": "2026-07-18T19:13:00.773Z",
+    "updatedAt": "2026-07-18T19:13:08.201Z",
+    "surveyId": "survey_anonymizedid00000001",
+    "finished": true,
+    "endingId": null,
+    "survey": {
+      "title": "Feedback Box",
+      "status": "inProgress",
+      "type": "app"
+    },
+    "data": {
+      "egpf1195bqunhzymfkm69prt": "Autre",
+      "mp7yutkizfmsiubhfkq0n45m": "test webhook"
+    },
+    "meta": {
+      "url": "http://localhost/dashboard",
+      "action": "Clicked Feedback",
+      "country": "FR",
+      "userAgent": {
+        "os": "Windows",
+        "device": "desktop",
+        "browser": "Firefox"
+      }
+    },
+    "ttc": {
+      "_total": 35519,
+      "egpf1195bqunhzymfkm69prt": 28437,
+      "mp7yutkizfmsiubhfkq0n45m": 7082
+    },
+    "language": "fr",
+    "contactAttributes": {
+      "name": "Test User",
+      "email": "test.user@example.com",
+      "userId": "1",
+      "language": "fr"
+    },
+    "contact": {
+      "id": "contact_anonymizedid0000001",
+      "userId": "1"
+    },
+    "variables": [],
+    "singleUseId": null,
+    "displayId": "display_anonymizedid000001",
+    "tags": []
+  },
+  "webhookId": "webhook_anonymizedid000001"
+}

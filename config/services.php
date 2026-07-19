@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'formbricks' => [
+        'webhook_secret' => env('FORMBRICKS_WEBHOOK_SECRET'),
+        'app_url' => env('FORMBRICKS_APP_URL', 'https://app.formbricks.com'),
+        'workspace_id' => env('FORMBRICKS_WORKSPACE_ID'),
+    ],
+
+    'discord' => [
+        'ops_webhook_url' => env('DISCORD_OPS_WEBHOOK_URL'),
+        'ops_enabled' => env('DISCORD_OPS_ENABLED', false),
+    ],
 ];
