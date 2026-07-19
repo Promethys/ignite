@@ -6,6 +6,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { formbricksEnabled } from '@/lib/formbricks';
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import type { AppPageProps, User } from '@/types';
@@ -23,8 +24,10 @@ interface Props {
     user: User;
 }
 
+const feedbackEnabled = formbricksEnabled();
+
 const handleLogout = () => {
-    if (typeof import.meta.env.VITE_FORMBRICKS_WORKSPACE_ID !== 'undefined') {
+    if (feedbackEnabled) {
         void formbricks.logout();
     }
     router.flushAll();
@@ -70,7 +73,7 @@ defineProps<Props>();
             </a>
         </DropdownMenuItem>
     </DropdownMenuGroup>
-    <DropdownMenuGroup>
+    <DropdownMenuGroup v-if="feedbackEnabled">
         <DropdownMenuItem :as-child="true">
             <button
                 id="send-feedback"
