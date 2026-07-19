@@ -9,6 +9,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useLocale } from '@/composables/useLocale';
+import { formbricksEnabled } from '@/lib/formbricks';
 import formbricks from '@formbricks/js';
 import { router, usePage } from '@inertiajs/vue3';
 import { ChevronDown, Globe } from 'lucide-vue-next';
@@ -28,7 +29,7 @@ async function change(code: string) {
         return;
     }
 
-    if (typeof import.meta.env.VITE_FORMBRICKS_WORKSPACE_ID !== 'undefined') {
+    if (formbricksEnabled()) {
         void formbricks.setLanguage(code);
     }
 

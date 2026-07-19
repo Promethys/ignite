@@ -1,0 +1,28 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Traits\Jobs\ConfiguresRetries;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+
+class {{ class }} implements ShouldQueue
+{
+    use ConfiguresRetries, Queueable;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        //
+    }
+}

@@ -11,14 +11,14 @@ import { createApp, h } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 import { initializeTheme } from './composables/useAppearance';
 import { initializeFlashToast } from './lib/flashToast';
+import { formbricksEnabled } from './lib/formbricks';
 
 const ENV = import.meta.env;
 const formbricksWorkspaceID = ENV.VITE_FORMBRICKS_WORKSPACE_ID;
 const formbricksAppURL = ENV.VITE_FORMBRICKS_APP_URL;
 
 const formbricksReady =
-    typeof window !== 'undefined' &&
-    typeof formbricksWorkspaceID !== 'undefined'
+    typeof window !== 'undefined' && formbricksEnabled()
         ? formbricks.setup({
               workspaceId: formbricksWorkspaceID,
               appUrl: formbricksAppURL ?? 'https://app.formbricks.com',

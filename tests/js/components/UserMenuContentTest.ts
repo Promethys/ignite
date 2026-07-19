@@ -113,6 +113,22 @@ describe('UserMenuContent', () => {
         expect(trigger.text()).toContain('Send feedback');
     });
 
+    it('hides the feedback trigger when Formbricks is disabled', () => {
+        vi.stubEnv('VITE_FORMBRICKS_WORKSPACE_ID', '');
+
+        expect(mountMenu().find('#send-feedback').exists()).toBe(false);
+    });
+
+    it('does not log out of Formbricks when disabled', async () => {
+        vi.stubEnv('VITE_FORMBRICKS_WORKSPACE_ID', '');
+        const wrapper = mountMenu();
+
+        await wrapper.get('[data-test="logout-button"]').trigger('click');
+
+        expect(mocks.fbLogout).not.toHaveBeenCalled();
+        expect(mocks.flushAll).toHaveBeenCalledTimes(1);
+    });
+
     it('logs out of Formbricks and flushes Inertia state on logout', async () => {
         const wrapper = mountMenu();
 
