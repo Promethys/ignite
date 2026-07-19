@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DashboardCharts;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -31,6 +32,8 @@ class DashboardController extends Controller
             'totalGoalsCount' => $totalGoalsCount,
             'completedGoalsCount' => $completedGoalsCount,
             'completionRate' => (int) $completionRate,
+            'monthlyCompletions' => DashboardCharts::monthlyCompletions($user),
+            'categoryBreakdown' => DashboardCharts::categoryBreakdown($user),
         ]);
     }
 }
