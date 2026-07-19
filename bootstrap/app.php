@@ -39,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'webhook.signature' => VerifyStandardWebhookSignature::class
+            'webhook.signature' => VerifyStandardWebhookSignature::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
