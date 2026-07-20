@@ -96,6 +96,8 @@ This creates three additional test users:
 - `active@ignite.test` / `password` (5 goals in progress)
 - `new@ignite.test` / `password` (clean slate)
 
+To remove this demo data without touching the schema, run `php artisan db:seed --class=RevertDataSeeder`. To start over completely, `php artisan migrate:fresh --seed` drops all tables and re-runs migrations plus the default seeder.
+
 ### 8. Build assets
 
 ```bash

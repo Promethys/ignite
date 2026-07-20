@@ -39,7 +39,7 @@ Every controller returns an Inertia response (`Inertia::render(...)`), never raw
 
 The core data graph, all under `app/Models/`:
 
-- `Goal`: the central model. `$with` eager-loads `category` and `milestones` by default (entries are excluded from the default load for performance; `GoalController::show` loads a capped set of entries plus a lightweight `chartEntries` set separately). Carries accessors such as `getProgressPercentageAttribute()` and methods like `markAsCompleted()`.
+- `Goal`: the central model. `$with` eager-loads `category` and `milestones` by default (entries are excluded from the default load for performance; `GoalController::show` loads a capped set of entries plus a lightweight `chartEntries` set separately). Carries accessors such as `getProgressPercentageAttribute()` and methods like `markAsCompleted()`. `status` is one of `not_started`, `in_progress`, `completed`, `paused`, `abandoned`; `priority` is one of `low`, `medium`, `high`. See [Goal Types](/features/goal-types) for `type` and `direction`.
 - `GoalEntry`: incremental progress records tied to a goal, with a timestamp.
 - `Category`: user-defined grouping for goals.
 - `Milestone`: checkpoints that break a goal into steps.
