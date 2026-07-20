@@ -1,7 +1,8 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default withMermaid(defineConfig({
   title: 'Ignite',
   description: 'Developer documentation for Ignite, a Laravel + Vue goal tracking app',
   cleanUrls: true,
@@ -9,7 +10,7 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/getting-started' },
-      { text: 'Features', link: '/features/goal-types' },
+      { text: 'Features', link: '/features/authentication' },
     ],
     sidebar: [
       {
@@ -29,11 +30,11 @@ export default defineConfig({
       {
         text: 'Features',
         items: [
+          { text: 'Authentication', link: '/features/authentication' },
           { text: 'Goal Types', link: '/features/goal-types' },
           { text: 'Categories', link: '/features/categories' },
           { text: 'Streaks', link: '/features/streaks' },
           { text: 'Milestones', link: '/features/milestones' },
-          { text: 'Authentication', link: '/features/authentication' },
           { text: 'Internationalization', link: '/features/internationalization' },
           { text: 'Admin Panel', link: '/features/admin-panel' },
           { text: 'Feedback & Ops', link: '/features/feedback-and-ops' },
@@ -57,4 +58,4 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/Promethys/ignite' },
     ],
   },
-})
+}))

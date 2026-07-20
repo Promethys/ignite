@@ -2,14 +2,22 @@
 
 Ignite is a Laravel 13 + Vue 3 app connected by Inertia.js: Laravel controllers render Vue page components directly, with no separate REST/JSON API layer for the frontend to consume.
 
-```
-Browser (SPA)
-Vue 3 + TypeScript + Inertia Client + Tailwind CSS
-        |  Inertia protocol (JSON over HTTP)
-        v
-Laravel Backend
-Controllers -> Models -> Database (PostgreSQL)
-Fortify (auth) + Inertia server-side adapter + Eloquent ORM
+```mermaid
+flowchart TD
+    subgraph browser["Browser (SPA)"]
+        client["Vue 3 + TypeScript + Inertia Client<br/>Tailwind CSS"]
+    end
+    subgraph backend["Laravel Backend"]
+        controllers["Controllers"]
+        models["Models (Eloquent ORM)"]
+        db[("PostgreSQL")]
+        fortify["Fortify (auth)"]
+        adapter["Inertia server-side adapter"]
+        controllers --> models --> db
+        fortify -.-> controllers
+        adapter -.-> controllers
+    end
+    client -- "Inertia protocol (JSON over HTTP)" --> controllers
 ```
 
 ## Backend

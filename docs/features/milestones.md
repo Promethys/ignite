@@ -10,7 +10,7 @@ These are two distinct, independently computed states on the `Milestone` model:
 
 **`is_reached`** (`Milestone::isReached()`): purely a function of the parent goal's current progress against the milestone's own `target_value`, following the goal's `direction`:
 
-```
+```php
 ascending  => goal.current_value >= milestone.target_value
 descending => goal.current_value <= milestone.target_value
 ```
@@ -19,7 +19,7 @@ This is recomputed live every time it's read; it has no persisted state and does
 
 **`is_completed`** (`Milestone::isCompleted()`): based entirely on the stored `completed_at` timestamp:
 
-```
+```php
 ! empty(completed_at) && completed_at->isPast()
 ```
 
