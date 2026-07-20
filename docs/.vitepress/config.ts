@@ -27,6 +27,15 @@ export default defineConfig({
         ],
       },
       {
+        text: 'Features',
+        items: [
+          { text: 'Goal Types', link: '/features/goal-types' },
+          { text: 'Categories', link: '/features/categories' },
+          { text: 'Streaks', link: '/features/streaks' },
+          { text: 'Milestones', link: '/features/milestones' },
+        ],
+      },
+      {
         text: 'Deployment',
         items: [
           { text: 'Self-Hosting', link: '/self-hosting' },
