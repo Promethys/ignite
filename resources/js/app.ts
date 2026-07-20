@@ -12,6 +12,7 @@ import VueApexCharts from 'vue3-apexcharts';
 import { initializeTheme } from './composables/useAppearance';
 import { initializeFlashToast } from './lib/flashToast';
 import { formbricksEnabled } from './lib/formbricks';
+import { bootI18n, bootLocale, resolveLang } from './lib/i18n';
 
 const ENV = import.meta.env;
 const formbricksWorkspaceID = ENV.VITE_FORMBRICKS_WORKSPACE_ID;
@@ -45,6 +46,12 @@ function identifyFormbricks(user: formbricksUser | undefined) {
     });
 }
 
+const locale = bootLocale();
+
+// Messages must be in place before the app mounts, otherwise `trans()` calls in
+// `<script setup>` capture the raw key. See `lib/i18n.ts`.
+await bootI18n(locale);
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) =>
@@ -70,18 +77,11 @@ createInertiaApp({
 
         createApp({ render: () => h(App, props) })
             .use(plugin)
+            // Reuses the instance warmed by bootI18n, so install applies the
+            // messages synchronously rather than a microtask after mount.
             .use(i18nVue, {
                 lang: sharedLocale,
-                resolve: (lang: string) => {
-                    const langs = import.meta.glob<{
-                        default: Record<string, string>;
-                    }>('../../lang/*.json', { eager: true });
-                    return {
-                        ...(langs[`../../lang/php_${lang}.json`]?.default ??
-                            {}),
-                        ...(langs[`../../lang/${lang}.json`]?.default ?? {}),
-                    };
-                },
+                resolve: resolveLang,
             })
             .use(VueApexCharts)
             .mount(el);

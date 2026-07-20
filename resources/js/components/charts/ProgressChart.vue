@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { getBinaryTheme } from '@/composables/useAppearance';
+import { useChartTheme } from '@/composables/useChartTheme';
+import { lineChartOptions } from '@/lib/chart-theme';
+import { readCssVar } from '@/lib/chart-utils';
 import { GoalEntry } from '@/types/models';
-import { trans } from 'laravel-vue-i18n';
+import { wTrans } from 'laravel-vue-i18n';
+import { computed } from 'vue';
 
 const props = defineProps<{
     entries: Pick<GoalEntry, 'entry_date' | 'value'>[];
@@ -9,79 +12,67 @@ const props = defineProps<{
     unit: string | null;
 }>();
 
-const theme = getBinaryTheme();
+const valuesLabel = wTrans('goals.chart.values');
+const targetLabel = wTrans('goals.chart.target');
 
-const cssVar = (name: string) =>
-    typeof document !== 'undefined'
-        ? getComputedStyle(document.documentElement)
-              .getPropertyValue(name)
-              .trim()
-        : '';
-
-// Series 1 (progress) uses the brand colour; series 2 (target) stays muted.
-const chartColors = [cssVar('--chart-1'), cssVar('--muted-foreground')];
-
-const sortedEntries = [...props.entries].sort(
-    (a, b) =>
-        new Date(a.entry_date).getTime() - new Date(b.entry_date).getTime(),
+const sortedEntries = computed(() =>
+    [...props.entries].sort(
+        (a, b) =>
+            new Date(a.entry_date).getTime() - new Date(b.entry_date).getTime(),
+    ),
 );
 
-const chartSeries = [
+const chartSeries = computed(() => [
     {
-        name: trans('goals.chart.values'),
-        data: sortedEntries.map((item) => ({
+        name: valuesLabel.value,
+        data: sortedEntries.value.map((item) => ({
             x: new Date(item.entry_date).getTime(),
             y: item.value,
         })),
     },
-    {
-        name: trans('goals.chart.target'),
-        data: sortedEntries.map((item) => ({
-            x: new Date(item.entry_date).getTime(),
-            y: props.targetValue,
-        })),
-    },
-];
+]);
 
-const chartOptions = {
-    colors: chartColors,
-    chart: {
-        height: 350,
-        type: 'line',
-        zoom: {
-            enabled: true,
-        },
-    },
-    theme: {
-        mode: theme,
-    },
-    dataLabels: {
-        enabled: false,
-    },
-    stroke: {
-        curve: 'smooth',
-        width: [3, 2],
-        dashArray: [0, 6],
-    },
-    grid: {
-        row: {
-            opacity: 0.5,
-        },
-    },
+const target = computed(() =>
+    props.targetValue === null ? null : Number(props.targetValue),
+);
+
+const chartOptions = useChartTheme(() => ({
+    ...lineChartOptions(),
     xaxis: {
+        ...(lineChartOptions().xaxis as object),
         type: 'datetime',
-        title: {
-            text: trans('goals.chart.entry_date'),
-        },
     },
-};
+    annotations: {
+        yaxis:
+            target.value === null
+                ? []
+                : [
+                      {
+                          y: target.value,
+                          borderColor: readCssVar('--muted-foreground'),
+                          strokeDashArray: 5,
+                          label: {
+                              text: targetLabel.value,
+                              position: 'left',
+                              textAnchor: 'start',
+                              borderWidth: 0,
+                              style: {
+                                  background: 'transparent',
+                                  color: readCssVar('--muted-foreground'),
+                                  fontSize: '11px',
+                              },
+                          },
+                      },
+                  ],
+    },
+}));
 </script>
 
 <template>
     <apexchart
         type="line"
         width="100%"
-        height="auto"
+        height="320"
         :options="chartOptions"
         :series="chartSeries"
     ></apexchart>

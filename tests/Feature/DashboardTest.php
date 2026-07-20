@@ -169,4 +169,20 @@ class DashboardTest extends TestCase
                 ->where('activeGoalsList.0.streak', null)
             );
     }
+
+    public function test_dashboard_exposes_the_chart_props()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('monthlyCompletions', 12)
+                ->has('monthlyCompletions.0', fn (Assert $month) => $month
+                    ->has('month')
+                    ->has('count')
+                )
+                ->has('categoryBreakdown')
+            );
+    }
 }
