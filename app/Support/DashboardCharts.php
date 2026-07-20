@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Models\Category;
+use App\Models\Goal;
 use App\Models\User;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Collection;
@@ -22,7 +24,7 @@ class DashboardCharts
             ->orderBy('completed_at')
             ->select('id', 'completed_at')
             ->get()
-            ->groupBy(fn ($goal) => $goal->completed_at->timezone($timezone)->format('Y-m'))
+            ->groupBy(fn (Goal $goal) => $goal->completed_at->timezone($timezone)->format('Y-m'))
             ->map(fn ($group) => $group->count());
         $keys = $counts->keys();
 
@@ -50,7 +52,11 @@ class DashboardCharts
             ->get()
             ->groupBy('category_id')
             ->map(function (Collection $items, string $key) {
-                $category = filled($key) ? $items->first()->category : null;
+                /** @var Goal|null $goal */
+                $goal = $items->first();
+
+                /** @var Category|null $category */
+                $category = filled($key) ? $goal->category : null;
 
                 return [
                     'name' => $category?->name ?? 'Uncategorized',
