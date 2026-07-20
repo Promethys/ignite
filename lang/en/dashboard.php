@@ -31,7 +31,7 @@ return [
         ],
     ],
     'empty' => [
-        'title' => 'No active goal',
+        'title' => 'No active goals',
         'description' => "It's cold up here...",
     ],
 ];
