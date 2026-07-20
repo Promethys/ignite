@@ -20,6 +20,12 @@ export default defineConfig({
           { text: 'Installation', link: '/installation' },
         ],
       },
+      {
+        text: 'Configuration',
+        items: [
+          { text: 'Configuration', link: '/configuration' },
+        ],
+      },
     ],
     socialLinks: [
       { icon: 'github', link: 'https://github.com/Promethys/ignite' },
