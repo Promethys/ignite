@@ -7,7 +7,7 @@ This page covers the full local development setup: prerequisites, initial setup,
 - **PHP** `^8.5` (the exact constraint from `composer.json`)
 - **Node.js** 22
 - **Composer**
-- **PostgreSQL** (the app's default database; see [Database](#configure-the-database) below)
+- **PostgreSQL** (the app's default database; see [Database](#configure-the-database) below). No minimum version is enforced by the app; CI runs against PostgreSQL 18.
 
 SQLite is used only for the automated test suite (via `phpunit.xml`), not for local development or production.
 
@@ -55,7 +55,7 @@ See [Configuration](/configuration) for a full reference of the environment vari
 
 Ignite uses PostgreSQL by default. Edit `.env`:
 
-```env
+```ini
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432

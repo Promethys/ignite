@@ -1,8 +1,8 @@
 # Getting Started
 
-This page covers the shortest path from a fresh clone to a running app. For full prerequisite details (PHP, Node, Composer, PostgreSQL versions) and alternative setup paths, see [Installation](/installation).
+This page covers the shortest path from a fresh clone to a running app. For full prerequisite details and alternative setup paths, see [Installation](/installation).
 
-Prerequisites, in short: PHP 8.5+, Node.js 22+, Composer, and a PostgreSQL 18+ database.
+Prerequisites, in short: PHP 8.5+, Node.js 22+, Composer, and a PostgreSQL database.
 
 ## 1. Clone the repository
 
@@ -35,7 +35,7 @@ Ignite uses PostgreSQL by default. Set the `DB_*` variables in `.env` and create
 php artisan migrate --seed
 ```
 
-This creates the schema and a default admin account (`admin@example.com` / `password`).
+This creates the schema and, local/dev only (never in production), a default admin account (`admin@example.com` / `password`).
 
 ## 6. Start the app
 

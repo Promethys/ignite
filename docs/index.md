@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Ignite
   text: Turn progress into momentum
-  tagline: A Laravel + Vue goal tracking app that turns progress into momentum.
+  tagline: A Laravel + Vue goal tracking app for setting goals, logging entries, and staying consistent.
   actions:
     - theme: brand
       text: Get Started

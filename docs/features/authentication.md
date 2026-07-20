@@ -14,7 +14,7 @@ None for the default local setup. Optional: a working mail service if you plan t
 
 Email verification is gated by a single variable:
 
-```env
+```ini
 VERIFY_EMAIL=false
 ```
 

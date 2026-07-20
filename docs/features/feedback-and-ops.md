@@ -16,7 +16,7 @@ Both are hidden and inert until their environment variables are set; neither req
 
 ## Formbricks: the env vars
 
-```env
+```ini
 # FORMBRICKS_APP_URL=https://app.formbricks.com
 # FORMBRICKS_WORKSPACE_ID=
 # FORMBRICKS_WEBHOOK_SECRET=
@@ -29,7 +29,7 @@ All commented out (unset) in `.env.example`. On the frontend, `formbricksEnabled
 
 ## Discord ops relay: the env vars
 
-```env
+```ini
 # DISCORD_OPS_WEBHOOK_URL=
 # DISCORD_OPS_ENABLED=false
 ```

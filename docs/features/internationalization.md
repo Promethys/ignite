@@ -17,7 +17,7 @@ None. Both shipped locales work out of the box with no configuration.
 
 ## The env vars: `APP_LOCALE` / `APP_FALLBACK_LOCALE`
 
-```env
+```ini
 APP_LOCALE=en
 APP_FALLBACK_LOCALE=en
 ```
