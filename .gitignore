@@ -4,7 +4,6 @@
 .env.production
 .phpactor.json
 .phpunit.result.cache
-/.claude
 /.fleet
 /.idea
 /.nova
@@ -13,7 +12,6 @@
 /.zed
 /auth.json
 /bootstrap/ssr
-/docs
 /lang/php_*.json
 /node_modules
 /public/build
@@ -25,13 +23,9 @@
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder
-/scripts
 /storage/*.key
 /storage/pail
 /vendor
-/z_inspos
-AGENTS.md
-CLAUDE.md
 Homestead.json
 Homestead.yaml
 npm-debug.log
