@@ -23,10 +23,10 @@ Thank you for your interest in contributing! 🎉
 ## Pull Request Process
 
 1. Ensure CI checks pass (tests, linting)
-2. Update documentation if needed
+2. Update the affected `docs/` pages in the same PR when behavior changes
 3. Request review from maintainers
 4. Address feedback
-5. Squash commits before merge
+5. Merge the PR keeping its commits (a merge commit, not a squash), so the conventional-commit history is preserved on `main`
 
 ## Versioning
 
