@@ -33,6 +33,10 @@ export default defineConfig({
           { text: 'Categories', link: '/features/categories' },
           { text: 'Streaks', link: '/features/streaks' },
           { text: 'Milestones', link: '/features/milestones' },
+          { text: 'Authentication', link: '/features/authentication' },
+          { text: 'Internationalization', link: '/features/internationalization' },
+          { text: 'Admin Panel', link: '/features/admin-panel' },
+          { text: 'Feedback & Ops', link: '/features/feedback-and-ops' },
         ],
       },
       {
