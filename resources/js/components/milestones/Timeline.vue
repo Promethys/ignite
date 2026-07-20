@@ -11,21 +11,8 @@ const props = defineProps<{
 }>();
 
 const toggleMilestone = (id: number) => {
-    return id; // placeholder code for now
-    // TODO: call controller route... Probably create a new route for toggling the value.
-    // setMilestones((prev) =>
-    //     prev.map((m) =>
-    //         m.id === id
-    //             ? {
-    //                 ...m,
-    //                 completed: !m.completed,
-    //                 completed_at: !m.completed
-    //                     ? new Date().toISOString().split('T')[0]
-    //                     : undefined,
-    //             }
-    //             : m
-    //     )
-    // )
+    // Placeholder: milestone completion is not yet toggled from the timeline.
+    return id;
 };
 
 const isAutoComplete = (milestone: Milestone) => {
