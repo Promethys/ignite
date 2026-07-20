@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import CategoryBreakdownChart from '@/components/charts/CategoryBreakdownChart.vue';
+import CompletionsChart from '@/components/charts/CompletionsChart.vue';
 import GoalCard from '@/components/goals/GoalCard.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Empty,
     EmptyContent,
@@ -13,16 +16,19 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
+import { CategoryBreakdownItem, MonthlyCompletionItem } from '@/types/charts';
 import { Goal } from '@/types/models';
 import { Head, Link } from '@inertiajs/vue3';
 import { Goal as GoalIcon, Plus } from 'lucide-vue-next';
 
 const props = defineProps<{
-    activeGoalsList: Array<Goal>;
+    activeGoalsList: Goal[];
     activeGoalsCount: number;
     totalGoalsCount: number;
     completedGoalsCount: number;
     completionRate: number;
+    monthlyCompletions: MonthlyCompletionItem[];
+    categoryBreakdown: CategoryBreakdownItem[];
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -76,41 +82,67 @@ const stats = [
             </div>
 
             <!-- Active goals -->
-            <section class="space-y-3">
-                <h2 class="font-display text-base font-semibold">
-                    {{ $t('dashboard.active_goals') }}
-                </h2>
+            <Card>
+                <CardHeader>
+                    <CardTitle class="font-display">
+                        {{ $t('dashboard.active_goals') }}
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div
+                        v-if="activeGoalsList.length > 0"
+                        class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+                    >
+                        <GoalCard
+                            v-for="goal in activeGoalsList"
+                            :key="goal.id"
+                            :item="goal"
+                        />
+                    </div>
+                    <Empty v-else>
+                        <EmptyTitle>
+                            <EmptyMedia class="mx-auto" variant="icon">
+                                <GoalIcon />
+                            </EmptyMedia>
+                            {{ $t('dashboard.empty.title') }}
+                        </EmptyTitle>
+                        <EmptyDescription>{{
+                            $t('dashboard.empty.description')
+                        }}</EmptyDescription>
+                        <EmptyContent>
+                            <Button as-child>
+                                <Link :href="goals.create().url">
+                                    <Plus />
+                                    {{ $t('common.actions.new_goal') }}
+                                </Link>
+                            </Button>
+                        </EmptyContent>
+                    </Empty>
+                </CardContent>
+            </Card>
 
-                <div
-                    v-if="activeGoalsList.length > 0"
-                    class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
-                >
-                    <GoalCard
-                        v-for="goal in activeGoalsList"
-                        :key="goal.id"
-                        :item="goal"
-                    />
-                </div>
-                <Empty v-else>
-                    <EmptyTitle>
-                        <EmptyMedia class="mx-auto" variant="icon">
-                            <GoalIcon />
-                        </EmptyMedia>
-                        {{ $t('dashboard.empty.title') }}
-                    </EmptyTitle>
-                    <EmptyDescription>{{
-                        $t('dashboard.empty.description')
-                    }}</EmptyDescription>
-                    <EmptyContent>
-                        <Button as-child>
-                            <Link :href="goals.create().url">
-                                <Plus />
-                                {{ $t('common.actions.new_goal') }}
-                            </Link>
-                        </Button>
-                    </EmptyContent>
-                </Empty>
-            </section>
+            <div class="grid gap-4 lg:grid-cols-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle class="font-display">
+                            {{ $t('dashboard.charts.completions.title') }}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <CompletionsChart :data="monthlyCompletions" />
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle class="font-display">
+                            {{ $t('dashboard.charts.categories.title') }}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <CategoryBreakdownChart :data="categoryBreakdown" />
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     </AppLayout>
 </template>

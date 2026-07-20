@@ -2,6 +2,7 @@
 import { getBinaryTheme } from '@/composables/useAppearance';
 import { GoalEntry } from '@/types/models';
 import { trans } from 'laravel-vue-i18n';
+import { prefersReducedMotion, readCssVar } from './chart-utils';
 
 const props = defineProps<{
     entries: Pick<GoalEntry, 'entry_date' | 'value'>[];
@@ -11,15 +12,8 @@ const props = defineProps<{
 
 const theme = getBinaryTheme();
 
-const cssVar = (name: string) =>
-    typeof document !== 'undefined'
-        ? getComputedStyle(document.documentElement)
-              .getPropertyValue(name)
-              .trim()
-        : '';
-
 // Series 1 (progress) uses the brand colour; series 2 (target) stays muted.
-const chartColors = [cssVar('--chart-1'), cssVar('--muted-foreground')];
+const chartColors = [readCssVar('--chart-1'), readCssVar('--muted-foreground')];
 
 const sortedEntries = [...props.entries].sort(
     (a, b) =>
@@ -48,6 +42,9 @@ const chartOptions = {
     chart: {
         height: 350,
         type: 'line',
+        animations: {
+            enabled: !prefersReducedMotion(),
+        },
         zoom: {
             enabled: true,
         },
