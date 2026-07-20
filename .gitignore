@@ -31,3 +31,5 @@ Homestead.yaml
 npm-debug.log
 tmpclaude*
 yarn-error.log
+/docs/.vitepress/dist
+/docs/.vitepress/cache
