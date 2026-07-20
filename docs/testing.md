@@ -1,102 +1,61 @@
-# Testing Guide
+# Testing
 
-This document explains the testing infrastructure, conventions, and tools used in Ignite.
-
-## Table of Contents
-
-- [Testing Guide](#testing-guide)
-  - [Table of Contents](#table-of-contents)
-  - [Overview](#overview)
-    - [Testing Stack](#testing-stack)
-  - [Testing Conventions](#testing-conventions)
-    - [Test Categories](#test-categories)
-    - [Naming Conventions](#naming-conventions)
-  - [Backend Architecture (PHPUnit)](#backend-architecture-phpunit)
-    - [Directory Structure](#directory-structure)
-    - [Base Test Class](#base-test-class)
-  - [Frontend Architecture (Vitest)](#frontend-architecture-vitest)
-    - [Frontend Directory Structure](#frontend-directory-structure)
-    - [Test Types](#test-types)
-  - [Running Tests](#running-tests)
-    - [Backend](#backend)
-    - [Frontend](#frontend)
-  - [Writing Backend Tests](#writing-backend-tests)
-    - [Model Tests](#model-tests)
-      - [Relationship Tests](#relationship-tests)
-      - [Cast Tests](#cast-tests)
-      - [Accessor Tests](#accessor-tests)
-      - [Common Pitfalls](#common-pitfalls)
-    - [Controller Tests](#controller-tests)
-    - [Observer Tests](#observer-tests)
-  - [Writing Frontend Tests](#writing-frontend-tests)
-    - [Setup](#setup)
-    - [Utility Tests](#utility-tests)
-  - [Best Practices](#best-practices)
-    - [Arrange-Act-Assert](#arrange-act-assert)
-    - [One assertion focus per test](#one-assertion-focus-per-test)
-    - [Use factories, not raw `create()`](#use-factories-not-raw-create)
-    - [Always use named routes](#always-use-named-routes)
-  - [CI/CD Integration](#cicd-integration)
-
----
+This page covers the testing infrastructure, conventions, and tools used in Ignite.
 
 ## Overview
 
-### Testing Stack
+### Testing stack
 
 | Layer | Tool |
-|---|---|
-| Backend test framework | PHPUnit 11.x (via Laravel) |
+| --- | --- |
+| Backend test framework | PHPUnit (via Laravel) |
 | Backend database | SQLite in-memory (fast, isolated) |
 | Frontend test runner | Vitest |
-| Frontend component testing | @vue/test-utils |
+| Frontend component testing | `@vue/test-utils` |
+| Static analysis | Larastan / PHPStan (level 3) |
 | CI | GitHub Actions |
 
----
+## Testing conventions
 
-## Testing Conventions
+### Test categories
 
-### Test Categories
+The backend test suite is divided into three categories:
 
-The test suite is divided into three categories:
-
-**Unit tests** — `tests/Unit/`
+**Unit tests**: `tests/Unit/`
 - No Laravel boot, no database
 - Pure PHP logic: helpers, value objects, standalone services
 - Fast and side-effect-free
 
-**Feature tests** — `tests/Feature/`
+**Feature tests**: `tests/Feature/`
 - Laravel fully booted, database available
 - Mirror the `app/` directory structure
 - Cover controllers, models, observers, policies
 
-**Integration tests** — `tests/Integration/`
-- Multi-component workflows (creation → progress → auto-completion)
+**Integration tests**: `tests/Integration/`
+- Multi-component workflows (e.g. creation, progress, auto-completion)
 - Do not map to a single class
 
-### Naming Conventions
+### Naming conventions
 
 - All test classes use the `*Test` suffix
 - Test method names use snake_case prefixed with `test_`
 - Names describe the behavior, not the implementation
 
-```
-// ✅ Good
+```php
+// Good
 test_user_can_create_a_goal()
 test_guest_is_redirected_to_login()
 test_progress_percentage_is_capped_at_100()
 
-// ❌ Bad
+// Avoid
 test_goal()
 test_create()
 test_it_works()
 ```
 
----
+## Backend architecture (PHPUnit)
 
-## Backend Architecture (PHPUnit)
-
-### Directory Structure
+### Directory structure
 
 Feature tests mirror the `app/` directory structure:
 
@@ -108,8 +67,8 @@ app/
 
 tests/
 ├── Feature/
-│   ├── Auth/                          # Already covered
-│   ├── Settings/                      # Already covered
+│   ├── Auth/
+│   ├── Settings/
 │   ├── Http/
 │   │   └── Controllers/
 │   │       ├── Goals/
@@ -133,7 +92,7 @@ tests/
 └── TestCase.php
 ```
 
-### Base Test Class
+### Base test class
 
 All feature tests extend `Tests\TestCase` and use `RefreshDatabase`:
 
@@ -149,13 +108,11 @@ class GoalTest extends TestCase
 }
 ```
 
-`RefreshDatabase` wraps each test in a transaction and rolls it back — no manual cleanup needed. The database is SQLite in-memory (configured in `phpunit.xml`).
+`RefreshDatabase` wraps each test in a transaction and rolls it back, so no manual cleanup is needed. The test database is SQLite in-memory, configured in `phpunit.xml`.
 
----
+## Frontend architecture (Vitest)
 
-## Frontend Architecture (Vitest)
-
-### Frontend Directory Structure
+### Directory structure
 
 Frontend tests mirror `resources/js/`:
 
@@ -179,17 +136,15 @@ tests/js/
     └── utilsTest.ts
 ```
 
-### Test Types
+### Test types
 
-**Component tests** — mount a Vue component in isolation and assert its rendered output and behavior based on props.
+**Component tests** mount a Vue component in isolation and assert its rendered output and behavior based on props.
 
-**Utility tests** — test pure TypeScript functions (e.g., `getDateDiffFromNow`) without mounting any component.
+**Utility tests** exercise pure TypeScript functions (e.g. `getDateDiffFromNow`) without mounting any component.
 
-> **Note:** Inertia page components (`resources/js/pages/`) are not tested directly — they depend heavily on Inertia's router and are better covered by backend controller tests asserting the correct Inertia component and props are returned.
+Inertia page components (`resources/js/pages/`) are not tested directly since they depend heavily on Inertia's router; they are covered indirectly by backend controller tests that assert the correct Inertia component and props are returned.
 
----
-
-## Running Tests
+## Running tests
 
 ### Backend
 
@@ -197,15 +152,15 @@ tests/js/
 # Run all tests
 php artisan test
 
-# Run specific testsuite
+# Run a specific testsuite
 php artisan test --testsuite=Feature
 php artisan test --testsuite=Unit
 php artisan test --testsuite=Integration
 
-# Run specific file
+# Run a specific file
 php artisan test tests/Feature/Models/GoalTest.php
 
-# Run specific method
+# Run a specific method
 php artisan test --filter=test_progress_percentage_for_ascending_goal
 
 # Stop on first failure
@@ -215,31 +170,47 @@ php artisan test --stop-on-failure
 php artisan test --coverage
 ```
 
+`composer test` runs `php artisan config:clear` followed by `php artisan test`.
+
 ### Frontend
 
 ```bash
-# Run all frontend tests
-npx vitest
+# Run all frontend tests once
+npm run test:js
 
 # Watch mode
-npx vitest --watch
+npm run test:js:watch
 
-# Run specific file
+# Run a specific file
 npx vitest tests/js/components/goals/QuantifiableGoalCardTest.ts
 
 # With coverage
 npx vitest --coverage
 ```
 
----
+`npm run test:js` maps to `vitest run` in `package.json`. CI (and any environment without a real `.env`/`APP_KEY` already set up) runs it as:
 
-## Writing Backend Tests
+```bash
+LARAVEL_BYPASS_ENV_CHECK=1 npx vitest --run
+```
 
-### Model Tests
+The `LARAVEL_BYPASS_ENV_CHECK` flag skips the Laravel Vite plugin's environment checks, which otherwise expect a valid `.env` with `APP_KEY` set.
 
-Model tests live in `tests/Feature/Models/` and verify relationships, casts, accessors, and methods.
+### Static analysis
 
-Organize with section headers:
+```bash
+./vendor/bin/phpstan analyse --memory-limit=512M
+```
+
+`composer check` runs Pint (formatting check), PHPStan, and the full backend test suite in sequence.
+
+> Do not run the full backend or frontend suite speculatively during day-to-day work; run only the tests you created or changed, or the ones in the same group/folder. Let CI run the full suite.
+
+## Writing backend tests
+
+### Model tests
+
+Model tests live in `tests/Feature/Models/` and verify relationships, casts, accessors, and methods. Organize with section headers:
 
 ```php
 class GoalTest extends TestCase
@@ -264,7 +235,7 @@ class GoalTest extends TestCase
 }
 ```
 
-#### Relationship Tests
+#### Relationship tests
 
 For each relationship, verify:
 1. The FK record exists in the database
@@ -294,7 +265,7 @@ public function test_goal_has_many_entries()
 }
 ```
 
-#### Cast Tests
+#### Cast tests
 
 ```php
 public function test_goal_casts_current_value_as_decimal()
@@ -306,7 +277,7 @@ public function test_goal_casts_current_value_as_decimal()
 }
 ```
 
-#### Accessor Tests
+#### Accessor tests
 
 ```php
 public function test_progress_percentage_for_ascending_goal()
@@ -323,26 +294,24 @@ public function test_progress_percentage_for_ascending_goal()
 }
 ```
 
-#### Common Pitfalls
+#### Common pitfalls
 
-**Never use hardcoded IDs for foreign keys:**
+Never use hardcoded IDs for foreign keys:
 
 ```php
-// ❌ Will fail on FK constraint
+// Fails on FK constraint
 Goal::factory()->create(['user_id' => 999]);
 
-// ✅ Always create the related record
+// Correct: always create the related record
 $user = User::factory()->create();
 Goal::factory()->create(['user_id' => $user->id]);
 ```
 
-**Observer vs Factory:** Factories bypass observers by default in some configurations. To test observer logic, use `Model::create()` directly instead of factories.
+Observer vs factory: factories bypass observers by default in some configurations. To test observer logic, use `Model::create()` directly instead of factories.
 
----
+### Controller tests
 
-### Controller Tests
-
-Controller tests live in `tests/Feature/Http/Controllers/` mirroring `app/Http/Controllers/`.
+Controller tests live in `tests/Feature/Http/Controllers/`, mirroring `app/Http/Controllers/`.
 
 Every controller test must cover:
 - **Authorization**: guest redirect, ownership enforcement
@@ -399,9 +368,7 @@ $response->assertInertia(fn ($page) =>
 );
 ```
 
----
-
-### Observer Tests
+### Observer tests
 
 Observer tests live in `tests/Feature/Observers/`. Use `Model::create()` directly (not factories) to exercise the observer lifecycle:
 
@@ -432,9 +399,7 @@ class GoalObserverTest extends TestCase
 }
 ```
 
----
-
-## Writing Frontend Tests
+## Writing frontend tests
 
 ### Setup
 
@@ -476,7 +441,7 @@ describe('QuantifiableGoalCard', () => {
 })
 ```
 
-### Utility Tests
+### Utility tests
 
 Pure functions need no component mounting:
 
@@ -496,9 +461,7 @@ describe('getDateDiffFromNow', () => {
 })
 ```
 
----
-
-## Best Practices
+## Best practices
 
 ### Arrange-Act-Assert
 
@@ -530,10 +493,10 @@ Split separate behaviors into separate tests. A test named `test_user_can_create
 ### Use factories, not raw `create()`
 
 ```php
-// ✅
+// Preferred
 $goal = Goal::factory()->inProgress()->create(['user_id' => $user->id]);
 
-// ❌
+// Avoid
 Goal::create(['user_id' => 1, 'title' => 'Test', 'type' => 'simple', ...]);
 ```
 
@@ -542,30 +505,13 @@ Exception: observer tests must use `Model::create()` to trigger the observer.
 ### Always use named routes
 
 ```php
-// ✅
+// Preferred
 $this->get(route('goals.index'));
 
-// ❌
+// Avoid
 $this->get('/goals');
 ```
 
----
+## CI/CD integration
 
-## CI/CD Integration
-
-Tests run automatically on every push and pull request to `main` and `develop` via GitHub Actions.
-
-**Workflow file**: `.github/workflows/tests.yml`
-
-The pipeline:
-1. Sets up PHP 8.5 + Node 22
-2. Installs dependencies (`composer install`, `npm ci`)
-3. Copies `.env.example` → `.env` and generates app key
-4. Builds frontend assets (`npm run build`)
-5. Runs `./vendor/bin/phpunit`
-
-> Frontend tests (Vitest) are not yet wired into CI — add `npx vitest --run` to the workflow once frontend tests are in place.
-
----
-
-**Last Updated**: 2026-05-01
+Tests run automatically on every push and pull request to `main` via the `ci` GitHub Actions workflow (`.github/workflows/ci.yml`). The pipeline sets up PHP and Node, installs dependencies, builds frontend assets, then runs the backend suite (`./vendor/bin/phpunit`) and the frontend suite (`LARAVEL_BYPASS_ENV_CHECK=1 npx vitest --run`).

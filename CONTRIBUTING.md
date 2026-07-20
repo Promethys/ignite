@@ -4,7 +4,7 @@ Thank you for your interest in contributing! 🎉
 
 ## Getting Started
 
-1. Read the [Developer Documentation](DEVELOPER.md) for setup instructions
+1. Read the [Getting Started guide](docs/getting-started.md) for setup instructions
 2. Fork the repository
 3. Create a feature branch: `git checkout -b feature/your-feature`
 4. Make your changes
@@ -55,7 +55,7 @@ Be respectful, inclusive, and constructive in all interactions.
 
 ## Questions?
 
-- Check [DEVELOPER.md](DEVELOPER.md) for technical details
+- Check the [docs](docs/) site for technical details
 - Open an issue for bugs or feature requests
 - Join our Discord for discussions
 
