@@ -32,9 +32,9 @@ PostgreSQL is the app's default database, both locally and in production. SQLite
 | --- | --- | --- |
 | `SESSION_DRIVER` | Where session data is stored. | `database` |
 | `CACHE_STORE` | Where cached data is stored. | `database` |
-| `QUEUE_CONNECTION` | How queued jobs are dispatched and processed. | `sync` |
+| `QUEUE_CONNECTION` | How queued jobs are dispatched and processed. | `database` |
 
-The shipped defaults (`database` / `database` / `sync`) intentionally avoid a dependency on Redis or a separate queue worker for a minimal deployment. `sync` runs queued jobs immediately, in-request, rather than deferring them to `php artisan queue:listen`.
+Locally, queued jobs are stored in the `jobs` database table and processed by a worker, `php artisan queue:listen` (part of `composer dev`, see [Installation](/installation)). Production overrides `QUEUE_CONNECTION` to `sync`, which runs queued jobs immediately, in-request, so a minimal deployment doesn't need a separate worker process.
 
 ## Mail
 

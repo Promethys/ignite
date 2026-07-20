@@ -77,16 +77,20 @@ On Windows, make sure the `pdo_pgsql` extension is enabled in `php.ini`.
 ### 6. Run migrations
 
 ```bash
-php artisan migrate
+php artisan migrate --seed
 ```
 
+`--seed` runs the default `DatabaseSeeder`, which creates the roles and, outside production, a single account: `admin@example.com` / `password` (plus a bare `test@example.com` user).
+
 ### 7. Seed demo data (optional)
+
+For a richer dataset with sample goals, categories, and achievements, run the dedicated demo seeder separately:
 
 ```bash
 php artisan db:seed --class=InitDataSeeder
 ```
 
-This creates three test users:
+This creates three additional test users:
 
 - `demo@ignite.test` / `password` (12 goals, varied states)
 - `active@ignite.test` / `password` (5 goals in progress)
