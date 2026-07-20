@@ -6,12 +6,12 @@ import {
     EmptyTitle,
 } from '@/components/ui/empty';
 import { getBinaryTheme } from '@/composables/useAppearance';
+import { prefersReducedMotion, readCssVar } from '@/lib/chart-utils';
 import { MonthlyCompletionItem } from '@/types/charts';
 import { trans } from 'laravel-vue-i18n';
 import { TrendingUp } from 'lucide-vue-next';
 import moment from 'moment';
 import { computed } from 'vue';
-import { prefersReducedMotion, readCssVar } from './chart-utils';
 
 const props = defineProps<{
     data: MonthlyCompletionItem[];

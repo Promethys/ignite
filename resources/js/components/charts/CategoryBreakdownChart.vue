@@ -6,11 +6,11 @@ import {
     EmptyTitle,
 } from '@/components/ui/empty';
 import { getBinaryTheme } from '@/composables/useAppearance';
+import { prefersReducedMotion } from '@/lib/chart-utils';
 import { CategoryBreakdownItem } from '@/types/charts';
 import { trans } from 'laravel-vue-i18n';
 import { PieChart } from 'lucide-vue-next';
 import { computed } from 'vue';
-import { prefersReducedMotion } from './chart-utils';
 
 const props = defineProps<{
     data: CategoryBreakdownItem[];

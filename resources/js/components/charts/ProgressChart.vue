@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { getBinaryTheme } from '@/composables/useAppearance';
+import { prefersReducedMotion, readCssVar } from '@/lib/chart-utils';
 import { GoalEntry } from '@/types/models';
 import { trans } from 'laravel-vue-i18n';
-import { prefersReducedMotion, readCssVar } from './chart-utils';
 
 const props = defineProps<{
     entries: Pick<GoalEntry, 'entry_date' | 'value'>[];
