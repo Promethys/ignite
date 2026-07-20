@@ -5,10 +5,10 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
-import { getBinaryTheme } from '@/composables/useAppearance';
-import { prefersReducedMotion } from '@/lib/chart-utils';
+import { useChartTheme } from '@/composables/useChartTheme';
+import { donutChartOptions } from '@/lib/chart-theme';
 import { CategoryBreakdownItem } from '@/types/charts';
-import { trans } from 'laravel-vue-i18n';
+import { wTrans } from 'laravel-vue-i18n';
 import { PieChart } from 'lucide-vue-next';
 import { computed } from 'vue';
 
@@ -16,41 +16,37 @@ const props = defineProps<{
     data: CategoryBreakdownItem[];
 }>();
 
-const theme = getBinaryTheme();
-
 const isEmpty = computed(() => props.data.length === 0);
 
-const chartColors = props.data.map((item) => item.color);
+const chartSeries = computed(() => props.data.map((item) => item.count));
 
-const chartSeries = props.data.map((item) => item.count);
+const totalLabel = wTrans('dashboard.charts.categories.total');
 
-const chartOptions = {
-    colors: chartColors,
-    chart: {
-        type: 'donut',
-        animations: {
-            enabled: !prefersReducedMotion(),
-        },
-    },
-    plotOptions: {
-        pie: {
-            donut: {
-                labels: {
-                    show: true,
-                    total: {
-                        showAlways: true,
-                        show: true,
-                        label: trans('dashboard.charts.categories.total'),
+const chartOptions = useChartTheme(() => {
+    const base = donutChartOptions();
+    const baseLabels = (base.plotOptions as Record<string, any>).pie.donut
+        .labels as object;
+
+    return {
+        ...base,
+        colors: props.data.map((item) => item.color),
+        labels: props.data.map((item) => item.name),
+        plotOptions: {
+            pie: {
+                donut: {
+                    labels: {
+                        ...baseLabels,
+                        total: {
+                            ...((baseLabels as Record<string, any>)
+                                .total as object),
+                            label: totalLabel.value,
+                        },
                     },
                 },
             },
         },
-    },
-    theme: {
-        mode: theme,
-    },
-    labels: props.data.map((item) => item.name),
-};
+    };
+});
 </script>
 
 <template>

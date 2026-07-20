@@ -5,50 +5,36 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
-import { getBinaryTheme } from '@/composables/useAppearance';
-import { prefersReducedMotion, readCssVar } from '@/lib/chart-utils';
+import { useChartTheme } from '@/composables/useChartTheme';
+import { barChartOptions } from '@/lib/chart-theme';
+import { formatMonthLabels } from '@/lib/chart-utils';
 import { MonthlyCompletionItem } from '@/types/charts';
-import { trans } from 'laravel-vue-i18n';
+import { wTrans } from 'laravel-vue-i18n';
 import { TrendingUp } from 'lucide-vue-next';
-import moment from 'moment';
 import { computed } from 'vue';
 
 const props = defineProps<{
     data: MonthlyCompletionItem[];
 }>();
 
-const theme = getBinaryTheme();
-
-const chartColors = [readCssVar('--chart-1')];
-
 const isEmpty = computed(() => props.data.every((item) => item.count === 0));
 
-const chartSeries = [
-    {
-        name: trans('dashboard.charts.completions.series'),
-        data: props.data.map((item) => ({
-            x: moment(item.month, 'YYYY-MM').format('MMM, YYYY'),
-            y: item.count,
-        })),
-    },
-];
+const seriesName = wTrans('dashboard.charts.completions.series');
 
-const chartOptions = {
-    colors: chartColors,
-    chart: {
-        type: 'bar',
-        height: 300,
-        animations: {
-            enabled: !prefersReducedMotion(),
-        },
+const chartSeries = computed(() => [
+    {
+        name: seriesName.value,
+        data: props.data.map((item) => item.count),
     },
-    theme: {
-        mode: theme,
+]);
+
+const chartOptions = useChartTheme(() => ({
+    ...barChartOptions(),
+    xaxis: {
+        ...(barChartOptions().xaxis as object),
+        categories: formatMonthLabels(props.data.map((item) => item.month)),
     },
-    dataLabels: {
-        enabled: false,
-    },
-};
+}));
 </script>
 
 <template>
@@ -56,7 +42,7 @@ const chartOptions = {
         v-if="!isEmpty"
         type="bar"
         width="100%"
-        height="auto"
+        height="300"
         :options="chartOptions"
         :series="chartSeries"
     ></apexchart>
