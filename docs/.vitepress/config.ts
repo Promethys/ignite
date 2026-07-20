@@ -26,6 +26,19 @@ export default defineConfig({
           { text: 'Configuration', link: '/configuration' },
         ],
       },
+      {
+        text: 'Deployment',
+        items: [
+          { text: 'Self-Hosting', link: '/self-hosting' },
+        ],
+      },
+      {
+        text: 'Contributing',
+        items: [
+          { text: 'Architecture', link: '/architecture' },
+          { text: 'Testing', link: '/testing' },
+        ],
+      },
     ],
     socialLinks: [
       { icon: 'github', link: 'https://github.com/Promethys/ignite' },
