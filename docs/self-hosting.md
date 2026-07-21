@@ -1,6 +1,6 @@
 # Self-Hosting
 
-Ignite is AGPLv3 and self-hostable. This page documents the deploy shape actually shipped in this repo (the one running in production on Railway), not a generic Laravel deployment tutorial. For local development, see [Installation](/installation).
+Ignite is source-available (FSL-1.1-MIT) and self-hostable. This page documents the deploy shape actually shipped in this repo (the one running in production on Railway), not a generic Laravel deployment tutorial. For local development, see [Installation](/installation).
 
 ## The shape: one container
 

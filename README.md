@@ -44,9 +44,9 @@ Found a vulnerability? See [SECURITY.md](SECURITY.md) for how to report it respo
 
 ## License
 
-This project is open-source and available under the [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE).
+Ignite is **source-available** under the [Functional Source License, Version 1.1, MIT Future License (FSL-1.1-MIT)](LICENSE), one of the [Fair Source](https://fair.io) licenses.
 
-Ignite is free to self-host. Because it is a network service, the AGPLv3 requires that if you run a modified version and let others use it over a network, you make your modified source available to them.
+In plain terms: you can read the code, self-host it for yourself or your organization, modify it, and contribute back, all for free. The one thing you cannot do is offer Ignite as a competing hosted service to others. Two years after each release, that version automatically converts to the [MIT license](https://opensource.org/license/mit) and becomes fully open source.
 
 ## Author
 

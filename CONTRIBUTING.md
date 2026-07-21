@@ -49,6 +49,10 @@ All user-visible strings must use translation keys instead of hardcoded text.
 - **Supported locales** are defined in `config/locales.php`. Add a locale there before creating lang files for it.
 - Run `php artisan test --filter=TranslationParityTest` to verify key parity between locales.
 
+## License of contributions
+
+Ignite is source-available under the [FSL-1.1-MIT](LICENSE) license. By submitting a contribution, you agree that it is licensed under the same terms as the project.
+
 ## Code of Conduct
 
 Be respectful, inclusive, and constructive in all interactions.
