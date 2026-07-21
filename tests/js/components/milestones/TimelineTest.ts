@@ -12,6 +12,7 @@ vi.mock('lucide-vue-next', () => ({
     Plus: { template: '<span class="icon-plus" />' },
     Target: { template: '<span class="icon-target" />' },
     Calendar: { template: '<span class="icon-calendar" />' },
+    RotateCcw: { template: '<span class="icon-rotate" />' },
 }));
 
 const stubs = {
@@ -175,9 +176,14 @@ describe('Timeline', () => {
     // AUTO-COMPLETED MILESTONES
     // =========================================================================
 
-    it('auto-completes milestone when current_value meets target_value', () => {
+    it('shows completed styling when a milestone is reached (is_reached)', () => {
         const milestones = [
-            makeMilestone({ id: 1, target_value: 500, is_completed: false }),
+            makeMilestone({
+                id: 1,
+                target_value: 500,
+                is_completed: false,
+                is_reached: true,
+            }),
         ];
 
         const wrapper = mount(Timeline, {
@@ -328,9 +334,14 @@ describe('Timeline', () => {
         expect(wrapper.text()).toContain('50');
     });
 
-    it('caps progress percentage at 100', () => {
+    it('shows the check once a milestone is reached', () => {
         const milestones = [
-            makeMilestone({ id: 1, target_value: 100, is_completed: false }),
+            makeMilestone({
+                id: 1,
+                target_value: 100,
+                is_completed: false,
+                is_reached: true,
+            }),
         ];
 
         const wrapper = mount(Timeline, {
@@ -342,10 +353,10 @@ describe('Timeline', () => {
     });
 
     // =========================================================================
-    // BUTTON STATE
+    // TOGGLE AFFORDANCE
     // =========================================================================
 
-    it('disables toggle button for auto-complete milestones', () => {
+    it('renders auto-complete milestones as non-interactive (cursor-default)', () => {
         const milestones = [
             makeMilestone({ id: 1, target_value: 500, is_completed: false }),
         ];
@@ -356,12 +367,12 @@ describe('Timeline', () => {
         });
 
         const button = wrapper.find('button');
-        expect(button.attributes('disabled')).toBeDefined();
+        expect(button.classes()).toContain('cursor-default');
     });
 
-    it('disables toggle button for completed milestones', () => {
+    it('renders manual steps as interactive (cursor-pointer)', () => {
         const milestones = [
-            makeMilestone({ id: 1, is_completed: true }),
+            makeMilestone({ id: 1, target_value: null, is_completed: false }),
         ];
 
         const wrapper = mount(Timeline, {
@@ -369,23 +380,22 @@ describe('Timeline', () => {
             global: { stubs },
         });
 
-        const buttons = wrapper.findAll('button');
-        const milestoneButton = buttons[0];
-        expect(milestoneButton.attributes('disabled')).toBeDefined();
+        const button = wrapper.find('button');
+        expect(button.classes()).toContain('cursor-pointer');
     });
 
-    it('does not disable toggle button for manual milestones', () => {
+    it('keeps completed manual steps interactive so they can be undone', () => {
         const milestones = [
-            makeMilestone({ id: 1, target_value: null, is_completed: false }),
+            makeMilestone({ id: 1, target_value: null, is_completed: true }),
         ];
 
         const wrapper = mount(Timeline, {
-            props: { record: makeGoal({ current_value: -1, milestones }) },
+            props: { record: makeGoal({ milestones }) },
             global: { stubs },
         });
 
-        const buttons = wrapper.findAll('button');
-        const milestoneButton = buttons[0];
-        expect(milestoneButton.attributes('disabled')).toBeUndefined();
+        const button = wrapper.find('button');
+        expect(button.classes()).toContain('cursor-pointer');
+        expect(button.attributes('disabled')).toBeUndefined();
     });
 });

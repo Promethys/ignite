@@ -113,7 +113,9 @@ const open = ref<boolean>(props.open ?? false);
                         <Input
                             id="title"
                             name="title"
-                            :placeholder="$t(`${labelNamespace}.form.title_placeholder`)"
+                            :placeholder="
+                                $t(`${labelNamespace}.form.title_placeholder`)
+                            "
                             v-model="form.title"
                         />
                         <InputError
@@ -128,7 +130,11 @@ const open = ref<boolean>(props.open ?? false);
                         <Textarea
                             id="description"
                             name="description"
-                            :placeholder="$t(`${labelNamespace}.form.description_placeholder`)"
+                            :placeholder="
+                                $t(
+                                    `${labelNamespace}.form.description_placeholder`,
+                                )
+                            "
                             v-model="form.description"
                         />
                         <InputError
@@ -137,7 +143,10 @@ const open = ref<boolean>(props.open ?? false);
                         />
                     </div>
                     <div class="grid gap-3">
-                        <div class="space-y-3" v-if="(goal_type ?? '') !== 'multi_step'">
+                        <div
+                            class="space-y-3"
+                            v-if="(goal_type ?? '') !== 'multi_step'"
+                        >
                             <Label for="target_value">{{
                                 $t('milestones.form.target_value')
                             }}</Label>

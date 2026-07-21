@@ -5,7 +5,6 @@ import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInMod
 import GoalBadges from '@/components/goals/GoalBadges.vue';
 import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
 import Timeline from '@/components/milestones/Timeline.vue';
-import HelpTooltip from '@/components/ui/HelpTooltip.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import {
     AlertDialog,
@@ -26,6 +25,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import HelpTooltip from '@/components/ui/HelpTooltip.vue';
 import { Progress } from '@/components/ui/progress';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { streakUnit as streakUnitHelper } from '@/lib/streak';
@@ -555,7 +555,9 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                                 : $t('goals.show.milestones')
                                         }}
                                     </h4>
-                                    <HelpTooltip v-if="goal.type === 'multi_step'">
+                                    <HelpTooltip
+                                        v-if="goal.type === 'multi_step'"
+                                    >
                                         {{ $t('milestones.help_toggle') }}
                                     </HelpTooltip>
                                 </div>
@@ -569,7 +571,10 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                 </p>
                             </div>
                             <div class="flex items-center gap-1">
-                                <MilestoneFormModal :goal_id="goal.id" :goal_type="goal.type">
+                                <MilestoneFormModal
+                                    :goal_id="goal.id"
+                                    :goal_type="goal.type"
+                                >
                                     <template #trigger>
                                         <Button variant="outline" size="sm">
                                             <Plus class="size-4" />

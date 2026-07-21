@@ -129,7 +129,10 @@ const table = useVueTable({
                             "
                         >
                             <template #actions>
-                                <MilestoneFormModal :goal_id="goal.id" :goal_type="goal.type" />
+                                <MilestoneFormModal
+                                    :goal_id="goal.id"
+                                    :goal_type="goal.type"
+                                />
                             </template>
                         </PageHeader>
                         <Table :table />

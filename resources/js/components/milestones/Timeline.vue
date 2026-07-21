@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { formatDate } from '@/lib/utils';
+import milestones from '@/routes/milestones';
 import { Goal, Milestone } from '@/types/models';
+import { router } from '@inertiajs/vue3';
 import { Check, Plus, RotateCcw, Target } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { Badge } from '../ui/badge';
 import MilestoneFormModal from './MilestoneFormModal.vue';
-import milestones from '@/routes/milestones';
-import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{
     record: Goal;
@@ -16,9 +16,9 @@ const labelNamespace =
     props.record.type === 'multi_step' ? 'steps' : 'milestones';
 
 const toggleMilestone = (milestone: Milestone) => {
-    const url = isCompleted(milestone) 
-        ? milestones.uncomplete({goal: props.record, milestone})
-        : milestones.complete({goal: props.record, milestone});
+    const url = isCompleted(milestone)
+        ? milestones.uncomplete({ goal: props.record, milestone })
+        : milestones.complete({ goal: props.record, milestone });
 
     router.patch(url);
 };
@@ -101,8 +101,10 @@ const activeIndex = computed(() =>
                         }"
                     >
                         <template v-if="isCompleted(milestone)">
-                            <Check class="size-4 inline group-hover:hidden" />
-                            <RotateCcw class="size-4 hidden group-hover:inline" />
+                            <Check class="inline size-4 group-hover:hidden" />
+                            <RotateCcw
+                                class="hidden size-4 group-hover:inline"
+                            />
                         </template>
                         <template v-else>
                             <!-- Auto-completing (quantifiable) milestone: non-interactive progress ring -->
@@ -199,7 +201,10 @@ const activeIndex = computed(() =>
 
             <!-- Add milestone button at the end -->
             <div class="flex items-center gap-4">
-                <MilestoneFormModal :goal_id="props.record.id" :goal_type="props.record.type">
+                <MilestoneFormModal
+                    :goal_id="props.record.id"
+                    :goal_type="props.record.type"
+                >
                     <template #trigger>
                         <button
                             class="flex size-8 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-border transition-colors hover:border-muted-foreground"

@@ -21,8 +21,7 @@ const props = defineProps<{
     goalType?: string;
 }>();
 
-const labelNamespace =
-    props.goalType === 'multi_step' ? 'steps' : 'milestones';
+const labelNamespace = props.goalType === 'multi_step' ? 'steps' : 'milestones';
 </script>
 
 <template>
