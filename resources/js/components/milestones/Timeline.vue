@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { formatDate } from '@/lib/utils';
+import milestones from '@/routes/milestones';
 import { Goal, Milestone } from '@/types/models';
-import { Check, Plus, Target } from 'lucide-vue-next';
+import { router } from '@inertiajs/vue3';
+import { Check, Plus, RotateCcw, Target } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { Badge } from '../ui/badge';
 import MilestoneFormModal from './MilestoneFormModal.vue';
@@ -10,21 +12,22 @@ const props = defineProps<{
     record: Goal;
 }>();
 
-const toggleMilestone = (id: number) => {
-    // Placeholder: milestone completion is not yet toggled from the timeline.
-    return id;
+const labelNamespace =
+    props.record.type === 'multi_step' ? 'steps' : 'milestones';
+
+const toggleMilestone = (milestone: Milestone) => {
+    const url = isCompleted(milestone)
+        ? milestones.uncomplete({ goal: props.record, milestone })
+        : milestones.complete({ goal: props.record, milestone });
+
+    router.patch(url);
 };
 
 const isAutoComplete = (milestone: Milestone) => {
     return milestone.target_value != null;
 };
 
-const isAutoCompleted = (milestone: Milestone) => {
-    return (
-        milestone.target_value !== undefined &&
-        props.record.current_value >= (milestone.target_value ?? 0)
-    );
-};
+const isAutoCompleted = (milestone: Milestone) => milestone.is_reached;
 
 const isCompleted = (milestone: Milestone) => {
     return milestone.is_completed || isAutoCompleted(milestone);
@@ -68,34 +71,43 @@ const activeIndex = computed(() =>
                         @click="
                             () =>
                                 !isAutoComplete(milestone) &&
-                                !isCompleted(milestone) &&
-                                toggleMilestone(milestone.id)
+                                toggleMilestone(milestone)
                         "
-                        :disabled="
-                            isAutoComplete(milestone) || isCompleted(milestone)
+                        :aria-label="
+                            !isAutoComplete(milestone)
+                                ? isCompleted(milestone)
+                                    ? $t('milestones.mark_incomplete')
+                                    : $t('milestones.mark_complete')
+                                : undefined
                         "
                         :class="{
-                            'flex size-8 items-center justify-center rounded-full border-2 transition-all': true,
+                            'group flex size-8 items-center justify-center rounded-full border-2 transition-all': true,
+                            'cursor-pointer': !isAutoComplete(milestone),
+                            'cursor-default': isAutoComplete(milestone),
                             'border-success bg-success text-success-foreground':
                                 isCompleted(milestone),
                             'border-warning bg-warning/20 ring-4 ring-warning/20':
                                 index === activeIndex &&
                                 !isCompleted(milestone),
-                            'border-border bg-background hover:border-muted-foreground':
+                            'border-border bg-background':
                                 index !== activeIndex &&
                                 !isCompleted(milestone),
-                            'cursor-default':
-                                isAutoComplete(milestone) &&
-                                !isCompleted(milestone),
-                            'cursor-pointer':
+                            'hover:border-success':
                                 !isAutoComplete(milestone) &&
                                 !isCompleted(milestone),
+                            'hover:border-warning':
+                                !isAutoComplete(milestone) &&
+                                isCompleted(milestone),
                         }"
                     >
                         <template v-if="isCompleted(milestone)">
-                            <Check class="size-4" />
+                            <Check class="inline size-4 group-hover:hidden" />
+                            <RotateCcw
+                                class="hidden size-4 group-hover:inline"
+                            />
                         </template>
                         <template v-else>
+                            <!-- Auto-completing (quantifiable) milestone: non-interactive progress ring -->
                             <div v-if="isAutoComplete(milestone)">
                                 <div
                                     class="size-5 rounded-full border-2 border-muted-foreground"
@@ -104,16 +116,11 @@ const activeIndex = computed(() =>
                                     }"
                                 />
                             </div>
-                            <div v-else>
-                                <div
-                                    :class="{
-                                        'size-2 rounded-full': true,
-                                        'bg-warning': index === activeIndex,
-                                        'bg-muted-foreground/50':
-                                            index !== activeIndex,
-                                    }"
-                                />
-                            </div>
+                            <!-- Manual step: empty checkbox that previews a check on hover -->
+                            <Check
+                                v-else
+                                class="size-4 text-success opacity-0 transition-opacity group-hover:opacity-100"
+                            />
                         </template>
                     </button>
                 </div>
@@ -194,7 +201,10 @@ const activeIndex = computed(() =>
 
             <!-- Add milestone button at the end -->
             <div class="flex items-center gap-4">
-                <MilestoneFormModal :goal_id="props.record.id">
+                <MilestoneFormModal
+                    :goal_id="props.record.id"
+                    :goal_type="props.record.type"
+                >
                     <template #trigger>
                         <button
                             class="flex size-8 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-border transition-colors hover:border-muted-foreground"
@@ -204,7 +214,7 @@ const activeIndex = computed(() =>
                     </template>
                 </MilestoneFormModal>
                 <span class="text-sm text-muted-foreground">{{
-                    $t('milestones.add')
+                    $t(`${labelNamespace}.add`)
                 }}</span>
             </div>
         </div>

@@ -60,6 +60,20 @@ class MilestoneTest extends TestCase
         $this->assertTrue($milestone->is_reached);
     }
 
+    public function test_is_reached_for_null_target_value_returns_false()
+    {
+        $goal = Goal::factory()->create([
+            'type' => 'multi_step',
+            'current_value' => 0,
+        ]);
+        $milestone = Milestone::factory()->create([
+            'goal_id' => $goal->id,
+            'target_value' => null,
+        ]);
+
+        $this->assertFalse($milestone->is_reached);
+    }
+
     public function test_is_not_reached_when_below_target()
     {
         $goal = Goal::factory()->create([

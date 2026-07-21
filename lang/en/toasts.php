@@ -28,6 +28,15 @@ return [
         'updated' => 'Milestone updated.',
         'deleted' => 'Milestone deleted.',
         'completed' => 'Milestone completed.',
+        'uncompleted' => 'Milestone marked incomplete.',
+    ],
+
+    'step' => [
+        'added' => 'Step added.',
+        'updated' => 'Step updated.',
+        'deleted' => 'Step deleted.',
+        'completed' => 'Step completed.',
+        'uncompleted' => 'Step marked incomplete.',
     ],
 
     'profile' => [

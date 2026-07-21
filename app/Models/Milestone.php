@@ -68,14 +68,31 @@ class Milestone extends Model
     }
 
     /**
+     * Mark the milestone as incomplete.
+     */
+    public function markAsIncomplete(): void
+    {
+        $this->update([
+            'completed_at' => null,
+        ]);
+    }
+
+    /**
      * Check if the milestone is reached based on current goal value.
      */
     public function isReached(): Attribute
     {
         return Attribute::make(
-            get: fn () => match ($this->goal->direction) {
-                'ascending' => $this->goal->current_value >= $this->target_value,
-                'descending' => $this->goal->current_value <= $this->target_value
+            get: function () {
+                if ($this->target_value === null) {
+                    return false;
+                }
+
+                return match ($this->goal->direction) {
+                    'ascending' => $this->goal->current_value >= $this->target_value,
+                    'descending' => $this->goal->current_value <= $this->target_value,
+                    default => false
+                };
             },
         );
     }

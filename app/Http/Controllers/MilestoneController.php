@@ -36,7 +36,7 @@ class MilestoneController extends Controller
             'order' => $order,
         ]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.milestone.added')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.added')]);
 
         return redirect()->back();
     }
@@ -56,7 +56,7 @@ class MilestoneController extends Controller
 
         $milestone->update($validated);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.milestone.updated')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.updated')]);
 
         return redirect()->back();
     }
@@ -74,13 +74,13 @@ class MilestoneController extends Controller
 
         $milestone->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.milestone.deleted')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.deleted')]);
 
         return redirect()->back();
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Mark the milestone as completed.
      */
     public function complete(Request $request, Goal $goal, Milestone $milestone)
     {
@@ -92,8 +92,48 @@ class MilestoneController extends Controller
 
         $milestone->markAsCompleted();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.milestone.completed')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.completed'), 'action' => [
+            'label' => __('toasts.undo'),
+            'method' => 'patch',
+            'url' => route('milestones.uncomplete', [
+                'goal' => $goal,
+                'milestone' => $milestone,
+            ]),
+        ]]);
 
         return redirect()->back();
+    }
+
+    /**
+     * Mark the milestone as incomplete.
+     */
+    public function uncomplete(Request $request, Goal $goal, Milestone $milestone)
+    {
+        Gate::authorize('update', $milestone);
+
+        if ($goal->isNot($milestone->goal)) {
+            abort(403);
+        }
+
+        $milestone->markAsIncomplete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.uncompleted'), 'action' => [
+            'label' => __('toasts.undo'),
+            'method' => 'patch',
+            'url' => route('milestones.complete', [
+                'goal' => $goal,
+                'milestone' => $milestone,
+            ]),
+        ]]);
+
+        return redirect()->back();
+    }
+
+    /**
+     * The translation noun for toasts: "step" for multi-step goals, else "milestone".
+     */
+    private function toastNoun(Goal $goal): string
+    {
+        return $goal->type === 'multi_step' ? 'step' : 'milestone';
     }
 }

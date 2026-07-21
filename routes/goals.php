@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/{goal}/milestones/{milestone}', 'update')->name('milestones.update');
             Route::delete('/{goal}/milestones/{milestone}', 'destroy')->name('milestones.destroy');
             Route::patch('/{goal}/milestones/{milestone}/complete', 'complete')->name('milestones.complete');
+            Route::patch('/{goal}/milestones/{milestone}/uncomplete', 'uncomplete')->name('milestones.uncomplete');
         });
     });
 });

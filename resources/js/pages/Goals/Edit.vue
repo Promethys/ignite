@@ -50,6 +50,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const goalType = props.goal.type;
+const labelNamespace = goalType === 'multi_step' ? 'steps' : 'milestones';
+
 const columnHelper = createColumnHelper<Milestone>();
 
 const columns = [
@@ -61,13 +64,19 @@ const columns = [
     }),
     columnHelper.accessor('completed_at', {
         header: trans('milestones.table.completed_at'),
-        cell: (props) => props.getValue() ?? '-',
+        cell: (props) => {
+            const completedAt = props.getValue();
+            return completedAt
+                ? new Date(completedAt).toISOString().split('T')[0]
+                : '-';
+        },
     }),
     columnHelper.display({
         id: 'actions',
         cell: (props) =>
             h(MilestoneRowActions, {
                 row: props.row,
+                goalType,
             }),
     }),
 ];
@@ -97,7 +106,7 @@ const table = useVueTable({
                     <TabsTrigger value="milestones">
                         <span class="flex items-center gap-2">
                             <ListChecks class="size-4" />
-                            {{ $t('milestones.manage.tab_milestones') }}
+                            {{ $t(`${labelNamespace}.manage.tab_milestones`) }}
                         </span>
                     </TabsTrigger>
                 </TabsList>
@@ -114,11 +123,16 @@ const table = useVueTable({
                 <TabsContent value="milestones">
                     <div class="space-y-6">
                         <PageHeader
-                            :title="$t('milestones.manage.title')"
-                            :description="$t('milestones.manage.description')"
+                            :title="$t(`${labelNamespace}.manage.title`)"
+                            :description="
+                                $t(`${labelNamespace}.manage.description`)
+                            "
                         >
                             <template #actions>
-                                <MilestoneFormModal :goal_id="goal.id" />
+                                <MilestoneFormModal
+                                    :goal_id="goal.id"
+                                    :goal_type="goal.type"
+                                />
                             </template>
                         </PageHeader>
                         <Table :table />
