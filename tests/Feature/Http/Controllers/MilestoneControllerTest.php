@@ -51,6 +51,8 @@ class MilestoneControllerTest extends TestCase
             ->assertRedirect(route('login'));
         $this->patch(route('milestones.complete', [$this->goal, $milestone]))
             ->assertRedirect(route('login'));
+        $this->patch(route('milestones.uncomplete', [$this->goal, $milestone]))
+            ->assertRedirect(route('login'));
     }
 
     public function test_user_cannot_create_milestone_on_other_users_goal()
@@ -104,6 +106,21 @@ class MilestoneControllerTest extends TestCase
             ->assertForbidden();
 
         $this->assertNull($milestone->fresh()->completed_at);
+    }
+
+    public function test_user_cannot_uncomplete_other_users_milestone()
+    {
+        $otherGoal = Goal::factory()->create(['user_id' => $this->otherUser->id]);
+        $milestone = Milestone::factory()->create([
+            'goal_id' => $otherGoal->id,
+            'completed_at' => now(),
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.uncomplete', [$otherGoal, $milestone]))
+            ->assertForbidden();
+
+        $this->assertNotNull($milestone->fresh()->completed_at);
     }
 
     public function test_milestone_must_belong_to_the_goal_in_the_route()
@@ -275,7 +292,7 @@ class MilestoneControllerTest extends TestCase
     }
 
     // =========================================================================
-    // COMPLETE
+    // COMPLETE / UNCOMPLETE
     // =========================================================================
 
     public function test_user_can_complete_their_milestone()
@@ -292,5 +309,47 @@ class MilestoneControllerTest extends TestCase
             ->assertInertiaFlash('toast.message', 'Milestone completed.');
 
         $this->assertNotNull($milestone->fresh()->completed_at);
+    }
+
+    public function test_user_can_uncomplete_their_milestone()
+    {
+        $milestone = Milestone::factory()->create([
+            'goal_id' => $this->goal->id,
+            'completed_at' => now(),
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.uncomplete', [$this->goal, $milestone]))
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.type', 'success')
+            ->assertInertiaFlash('toast.message', 'Milestone marked incomplete.');
+
+        $this->assertNull($milestone->fresh()->completed_at);
+    }
+
+    public function test_completing_and_uncompleting_a_step_shows_step_toasts()
+    {
+        $stepGoal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'multi_step',
+        ]);
+        $step = Milestone::factory()->create([
+            'goal_id' => $stepGoal->id,
+            'target_value' => null,
+        ]);
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.complete', [$stepGoal, $step]))
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.message', 'Step completed.');
+
+        $this->assertNotNull($step->fresh()->completed_at);
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.uncomplete', [$stepGoal, $step]))
+            ->assertRedirect()
+            ->assertInertiaFlash('toast.message', 'Step marked incomplete.');
+
+        $this->assertNull($step->fresh()->completed_at);
     }
 }

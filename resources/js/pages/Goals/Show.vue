@@ -5,6 +5,7 @@ import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInMod
 import GoalBadges from '@/components/goals/GoalBadges.vue';
 import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
 import Timeline from '@/components/milestones/Timeline.vue';
+import HelpTooltip from '@/components/ui/HelpTooltip.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import {
     AlertDialog,
@@ -544,15 +545,20 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                             class="mb-3 flex items-start justify-between gap-2"
                         >
                             <div>
-                                <h4
-                                    class="font-display text-base font-semibold"
-                                >
-                                    {{
-                                        goal.type === 'multi_step'
-                                            ? $t('goals.show.steps')
-                                            : $t('goals.show.milestones')
-                                    }}
-                                </h4>
+                                <div class="flex items-center gap-1.5">
+                                    <h4
+                                        class="font-display text-base font-semibold"
+                                    >
+                                        {{
+                                            goal.type === 'multi_step'
+                                                ? $t('goals.show.steps')
+                                                : $t('goals.show.milestones')
+                                        }}
+                                    </h4>
+                                    <HelpTooltip v-if="goal.type === 'multi_step'">
+                                        {{ $t('milestones.help_toggle') }}
+                                    </HelpTooltip>
+                                </div>
                                 <p class="text-xs text-muted-foreground">
                                     {{
                                         $t('goals.show.milestones_progress', {
@@ -563,7 +569,7 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                 </p>
                             </div>
                             <div class="flex items-center gap-1">
-                                <MilestoneFormModal :goal_id="goal.id">
+                                <MilestoneFormModal :goal_id="goal.id" :goal_type="goal.type">
                                     <template #trigger>
                                         <Button variant="outline" size="sm">
                                             <Plus class="size-4" />

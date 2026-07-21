@@ -28,6 +28,15 @@ return [
         'updated' => 'Jalon mis à jour.',
         'deleted' => 'Jalon supprimé.',
         'completed' => 'Jalon terminé.',
+        'uncompleted' => 'Jalon marqué comme non terminé.',
+    ],
+
+    'step' => [
+        'added' => 'Étape ajoutée.',
+        'updated' => 'Étape mise à jour.',
+        'deleted' => 'Étape supprimée.',
+        'completed' => 'Étape terminée.',
+        'uncompleted' => 'Étape marquée comme non terminée.',
     ],
 
     'profile' => [

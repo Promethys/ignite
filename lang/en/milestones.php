@@ -6,6 +6,9 @@ return [
     'next_up' => 'Next up',
     'auto_completes' => 'Auto-completes at :value :unit (:percent% there)',
     'completed_on' => 'Completed :date',
+    'mark_complete' => 'Mark complete',
+    'mark_incomplete' => 'Mark incomplete',
+    'help_toggle' => 'Click a step to mark it complete, or click again to undo.',
 
     'manage' => [
         'title' => 'Milestones',

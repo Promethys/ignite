@@ -6,6 +6,9 @@ return [
     'next_up' => 'À suivre',
     'auto_completes' => 'Se termine automatiquement à :value :unit (:percent% atteint)',
     'completed_on' => 'Terminé le :date',
+    'mark_complete' => 'Marquer comme terminé',
+    'mark_incomplete' => 'Marquer comme non terminé',
+    'help_toggle' => 'Cliquez sur une étape pour la marquer comme terminée, ou cliquez à nouveau pour annuler.',
 
     'manage' => [
         'title' => 'Jalons',

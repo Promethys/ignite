@@ -26,14 +26,18 @@ import { Spinner } from '../ui/spinner';
 
 const props = defineProps<{
     goal_id: number;
+    goal_type?: string;
     record?: Milestone;
     open?: boolean;
 }>();
 
+const labelNamespace =
+    props.goal_type === 'multi_step' ? 'steps' : 'milestones';
+
 const formState = props.record
     ? {
-          cardTitle: 'milestones.form.edit_title',
-          cardDescription: 'milestones.form.edit_description',
+          cardTitle: `${labelNamespace}.form.edit_title`,
+          cardDescription: `${labelNamespace}.form.edit_description`,
           action: update({
               goal: props.record.goal_id,
               milestone: props.record,
@@ -41,8 +45,8 @@ const formState = props.record
           submitBtnLabel: 'milestones.form.submit_edit',
       }
     : {
-          cardTitle: 'milestones.form.create_title',
-          cardDescription: 'milestones.form.create_description',
+          cardTitle: `${labelNamespace}.form.create_title`,
+          cardDescription: `${labelNamespace}.form.create_description`,
           action: store({ goal: props.goal_id }),
           submitBtnLabel: 'milestones.form.submit_create',
       };
@@ -71,7 +75,7 @@ const open = ref<boolean>(props.open ?? false);
             <slot name="trigger">
                 <Button v-if="!record" class="w-full sm:w-auto">
                     <Plus />
-                    {{ $t('milestones.trigger') }}
+                    {{ $t(`${labelNamespace}.trigger`) }}
                 </Button>
                 <Button
                     v-else
@@ -109,9 +113,7 @@ const open = ref<boolean>(props.open ?? false);
                         <Input
                             id="title"
                             name="title"
-                            :placeholder="
-                                $t('milestones.form.title_placeholder')
-                            "
+                            :placeholder="$t(`${labelNamespace}.form.title_placeholder`)"
                             v-model="form.title"
                         />
                         <InputError
@@ -126,9 +128,7 @@ const open = ref<boolean>(props.open ?? false);
                         <Textarea
                             id="description"
                             name="description"
-                            :placeholder="
-                                $t('milestones.form.description_placeholder')
-                            "
+                            :placeholder="$t(`${labelNamespace}.form.description_placeholder`)"
                             v-model="form.description"
                         />
                         <InputError
@@ -137,7 +137,7 @@ const open = ref<boolean>(props.open ?? false);
                         />
                     </div>
                     <div class="grid gap-3">
-                        <div class="space-y-3">
+                        <div class="space-y-3" v-if="(goal_type ?? '') !== 'multi_step'">
                             <Label for="target_value">{{
                                 $t('milestones.form.target_value')
                             }}</Label>

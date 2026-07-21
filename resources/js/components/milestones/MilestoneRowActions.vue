@@ -16,15 +16,20 @@ import {
     DialogTrigger,
 } from '../ui/dialog';
 
-defineProps<{
+const props = defineProps<{
     row: Row<Milestone>;
+    goalType?: string;
 }>();
+
+const labelNamespace =
+    props.goalType === 'multi_step' ? 'steps' : 'milestones';
 </script>
 
 <template>
     <div class="flex w-full items-center justify-center gap-2">
         <MilestoneFormModal
             :goal_id="row.original.goal_id"
+            :goal_type="goalType"
             :record="row.original"
         >
             <template #trigger>
@@ -41,11 +46,11 @@ defineProps<{
             <DialogContent class="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{{
-                        $t('milestones.row.delete_title')
+                        $t(`${labelNamespace}.row.delete_title`)
                     }}</DialogTitle>
                     <DialogDescription>
                         {{
-                            $t('milestones.row.delete_description', {
+                            $t(`${labelNamespace}.row.delete_description`, {
                                 title: row.original.title,
                             })
                         }}
@@ -72,7 +77,7 @@ defineProps<{
                             )
                         "
                     >
-                        {{ $t('milestones.row.delete_confirm') }}
+                        {{ $t(`${labelNamespace}.row.delete_confirm`) }}
                     </Button>
                 </DialogFooter>
             </DialogContent>
