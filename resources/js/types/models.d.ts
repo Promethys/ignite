@@ -156,3 +156,12 @@ export interface StreakData {
     unit: string;
     current_period_satisfied: boolean;
 }
+
+export interface PersonalAccessToken {
+    id: number;
+    name: string;
+    abilities: string[];
+    last_used_at: string | null;
+    expires_at: string | null;
+    created_at: string;
+}

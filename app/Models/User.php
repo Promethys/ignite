@@ -19,10 +19,10 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
+    use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-
-    use HasApiTokens;
     use HasRecentScope;
     use HasRoles;
     use Notifiable;

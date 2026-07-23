@@ -33,4 +33,4 @@ export type AppPageProps<
 
 export type BreadcrumbItemType = BreadcrumbItem;
 
-export type { User } from './models';
+export type { PersonalAccessToken, User } from './models';
