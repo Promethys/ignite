@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Goals;
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
 use App\Models\User;
+use App\Services\Goals\GoalService;
 use App\Services\StreakService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -13,6 +14,11 @@ use Inertia\Inertia;
 
 class GoalController extends Controller
 {
+    public function __construct(private readonly GoalService $goalService)
+    {
+        //
+    }
+
     protected $rules = [
         'user_id' => 'required|exists:users,id',
         'category_id' => 'nullable|exists:categories,id',
@@ -42,9 +48,11 @@ class GoalController extends Controller
             'category' => 'nullable|integer|min:1|exists:categories,id',
         ]);
 
+        $actor = $request->user();
+
         return Inertia::render('Goals/Index', [
-            'items' => auth()->user()->goals()->with('user')->get()->append('streak'),
-            'categories' => auth()->user()->categories,
+            'items' => $this->goalService->listForUser($actor),
+            'categories' => $actor->categories,
             'category_id' => $validated['category'] ?? null,
         ]);
     }
@@ -90,9 +98,9 @@ class GoalController extends Controller
         return to_route('goals.index');
     }
 
-    public function show(Goal $goal)
+    public function show(Request $request, Goal $goal)
     {
-        Gate::authorize('view', $goal);
+        $goal = $this->goalService->find($request->user(), $goal);
 
         if (StreakService::isDeadlineCompletionEligible($goal)) {
             $previousStatus = $goal->status;
@@ -110,16 +118,12 @@ class GoalController extends Controller
             ]]);
         }
 
-        $chartEntries = $goal->entries->map(fn ($entry) => [
-            'entry_date' => $entry->entry_date,
-            'value' => $entry->value,
-        ]);
-
-        $goal->load([
-            'entries' => fn ($query) => $query->orderBy('entry_date', 'desc')->take(20),
-            'milestones' => fn ($query) => $query->orderBy('order', 'asc'),
-        ])
-            ->append('streak');
+        $chartEntries = $goal->entries()
+            ->get()
+            ->map(fn ($entry) => [
+                'entry_date' => $entry->entry_date,
+                'value' => $entry->value,
+            ]);
 
         $today = Carbon::now()->timezone($goal->user?->timezone ?? config('app.timezone'))->toDateString();
 
