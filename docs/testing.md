@@ -118,31 +118,56 @@ Frontend tests mirror `resources/js/`:
 
 ```
 resources/js/
-├── components/goals/QuantifiableGoalCard.vue
+├── components/goals/BaseGoalCard.vue
 ├── components/categories/CategoryFormModal.vue
+├── composables/useLocale.ts
+├── pages/Goals/Index.vue
 └── lib/utils.ts
 
 tests/js/
 ├── components/
 │   ├── goals/
-│   │   ├── QuantifiableGoalCardTest.ts
-│   │   ├── SimpleGoalCardTest.ts
-│   │   ├── RecurringGoalCardTest.ts
-│   │   ├── MultiStepGoalCardTest.ts
-│   │   └── GoalBadgesTest.ts
-│   └── categories/
-│       └── CategoryFormModalTest.ts
-└── lib/
-    └── utilsTest.ts
+│   │   ├── BaseGoalCardTest.ts
+│   │   ├── GoalBadgesTest.ts
+│   │   ├── GoalFormTest.ts
+│   │   └── progress/RecurringProgressTest.ts
+│   ├── milestones/
+│   │   ├── MilestoneFormModalTest.ts
+│   │   └── TimelineTest.ts
+│   ├── categories/
+│   │   └── CategoryFormModalTest.ts
+│   └── ui/
+│       ├── HelpTooltipTest.ts
+│       ├── PasswordInputTest.ts
+│       └── StatusDotTest.ts
+├── composables/
+│   ├── useChartThemeTest.ts
+│   └── useLocaleTest.ts
+├── pages/
+│   ├── CategoriesIndexTest.ts
+│   ├── ErrorPageTest.ts
+│   ├── GoalsIndexTest.ts
+│   └── GoalsShowTest.ts
+├── lib/
+│   ├── chartThemeTest.ts
+│   ├── chartUtilsTest.ts
+│   ├── i18nBootTest.ts
+│   ├── momentLocaleTest.ts
+│   └── utilsTest.ts
+└── setup.ts
 ```
 
 ### Test types
 
 **Component tests** mount a Vue component in isolation and assert its rendered output and behavior based on props.
 
+**Page tests** mount an Inertia page component from `resources/js/pages/` and assert what it renders from its props. Pages depend on Inertia's router and head manager, so those are stubbed rather than avoided (see "Page tests" below).
+
+**Composable tests** exercise the composition functions in `resources/js/composables/`.
+
 **Utility tests** exercise pure TypeScript functions (e.g. `getDateDiffFromNow`) without mounting any component.
 
-Inertia page components (`resources/js/pages/`) are not tested directly since they depend heavily on Inertia's router; they are covered indirectly by backend controller tests that assert the correct Inertia component and props are returned.
+Every page and component added to the app is expected to carry a test. Backend controller tests assert that the correct Inertia component and props are returned; the page test asserts what the page does with those props. The two are complementary, not alternatives.
 
 ## Running tests
 
@@ -440,6 +465,54 @@ describe('QuantifiableGoalCard', () => {
     })
 })
 ```
+
+### Page tests
+
+Page components live in `resources/js/pages/` and are mounted the same way as components, with two Inertia dependencies stubbed:
+
+1. **`<Head>`** requires the app head manager, which does not exist in a unit test. Stub only that export and keep the rest of `@inertiajs/vue3` real.
+2. **`router`** performs real navigation. Mock the methods the page calls so you can assert against them.
+
+Layout wrappers and any child component that is not under test are replaced with pass-through stubs, so the page's own markup is what gets asserted.
+
+```ts
+import CategoriesIndex from '@/pages/Categories/Index.vue';
+import { mount } from '@vue/test-utils';
+import { describe, expect, it, vi } from 'vitest';
+
+// <Head> needs the app head manager, absent in unit tests; stub only that export.
+vi.mock('@inertiajs/vue3', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@inertiajs/vue3')>();
+    return {
+        ...actual,
+        Head: { name: 'Head', render: () => null },
+        router: { delete: vi.fn() },
+    };
+});
+
+const passthrough = (componentNames: string[]) =>
+    Object.fromEntries(
+        componentNames.map((componentName) => [
+            componentName,
+            { template: '<div><slot /></div>' },
+        ]),
+    );
+
+const stubs = passthrough(['AppLayout', 'PageHeader']);
+
+describe('Categories/Index', () => {
+    it('renders a row per category', () => {
+        const wrapper = mount(CategoriesIndex, {
+            props: { categories: [{ id: 1, name: 'Health' }] },
+            global: { stubs },
+        });
+
+        expect(wrapper.text()).toContain('Health');
+    });
+});
+```
+
+Assert on what the page renders from its props, and on the router calls it triggers. Do not assert on the internals of stubbed children; those belong in that child's own test.
 
 ### Utility tests
 
