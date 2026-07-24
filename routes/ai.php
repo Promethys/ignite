@@ -6,4 +6,4 @@ use Laravel\Mcp\Facades\Mcp;
 Mcp::web('/mcp', IgniteServer::class)
     ->middleware(['auth:sanctum']);
 
-Mcp::local('ignite', IgniteServer::class);
+Mcp::local('/ignite', IgniteServer::class);

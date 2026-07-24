@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\GetGoalTool;
+use App\Mcp\Tools\ListGoalsTool;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -19,7 +21,8 @@ TXT)]
 class IgniteServer extends Server
 {
     protected array $tools = [
-        //
+        ListGoalsTool::class,
+        GetGoalTool::class,
     ];
 
     protected array $resources = [

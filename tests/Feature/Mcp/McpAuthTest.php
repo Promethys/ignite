@@ -30,4 +30,14 @@ class McpAuthTest extends TestCase
 
         $response->assertSuccessful();
     }
+
+    public function test_sanctum_token_abilities_grant_and_deny_by_scope(): void
+    {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user, ['read']);
+
+        $this->assertTrue($user->tokenCan('read'));
+        $this->assertFalse($user->tokenCan('write'));
+    }
 }
