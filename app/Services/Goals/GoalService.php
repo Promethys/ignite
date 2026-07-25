@@ -26,7 +26,6 @@ class GoalService
     public function listForUser(User $actor): Collection
     {
         return $actor->goals()
-            ->with('user')
             ->get()
             ->append('streak');
     }

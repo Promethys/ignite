@@ -32,14 +32,14 @@ class GetGoalTool extends IgniteTool
     public function handle(Request $request): ResponseFactory
     {
         $validated = $request->validate([
-            'goal_id' => 'integer|required',
+            'goal_id' => 'integer|required|exists:goals,id',
         ]);
 
         $user = $request->user();
 
         $goal = $this->goalService->find($user, $validated['goal_id']);
 
-        return Response::structured($goal->toArray());
+        return Response::structured($goal->attributesToArray());
     }
 
     /**

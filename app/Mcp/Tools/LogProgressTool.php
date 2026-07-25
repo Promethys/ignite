@@ -49,7 +49,7 @@ class LogProgressTool extends IgniteTool
 
         return Response::make(
             Response::text('Logged progress on the goal.')
-        )->withStructuredContent($entry->toArray());
+        )->withStructuredContent($entry->attributesToArray());
     }
 
     /**

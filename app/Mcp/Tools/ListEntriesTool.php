@@ -44,7 +44,7 @@ class ListEntriesTool extends IgniteTool
 
         return Response::make(
             Response::text('Retrieved the goal\'s progress entries.')
-        )->withStructuredContent($goal->entries->toArray());
+        )->withStructuredContent(['entries' => $goal->entries->map(fn($entry) => $entry->attributesToArray())]);
     }
 
     /**

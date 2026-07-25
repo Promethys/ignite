@@ -37,7 +37,7 @@ class ListGoalsTool extends IgniteTool
 
         return Response::make(
             Response::text('The user has '.$goals->count().' goals.')
-        )->withStructuredContent($goals->toArray());
+        )->withStructuredContent(['goals' => $goals->map(fn($entry) => $entry->attributesToArray())]);
     }
 
     /**

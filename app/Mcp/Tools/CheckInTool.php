@@ -61,7 +61,7 @@ class CheckInTool extends IgniteTool
 
         return Response::make(
             Response::text('Recorded a check-in for the recurring goal.')
-        )->withStructuredContent($entry->toArray());
+        )->withStructuredContent($entry->attributesToArray());
     }
 
     /**

@@ -48,7 +48,7 @@ class UpdateEntryTool extends IgniteTool
 
         return Response::make(
             Response::text('Updated the progress entry.')
-        )->withStructuredContent($entry->toArray());
+        )->withStructuredContent($entry->attributesToArray());
     }
 
     /**
