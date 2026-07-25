@@ -1,18 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$entry_date\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Goals/GoalController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$value\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Goals/GoalController.php
-
-		-
 			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Achievement\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
 			identifier: property.phpDocType
 			count: 1
@@ -59,18 +47,6 @@ parameters:
 			identifier: rules.modelAppends
 			count: 1
 			path: app/Models/GoalEntry.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$current_value\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Models/Milestone.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$direction\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Milestone.php
 
 		-
 			message: '#^PHPDoc type array of property App\\Models\\Milestone\:\:\$appends is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$appends\.$#'
