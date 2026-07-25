@@ -5,15 +5,18 @@ namespace App\Http\Controllers\Goals;
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
 use App\Models\GoalEntry;
-use App\Services\StreakService;
+use App\Services\Goals\GoalEntryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class GoalEntryController extends Controller
 {
+    public function __construct(
+        private readonly GoalEntryService $goalEntryService
+    ) {}
+
     public function index(Request $request, Goal $goal)
     {
         Gate::authorize('view', $goal);
@@ -54,20 +57,13 @@ class GoalEntryController extends Controller
             'increment' => 'required|numeric',
             'note' => 'nullable|string|max:500',
         ]);
-        $newEntryValue = $goalEntry->previous_value + $validated['increment'];
-        $entryData = [
-            'value' => $newEntryValue,
-            'note' => $validated['note'] ?? null,
-        ];
 
-        \DB::transaction(function () use ($goal, $goalEntry, $entryData, $validated) {
-            $newValue = $goal->current_value + $validated['increment'] - $goalEntry->increment_value;
-
-            $goalEntry->update($entryData);
-            $goal->update([
-                'current_value' => $newValue,
-            ]);
-        });
+        $this->goalEntryService->updateEntry(
+            $request->user(),
+            $goalEntry,
+            $validated['increment'],
+            $validated['note'] ?? null
+        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
 
@@ -86,20 +82,13 @@ class GoalEntryController extends Controller
             'increment' => 'required|numeric',
             'note' => 'nullable|string|max:500',
         ]);
-        $newValue = $goal->current_value + $validated['increment'];
-        $entryData = [
-            'value' => $newValue,
-            'previous_value' => $goal->current_value,
-            'note' => $validated['note'] ?? null,
-            'entry_date' => now()->toDateString(),
-        ];
 
-        \DB::transaction(function () use ($goal, $entryData, $newValue) {
-            $goal->entries()->create($entryData);
-            $goal->update([
-                'current_value' => $newValue,
-            ]);
-        });
+        $this->goalEntryService->logProgress(
+            $request->user(),
+            $goal,
+            $validated['increment'],
+            $validated['note'] ?? null
+        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
 
@@ -112,7 +101,6 @@ class GoalEntryController extends Controller
     protected function storeCheckIn(Request $request, Goal $goal)
     {
         $timezone = $goal->user?->timezone ?? config('app.timezone');
-        $recurrence = $goal->recurrence ?? 'daily';
         $today = Carbon::now()->timezone($timezone)->toDateString();
 
         $rules = [
@@ -126,32 +114,12 @@ class GoalEntryController extends Controller
 
         $validated = $request->validate($rules);
 
-        $format = StreakService::cadenceFormats()[$recurrence] ?? 'Y-m-d';
-
-        // Calendar dates (the stored entries and the user-typed check-in date)
-        // are bucketed by formatting directly, mirroring how the streak logic
-        // buckets stored entry dates. A timezone conversion only applies to
-        // the live "now" instant used for the upper bound above.
-        $newKey = Carbon::parse($validated['entry_date'])->format($format);
-        $periodTaken = $goal->entries()
-            ->orderBy('entry_date')
-            ->pluck('entry_date')
-            ->map(fn ($date) => Carbon::parse($date)->format($format))
-            ->unique()
-            ->contains($newKey);
-
-        if ($periodTaken) {
-            throw ValidationException::withMessages([
-                'entry_date' => __('validation.custom.entry_date.check_in_period_taken'),
-            ]);
-        }
-
-        $goal->entries()->create([
-            'entry_date' => $validated['entry_date'],
-            'note' => $validated['note'] ?? null,
-            'value' => 1,
-            'previous_value' => 0,
-        ]);
+        $this->goalEntryService->recordCheckIn(
+            $request->user(),
+            $goal,
+            $validated['entry_date'],
+            $validated['note'] ?? null
+        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
 
