@@ -185,6 +185,10 @@ return [
         'entry_date' => [
             'check_in_period_taken' => 'A check-in already exists for this period.',
         ],
+        'goal' => [
+            'log_progress_on_recurring' => 'Progress logging is for quantifiable and simple goals. Use the check-in action for a recurring goal.',
+            'check_in_on_non_recurring' => 'Check-ins are for recurring goals. Use the progress logging action for a quantifiable or simple goal.',
+        ],
     ],
 
     /*

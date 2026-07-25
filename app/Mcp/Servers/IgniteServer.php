@@ -2,8 +2,12 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\CheckInTool;
 use App\Mcp\Tools\GetGoalTool;
+use App\Mcp\Tools\ListEntriesTool;
 use App\Mcp\Tools\ListGoalsTool;
+use App\Mcp\Tools\LogProgressTool;
+use App\Mcp\Tools\UpdateEntryTool;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -21,8 +25,12 @@ TXT)]
 class IgniteServer extends Server
 {
     protected array $tools = [
-        ListGoalsTool::class,
+        CheckInTool::class,
         GetGoalTool::class,
+        ListEntriesTool::class,
+        ListGoalsTool::class,
+        LogProgressTool::class,
+        UpdateEntryTool::class,
     ];
 
     protected array $resources = [

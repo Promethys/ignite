@@ -16,6 +16,12 @@ class GoalEntryService
     {
         Gate::forUser($actor)->authorize('update', $goal);
 
+        if ($goal->type === 'recurring') {
+            throw ValidationException::withMessages([
+                'goal' => __('validation.custom.goal.log_progress_on_recurring'),
+            ]);
+        }
+
         $newValue = $goal->current_value + $increment;
 
         return \DB::transaction(function () use ($goal, $newValue, $note): GoalEntry {
@@ -34,6 +40,12 @@ class GoalEntryService
     public function recordCheckIn(User $actor, Goal $goal, string $entryDate, ?string $note = null): GoalEntry
     {
         Gate::forUser($actor)->authorize('update', $goal);
+
+        if ($goal->type !== 'recurring') {
+            throw ValidationException::withMessages([
+                'goal' => __('validation.custom.goal.check_in_on_non_recurring'),
+            ]);
+        }
 
         $recurrence = $goal->recurrence ?? 'daily';
         $format = StreakService::cadenceFormats()[$recurrence] ?? 'Y-m-d';

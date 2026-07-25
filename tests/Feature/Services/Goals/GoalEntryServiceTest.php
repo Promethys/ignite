@@ -54,6 +54,33 @@ class GoalEntryServiceTest extends TestCase
         $this->service->logProgress($intruder, $goal, 5);
     }
 
+    public function test_log_progress_rejects_a_recurring_goal(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $owner->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+        ]);
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->logProgress($owner, $goal, 5);
+    }
+
+    public function test_record_check_in_rejects_a_non_recurring_goal(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $owner->id,
+            'type' => 'quantifiable',
+        ]);
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->recordCheckIn($owner, $goal, '2026-07-20');
+    }
+
     public function test_record_check_in_creates_a_dated_entry_without_touching_current_value(): void
     {
         $owner = User::factory()->create();

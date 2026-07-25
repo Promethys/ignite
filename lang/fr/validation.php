@@ -163,6 +163,10 @@ return [
         'entry_date' => [
             'check_in_period_taken' => 'Un pointage existe déjà pour cette période.',
         ],
+        'goal' => [
+            'log_progress_on_recurring' => 'L\'enregistrement de progression concerne les objectifs quantifiables et simples. Utilisez le pointage pour un objectif récurrent.',
+            'check_in_on_non_recurring' => 'Les pointages concernent les objectifs récurrents. Utilisez l\'enregistrement de progression pour un objectif quantifiable ou simple.',
+        ],
     ],
 
     'attributes' => [

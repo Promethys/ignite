@@ -13,9 +13,9 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[IsReadOnly]
-#[Name('get_goal')]
-#[Description('Get a single goal by its id, including its recent progress entries, milestones, and streak.')]
-class GetGoalTool extends IgniteTool
+#[Name('list_entries')]
+#[Description('List the progress entries logged against one of the user\'s goals, newest first.')]
+class ListEntriesTool extends IgniteTool
 {
     public function __construct(
         private readonly GoalService $goalService
@@ -29,17 +29,22 @@ class GetGoalTool extends IgniteTool
     /**
      * Handle the tool request.
      */
-    public function handle(Request $request): ResponseFactory
+    public function handle(Request $request): Response|ResponseFactory
     {
         $validated = $request->validate([
-            'goal_id' => 'integer|required',
+            'goal_id' => 'required|integer|exists:goals,id',
         ]);
 
-        $user = $request->user();
+        $goal = $this->goalService->find($request->user(), $validated['goal_id']);
+        $entries = $goal->entries;
 
-        $goal = $this->goalService->find($user, $validated['goal_id']);
+        if ($entries->isEmpty()) {
+            return Response::text('This goal does not have any entry');
+        }
 
-        return Response::structured($goal->toArray());
+        return Response::make(
+            Response::text('Retrieved the goal\'s progress entries.')
+        )->withStructuredContent($goal->entries->toArray());
     }
 
     /**
@@ -51,7 +56,7 @@ class GetGoalTool extends IgniteTool
     {
         return [
             'goal_id' => $schema->integer()
-                ->description('The ID of the goal to retrieve')
+                ->description('The ID of the goal whose entries should be listed.')
                 ->required(),
         ];
     }
