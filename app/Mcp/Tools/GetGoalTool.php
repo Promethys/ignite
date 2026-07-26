@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Http\Resources\GoalResource;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
@@ -39,7 +40,9 @@ class GetGoalTool extends IgniteTool
 
         $goal = $this->goalService->find($user, $validated['goal_id']);
 
-        return Response::structured($goal->attributesToArray());
+        return Response::make(
+            Response::text('Retrieved goal "'.$goal->title.'".')
+        )->withStructuredContent((new GoalResource($goal))->resolve());
     }
 
     /**

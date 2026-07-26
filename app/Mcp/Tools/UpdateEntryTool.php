@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Http\Resources\GoalEntryResource;
 use App\Models\GoalEntry;
 use App\Services\Goals\GoalEntryService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -48,7 +49,7 @@ class UpdateEntryTool extends IgniteTool
 
         return Response::make(
             Response::text('Updated the progress entry.')
-        )->withStructuredContent($entry->attributesToArray());
+        )->withStructuredContent((new GoalEntryResource($entry))->resolve());
     }
 
     /**

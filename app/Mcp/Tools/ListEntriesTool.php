@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Http\Resources\GoalEntryResource;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
@@ -44,7 +45,7 @@ class ListEntriesTool extends IgniteTool
 
         return Response::make(
             Response::text('Retrieved the goal\'s progress entries.')
-        )->withStructuredContent(['entries' => $goal->entries->map(fn($entry) => $entry->attributesToArray())]);
+        )->withStructuredContent(['entries' => GoalEntryResource::collection($goal->entries)->resolve()]);
     }
 
     /**

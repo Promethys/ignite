@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Http\Resources\GoalEntryResource;
 use App\Services\Goals\GoalEntryService;
 use App\Services\Goals\GoalService;
 use Carbon\Carbon;
@@ -61,7 +62,7 @@ class CheckInTool extends IgniteTool
 
         return Response::make(
             Response::text('Recorded a check-in for the recurring goal.')
-        )->withStructuredContent($entry->attributesToArray());
+        )->withStructuredContent((new GoalEntryResource($entry))->resolve());
     }
 
     /**

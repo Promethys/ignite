@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Http\Resources\GoalEntryResource;
 use App\Services\Goals\GoalEntryService;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -49,7 +50,7 @@ class LogProgressTool extends IgniteTool
 
         return Response::make(
             Response::text('Logged progress on the goal.')
-        )->withStructuredContent($entry->attributesToArray());
+        )->withStructuredContent((new GoalEntryResource($entry))->resolve());
     }
 
     /**

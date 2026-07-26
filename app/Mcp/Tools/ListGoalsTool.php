@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Http\Resources\GoalResource;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
@@ -37,7 +38,7 @@ class ListGoalsTool extends IgniteTool
 
         return Response::make(
             Response::text('The user has '.$goals->count().' goals.')
-        )->withStructuredContent(['goals' => $goals->map(fn($entry) => $entry->attributesToArray())]);
+        )->withStructuredContent(['goals' => GoalResource::collection($goals)->resolve()]);
     }
 
     /**
