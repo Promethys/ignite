@@ -104,4 +104,26 @@ class GoalEntryService
 
         return $entry->fresh();
     }
+
+    public function deleteEntry(User $actor, GoalEntry $entry): ?bool
+    {
+        Gate::forUser($actor)->authorize('delete', $entry);
+
+        $goal = $entry->goal;
+
+        if ($goal->type === 'recurring') {
+            return $entry->delete();
+        }
+
+        $newValue = $goal->current_value - $entry->increment_value;
+
+        return \DB::transaction(function () use ($goal, $newValue, $entry): bool {
+            $entry->delete();
+            $goal->update([
+                'current_value' => $newValue,
+            ]);
+
+            return true;
+        });
+    }
 }

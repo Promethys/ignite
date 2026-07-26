@@ -128,24 +128,16 @@ class GoalEntryController extends Controller
 
     public function destroy(Request $request, Goal $goal, GoalEntry $goalEntry)
     {
-        Gate::authorize('delete', $goalEntry);
+        $user = $request->user();
 
-        if ($goal->type === 'recurring') {
-            $goalEntry->delete();
-
-            Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.deleted')]);
-
-            return back();
+        if ($goal->id !== $goalEntry->goal_id) {
+            abort(404);
         }
 
-        $newValue = $goal->current_value - $goalEntry->increment_value;
-
-        \DB::transaction(function () use ($goal, $newValue, $goalEntry) {
-            $goalEntry->delete();
-            $goal->update([
-                'current_value' => $newValue,
-            ]);
-        });
+        $this->goalEntryService->deleteEntry(
+            $user,
+            $goalEntry,
+        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.deleted')]);
 

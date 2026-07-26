@@ -149,10 +149,10 @@ class GoalService
      * Delete a goal. Consumed by the controller now and by the Phase 3
      * delete MCP tool.
      */
-    public function delete(User $actor, Goal $goal): void
+    public function delete(User $actor, Goal $goal): ?bool
     {
         Gate::forUser($actor)->authorize('delete', $goal);
 
-        $goal->delete();
+        return $goal->delete();
     }
 }

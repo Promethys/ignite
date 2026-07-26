@@ -18,7 +18,7 @@ class DestructiveConfirmations
             [
                 'actor_id' => $actor->id,
                 'operation' => $operation,
-                'target' => $target
+                'target' => $target,
             ],
             120
         );
@@ -31,9 +31,9 @@ class DestructiveConfirmations
         $key = $this->buildKey($token);
         $cached = Cache::pull($key);
 
-        if(
+        if (
             $cached === null
-            || !is_array($cached)
+            || ! is_array($cached)
         ) {
             return false;
         }

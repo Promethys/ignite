@@ -7,6 +7,8 @@ use App\Mcp\Tools\CheckInTool;
 use App\Mcp\Tools\CompleteGoalTool;
 use App\Mcp\Tools\CompleteMilestoneTool;
 use App\Mcp\Tools\CreateGoalTool;
+use App\Mcp\Tools\DeleteEntryTool;
+use App\Mcp\Tools\DeleteGoalTool;
 use App\Mcp\Tools\GetGoalTool;
 use App\Mcp\Tools\ListEntriesTool;
 use App\Mcp\Tools\ListGoalsTool;
@@ -37,6 +39,8 @@ class IgniteServer extends Server
         CompleteGoalTool::class,
         CompleteMilestoneTool::class,
         CreateGoalTool::class,
+        DeleteEntryTool::class,
+        DeleteGoalTool::class,
         GetGoalTool::class,
         ListEntriesTool::class,
         ListGoalsTool::class,
