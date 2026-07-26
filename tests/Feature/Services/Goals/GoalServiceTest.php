@@ -18,11 +18,30 @@ class GoalServiceTest extends TestCase
 
     private GoalService $service;
 
+    /** @var array<string, mixed> */
+    private array $validAttributes;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->service = app(GoalService::class);
+
+        // A minimal, valid goal payload. The service does not validate; the
+        // caller does. These fields satisfy the database and exercise the
+        // service's own invariants (owner + order).
+        $this->validAttributes = [
+            'title' => 'Learn Rust',
+            'description' => 'Work through the book',
+            'type' => 'simple',
+            'direction' => 'ascending',
+            'current_value' => 0,
+            'target_value' => null,
+            'status' => 'not_started',
+            'priority' => 'medium',
+            'is_public' => false,
+            'points' => 0,
+        ];
     }
 
     public function test_list_for_user_returns_only_the_actors_goals(): void
@@ -148,5 +167,213 @@ class GoalServiceTest extends TestCase
         $this->expectException(ModelNotFoundException::class);
 
         $this->service->find($owner, 999999);
+    }
+
+    // =========================================================================
+    // CREATE
+    // =========================================================================
+
+    public function test_create_assigns_the_actor_as_owner_and_computes_order(): void
+    {
+        $actor = User::factory()->create();
+
+        $goal = $this->service->create($actor, $this->validAttributes);
+
+        $this->assertDatabaseHas('goals', [
+            'id' => $goal->id,
+            'user_id' => $actor->id,
+            'title' => 'Learn Rust',
+            'order' => 1,
+        ]);
+    }
+
+    public function test_create_increments_order_per_existing_goal(): void
+    {
+        $actor = User::factory()->create();
+
+        Goal::factory()->count(2)->create(['user_id' => $actor->id]);
+
+        $goal = $this->service->create($actor, $this->validAttributes);
+
+        $this->assertSame(3, $goal->order);
+    }
+
+    public function test_create_ignores_a_client_supplied_user_id_in_favour_of_the_actor(): void
+    {
+        $actor = User::factory()->create();
+        $other = User::factory()->create();
+
+        $goal = $this->service->create($actor, [
+            ...$this->validAttributes,
+            'user_id' => $other->id,
+        ]);
+
+        $this->assertSame($actor->id, $goal->user_id);
+    }
+
+    public function test_create_order_is_scoped_to_the_actor_not_global(): void
+    {
+        $actor = User::factory()->create();
+        $other = User::factory()->create();
+
+        Goal::factory()->count(3)->create(['user_id' => $other->id]);
+
+        $goal = $this->service->create($actor, $this->validAttributes);
+
+        // The other user's goals must not inflate this actor's order.
+        $this->assertSame(1, $goal->order);
+    }
+
+    // =========================================================================
+    // UPDATE
+    // =========================================================================
+
+    public function test_update_persists_changes_for_the_owner(): void
+    {
+        $actor = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $actor->id, 'title' => 'Old']);
+
+        $updated = $this->service->update($actor, $goal, ['title' => 'New']);
+
+        $this->assertSame('New', $updated->fresh()->title);
+    }
+
+    public function test_update_throws_for_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->update($intruder, $goal, ['title' => 'Hijacked']);
+    }
+
+    // =========================================================================
+    // COMPLETE
+    // =========================================================================
+
+    public function test_complete_marks_the_goal_completed(): void
+    {
+        $actor = User::factory()->create();
+        $goal = Goal::factory()->inProgress()->create(['user_id' => $actor->id]);
+
+        $this->service->complete($actor, $goal);
+
+        $fresh = $goal->fresh();
+
+        $this->assertSame('completed', $fresh->status);
+        $this->assertNotNull($fresh->completed_at);
+    }
+
+    public function test_complete_throws_for_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $goal = Goal::factory()->inProgress()->create(['user_id' => $owner->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->complete($intruder, $goal);
+    }
+
+    // =========================================================================
+    // UNCOMPLETE
+    // =========================================================================
+
+    public function test_uncomplete_resets_status_and_clears_completed_at(): void
+    {
+        $actor = User::factory()->create();
+        $goal = Goal::factory()->completed()->create(['user_id' => $actor->id]);
+
+        $this->service->uncomplete($actor, $goal, 'paused');
+
+        $fresh = $goal->fresh();
+
+        $this->assertSame('paused', $fresh->status);
+        $this->assertNull($fresh->completed_at);
+    }
+
+    public function test_uncomplete_does_not_re_complete_an_at_target_goal(): void
+    {
+        // An ascending goal sitting at its target would be re-completed by the
+        // observer on a normal update. uncomplete runs without events, so the
+        // revert must stick.
+        $actor = User::factory()->create();
+        $goal = Goal::factory()->completed()->create([
+            'user_id' => $actor->id,
+            'type' => 'quantifiable',
+            'direction' => 'ascending',
+            'target_value' => 100,
+            'current_value' => 100,
+        ]);
+
+        $this->service->uncomplete($actor, $goal, 'in_progress');
+
+        $fresh = $goal->fresh();
+
+        $this->assertSame('in_progress', $fresh->status);
+        $this->assertNull($fresh->completed_at);
+    }
+
+    public function test_uncomplete_throws_for_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $goal = Goal::factory()->completed()->create(['user_id' => $owner->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->uncomplete($intruder, $goal, 'paused');
+    }
+
+    // =========================================================================
+    // SET STATUS
+    // =========================================================================
+
+    public function test_set_status_changes_the_goal_status(): void
+    {
+        $actor = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $actor->id, 'status' => 'not_started']);
+
+        $this->service->setStatus($actor, $goal, 'in_progress');
+
+        $this->assertSame('in_progress', $goal->fresh()->status);
+    }
+
+    public function test_set_status_throws_for_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->setStatus($intruder, $goal, 'in_progress');
+    }
+
+    // =========================================================================
+    // DELETE
+    // =========================================================================
+
+    public function test_delete_removes_the_goal_for_the_owner(): void
+    {
+        $actor = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $actor->id]);
+
+        $this->service->delete($actor, $goal);
+
+        $this->assertDatabaseMissing('goals', ['id' => $goal->id]);
+    }
+
+    public function test_delete_throws_for_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->delete($intruder, $goal);
     }
 }
