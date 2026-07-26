@@ -5,6 +5,8 @@ namespace Tests\Feature\Mcp\Tools;
 use App\Mcp\Servers\IgniteServer;
 use App\Mcp\Tools\GetGoalTool;
 use App\Models\Goal;
+use App\Models\GoalEntry;
+use App\Models\Milestone;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -68,5 +70,34 @@ class GetGoalToolTest extends TestCase
         IgniteServer::actingAs($owner)
             ->tool(GetGoalTool::class, ['goal_id' => $goal->id])
             ->assertOk();
+    }
+
+    public function test_get_goal_includes_entries_and_milestones_and_never_the_user(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        GoalEntry::factory()->count(2)->create(['goal_id' => $goal->id]);
+        Milestone::factory()->create(['goal_id' => $goal->id]);
+
+        Sanctum::actingAs($owner, ['read']);
+
+        IgniteServer::tool(GetGoalTool::class, ['goal_id' => $goal->id])
+            ->assertOk()
+            ->assertStructuredContent(fn (AssertableJson $json) => $json
+                ->has('entries', 2)
+                ->has('milestones', 1)
+                ->missing('user')
+                ->missing('user_id')
+                ->etc());
+    }
+
+    public function test_get_goal_rejects_a_nonexistent_id(): void
+    {
+        $owner = User::factory()->create();
+
+        Sanctum::actingAs($owner, ['read']);
+
+        IgniteServer::tool(GetGoalTool::class, ['goal_id' => 999999])
+            ->assertHasErrors();
     }
 }

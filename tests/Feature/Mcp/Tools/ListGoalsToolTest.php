@@ -7,6 +7,7 @@ use App\Mcp\Tools\ListGoalsTool;
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -48,6 +49,18 @@ class ListGoalsToolTest extends TestCase
 
         IgniteServer::tool(ListGoalsTool::class)
             ->assertHasErrors();
+    }
+
+    public function test_structured_content_is_wrapped_in_a_goals_object(): void
+    {
+        $user = User::factory()->create();
+        Goal::factory()->create(['user_id' => $user->id]);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListGoalsTool::class)
+            ->assertOk()
+            ->assertStructuredContent(fn (AssertableJson $json) => $json->has('goals')->etc());
     }
 
     public function test_a_local_session_without_a_token_may_use_the_tool(): void

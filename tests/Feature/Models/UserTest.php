@@ -83,4 +83,23 @@ class UserTest extends TestCase
 
         $this->assertEquals('fr', $user->locale);
     }
+
+    // =========================================================================
+    // SERIALIZATION TESTS
+    // =========================================================================
+
+    public function test_serialization_hides_two_factor_secrets_and_password()
+    {
+        $user = User::factory()->create();
+        $user->forceFill([
+            'two_factor_secret' => 'super-secret',
+            'two_factor_recovery_codes' => 'recovery-codes',
+        ])->save();
+
+        $serialized = $user->fresh()->toArray();
+
+        $this->assertArrayNotHasKey('two_factor_secret', $serialized);
+        $this->assertArrayNotHasKey('two_factor_recovery_codes', $serialized);
+        $this->assertArrayNotHasKey('password', $serialized);
+    }
 }

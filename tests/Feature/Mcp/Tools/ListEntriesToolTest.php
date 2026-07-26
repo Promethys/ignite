@@ -8,6 +8,7 @@ use App\Models\Goal;
 use App\Models\GoalEntry;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -49,5 +50,18 @@ class ListEntriesToolTest extends TestCase
 
         IgniteServer::tool(ListEntriesTool::class, ['goal_id' => $goal->id])
             ->assertHasErrors();
+    }
+
+    public function test_structured_content_is_wrapped_in_an_entries_object(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id]);
+        GoalEntry::factory()->count(2)->create(['goal_id' => $goal->id]);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListEntriesTool::class, ['goal_id' => $goal->id])
+            ->assertOk()
+            ->assertStructuredContent(fn (AssertableJson $json) => $json->has('entries')->etc());
     }
 }
