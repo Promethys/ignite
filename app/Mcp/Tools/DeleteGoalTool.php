@@ -57,6 +57,7 @@ class DeleteGoalTool extends IgniteTool
             )->withStructuredContent([
                 'requires_confirmation' => true,
                 'confirmation_token' => $token,
+                'preview' => $previewText,
             ]);
         }
 

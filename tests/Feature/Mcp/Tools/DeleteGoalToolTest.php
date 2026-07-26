@@ -42,7 +42,12 @@ class DeleteGoalToolTest extends TestCase
         IgniteServer::tool(DeleteGoalTool::class, ['goal_id' => $goal->id])
             ->assertOk()
             ->assertSee("the goal 'Write a book'")
-            ->assertSee('its 3 milestones and 2 progress entries');
+            ->assertSee('its 3 milestones and 2 progress entries')
+            ->assertStructuredContent(fn (AssertableJson $json) => $json
+                ->where('requires_confirmation', true)
+                ->has('confirmation_token')
+                ->where('preview', fn (string $preview) => str_contains($preview, 'its 3 milestones and 2 progress entries'))
+                ->etc());
 
         $this->assertDatabaseHas('goals', ['id' => $goal->id]);
     }

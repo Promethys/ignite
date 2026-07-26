@@ -52,7 +52,12 @@ class DeleteEntryToolTest extends TestCase
             ->assertOk()
             ->assertSee('progress entry of +5 recorded on 2026-07-26')
             ->assertSee("the goal 'Run a marathon'")
-            ->assertSee('moving its current value from 14 to 9');
+            ->assertSee('moving its current value from 14 to 9')
+            ->assertStructuredContent(fn (AssertableJson $json) => $json
+                ->where('requires_confirmation', true)
+                ->has('confirmation_token')
+                ->where('preview', fn (string $preview) => str_contains($preview, 'moving its current value from 14 to 9'))
+                ->etc());
 
         $this->assertDatabaseHas('goal_entries', ['id' => $entry->id]);
     }
