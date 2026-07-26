@@ -170,6 +170,28 @@ class GoalEntryServiceTest extends TestCase
 
         $this->assertSame(75.0, (float) $updated->value);
         $this->assertSame(115.0, (float) $goal->fresh()->current_value);
+        $this->assertSame('edited', $updated->note);
+    }
+
+    public function test_update_entry_keeps_the_existing_note_when_none_is_given(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $owner->id,
+            'type' => 'quantifiable',
+            'current_value' => 100,
+            'target_value' => 1000,
+        ]);
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'previous_value' => 50,
+            'value' => 60,
+            'note' => 'keep me',
+        ]);
+
+        $this->service->updateEntry($owner, $entry, 25);
+
+        $this->assertSame('keep me', $entry->fresh()->note);
     }
 
     public function test_update_entry_denies_a_non_owner(): void

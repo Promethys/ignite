@@ -100,4 +100,24 @@ class GetGoalToolTest extends TestCase
         IgniteServer::tool(GetGoalTool::class, ['goal_id' => 999999])
             ->assertHasErrors();
     }
+
+    public function test_get_goal_returns_the_clean_streak_shape_for_a_recurring_goal(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $owner->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+        ]);
+
+        Sanctum::actingAs($owner, ['read']);
+
+        IgniteServer::tool(GetGoalTool::class, ['goal_id' => $goal->id])
+            ->assertOk()
+            ->assertStructuredContent(fn (AssertableJson $json) => $json
+                ->has('streak', fn (AssertableJson $streak) => $streak
+                    ->hasAll(['current', 'longest', 'unit', 'current_period_satisfied'])
+                    ->missing('anchorDate'))
+                ->etc());
+    }
 }

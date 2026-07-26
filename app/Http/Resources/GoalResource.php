@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\DTOs\StreakData;
 use App\Models\GoalEntry;
 use App\Models\Milestone;
 use Illuminate\Database\Eloquent\Collection;
@@ -29,7 +30,7 @@ use Illuminate\Support\Carbon;
  * @property float|int|null $progress_percentage
  * @property bool $is_overdue
  * @property bool $is_completed
- * @property array|null $streak
+ * @property StreakData|null $streak
  * @property Collection<int, GoalEntry> $entries
  * @property Collection<int, Milestone> $milestones
  */
@@ -65,7 +66,7 @@ class GoalResource extends JsonResource
             'progress_percentage' => $this->progress_percentage,
             'is_overdue' => $this->is_overdue,
             'is_completed' => $this->is_completed,
-            'streak' => $this->streak,
+            'streak' => $this->streak?->toArray(),
 
             'entries' => GoalEntryResource::collection($this->whenLoaded('entries')),
             'milestones' => MilestoneResource::collection($this->whenLoaded('milestones')),

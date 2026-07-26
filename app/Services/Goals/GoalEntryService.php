@@ -64,12 +64,17 @@ class GoalEntryService
             ]);
         }
 
-        $entry = $goal->entries()->create([
+        $data = [
             'entry_date' => $entryDate,
-            'note' => $note ?? null,
             'value' => 1,
             'previous_value' => 0,
-        ]);
+        ];
+
+        if ($note !== null) {
+            $data['note'] = $note;
+        }
+
+        $entry = $goal->entries()->create($data);
 
         return $entry;
     }
@@ -82,8 +87,11 @@ class GoalEntryService
         $newEntryValue = $entry->previous_value + $increment;
         $entryData = [
             'value' => $newEntryValue,
-            'note' => $note ?? null,
         ];
+
+        if ($note !== null) {
+            $entryData['note'] = $note;
+        }
 
         \DB::transaction(function () use ($goal, $entry, $entryData, $increment) {
             $newValue = $goal->current_value + $increment - $entry->increment_value;
