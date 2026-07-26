@@ -2,8 +2,10 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\AddMilestoneTool;
 use App\Mcp\Tools\CheckInTool;
 use App\Mcp\Tools\CompleteGoalTool;
+use App\Mcp\Tools\CompleteMilestoneTool;
 use App\Mcp\Tools\CreateGoalTool;
 use App\Mcp\Tools\GetGoalTool;
 use App\Mcp\Tools\ListEntriesTool;
@@ -30,8 +32,10 @@ TXT)]
 class IgniteServer extends Server
 {
     protected array $tools = [
+        AddMilestoneTool::class,
         CheckInTool::class,
         CompleteGoalTool::class,
+        CompleteMilestoneTool::class,
         CreateGoalTool::class,
         GetGoalTool::class,
         ListEntriesTool::class,

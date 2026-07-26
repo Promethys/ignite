@@ -2,11 +2,15 @@
 
 namespace App\Rules;
 
+use App\Traits\Rules\HandlesPartialRules;
+
 /**
  * Goal validation rules shared by the web controller and the MCP tools.
  */
 class GoalRules
 {
+    use HandlesPartialRules;
+
     /**
      * @return array<string, string>
      */
@@ -33,18 +37,5 @@ class GoalRules
             'is_public' => 'required|boolean',
             'order' => 'nullable|integer',
         ];
-    }
-
-    /**
-     * Same as `rules()`, but nothing is required. For partial updates.
-     *
-     * @return array<string, string>
-     */
-    public static function partialRules(): array
-    {
-        return array_map(
-            static fn (string $rule) => str_replace('required|', 'nullable|', $rule),
-            self::rules(),
-        );
     }
 }
