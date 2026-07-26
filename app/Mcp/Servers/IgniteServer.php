@@ -3,11 +3,16 @@
 namespace App\Mcp\Servers;
 
 use App\Mcp\Tools\CheckInTool;
+use App\Mcp\Tools\CompleteGoalTool;
+use App\Mcp\Tools\CreateGoalTool;
 use App\Mcp\Tools\GetGoalTool;
 use App\Mcp\Tools\ListEntriesTool;
 use App\Mcp\Tools\ListGoalsTool;
 use App\Mcp\Tools\LogProgressTool;
+use App\Mcp\Tools\SetGoalStatusTool;
+use App\Mcp\Tools\UncompleteGoalTool;
 use App\Mcp\Tools\UpdateEntryTool;
+use App\Mcp\Tools\UpdateGoalTool;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -26,11 +31,16 @@ class IgniteServer extends Server
 {
     protected array $tools = [
         CheckInTool::class,
+        CompleteGoalTool::class,
+        CreateGoalTool::class,
         GetGoalTool::class,
         ListEntriesTool::class,
         ListGoalsTool::class,
         LogProgressTool::class,
+        SetGoalStatusTool::class,
+        UncompleteGoalTool::class,
         UpdateEntryTool::class,
+        UpdateGoalTool::class,
     ];
 
     protected array $resources = [

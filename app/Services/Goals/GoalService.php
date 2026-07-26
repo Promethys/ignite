@@ -60,14 +60,24 @@ class GoalService
      * The caller runs validation (the controller's `$rules`, or the MCP
      * tool's schema). The service owns the invariants: it authorizes
      * `create`, assigns the owner from the actor (never trusting a
-     * client-supplied `user_id`), and computes the display `order` as the
-     * owner's goal count plus one.
+     * client-supplied `user_id`), computes the display `order` as the
+     * owner's goal count plus one, and applies operational defaults so a
+     * caller that omits them (an MCP tool, or a partial payload) still
+     * produces a coherent goal rather than one seeded with `null`s.
      *
      * @param  array<string, mixed>  $attributes
      */
     public function create(User $actor, array $attributes): Goal
     {
         Gate::forUser($actor)->authorize('create', Goal::class);
+
+        $attributes['current_value'] ??= 0;
+        $attributes['direction'] ??= 'ascending';
+        $attributes['status'] ??= 'not_started';
+        $attributes['priority'] ??= 'medium';
+        $attributes['polarity'] ??= 'positive';
+        $attributes['points'] ??= 0;
+        $attributes['is_public'] ??= false;
 
         $order = $actor->goals()->count() + 1;
 

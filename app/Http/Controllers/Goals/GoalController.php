@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Goals;
 
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
+use App\Rules\GoalRules;
 use App\Services\Goals\GoalService;
 use App\Services\StreakService;
 use Illuminate\Http\Request;
@@ -13,33 +14,15 @@ use Inertia\Inertia;
 
 class GoalController extends Controller
 {
+    protected array $rules;
+
     public function __construct(private readonly GoalService $goalService)
     {
-        //
+        $this->rules = [
+            'user_id' => 'required|exists:users,id',
+            ...GoalRules::rules(),
+        ];
     }
-
-    protected $rules = [
-        'user_id' => 'required|exists:users,id',
-        'category_id' => 'nullable|exists:categories,id',
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'icon' => 'nullable|string|max:50',
-        'type' => 'required|in:simple,quantifiable,recurring,multi_step',
-        'direction' => 'required|in:ascending,descending',
-        'target_value' => 'nullable|numeric',
-        'current_value' => 'required|numeric',
-        'unit' => 'nullable|string|max:50',
-        'recurrence' => 'nullable|in:daily,weekly,monthly,annually',
-        'start_date' => 'nullable|date',
-        'deadline' => 'nullable|date|after_or_equal:start_date',
-        'completed_at' => 'nullable|date|after:start_date',
-        'status' => 'required|in:not_started,in_progress,completed,paused,abandoned',
-        'priority' => 'required|in:low,medium,high',
-        'polarity' => 'nullable|in:positive,negative',
-        'points' => 'required|integer|min:0',
-        'is_public' => 'required|boolean',
-        'order' => 'nullable|integer',
-    ];
 
     public function index(Request $request)
     {
