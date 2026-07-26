@@ -41,7 +41,7 @@ class SetGoalStatusTool extends IgniteTool
         $this->goalService->setStatus($user, $goal, $validated['status']);
 
         return Response::make(
-            Response::text('Set the goal "'.$goal->title.'" to '.$validated['status'].'.')
+            Response::text("Set the goal '{$goal->title}' to '{$validated['status']}'.")
         )->withStructuredContent((new GoalResource($goal->fresh()))->resolve());
     }
 

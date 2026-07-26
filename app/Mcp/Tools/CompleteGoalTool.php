@@ -40,7 +40,7 @@ class CompleteGoalTool extends IgniteTool
         $this->goalService->complete($user, $goal);
 
         return Response::make(
-            Response::text('Completed the goal "'.$goal->title.'".')
+            Response::text("Completed the goal '{$goal->title}'.")
         )->withStructuredContent((new GoalResource($goal->fresh()))->resolve());
     }
 

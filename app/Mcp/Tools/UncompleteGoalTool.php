@@ -41,7 +41,7 @@ class UncompleteGoalTool extends IgniteTool
         $this->goalService->uncomplete($user, $goal, $validated['status']);
 
         return Response::make(
-            Response::text('Reverted the goal "'.$goal->title.'" to '.$validated['status'].'.')
+            Response::text("Reverted the goal '{$goal->title}' to '{$validated['status']}'.")
         )->withStructuredContent((new GoalResource($goal->fresh()))->resolve());
     }
 

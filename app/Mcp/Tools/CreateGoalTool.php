@@ -52,7 +52,7 @@ class CreateGoalTool extends IgniteTool
         $goal = $this->goalService->create($request->user(), $validated);
 
         return Response::make(
-            Response::text('Created the goal "'.$goal->title.'".')
+            Response::text("Created the goal '{$goal->title}'.")
         )->withStructuredContent((new GoalResource($goal))->resolve());
     }
 

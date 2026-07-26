@@ -41,7 +41,7 @@ class GetGoalTool extends IgniteTool
         $goal = $this->goalService->find($user, $validated['goal_id']);
 
         return Response::make(
-            Response::text('Retrieved goal "'.$goal->title.'".')
+            Response::text("Retrieved goal '{$goal->title}'.")
         )->withStructuredContent((new GoalResource($goal))->resolve());
     }
 
