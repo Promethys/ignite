@@ -36,7 +36,7 @@ class ListEntriesTool extends IgniteTool
             'goal_id' => 'required|integer|exists:goals,id',
         ]);
 
-        $goal = $this->goalService->find($request->user(), $validated['goal_id']);
+        $goal = $this->goalService->find($this->actor($request), $validated['goal_id']);
         $entries = $goal->entries;
 
         if ($entries->isEmpty()) {

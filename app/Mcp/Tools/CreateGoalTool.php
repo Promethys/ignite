@@ -49,7 +49,7 @@ class CreateGoalTool extends IgniteTool
 
         $validated = $request->validate($rules);
 
-        $goal = $this->goalService->create($request->user(), $validated);
+        $goal = $this->goalService->create($this->actor($request), $validated);
 
         return Response::make(
             Response::text("Created the goal '{$goal->title}'.")

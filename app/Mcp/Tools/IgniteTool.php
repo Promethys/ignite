@@ -13,8 +13,9 @@ abstract class IgniteTool extends Tool
 
     public function shouldRegister(Request $request): bool
     {
-        $user = $request->user();
-        if (! $user instanceof User) {
+        $user = $this->actor($request);
+
+        if (! $user) {
             return false;
         }
 
@@ -29,5 +30,23 @@ abstract class IgniteTool extends Tool
     public function title(): string
     {
         return Str::headline($this->name());
+    }
+
+    protected function actor(Request $request): ?User
+    {
+        $user = $request->user();
+
+        if ($user instanceof User) {
+            return $user;
+        }
+
+        $localUser = config('mcp.local_user');
+
+        if ($localUser !== null) {
+            return User::whereRaw('lower(email) = ?', [strtolower($localUser)])
+                ->first();
+        }
+
+        return null;
     }
 }

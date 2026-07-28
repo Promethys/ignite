@@ -36,7 +36,7 @@ class UpdateGoalTool extends IgniteTool
             'goal_id' => 'required|integer|exists:goals,id',
         ])['goal_id'];
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $goalId);
 
         $provided = $request->all();

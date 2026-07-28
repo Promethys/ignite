@@ -35,7 +35,7 @@ class UncompleteGoalTool extends IgniteTool
             'status' => 'required|in:not_started,in_progress,paused,abandoned',
         ]);
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $validated['goal_id']);
 
         $this->goalService->uncomplete($user, $goal, $validated['status']);

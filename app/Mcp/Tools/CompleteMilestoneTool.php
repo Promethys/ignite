@@ -36,7 +36,7 @@ class CompleteMilestoneTool extends IgniteTool
             'milestone_id' => 'required|integer|exists:milestones,id',
         ]);
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $milestone = Milestone::findOrFail($validated['milestone_id']);
 
         $milestone = $this->milestoneService->complete(

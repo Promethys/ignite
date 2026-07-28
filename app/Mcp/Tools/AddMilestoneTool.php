@@ -38,7 +38,7 @@ class AddMilestoneTool extends IgniteTool
             'goal_id' => 'required|integer|exists:goals,id',
         ]);
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $validated['goal_id']);
 
         unset($validated['goal_id']);

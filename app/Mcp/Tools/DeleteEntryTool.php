@@ -38,7 +38,7 @@ class DeleteEntryTool extends IgniteTool
             'confirmation_token' => 'nullable|string',
         ]);
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $token = $validated['confirmation_token'] ?? null;
         $entry = GoalEntry::findOrFail($validated['entry_id']);
 

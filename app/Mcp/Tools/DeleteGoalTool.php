@@ -39,7 +39,7 @@ class DeleteGoalTool extends IgniteTool
         $token = $validated['confirmation_token'] ?? null;
         $goalId = $validated['goal_id'];
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $goalId);
         $milestoneCount = $goal->milestones()->count();
         $entriesCount = $goal->entries()->count();

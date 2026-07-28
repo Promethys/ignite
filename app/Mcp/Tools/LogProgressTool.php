@@ -38,7 +38,7 @@ class LogProgressTool extends IgniteTool
             'note' => 'nullable|string|max:500',
         ]);
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $validated['goal_id']);
 
         $entry = $this->goalEntryService->logProgress(

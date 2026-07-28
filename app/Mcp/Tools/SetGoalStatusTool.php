@@ -35,7 +35,7 @@ class SetGoalStatusTool extends IgniteTool
             'status' => 'required|in:not_started,in_progress,completed,paused,abandoned',
         ]);
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $validated['goal_id']);
 
         $this->goalService->setStatus($user, $goal, $validated['status']);

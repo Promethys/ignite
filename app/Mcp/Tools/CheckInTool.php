@@ -37,7 +37,7 @@ class CheckInTool extends IgniteTool
             'goal_id' => ['required', 'integer', 'exists:goals,id'],
         ]);
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $goalValidated['goal_id']);
         $timezone = $goal->user?->timezone ?? config('app.timezone');
         $today = Carbon::now()->timezone($timezone)->toDateString();

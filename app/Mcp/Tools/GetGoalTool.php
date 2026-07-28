@@ -36,7 +36,7 @@ class GetGoalTool extends IgniteTool
             'goal_id' => 'integer|required|exists:goals,id',
         ]);
 
-        $user = $request->user();
+        $user = $this->actor($request);
 
         $goal = $this->goalService->find($user, $validated['goal_id']);
 

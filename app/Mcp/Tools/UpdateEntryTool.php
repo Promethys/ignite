@@ -37,7 +37,7 @@ class UpdateEntryTool extends IgniteTool
             'note' => 'nullable|string|max:500',
         ]);
 
-        $user = $request->user();
+        $user = $this->actor($request);
         $goalEntry = GoalEntry::findOrFail($validated['entry_id']);
 
         $entry = $this->goalEntryService->updateEntry(

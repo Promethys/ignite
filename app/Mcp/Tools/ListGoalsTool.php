@@ -32,7 +32,7 @@ class ListGoalsTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
-        $user = $request->user();
+        $user = $this->actor($request);
 
         $goals = $this->goalService->listForUser($user);
 
