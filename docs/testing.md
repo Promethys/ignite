@@ -424,6 +424,42 @@ class GoalObserverTest extends TestCase
 }
 ```
 
+### MCP tool tests
+
+Tool tests live in `tests/Feature/Mcp/Tools/` and drive a tool through the real server dispatch, so registration, scopes, validation, and authorization all apply:
+
+```php
+IgniteServer::tool(ListGoalsTool::class, ['goal_id' => $goal->id])
+    ->assertOk();
+```
+
+**Authenticate with the abilities you mean to test.** Tool visibility is decided by the token's abilities, so scope tests go through Sanctum:
+
+```php
+Sanctum::actingAs($user, ['read', 'write']);
+```
+
+Three things about this are easy to get wrong:
+
+- `Sanctum::actingAs($user)` with **no** abilities argument grants an empty set, so `tokenCan()` is false for everything and every tool disappears. Always pass the abilities explicitly.
+- `actingAs` does **not** apply the `write` implies `read` normalization that token creation does. A real `write` token stores `['read', 'write']`, so simulate it as `['read', 'write']` or read tools will wrongly appear unavailable.
+- To test that an ability is *missing*, pick one that genuinely excludes it. `['delete']` is a good stand-in for "no read access"; `['write']` is not, because a real write token carries read.
+
+**A scope test needs both directions.** Assert that a granted ability works *and* that a withheld one is refused. A lone negative assertion passes just as well when the mechanism is broken and refuses everything.
+
+**`assertSee` and `assertStructuredContent` check different payloads.** `assertSee` inspects the text content; `assertStructuredContent` inspects the structured JSON. A tool can return correct text while its structured payload is wrong, and clients that prefer structured content would then receive nothing useful. Assert on whichever payload the consumer actually reads, and on both when a tool returns both:
+
+```php
+IgniteServer::tool(GetGoalTool::class, ['goal_id' => $goal->id])
+    ->assertOk()
+    ->assertStructuredContent(fn (AssertableJson $json) => $json
+        ->has('entries', 2)
+        ->missing('user')
+        ->etc());
+```
+
+Asserting `missing()` on fields that must never be exposed is worth doing explicitly, since tool output is sent to a third-party AI provider.
+
 ## Writing frontend tests
 
 ### Setup

@@ -60,5 +60,6 @@ In development, `MAIL_MAILER=log` writes outgoing mail to `storage/logs/laravel.
 | `FORMBRICKS_WEBHOOK_SECRET` | Secret used to verify incoming Formbricks webhooks. | unset by default |
 | `DISCORD_OPS_ENABLED` | Toggles sending operational notifications to a Discord webhook. | `false` |
 | `DISCORD_OPS_WEBHOOK_URL` | Discord webhook URL that receives operational notifications when enabled. | unset by default |
+| `MCP_LOCAL_USER` | Email address of the user the MCP server acts as over the local stdio transport. Leave unset to expose no tools over stdio; the HTTP transport is unaffected either way. | unset by default. See the MCP server feature page |
 
 Each of these gates a feature that is off by default until its variable is set. See the corresponding feature page for setup details on the Formbricks survey and Discord operational notifications.
