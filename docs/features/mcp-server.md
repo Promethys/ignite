@@ -134,6 +134,8 @@ Lists stay lean: `list_goals` omits entries and milestones, while `get_goal` inc
 
 ## Connecting a client
 
+### Over HTTP
+
 1. In Ignite, go to **Settings > API tokens** and generate a token with the abilities you want. Copy it immediately.
 2. Point your MCP client at the HTTP endpoint with that token as a bearer credential. For Claude Code:
 
@@ -144,13 +146,26 @@ claude mcp add --transport http ignite https://ignite.promethys.dev/mcp \
 
 3. Reconnect the client and confirm the Ignite tools appear.
 
-To try the server without a client, use the bundled inspector:
+### Over stdio, on your own machine
+
+1. Set `MCP_LOCAL_USER` in `.env` to the email of the user the server should act as.
+2. Register the server as a subprocess. The client starts it; you do not run it yourself:
+
+```bash
+claude mcp add ignite-local -- php artisan mcp:start ignite
+```
+
+`ignite` is the handle registered by `Mcp::local()` in `routes/ai.php`. The command must resolve from the project directory, since the subprocess inherits the working directory; use an absolute path to `artisan` if your client starts elsewhere.
+
+This transport talks over stdin and stdout, so nothing needs to be listening on a port and `php artisan serve` is irrelevant to it.
+
+### Trying it without a client
 
 ```bash
 php artisan mcp:inspector mcp
 ```
 
-It starts a browser UI against `/mcp`. The app itself must be running and reachable (`php artisan serve`), and you still need to supply the `Authorization` header in the inspector's auth panel.
+It starts a browser UI against `/mcp`. The app itself must be running and reachable (`php artisan serve`), and you still need to supply the `Authorization` header in the inspector's auth panel. Pass the local handle instead (`mcp:inspector ignite`) to inspect the stdio server.
 
 ## Security model
 
