@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\GoalEntryResource;
+use App\Rules\GoalEntryRules;
 use App\Services\Goals\GoalEntryService;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -34,8 +35,7 @@ class LogProgressTool extends IgniteTool
     {
         $validated = $this->validateTrimmed($request, [
             'goal_id' => 'required|integer|exists:goals,id',
-            'increment' => 'required|numeric',
-            'note' => 'nullable|string|max:500',
+            ...GoalEntryRules::progressRules(),
         ]);
 
         $user = $this->actor($request);

@@ -74,6 +74,22 @@ class GoalEntryControllerTest extends TestCase
             );
     }
 
+    public function test_the_entries_page_carries_today_in_the_user_timezone()
+    {
+        Carbon::setTestNow('2026-07-20 02:00:00');
+
+        $this->user->update(['timezone' => 'America/Chicago']);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('goals.entries', $this->goal))
+            ->assertInertia(fn (Assert $page) => $page->has('today'));
+
+        // 02:00 UTC is still the 19th in Chicago. The check-in modal caps its
+        // date field with this value, so a browser-local fallback would offer
+        // a date the server then rejects.
+        $this->assertSame('2026-07-19', $response->inertiaProps('today'));
+    }
+
     public function test_entries_are_paginated()
     {
         GoalEntry::factory()->count(30)->create([
@@ -167,6 +183,153 @@ class GoalEntryControllerTest extends TestCase
         $this->assertEquals($this->goal->id, $response->inertiaProps('goal.id'));
         $this->assertEquals(1, count($data));
         $this->assertTrue(Carbon::parse($data[0]['entry_date'])->lt(Carbon::parse('2026-03-01')));
+    }
+
+    // =========================================================================
+    // UPDATE (RECURRING CHECK-IN)
+    // =========================================================================
+
+    private function recurringGoal(array $overrides = []): Goal
+    {
+        return Goal::factory()->create(array_merge([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+            'current_value' => 0,
+            'status' => 'in_progress',
+            'start_date' => '2026-07-01',
+        ], $overrides));
+    }
+
+    public function test_a_check_in_is_edited_by_its_date_not_an_increment()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = $this->recurringGoal();
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-14',
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', ['goal' => $goal, 'goalEntry' => $entry]), [
+                'entry_date' => '2026-07-15',
+                'note' => 'Moved a day later',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $entry->refresh();
+
+        $this->assertSame('2026-07-15', $entry->entry_date->toDateString());
+        $this->assertSame('Moved a day later', $entry->note);
+        $this->assertSame(0, (int) $goal->fresh()->current_value);
+    }
+
+    public function test_editing_a_check_in_onto_a_taken_period_is_rejected()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = $this->recurringGoal();
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-14',
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+        GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-15',
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', ['goal' => $goal, 'goalEntry' => $entry]), [
+                'entry_date' => '2026-07-15',
+            ])
+            ->assertSessionHasErrors('entry_date');
+
+        $this->assertSame('2026-07-14', $entry->fresh()->entry_date->toDateString());
+    }
+
+    public function test_a_check_in_can_be_saved_on_its_own_date()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = $this->recurringGoal();
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-14',
+            'value' => 1,
+            'previous_value' => 0,
+            'note' => null,
+        ]);
+
+        // The period guard must ignore the entry being edited, otherwise
+        // changing only the note would collide with itself.
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', ['goal' => $goal, 'goalEntry' => $entry]), [
+                'entry_date' => '2026-07-14',
+                'note' => 'Note only',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('Note only', $entry->fresh()->note);
+    }
+
+    public function test_a_check_in_cannot_be_moved_to_the_future()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = $this->recurringGoal();
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-14',
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', ['goal' => $goal, 'goalEntry' => $entry]), [
+                'entry_date' => '2026-07-17',
+            ])
+            ->assertSessionHasErrors('entry_date');
+    }
+
+    public function test_a_check_in_cannot_be_moved_before_the_goal_start_date()
+    {
+        Carbon::setTestNow('2026-07-16 10:00:00');
+
+        $goal = $this->recurringGoal();
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-14',
+            'value' => 1,
+            'previous_value' => 0,
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', ['goal' => $goal, 'goalEntry' => $entry]), [
+                'entry_date' => '2026-06-30',
+            ])
+            ->assertSessionHasErrors('entry_date');
+    }
+
+    public function test_an_entry_cannot_be_updated_through_another_goal()
+    {
+        $otherGoal = Goal::factory()->create(['user_id' => $this->user->id]);
+        $entry = GoalEntry::factory()->create([
+            'goal_id' => $this->goal->id,
+            'entry_date' => now(),
+        ]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.entries.update', ['goal' => $otherGoal, 'goalEntry' => $entry]), [
+                'increment' => 5,
+            ])
+            ->assertNotFound();
     }
 
     // =========================================================================

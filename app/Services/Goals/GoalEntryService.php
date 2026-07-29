@@ -91,22 +91,7 @@ class GoalEntryService
             ]);
         }
 
-        $recurrence = $goal->recurrence ?? 'daily';
-        $format = StreakService::cadenceFormats()[$recurrence] ?? 'Y-m-d';
-
-        $newKey = Carbon::parse($entryDate)->format($format);
-        $periodTaken = $goal->entries()
-            ->orderBy('entry_date')
-            ->pluck('entry_date')
-            ->map(fn ($date) => Carbon::parse($date)->format($format))
-            ->unique()
-            ->contains($newKey);
-
-        if ($periodTaken) {
-            throw ValidationException::withMessages([
-                'entry_date' => __('validation.custom.entry_date.check_in_period_taken'),
-            ]);
-        }
+        $this->guardPeriodIsFree($goal, $entryDate);
 
         $data = [
             'entry_date' => $entryDate,
@@ -121,6 +106,63 @@ class GoalEntryService
         $entry = $goal->entries()->create($data);
 
         return $entry;
+    }
+
+    /**
+     * Move an existing check-in to another date, or change its note.
+     *
+     * A check-in carries no increment, so this never touches the goal's
+     * current value. The one-per-period rule still applies, ignoring the
+     * entry being edited so re-saving it on its own date is not a conflict.
+     */
+    public function updateCheckIn(User $actor, GoalEntry $entry, string $entryDate, ?string $note = null): GoalEntry
+    {
+        Gate::forUser($actor)->authorize('update', $entry);
+
+        $goal = $entry->goal;
+
+        if ($goal->type !== 'recurring') {
+            throw ValidationException::withMessages([
+                'goal' => __('validation.custom.goal.check_in_on_non_recurring'),
+            ]);
+        }
+
+        $this->guardPeriodIsFree($goal, $entryDate, $entry->id);
+
+        $data = ['entry_date' => $entryDate];
+
+        if ($note !== null) {
+            $data['note'] = $note;
+        }
+
+        $entry->update($data);
+
+        return $entry->fresh();
+    }
+
+    /**
+     * Reject a check-in date whose recurrence period already holds one.
+     *
+     * The calendar date is bucketed by formatting it directly. Converting it
+     * to a timezone first would shift the day for negative-offset users.
+     */
+    protected function guardPeriodIsFree(Goal $goal, string $entryDate, ?int $ignoreEntryId = null): void
+    {
+        $recurrence = $goal->recurrence ?? 'daily';
+        $format = StreakService::cadenceFormats()[$recurrence] ?? 'Y-m-d';
+
+        $periodTaken = $goal->entries()
+            ->when($ignoreEntryId !== null, fn ($query) => $query->whereKeyNot($ignoreEntryId))
+            ->pluck('entry_date')
+            ->map(fn ($date) => Carbon::parse($date)->format($format))
+            ->unique()
+            ->contains(Carbon::parse($entryDate)->format($format));
+
+        if ($periodTaken) {
+            throw ValidationException::withMessages([
+                'entry_date' => __('validation.custom.entry_date.check_in_period_taken'),
+            ]);
+        }
     }
 
     public function updateEntry(User $actor, GoalEntry $entry, float $increment, ?string $note = null): GoalEntry

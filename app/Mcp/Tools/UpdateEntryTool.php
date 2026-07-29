@@ -4,6 +4,7 @@ namespace App\Mcp\Tools;
 
 use App\Http\Resources\GoalEntryResource;
 use App\Models\GoalEntry;
+use App\Rules\GoalEntryRules;
 use App\Services\Goals\GoalEntryService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
@@ -33,8 +34,7 @@ class UpdateEntryTool extends IgniteTool
     {
         $validated = $this->validateTrimmed($request, [
             'entry_id' => 'required|integer|exists:goal_entries,id',
-            'increment' => 'required|numeric',
-            'note' => 'nullable|string|max:500',
+            ...GoalEntryRules::progressRules(),
         ]);
 
         $user = $this->actor($request);

@@ -55,8 +55,14 @@ const props = defineProps<{
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'goals.breadcrumb.index', href: goals.index().url },
-    { title: props.goal.title, href: goals.show(props.goal.id).url },
+    {
+        title: 'goals.breadcrumb.index',
+        href: goals.index().url,
+    },
+    {
+        title: `"${props.goal.title}"`,
+        href: goals.show(props.goal.id).url,
+    },
 ];
 
 const isCompleted = computed(
