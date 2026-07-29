@@ -3,9 +3,9 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\GoalEntryResource;
+use App\Rules\GoalEntryRules;
 use App\Services\Goals\GoalEntryService;
 use App\Services\Goals\GoalService;
-use Carbon\Carbon;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
@@ -39,19 +39,8 @@ class CheckInTool extends IgniteTool
 
         $user = $this->actor($request);
         $goal = $this->goalService->find($user, $goalValidated['goal_id']);
-        $timezone = $goal->user?->timezone ?? config('app.timezone');
-        $today = Carbon::now()->timezone($timezone)->toDateString();
 
-        $rules = [
-            'entry_date' => ['required', 'date', "before_or_equal:{$today}"],
-            'note' => ['nullable', 'string', 'max:500'],
-        ];
-
-        if ($goal->start_date) {
-            $rules['entry_date'][] = 'after_or_equal:'.$goal->start_date->toDateString();
-        }
-
-        $validated = $this->validateTrimmed($request, $rules);
+        $validated = $this->validateTrimmed($request, GoalEntryRules::checkInRules($goal));
 
         $entry = $this->goalEntryService->recordCheckIn(
             $user,
