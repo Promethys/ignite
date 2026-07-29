@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
+import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInModal.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -32,7 +33,10 @@ import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
 import { Head, InfiniteScroll, router } from '@inertiajs/vue3';
-import { getLocalTimeZone, today } from '@internationalized/date';
+import {
+    today as currentDateInTimeZone,
+    getLocalTimeZone,
+} from '@internationalized/date';
 import { useDebounceFn } from '@vueuse/core';
 import { CalendarIcon, Pencil, Trash, XIcon } from 'lucide-vue-next';
 import moment from 'moment';
@@ -42,6 +46,7 @@ import { computed, ref } from 'vue';
 const props = defineProps<{
     goal: Goal;
     entries: any;
+    today?: string;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -59,6 +64,8 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const isRecurring = computed(() => props.goal.type === 'recurring');
+
 const searchInput = ref();
 const dateFrom = ref<DateValue>();
 const dateTo = ref<DateValue>();
@@ -75,7 +82,7 @@ const scrollKey = computed(
         `${searchInput.value ?? ''}-${dateFrom.value?.toString() ?? ''}-${dateTo.value?.toString() ?? ''}`,
 );
 
-const defaultPlaceholder = today(getLocalTimeZone());
+const defaultPlaceholder = currentDateInTimeZone(getLocalTimeZone());
 
 const debouncedSearch = useDebounceFn(() => {
     router.reload({
@@ -117,106 +124,94 @@ const resetFilters = () => {
         <div class="space-y-6 p-4">
             <PageHeader :title="$t('goals.entries.title')">
                 <template #actions>
-                    <GoalEntryFormModal :goal />
+                    <RecurringCheckInModal :goal :today v-if="isRecurring" />
+
+                    <GoalEntryFormModal :goal v-else />
                 </template>
             </PageHeader>
             <section class="space-y-2 text-sm">
                 <div>
                     <div class="space-y-3">
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
                             <Input
                                 type="search"
                                 :placeholder="
                                     $t('goals.entries.search_placeholder')
                                 "
                                 v-model="searchInput"
-                                class="max-w-md"
+                                class="w-full sm:flex-1"
                                 @input="debouncedSearch"
                             />
 
-                            <div>
-                                <Popover v-model:open="dateFromCalendarOpen">
-                                    <PopoverTrigger as-child>
-                                        <Button
-                                            variant="outline"
-                                            :class="
-                                                cn(
-                                                    'w-[280px] justify-start text-left font-normal',
-                                                    !dateFrom &&
-                                                        'text-muted-foreground',
-                                                )
-                                            "
-                                        >
-                                            <CalendarIcon
-                                                class="mr-2 h-4 w-4"
-                                            />
-                                            {{
-                                                dateFrom
-                                                    ? dateFrom.toString()
-                                                    : $t(
-                                                          'goals.entries.pick_date',
-                                                      )
-                                            }}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent class="w-auto p-0">
-                                        <Calendar
-                                            v-model="dateFrom"
-                                            :default-placeholder="
-                                                defaultPlaceholder
-                                            "
-                                            layout="month-and-year"
-                                            @update:model-value="
-                                                handleCalendarFilterUpdate(
-                                                    'dateFrom',
-                                                )
-                                            "
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
+                            <Popover v-model:open="dateFromCalendarOpen">
+                                <PopoverTrigger as-child>
+                                    <Button
+                                        variant="outline"
+                                        :class="
+                                            cn(
+                                                'w-full justify-start text-left font-normal sm:w-[280px]',
+                                                !dateFrom &&
+                                                    'text-muted-foreground',
+                                            )
+                                        "
+                                    >
+                                        <CalendarIcon class="mr-2 h-4 w-4" />
+                                        {{
+                                            dateFrom
+                                                ? dateFrom.toString()
+                                                : $t('goals.entries.pick_date')
+                                        }}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent class="w-auto p-0">
+                                    <Calendar
+                                        v-model="dateFrom"
+                                        :default-placeholder="
+                                            defaultPlaceholder
+                                        "
+                                        layout="month-and-year"
+                                        @update:model-value="
+                                            handleCalendarFilterUpdate(
+                                                'dateFrom',
+                                            )
+                                        "
+                                    />
+                                </PopoverContent>
+                            </Popover>
 
-                            <div>
-                                <Popover v-model:open="dateToCalendarOpen">
-                                    <PopoverTrigger as-child>
-                                        <Button
-                                            variant="outline"
-                                            :class="
-                                                cn(
-                                                    'w-[280px] justify-start text-left font-normal',
-                                                    !dateTo &&
-                                                        'text-muted-foreground',
-                                                )
-                                            "
-                                        >
-                                            <CalendarIcon
-                                                class="mr-2 h-4 w-4"
-                                            />
-                                            {{
-                                                dateTo
-                                                    ? dateTo.toString()
-                                                    : $t(
-                                                          'goals.entries.pick_date',
-                                                      )
-                                            }}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent class="w-auto p-0">
-                                        <Calendar
-                                            v-model="dateTo"
-                                            :default-placeholder="
-                                                defaultPlaceholder
-                                            "
-                                            layout="month-and-year"
-                                            @update:model-value="
-                                                handleCalendarFilterUpdate(
-                                                    'dateTo',
-                                                )
-                                            "
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
+                            <Popover v-model:open="dateToCalendarOpen">
+                                <PopoverTrigger as-child>
+                                    <Button
+                                        variant="outline"
+                                        :class="
+                                            cn(
+                                                'w-full justify-start text-left font-normal sm:w-[280px]',
+                                                !dateTo &&
+                                                    'text-muted-foreground',
+                                            )
+                                        "
+                                    >
+                                        <CalendarIcon class="mr-2 h-4 w-4" />
+                                        {{
+                                            dateTo
+                                                ? dateTo.toString()
+                                                : $t('goals.entries.pick_date')
+                                        }}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent class="w-auto p-0">
+                                    <Calendar
+                                        v-model="dateTo"
+                                        :default-placeholder="
+                                            defaultPlaceholder
+                                        "
+                                        layout="month-and-year"
+                                        @update:model-value="
+                                            handleCalendarFilterUpdate('dateTo')
+                                        "
+                                    />
+                                </PopoverContent>
+                            </Popover>
 
                             <div v-if="hasActiveFilters">
                                 <Button variant="link" @click="resetFilters">
@@ -276,6 +271,7 @@ const resetFilters = () => {
                                             </p>
                                             <p
                                                 class="text-sm text-muted-foreground"
+                                                v-if="!isRecurring"
                                             >
                                                 {{
                                                     (entry.increment_value > 0
@@ -294,12 +290,31 @@ const resetFilters = () => {
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <!-- Edit button -->
+                                            <RecurringCheckInModal
+                                                :goal
+                                                :today
+                                                :record="entry"
+                                                v-if="isRecurring"
+                                            >
+                                                <template #trigger>
+                                                    <Button size="sm">
+                                                        <Pencil />
+                                                        {{
+                                                            $t(
+                                                                'common.actions.edit',
+                                                            )
+                                                        }}
+                                                    </Button>
+                                                </template>
+                                            </RecurringCheckInModal>
+
                                             <GoalEntryFormModal
                                                 :goal
                                                 :record="entry"
+                                                v-else
                                             >
                                                 <template #trigger>
-                                                    <Button>
+                                                    <Button size="sm">
                                                         <Pencil />
                                                         {{
                                                             $t(
@@ -316,6 +331,7 @@ const resetFilters = () => {
                                                     <DialogTrigger as-child>
                                                         <Button
                                                             variant="destructive"
+                                                            size="sm"
                                                         >
                                                             <Trash />
                                                             {{

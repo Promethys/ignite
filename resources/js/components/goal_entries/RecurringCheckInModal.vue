@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { store } from '@/actions/App/Http/Controllers/Goals/GoalEntryController.js';
+import {
+    store,
+    update,
+} from '@/actions/App/Http/Controllers/Goals/GoalEntryController.js';
 import {
     Dialog,
     DialogClose,
@@ -13,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Goal } from '@/types/models';
+import { Goal, GoalEntry } from '@/types/models';
 import { useForm } from '@inertiajs/vue3';
 import { Check } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
@@ -22,6 +25,7 @@ import { Button } from '../ui/button';
 
 const props = defineProps<{
     goal: Goal;
+    record?: GoalEntry;
     today?: string;
     open?: boolean;
 }>();
@@ -35,19 +39,46 @@ const today = computed(
     () => props.today ?? new Date().toLocaleDateString('en-CA'),
 );
 
-const form = useForm('RecurringCheckInForm', {
-    entry_date: today.value,
-    note: '',
-});
+const recordDate = props.record
+    ? String(props.record.entry_date).slice(0, 10)
+    : null;
+
+const formState = props.record
+    ? {
+          formName: null,
+          title: 'goals.entries.form.edit_title',
+          description: 'goals.entries.form.edit_description',
+          action: update({ goal: props.goal, goalEntry: props.record }),
+          submitLabel: 'goals.entries.form.submit_edit',
+      }
+    : {
+          formName: 'RecurringCheckInForm',
+          title: `goals.checkin.title_${polarity.value}`,
+          description: `goals.checkin.description_${polarity.value}`,
+          action: store(props.goal),
+          submitLabel: `goals.checkin.submit_${polarity.value}`,
+      };
+
+const formData = {
+    entry_date: recordDate ?? today.value,
+    note: props.record?.note ?? '',
+};
+
+const form = formState.formName
+    ? useForm(formState.formName, formData)
+    : useForm(formData);
 
 const open = ref<boolean>(props.open ?? false);
 
 const submit = () => {
-    form.submit(store(props.goal), {
+    form.submit(formState.action, {
         onSuccess: () => {
-            form.reset();
             form.clearErrors();
             open.value = false;
+
+            if (!props.record) {
+                form.reset();
+            }
         },
     });
 };
@@ -65,11 +96,9 @@ const submit = () => {
         </DialogTrigger>
         <DialogContent class="sm:max-w-md">
             <DialogHeader>
-                <DialogTitle>{{
-                    $t(`goals.checkin.title_${polarity}`)
-                }}</DialogTitle>
+                <DialogTitle>{{ $t(formState.title) }}</DialogTitle>
                 <DialogDescription>
-                    {{ $t(`goals.checkin.description_${polarity}`) }}
+                    {{ $t(formState.description) }}
                 </DialogDescription>
             </DialogHeader>
             <form
@@ -117,7 +146,7 @@ const submit = () => {
                     {{
                         form.processing
                             ? $t('goals.checkin.submitting')
-                            : $t(`goals.checkin.submit_${polarity}`)
+                            : $t(formState.submitLabel)
                     }}
                 </Button>
             </DialogFooter>
