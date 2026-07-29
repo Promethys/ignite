@@ -10,10 +10,12 @@ use App\Mcp\Tools\CreateGoalTool;
 use App\Mcp\Tools\DeleteEntryTool;
 use App\Mcp\Tools\DeleteGoalTool;
 use App\Mcp\Tools\GetGoalTool;
+use App\Mcp\Tools\GetUserTool;
 use App\Mcp\Tools\ListEntriesTool;
 use App\Mcp\Tools\ListGoalsTool;
 use App\Mcp\Tools\LogProgressTool;
 use App\Mcp\Tools\SetGoalStatusTool;
+use App\Mcp\Tools\SetUserTool;
 use App\Mcp\Tools\UncompleteGoalTool;
 use App\Mcp\Tools\UpdateEntryTool;
 use App\Mcp\Tools\UpdateGoalTool;
@@ -42,10 +44,12 @@ class IgniteServer extends Server
         DeleteEntryTool::class,
         DeleteGoalTool::class,
         GetGoalTool::class,
+        GetUserTool::class,
         ListEntriesTool::class,
         ListGoalsTool::class,
         LogProgressTool::class,
         SetGoalStatusTool::class,
+        SetUserTool::class,
         UncompleteGoalTool::class,
         UpdateEntryTool::class,
         UpdateGoalTool::class,
