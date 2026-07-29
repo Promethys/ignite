@@ -16,18 +16,63 @@ use Illuminate\Support\Facades\Gate;
 class GoalService
 {
     /**
-     * Return the actor's goals with the `streak` appended.
+     * Return the actor's goals, with filters, milestone counts, and streak.
      *
-     * Mirrors the data shape of `GoalController::index`, minus the Inertia
-     * response.
+     * Milestone counts feed `GoalResource::milestone_summary` so multi_step
+     * progress is visible in the lean list without loading the relation.
      *
-     * @return Collection<int, Goal>
+     * Never silently truncates: returns the total matching the filters
+     * alongside the (capped) slice, so a caller knows whether more exist.
+     * A null `limit` means every match was returned.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return array{goals: Collection<int, Goal>, total: int, limit: int|null}
      */
-    public function listForUser(User $actor): Collection
+    public function listForUser(User $actor, array $filters = []): array
     {
-        return $actor->goals()
-            ->get()
-            ->append('streak');
+        $query = $actor->goals();
+
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (! empty($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+
+        if (! empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        if (! empty($filters['search'])) {
+            $term = '%'.strtolower($filters['search']).'%';
+
+            $query->where(function ($query) use ($term): void {
+                $query->whereRaw('LOWER(title) like ?', [$term])
+                    ->orWhereRaw('LOWER(description) like ?', [$term]);
+            });
+        }
+
+        $total = $query->count();
+
+        $query->withCount([
+            'milestones',
+            'milestones as completed_milestones_count' => fn ($query) => $query->whereNotNull('completed_at'),
+        ]);
+
+        $limit = isset($filters['limit'])
+            ? min(max((int) $filters['limit'], 1), 100)
+            : null;
+
+        if ($limit !== null) {
+            $query->limit($limit);
+        }
+
+        return [
+            'goals' => $query->get()->append('streak'),
+            'total' => $total,
+            'limit' => $limit,
+        ];
     }
 
     /**
@@ -55,15 +100,7 @@ class GoalService
     }
 
     /**
-     * Create a goal owned by the actor.
-     *
-     * The caller runs validation (the controller's `$rules`, or the MCP
-     * tool's schema). The service owns the invariants: it authorizes
-     * `create`, assigns the owner from the actor (never trusting a
-     * client-supplied `user_id`), computes the display `order` as the
-     * owner's goal count plus one, and applies operational defaults so a
-     * caller that omits them (an MCP tool, or a partial payload) still
-     * produces a coherent goal rather than one seeded with `null`s.
+     * Create a goal owned by the actor. Operational fields default server-side.
      *
      * @param  array<string, mixed>  $attributes
      */

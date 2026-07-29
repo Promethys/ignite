@@ -72,7 +72,7 @@ class McpGoalLifecycleTest extends TestCase
 
         IgniteServer::tool(ListGoalsTool::class)
             ->assertOk()
-            ->assertSee('The user has 1 goals.');
+            ->assertSee('Retrieved 1 goals.');
 
         IgniteServer::tool(CompleteGoalTool::class, ['goal_id' => $goalId])->assertOk();
 

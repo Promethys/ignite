@@ -23,7 +23,7 @@ class LocalActorTest extends TestCase
 
         IgniteServer::tool(ListGoalsTool::class)
             ->assertOk()
-            ->assertSee('The user has 2 goals.');
+            ->assertSee('Retrieved 2 goals.');
     }
 
     public function test_the_local_user_is_matched_case_insensitively(): void
@@ -79,6 +79,6 @@ class LocalActorTest extends TestCase
 
         IgniteServer::tool(ListGoalsTool::class)
             ->assertOk()
-            ->assertSee('The user has 2 goals.');
+            ->assertSee('Retrieved 2 goals.');
     }
 }

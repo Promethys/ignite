@@ -52,9 +52,12 @@ class GoalServiceTest extends TestCase
         Goal::factory()->count(2)->create(['user_id' => $owner->id]);
         Goal::factory()->create(['user_id' => $other->id]);
 
-        $goals = $this->service->listForUser($owner);
+        $result = $this->service->listForUser($owner);
+        $goals = $result['goals'];
 
         $this->assertCount(2, $goals);
+        $this->assertSame(2, $result['total']);
+        $this->assertNull($result['limit']);
         $this->assertTrue($goals->every(fn (Goal $goal) => $goal->user_id === $owner->id));
     }
 
@@ -67,7 +70,7 @@ class GoalServiceTest extends TestCase
             'type' => 'recurring',
         ]);
 
-        $goals = $this->service->listForUser($owner);
+        $goals = $this->service->listForUser($owner)['goals'];
 
         $this->assertArrayHasKey('streak', $goals->first()->toArray());
     }

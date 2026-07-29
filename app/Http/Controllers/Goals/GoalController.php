@@ -33,7 +33,7 @@ class GoalController extends Controller
         $actor = $request->user();
 
         return Inertia::render('Goals/Index', [
-            'items' => $this->goalService->listForUser($actor),
+            'items' => $this->goalService->listForUser($actor)['goals'],
             'categories' => $actor->categories,
             'category_id' => $validated['category'] ?? null,
         ]);

@@ -64,4 +64,69 @@ class ListEntriesToolTest extends TestCase
             ->assertOk()
             ->assertStructuredContent(fn (AssertableJson $json) => $json->has('entries')->etc());
     }
+
+    public function test_the_total_count_exceeds_the_number_returned_when_the_cap_applies(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id]);
+        GoalEntry::factory()->count(5)->create(['goal_id' => $goal->id]);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListEntriesTool::class, ['goal_id' => $goal->id, 'limit' => 2])
+            ->assertOk()
+            ->assertSee('Retrieved 2 of 5 progress entries.')
+            ->assertStructuredContent(fn (AssertableJson $json) => $json
+                ->where('total', 5)
+                ->where('limit', 2)
+                ->has('entries', 2)
+                ->etc());
+    }
+
+    public function test_the_text_reports_the_full_count_when_nothing_is_truncated(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id]);
+        GoalEntry::factory()->count(2)->create(['goal_id' => $goal->id]);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListEntriesTool::class, ['goal_id' => $goal->id])
+            ->assertOk()
+            ->assertSee('Retrieved 2 of 2 progress entries.');
+    }
+
+    public function test_the_from_filter_excludes_older_entries(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id]);
+        GoalEntry::factory()->create(['goal_id' => $goal->id, 'entry_date' => '2026-01-01']);
+        GoalEntry::factory()->create(['goal_id' => $goal->id, 'entry_date' => '2026-06-01']);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListEntriesTool::class, [
+            'goal_id' => $goal->id,
+            'from' => '2026-03-01',
+        ])
+            ->assertOk()
+            ->assertSee('Retrieved 1 of 1 progress entries.');
+    }
+
+    public function test_the_search_filter_matches_notes(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id]);
+        GoalEntry::factory()->create(['goal_id' => $goal->id, 'note' => 'Felt great']);
+        GoalEntry::factory()->create(['goal_id' => $goal->id, 'note' => 'Tired today']);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListEntriesTool::class, [
+            'goal_id' => $goal->id,
+            'search' => 'great',
+        ])
+            ->assertOk()
+            ->assertSee('Retrieved 1 of 1 progress entries.');
+    }
 }
