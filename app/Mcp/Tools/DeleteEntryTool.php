@@ -100,12 +100,10 @@ class DeleteEntryTool extends IgniteTool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'entry_id' => $schema
-                ->integer()
+            'entry_id' => $schema->integer()
                 ->description('The ID of the goal entry to delete.')
                 ->required(),
-            'confirmation_token' => $schema
-                ->string()
+            'confirmation_token' => $schema->string()
                 ->description('Leave this out on the first call to receive a preview of what will be deleted, together with a short-lived confirmation token. Pass that token back on a second call to carry out the deletion. A token works only once, expires after two minutes, and is only valid for this entry.')
                 ->nullable(),
         ];

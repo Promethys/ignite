@@ -80,12 +80,10 @@ class DeleteGoalTool extends IgniteTool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'goal_id' => $schema
-                ->integer()
+            'goal_id' => $schema->integer()
                 ->description('The ID of the goal to delete.')
                 ->required(),
-            'confirmation_token' => $schema
-                ->string()
+            'confirmation_token' => $schema->string()
                 ->description('Leave this out on the first call to receive a preview of exactly what will be deleted, together with a short-lived confirmation token. Pass that token back on a second call to carry out the deletion. A token works only once, expires after two minutes, and is only valid for this goal.')
                 ->nullable(),
         ];
