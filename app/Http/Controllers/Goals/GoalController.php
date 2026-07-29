@@ -141,7 +141,7 @@ class GoalController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.deleted')]);
 
-        return back(303);
+        return to_route('goals.index', status: 303);
     }
 
     public function updateStatus(Request $request, Goal $goal)
