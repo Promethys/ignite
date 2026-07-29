@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Goals;
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
 use App\Models\GoalEntry;
+use App\Rules\GoalEntryRules;
 use App\Services\Goals\GoalEntryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -46,17 +47,24 @@ class GoalEntryController extends Controller
 
         $entries = Inertia::scroll(fn () => $query->paginate(20));
 
-        return Inertia::render('GoalEntries/Index', compact('goal', 'entries'));
+        $today = Carbon::now()->timezone($goal->user?->timezone ?? config('app.timezone'))->toDateString();
+
+        return Inertia::render('GoalEntries/Index', compact('goal', 'entries', 'today'));
     }
 
     public function update(Request $request, Goal $goal, GoalEntry $goalEntry)
     {
         Gate::authorize('update', $goalEntry);
 
-        $validated = $request->validate([
-            'increment' => 'required|numeric',
-            'note' => 'nullable|string|max:500',
-        ]);
+        if ($goal->id !== $goalEntry->goal_id) {
+            abort(404);
+        }
+
+        if ($goal->type === 'recurring') {
+            return $this->updateCheckIn($request, $goal, $goalEntry);
+        }
+
+        $validated = $request->validate(GoalEntryRules::progressRules());
 
         $this->goalEntryService->updateEntry(
             $request->user(),
@@ -78,10 +86,7 @@ class GoalEntryController extends Controller
             return $this->storeCheckIn($request, $goal);
         }
 
-        $validated = $request->validate([
-            'increment' => 'required|numeric',
-            'note' => 'nullable|string|max:500',
-        ]);
+        $validated = $request->validate(GoalEntryRules::progressRules());
 
         $this->goalEntryService->logProgress(
             $request->user(),
@@ -96,23 +101,30 @@ class GoalEntryController extends Controller
     }
 
     /**
+     * Move an existing check-in, or change its note.
+     */
+    protected function updateCheckIn(Request $request, Goal $goal, GoalEntry $goalEntry)
+    {
+        $validated = $request->validate(GoalEntryRules::checkInRules($goal));
+
+        $this->goalEntryService->updateCheckIn(
+            $request->user(),
+            $goalEntry,
+            $validated['entry_date'],
+            $validated['note'] ?? null
+        );
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
+
+        return back();
+    }
+
+    /**
      * Record a dated check-in for a recurring goal without touching current_value.
      */
     protected function storeCheckIn(Request $request, Goal $goal)
     {
-        $timezone = $goal->user?->timezone ?? config('app.timezone');
-        $today = Carbon::now()->timezone($timezone)->toDateString();
-
-        $rules = [
-            'entry_date' => ['required', 'date', "before_or_equal:{$today}"],
-            'note' => ['nullable', 'string', 'max:500'],
-        ];
-
-        if ($goal->start_date) {
-            $rules['entry_date'][] = 'after_or_equal:'.$goal->start_date->toDateString();
-        }
-
-        $validated = $request->validate($rules);
+        $validated = $request->validate(GoalEntryRules::checkInRules($goal));
 
         $this->goalEntryService->recordCheckIn(
             $request->user(),
