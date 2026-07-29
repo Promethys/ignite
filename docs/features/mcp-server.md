@@ -58,15 +58,16 @@ Scopes are enforced at **registration** time, not at call time: a tool whose req
 
 ## The tool set
 
-Fifteen tools, grouped by the ability they require.
+Seventeen tools, grouped by the ability they require.
 
 ### `read`
 
 | Tool | What it does |
 | --- | --- |
-| `list_goals` | All of the user's goals with status, type, progress, and streak |
+| `list_goals` | The user's goals with status, type, progress, streak, and category. Accepts `status`, `type`, `category_id`, `search` (title and description), and `limit` (max 100), and reports the matching `total` |
 | `get_goal` | One goal, including its recent entries, ordered milestones, and streak |
-| `list_entries` | The progress entries logged against a goal, newest first |
+| `list_entries` | A goal's progress entries, newest first. Accepts `search` (note text), `from`, `to`, and `limit` (default 50, max 200), and reports the matching `total` |
+| `get_user` | The acting user's id, name, timezone, and locale |
 
 ### `write`
 
@@ -82,6 +83,9 @@ Fifteen tools, grouped by the ability they require.
 | `update_entry` | Edit an entry's increment; the goal's current value shifts by the difference |
 | `add_milestone` | Append a milestone to a goal |
 | `complete_milestone` | Check off a milestone |
+| `set_user` | Partial update of the acting user's own `name`, `timezone`, or `locale` |
+
+`get_user` and `set_user` exist mainly for **timezone correctness**. Check-in dates are validated against "today" in the user's timezone, so a client that does not know the timezone can log check-ins on the wrong day. Neither tool exposes or accepts the account email, password, or two-factor data: the mutable set is deliberately limited to fields whose worst-case misuse is cosmetic. See [Security model](#security-model).
 
 `log_progress` and `check_in` are not interchangeable. Logging progress on a recurring goal, or checking in on a non-recurring one, is rejected with an explanatory message. See [Goal Types](/features/goal-types).
 
@@ -130,7 +134,11 @@ Tool output is built from explicit resource whitelists (`App\Http\Resources\Goal
 
 This matters because tool output is transmitted to a third-party AI provider. The whitelist means no account data (email, password hash, two-factor secrets) and no internal bookkeeping columns can reach a model, even by accident, and adding a sensitive column to a table later cannot leak it retroactively.
 
-Lists stay lean: `list_goals` omits entries and milestones, while `get_goal` includes them.
+Lists stay lean: `list_goals` omits entries and milestones, while `get_goal` and the goal-writing tools include them. So that multi-step progress is still visible in the lean list, every goal carries a `milestone_summary` (`{total, completed}`), computed with a counting query rather than by loading the relation.
+
+**Lists never truncate silently.** `list_goals` and `list_entries` both return the matching `total` alongside the capped slice and its effective `limit`, and say so in their text (`Retrieved 20 of 137 progress entries.`). A `limit` of `null` means nothing was capped. A client can therefore tell that more exist rather than mistaking a truncated slice for the whole history and reporting it as fact.
+
+Every goal carries its `category` as `{id, name}`, or `null` when it has none. Without it the `category_id` filter would be unusable: an AI client has no other way to learn which ids exist.
 
 ## Connecting a client
 
@@ -173,7 +181,8 @@ It starts a browser UI against `/mcp`. The app itself must be running and reacha
 - **The acting user is never client supplied.** `create_goal` assigns ownership from the token holder and ignores any user id in the payload.
 - **Scoped tokens**, with `delete` opt-in, plus the two-step confirmation on destructive tools.
 - **Whitelisted output**, as described above.
-- **Untrusted content.** Goal titles and notes are user-authored text that reaches the model as data. The server instructions tell the model to treat them as data rather than instructions, and no tool can change account credentials, so a prompt-injection attempt cannot escalate into account takeover.
+- **Normalized input.** A web request is trimmed by middleware before it is validated; an MCP request has no middleware stack, so tools trim incoming strings themselves and treat a whitespace-only value as a field that was not supplied. Without this, a blank title or name would pass validation untouched and be stored, since Laravel skips non-implicit rules for any value that trims to empty.
+- **Untrusted content.** Goal titles and notes are user-authored text that reaches the model as data. The server instructions tell the model to treat them as data rather than instructions, and no tool can change account credentials, so a prompt-injection attempt cannot escalate into account takeover. This is why `set_user` cannot touch the email address: email is the account-recovery vector, and changing it would also unverify the account and lock the user out of the web app.
 - **Run production with `APP_DEBUG=false`.** Unhandled exceptions are logged server side and returned to the client as a generic message. With debug enabled, raw exception text is returned instead, which would expose internals to the AI client.
 
 ## Troubleshooting
@@ -181,8 +190,20 @@ It starts a browser UI against `/mcp`. The app itself must be running and reacha
 **Some tools are missing from my client.**
 Almost always a scope mismatch. Because scopes are enforced at registration, a token without an ability makes the corresponding tools *invisible* rather than returning a permission error. A client with a `read`-only token that is asked to delete something will answer that it has no such tool. Check the token's abilities under **Settings > API tokens**, and if they are wrong, revoke it and create a new one with the abilities you need.
 
-**I changed my token's abilities and nothing happened.**
-Clients fetch the tool list once, when they connect. Reconnect the MCP server so the client requests it again. The same applies after upgrading Ignite to a version that adds tools.
+**I changed my token's abilities, or upgraded Ignite, and nothing changed.**
+Clients fetch the tool list once, when they connect, and cache it. Restarting Ignite itself changes nothing on the client side. Reconnect the MCP server so the client requests the list again; if the tools still do not appear, remove the server from your client's configuration and add it back, which forces a fresh handshake rather than reusing held connection state.
+
+To check whether the problem is the client or the server, ask the server directly:
+
+```bash
+curl -s -X POST https://ignite.promethys.dev/mcp \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list"}'
+```
+
+If a tool appears there but not in your client, the client's cache is stale.
 
 **Deletion never completes.**
 Deletion needs two calls. If the second call reports an invalid token, the confirmation may have expired (two minutes), already been used, or been issued for a different target. Ask for a fresh preview and confirm again.
