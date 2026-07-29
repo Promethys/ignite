@@ -76,7 +76,7 @@ Seventeen tools, grouped by the ability they require.
 | `create_goal` | Create a goal. Only `title` and `type` are required (plus `target_value` for a quantifiable goal); operational fields default server side |
 | `update_goal` | Partial update. Supply `goal_id` plus only the fields to change; omitted fields keep their current value |
 | `complete_goal` | Mark a goal completed and record the completion time |
-| `uncomplete_goal` | Revert a completed goal to an active status and clear its completion time |
+| `uncomplete_goal` | Revert a completed goal to an active status and clear its completion time. A goal that was never completed is rejected; use `set_goal_status` for an ordinary status change |
 | `set_goal_status` | Change a goal's status |
 | `log_progress` | Shift a non-recurring goal's current value by an increment and record an entry |
 | `check_in` | Record a dated check-in on a recurring goal, one per period, without touching the current value |
@@ -135,6 +135,8 @@ Tool output is built from explicit resource whitelists (`App\Http\Resources\Goal
 This matters because tool output is transmitted to a third-party AI provider. The whitelist means no account data (email, password hash, two-factor secrets) and no internal bookkeeping columns can reach a model, even by accident, and adding a sensitive column to a table later cannot leak it retroactively.
 
 Lists stay lean: `list_goals` omits entries and milestones, while `get_goal` and the goal-writing tools include them. So that multi-step progress is still visible in the lean list, every goal carries a `milestone_summary` (`{total, completed}`), computed with a counting query rather than by loading the relation.
+
+`progress_percentage` is reported for every goal type that has a meaningful notion of progress. A quantifiable goal measures it against `target_value`; a multi-step goal measures it as the share of its steps that are completed. It is `null` when there is nothing to measure, which covers a recurring goal (progress there is the streak), a simple goal, and a multi-step goal with no steps yet.
 
 **Lists never truncate silently.** `list_goals` and `list_entries` both return the matching `total` alongside the capped slice and its effective `limit`, and say so in their text (`Retrieved 20 of 137 progress entries.`). A `limit` of `null` means nothing was capped. A client can therefore tell that more exist rather than mistaking a truncated slice for the whole history and reporting it as fact.
 
