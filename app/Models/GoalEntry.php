@@ -56,6 +56,8 @@ class GoalEntry extends Model
 
     /**
      * Get the goal that owns the entry.
+     *
+     * @return BelongsTo<Goal, $this>
      */
     public function goal(): BelongsTo
     {

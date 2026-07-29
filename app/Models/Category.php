@@ -54,6 +54,8 @@ class Category extends Model
 
     /**
      * Get the user that owns the category.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -62,6 +64,8 @@ class Category extends Model
 
     /**
      * Get the goals for the category.
+     *
+     * @return HasMany<Goal, $this>
      */
     public function goals(): HasMany
     {

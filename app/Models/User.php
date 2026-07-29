@@ -14,10 +14,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
+    use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
@@ -47,6 +50,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -74,6 +79,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     /**
      * Get the categories for the user.
+     *
+     * @return HasMany<Category, $this>
      */
     public function categories(): HasMany
     {
@@ -82,6 +89,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     /**
      * Get the goals for the user.
+     *
+     * @return HasMany<Goal, $this>
      */
     public function goals(): HasMany
     {
@@ -90,6 +99,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     /**
      * Get the achievements unlocked by the user.
+     *
+     * @return BelongsToMany<Achievement, $this>
      */
     public function achievements(): BelongsToMany
     {
@@ -100,6 +111,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     /**
      * Get the user's unlocked achievements.
+     *
+     * @return BelongsToMany<Achievement, $this>
      */
     public function unlockedAchievements(): BelongsToMany
     {
@@ -108,6 +121,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     /**
      * Get the user's achievements in progress.
+     *
+     * @return BelongsToMany<Achievement, $this>
      */
     public function achievementsInProgress(): BelongsToMany
     {
@@ -116,6 +131,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     /**
      * Get active goals for the user.
+     *
+     * @return HasMany<Goal, $this>
      */
     public function activeGoals(): HasMany
     {
@@ -124,6 +141,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     /**
      * Get completed goals for the user.
+     *
+     * @return HasMany<Goal, $this>
      */
     public function completedGoals(): HasMany
     {

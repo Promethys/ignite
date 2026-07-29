@@ -152,11 +152,14 @@ class GoalControllerTest extends TestCase
 
     public function test_user_can_view_goals_index()
     {
+        Goal::factory()->count(2)->create(['user_id' => $this->user->id]);
+
         $this->actingAs($this->user)
             ->get(route('goals.index'))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Goals/Index')
-                ->has('items')
+                ->has('items', 2)
+                ->has('items.0.title')
                 ->has('categories')
             );
     }

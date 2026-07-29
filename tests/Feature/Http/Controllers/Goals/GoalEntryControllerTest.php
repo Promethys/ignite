@@ -183,6 +183,7 @@ class GoalEntryControllerTest extends TestCase
             'recurrence' => 'daily',
             'current_value' => 0,
             'status' => 'in_progress',
+            'start_date' => '2026-07-01',
         ]);
 
         $this->actingAs($this->user)
@@ -334,6 +335,7 @@ class GoalEntryControllerTest extends TestCase
             'recurrence' => 'daily',
             'current_value' => 0,
             'status' => 'in_progress',
+            'start_date' => '2026-07-01',
         ]);
 
         $this->actingAs($this->user)
@@ -354,6 +356,7 @@ class GoalEntryControllerTest extends TestCase
             'polarity' => 'negative',
             'recurrence' => 'daily',
             'status' => 'in_progress',
+            'start_date' => '2026-07-01',
         ]);
 
         $this->actingAs($this->user)

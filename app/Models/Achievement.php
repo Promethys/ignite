@@ -60,6 +60,8 @@ class Achievement extends Model
 
     /**
      * Get the user who created this achievement.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function creator(): BelongsTo
     {
@@ -68,6 +70,8 @@ class Achievement extends Model
 
     /**
      * Get the users who have unlocked this achievement.
+     *
+     * @return BelongsToMany<User, $this>
      */
     public function users(): BelongsToMany
     {

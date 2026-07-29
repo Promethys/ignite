@@ -49,6 +49,11 @@ return [
         'reset' => 'Password reset. You can now sign in.',
     ],
 
+    'api_token' => [
+        'created' => 'API token created.',
+        'revoked' => 'API token revoked.',
+    ],
+
     'auth' => [
         'welcome_back' => 'Welcome back!',
         'signed_out' => 'You have been signed out.',

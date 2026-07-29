@@ -4,37 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\Goal;
 use App\Models\Milestone;
+use App\Rules\MilestoneRules;
+use App\Services\Goals\MilestoneService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class MilestoneController extends Controller
 {
-    protected $rules = [
-        'title' => 'required|string|max:255',
-        'target_value' => 'nullable|numeric',
-        'description' => 'nullable|string',
-        // 'deadline' => 'nullable|date',
-        'completed_at' => 'nullable|date',
-        'points_reward' => 'nullable|numeric',
-        'order' => 'nullable|integer',
-    ];
+    public function __construct(
+        private readonly MilestoneService $milestoneService
+    ) {}
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request, Goal $goal)
     {
-        Gate::authorize('update', $goal);
+        $validated = $request->validate(MilestoneRules::rules());
 
-        $validated = $request->validate($this->rules);
-
-        $order = $goal->milestones()->max('order') + 1;
-
-        $goal->milestones()->create([
-            ...$validated,
-            'order' => $order,
-        ]);
+        $this->milestoneService->add(
+            $request->user(),
+            $goal,
+            $validated
+        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.added')]);
 
@@ -48,7 +41,7 @@ class MilestoneController extends Controller
     {
         Gate::authorize('update', $milestone);
 
-        $validated = $request->validate($this->rules);
+        $validated = $request->validate(MilestoneRules::rules());
 
         if ($goal->isNot($milestone->goal)) {
             abort(403);
@@ -84,13 +77,14 @@ class MilestoneController extends Controller
      */
     public function complete(Request $request, Goal $goal, Milestone $milestone)
     {
-        Gate::authorize('update', $milestone);
-
         if ($goal->isNot($milestone->goal)) {
             abort(403);
         }
 
-        $milestone->markAsCompleted();
+        $this->milestoneService->complete(
+            $request->user(),
+            $milestone
+        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.completed'), 'action' => [
             'label' => __('toasts.undo'),

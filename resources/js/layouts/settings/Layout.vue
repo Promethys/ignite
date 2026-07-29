@@ -3,6 +3,7 @@ import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { toUrl, urlIsActive } from '@/lib/utils';
+import { index as indexApiTokens } from '@/routes/api-tokens';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editPassword } from '@/routes/password';
 import { edit as editProfile } from '@/routes/profile';
@@ -26,6 +27,10 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'settings.nav.appearance',
         href: editAppearance(),
+    },
+    {
+        title: 'settings.nav.api_tokens',
+        href: indexApiTokens(),
     },
 ];
 

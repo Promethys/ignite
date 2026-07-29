@@ -49,6 +49,11 @@ return [
         'reset' => 'Mot de passe réinitialisé. Vous pouvez maintenant vous connecter.',
     ],
 
+    'api_token' => [
+        'created' => 'Jeton API créé.',
+        'revoked' => 'Jeton API révoqué.',
+    ],
+
     'auth' => [
         'welcome_back' => 'Bon retour !',
         'signed_out' => 'Vous avez été déconnecté.',

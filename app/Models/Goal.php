@@ -96,6 +96,8 @@ class Goal extends Model
 
     /**
      * Get the category that the goal belongs to.
+     *
+     * @return BelongsTo<Category, $this>
      */
     public function category(): BelongsTo
     {
@@ -104,6 +106,8 @@ class Goal extends Model
 
     /**
      * Get the entries for the goal.
+     *
+     * @return HasMany<GoalEntry, $this>
      */
     public function entries(): HasMany
     {
@@ -112,6 +116,8 @@ class Goal extends Model
 
     /**
      * Get the milestones for the goal.
+     *
+     * @return HasMany<Milestone, $this>
      */
     public function milestones(): HasMany
     {

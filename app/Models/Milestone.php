@@ -51,6 +51,8 @@ class Milestone extends Model
 
     /**
      * Get the goal that owns the milestone.
+     *
+     * @return BelongsTo<Goal, $this>
      */
     public function goal(): BelongsTo
     {

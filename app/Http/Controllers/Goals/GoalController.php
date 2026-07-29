@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Goals;
 
 use App\Http\Controllers\Controller;
 use App\Models\Goal;
-use App\Models\User;
+use App\Rules\GoalRules;
+use App\Services\Goals\GoalService;
 use App\Services\StreakService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -13,28 +14,15 @@ use Inertia\Inertia;
 
 class GoalController extends Controller
 {
-    protected $rules = [
-        'user_id' => 'required|exists:users,id',
-        'category_id' => 'nullable|exists:categories,id',
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'icon' => 'nullable|string|max:50',
-        'type' => 'required|in:simple,quantifiable,recurring,multi_step',
-        'direction' => 'required|in:ascending,descending',
-        'target_value' => 'nullable|numeric',
-        'current_value' => 'required|numeric',
-        'unit' => 'nullable|string|max:50',
-        'recurrence' => 'nullable|in:daily,weekly,monthly,annually',
-        'start_date' => 'nullable|date',
-        'deadline' => 'nullable|date|after_or_equal:start_date',
-        'completed_at' => 'nullable|date|after:start_date',
-        'status' => 'required|in:not_started,in_progress,completed,paused,abandoned',
-        'priority' => 'required|in:low,medium,high',
-        'polarity' => 'nullable|in:positive,negative',
-        'points' => 'required|integer|min:0',
-        'is_public' => 'required|boolean',
-        'order' => 'nullable|integer',
-    ];
+    protected array $rules;
+
+    public function __construct(private readonly GoalService $goalService)
+    {
+        $this->rules = [
+            'user_id' => 'required|exists:users,id',
+            ...GoalRules::rules(),
+        ];
+    }
 
     public function index(Request $request)
     {
@@ -42,9 +30,11 @@ class GoalController extends Controller
             'category' => 'nullable|integer|min:1|exists:categories,id',
         ]);
 
+        $actor = $request->user();
+
         return Inertia::render('Goals/Index', [
-            'items' => auth()->user()->goals()->with('user')->get()->append('streak'),
-            'categories' => auth()->user()->categories,
+            'items' => $this->goalService->listForUser($actor)['goals'],
+            'categories' => $actor->categories,
             'category_id' => $validated['category'] ?? null,
         ]);
     }
@@ -69,8 +59,6 @@ class GoalController extends Controller
 
     public function store(Request $request)
     {
-        Gate::authorize('create', Goal::class);
-
         $rules = $this->rules;
         if ($request->input('type') === 'quantifiable') {
             $rules['target_value'] = 'required|numeric';
@@ -78,21 +66,16 @@ class GoalController extends Controller
 
         $validated = $request->validate($rules);
 
-        $order = User::find($validated['user_id'])->goals()->count() + 1;
-
-        Goal::create([
-            ...$validated,
-            'order' => $order,
-        ]);
+        $this->goalService->create($request->user(), $validated);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.created')]);
 
         return to_route('goals.index');
     }
 
-    public function show(Goal $goal)
+    public function show(Request $request, Goal $goal)
     {
-        Gate::authorize('view', $goal);
+        $goal = $this->goalService->find($request->user(), $goal);
 
         if (StreakService::isDeadlineCompletionEligible($goal)) {
             $previousStatus = $goal->status;
@@ -110,16 +93,12 @@ class GoalController extends Controller
             ]]);
         }
 
-        $chartEntries = $goal->entries->map(fn ($entry) => [
-            'entry_date' => $entry->entry_date,
-            'value' => $entry->value,
-        ]);
-
-        $goal->load([
-            'entries' => fn ($query) => $query->orderBy('entry_date', 'desc')->take(20),
-            'milestones' => fn ($query) => $query->orderBy('order', 'asc'),
-        ])
-            ->append('streak');
+        $chartEntries = $goal->entries()
+            ->get()
+            ->map(fn ($entry) => [
+                'entry_date' => $entry->entry_date,
+                'value' => $entry->value,
+            ]);
 
         $today = Carbon::now()->timezone($goal->user?->timezone ?? config('app.timezone'))->toDateString();
 
@@ -147,22 +126,18 @@ class GoalController extends Controller
 
     public function update(Request $request, Goal $goal)
     {
-        Gate::authorize('update', $goal);
-
         $validated = $request->validate($this->rules);
 
-        $goal->update($validated);
+        $this->goalService->update($request->user(), $goal, $validated);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.updated')]);
 
         return back(303);
     }
 
-    public function destroy(Goal $goal)
+    public function destroy(Request $request, Goal $goal)
     {
-        Gate::authorize('delete', $goal);
-
-        $goal->delete();
+        $this->goalService->delete($request->user(), $goal);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.deleted')]);
 
@@ -171,25 +146,22 @@ class GoalController extends Controller
 
     public function updateStatus(Request $request, Goal $goal)
     {
-        Gate::authorize('update', $goal);
-
         $validated = $request->validate([
             'status' => $this->rules['status'],
         ]);
 
-        $goal->updateStatus($validated['status']);
+        $this->goalService->setStatus($request->user(), $goal, $validated['status']);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.status_updated')]);
 
         return back(303);
     }
 
-    public function complete(Goal $goal)
+    public function complete(Request $request, Goal $goal)
     {
-        Gate::authorize('update', $goal);
+        $previousStatus = $goal->status;
 
-        $oldStatus = $goal->status;
-        $goal->markAsCompleted();
+        $this->goalService->complete($request->user(), $goal);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.completed'), 'action' => [
             'label' => __('toasts.undo'),
@@ -198,7 +170,7 @@ class GoalController extends Controller
                 'goal' => $goal,
             ]),
             'data' => [
-                'status' => $oldStatus,
+                'status' => $previousStatus,
             ],
         ]]);
 
@@ -207,18 +179,11 @@ class GoalController extends Controller
 
     public function uncomplete(Request $request, Goal $goal)
     {
-        Gate::authorize('update', $goal);
-
         $validated = $request->validate([
             'status' => 'required|in:not_started,in_progress,paused,abandoned',
         ]);
 
-        Goal::withoutEvents(function () use ($goal, $validated) {
-            $goal->update([
-                'status' => $validated['status'],
-                'completed_at' => null,
-            ]);
-        });
+        $this->goalService->uncomplete($request->user(), $goal, $validated['status']);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.completion_reverted')]);
 

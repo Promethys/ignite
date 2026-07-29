@@ -44,6 +44,8 @@ class UserAchievement extends Model
 
     /**
      * Get the user that owns the user achievement.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -52,6 +54,8 @@ class UserAchievement extends Model
 
     /**
      * Get the achievement.
+     *
+     * @return BelongsTo<Achievement, $this>
      */
     public function achievement(): BelongsTo
     {
