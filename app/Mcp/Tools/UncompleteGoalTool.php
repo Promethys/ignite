@@ -42,7 +42,7 @@ class UncompleteGoalTool extends IgniteTool
 
         return Response::make(
             Response::text("Reverted the goal '{$goal->title}' to '{$validated['status']}'.")
-        )->withStructuredContent((new GoalResource($goal->fresh()))->resolve());
+        )->withStructuredContent((new GoalResource($goal->fresh('milestones')))->resolve());
     }
 
     /**
