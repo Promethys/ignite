@@ -1,6 +1,14 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 
+// Evaluated at build time, so the footer year follows each deploy instead of
+// needing an edit every January. The LICENSE notice is deliberately not
+// derived from this: it marks the year of publication, not the current one.
+const firstPublished = 2026
+const currentYear = new Date().getFullYear()
+const copyrightYears =
+  currentYear > firstPublished ? `${firstPublished}-${currentYear}` : `${firstPublished}`
+
 // https://vitepress.dev/reference/site-config
 export default withMermaid(defineConfig({
   title: 'Ignite',
@@ -58,5 +66,10 @@ export default withMermaid(defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/Promethys/ignite' },
     ],
+    footer: {
+      message:
+        'Source-available under the FSL-1.1-MIT license. <a href="https://github.com/sponsors/Promethys">Sponsoring</a> is optional and supports development.',
+      copyright: `Copyright © ${copyrightYears} Ilainiriko Tambaza`,
+    },
   },
 }))
