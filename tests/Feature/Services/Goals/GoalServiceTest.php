@@ -10,6 +10,7 @@ use App\Services\Goals\GoalService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class GoalServiceTest extends TestCase
@@ -317,6 +318,20 @@ class GoalServiceTest extends TestCase
 
         $this->assertSame('in_progress', $fresh->status);
         $this->assertNull($fresh->completed_at);
+    }
+
+    public function test_uncomplete_rejects_a_goal_that_was_never_completed(): void
+    {
+        $actor = User::factory()->create();
+        $goal = Goal::factory()->inProgress()->create(['user_id' => $actor->id]);
+
+        $this->expectException(ValidationException::class);
+
+        try {
+            $this->service->uncomplete($actor, $goal, 'paused');
+        } finally {
+            $this->assertSame('in_progress', $goal->fresh()->status);
+        }
     }
 
     public function test_uncomplete_throws_for_a_non_owner(): void

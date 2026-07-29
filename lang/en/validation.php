@@ -188,6 +188,7 @@ return [
         'goal' => [
             'log_progress_on_recurring' => 'Progress logging is for quantifiable and simple goals. Use the check-in action for a recurring goal.',
             'check_in_on_non_recurring' => 'Check-ins are for recurring goals. Use the progress logging action for a quantifiable or simple goal.',
+            'uncomplete_not_completed' => 'This goal is not completed, so there is nothing to revert. Use the status action to change its status.',
         ],
     ],
 

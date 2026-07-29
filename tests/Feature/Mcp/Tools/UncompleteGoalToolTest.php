@@ -45,6 +45,21 @@ class UncompleteGoalToolTest extends TestCase
         ])->assertHasErrors();
     }
 
+    public function test_uncomplete_rejects_a_goal_that_was_never_completed(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->inProgress()->create(['user_id' => $user->id]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UncompleteGoalTool::class, [
+            'goal_id' => $goal->id,
+            'status' => 'paused',
+        ])->assertHasErrors();
+
+        $this->assertSame('in_progress', $goal->fresh()->status);
+    }
+
     public function test_a_token_without_the_write_ability_cannot_revert_a_goal(): void
     {
         $user = User::factory()->create();

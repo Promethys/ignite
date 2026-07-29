@@ -128,6 +128,10 @@ class Goal extends Model
     {
         return Attribute::make(
             get: function () {
+                if ($this->type === 'multi_step') {
+                    return $this->milestoneCompletionPercentage();
+                }
+
                 if (! $this->target_value) {
                     return null;
                 }
@@ -143,6 +147,37 @@ class Goal extends Model
                 // return min(max($percentage, 0), 100);
             },
         );
+    }
+
+    /**
+     * Completed steps as a percentage, for a multi_step goal whose progress
+     * lives in its milestones rather than in a numeric target.
+     *
+     * Returns null when the goal has no steps yet, matching the "no progress
+     * to report" meaning the other goal types give the attribute.
+     */
+    private function milestoneCompletionPercentage(): ?float
+    {
+        if ($this->relationLoaded('milestones')) {
+            $totalMilestones = $this->milestones->count();
+            $completedMilestones = $this->milestones->whereNotNull('completed_at')->count();
+        } else {
+            if ($this->getAttribute('milestones_count') === null) {
+                $this->loadCount([
+                    'milestones',
+                    'milestones as completed_milestones_count' => fn ($query) => $query->whereNotNull('completed_at'),
+                ]);
+            }
+
+            $totalMilestones = (int) $this->getAttribute('milestones_count');
+            $completedMilestones = (int) ($this->getAttribute('completed_milestones_count') ?? 0);
+        }
+
+        if ($totalMilestones === 0) {
+            return null;
+        }
+
+        return ($completedMilestones / $totalMilestones) * 100;
     }
 
     /**

@@ -129,6 +129,7 @@ class GoalTest extends TestCase
     public function test_progress_percentage_for_descending_goal()
     {
         $goal = Goal::factory()->descending()->create([
+            'type' => 'quantifiable',
             'initial_value' => 100,
             'current_value' => 100,
             'target_value' => 0,
@@ -150,6 +151,53 @@ class GoalTest extends TestCase
         $goal->update(['current_value' => 150]);
 
         $this->assertEquals(150.0, $goal->fresh()->progress_percentage);
+    }
+
+    public function test_progress_percentage_for_a_multi_step_goal_counts_completed_steps()
+    {
+        $goal = Goal::factory()->create(['type' => 'multi_step', 'target_value' => null]);
+
+        Milestone::factory()->count(3)->create([
+            'goal_id' => $goal->id,
+            'completed_at' => null,
+        ]);
+        Milestone::factory()->create([
+            'goal_id' => $goal->id,
+            'completed_at' => now(),
+        ]);
+
+        $this->assertEquals(25.0, $goal->fresh()->progress_percentage);
+    }
+
+    public function test_progress_percentage_for_a_multi_step_goal_reads_preloaded_counts()
+    {
+        $goal = Goal::factory()->create(['type' => 'multi_step', 'target_value' => null]);
+
+        Milestone::factory()->count(2)->create([
+            'goal_id' => $goal->id,
+            'completed_at' => now(),
+        ]);
+        Milestone::factory()->count(2)->create([
+            'goal_id' => $goal->id,
+            'completed_at' => null,
+        ]);
+
+        $counted = Goal::query()
+            ->whereKey($goal->id)
+            ->withCount([
+                'milestones',
+                'milestones as completed_milestones_count' => fn ($query) => $query->whereNotNull('completed_at'),
+            ])
+            ->first();
+
+        $this->assertEquals(50.0, $counted->progress_percentage);
+    }
+
+    public function test_progress_percentage_is_null_for_a_multi_step_goal_without_steps()
+    {
+        $goal = Goal::factory()->create(['type' => 'multi_step', 'target_value' => null]);
+
+        $this->assertNull($goal->fresh()->progress_percentage);
     }
 
     public function test_is_overdue_returns_true_when_past_deadline()

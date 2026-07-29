@@ -166,6 +166,7 @@ return [
         'goal' => [
             'log_progress_on_recurring' => 'L\'enregistrement de progression concerne les objectifs quantifiables et simples. Utilisez le pointage pour un objectif récurrent.',
             'check_in_on_non_recurring' => 'Les pointages concernent les objectifs récurrents. Utilisez l\'enregistrement de progression pour un objectif quantifiable ou simple.',
+            'uncomplete_not_completed' => 'Cet objectif n\'est pas terminé, il n\'y a donc rien à annuler. Utilisez l\'action de statut pour changer son statut.',
         ],
     ],
 

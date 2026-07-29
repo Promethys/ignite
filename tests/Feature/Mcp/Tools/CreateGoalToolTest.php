@@ -4,6 +4,7 @@ namespace Tests\Feature\Mcp\Tools;
 
 use App\Mcp\Servers\IgniteServer;
 use App\Mcp\Tools\CreateGoalTool;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -118,6 +119,37 @@ class CreateGoalToolTest extends TestCase
             'points' => 0,
             'is_public' => 0,
         ]);
+    }
+
+    public function test_the_created_goal_carries_its_category(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(CreateGoalTool::class, [
+            ...$this->validGoal,
+            'category_id' => $category->id,
+        ])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('category.id', $category->id)
+                ->where('category.name', $category->name)
+                ->etc());
+    }
+
+    public function test_the_created_goal_carries_a_null_category_when_it_has_none(): void
+    {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(CreateGoalTool::class, $this->validGoal)
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('category', null)
+                ->etc());
     }
 
     public function test_the_returned_goal_never_leaks_the_user(): void

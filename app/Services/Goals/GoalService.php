@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Goal read and write operations. The acting user is always passed
@@ -118,11 +119,13 @@ class GoalService
 
         $order = $actor->goals()->count() + 1;
 
-        return Goal::create([
+        $goal = Goal::create([
             ...$attributes,
             'user_id' => $actor->id,
             'order' => $order,
         ]);
+
+        return $goal->load('category');
     }
 
     /**
@@ -155,10 +158,19 @@ class GoalService
      * Revert a completed goal back to the given status, clearing
      * `completed_at`. Runs without events so the observer cannot re-complete
      * the goal mid-revert.
+     *
+     * Rejects a goal that was never completed, so this cannot be used as a
+     * back door onto the status transitions `setStatus` owns.
      */
     public function uncomplete(User $actor, Goal $goal, string $status): Goal
     {
         Gate::forUser($actor)->authorize('update', $goal);
+
+        if ($goal->status !== 'completed' && $goal->completed_at === null) {
+            throw ValidationException::withMessages([
+                'goal' => __('validation.custom.goal.uncomplete_not_completed'),
+            ]);
+        }
 
         Goal::withoutEvents(function () use ($goal, $status): void {
             $goal->update([
