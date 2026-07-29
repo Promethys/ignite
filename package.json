@@ -68,6 +68,11 @@
         "vue3-apexcharts": "^1.10.0",
         "zod": "^3.25.76"
     },
+    "overrides": {
+        "vitepress": {
+            "vite": "^6.4.3"
+        }
+    },
     "optionalDependencies": {
         "@rollup/rollup-linux-x64-gnu": "4.9.5",
         "@tailwindcss/oxide-linux-x64-gnu": "^4.0.1",
