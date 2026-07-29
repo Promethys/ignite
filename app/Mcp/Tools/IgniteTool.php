@@ -32,6 +32,39 @@ abstract class IgniteTool extends Tool
         return Str::headline($this->name());
     }
 
+    /**
+     * Validate the request against its normalized arguments.
+     *
+     * @param  array<string, mixed>  $rules
+     * @return array<string, mixed>
+     */
+    protected function validateTrimmed(Request $request, array $rules): array
+    {
+        return validator($this->normalizedArguments($request), $rules)->validate();
+    }
+
+    /**
+     * The request's arguments with strings trimmed and blank ones dropped.
+     *
+     * HTTP requests reach the validator through the `TrimStrings` and
+     * `ConvertEmptyStringsToNull` middleware; MCP requests have no middleware
+     * stack. Without this, a whitespace-only string is written verbatim:
+     * validation cannot catch it, because Laravel skips every non-implicit
+     * rule for a value that trims to empty.
+     *
+     * A blank string is dropped rather than nulled, so it reads as "the field
+     * was not supplied" and a partial update leaves the stored value alone.
+     *
+     * @return array<string, mixed>
+     */
+    protected function normalizedArguments(Request $request): array
+    {
+        return collect($request->all())
+            ->map(fn (mixed $value): mixed => is_string($value) ? trim($value) : $value)
+            ->reject(fn (mixed $value): bool => $value === '')
+            ->all();
+    }
+
     protected function actor(Request $request): ?User
     {
         $user = $request->user();

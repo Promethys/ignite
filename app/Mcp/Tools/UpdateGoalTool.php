@@ -39,7 +39,7 @@ class UpdateGoalTool extends IgniteTool
         $user = $this->actor($request);
         $goal = $this->goalService->find($user, $goalId);
 
-        $provided = $request->all();
+        $provided = $this->normalizedArguments($request);
         unset($provided['goal_id']);
 
         if ($provided === []) {
@@ -71,97 +71,77 @@ class UpdateGoalTool extends IgniteTool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'goal_id' => $schema
-                ->integer()
+            'goal_id' => $schema->integer()
                 ->description('The ID of the goal to update.')
                 ->required(),
-            'title' => $schema
-                ->string()
+            'title' => $schema->string()
                 ->description('The goal title.')
                 ->max(255)
                 ->nullable(),
-            'type' => $schema
-                ->string()
+            'type' => $schema->string()
                 ->description('The goal type.')
                 ->enum(['simple', 'quantifiable', 'recurring', 'multi_step'])
                 ->nullable(),
-            'direction' => $schema
-                ->string()
+            'direction' => $schema->string()
                 ->description('Whether progress ascends toward or descends to the target.')
                 ->enum(['ascending', 'descending'])
                 ->nullable(),
-            'current_value' => $schema
-                ->number()
+            'current_value' => $schema->number()
                 ->description('The current value of the goal.')
                 ->nullable(),
-            'target_value' => $schema
-                ->number()
+            'target_value' => $schema->number()
                 ->description('The target value. Required for quantifiable goals.')
                 ->nullable(),
-            'unit' => $schema
-                ->string()
+            'unit' => $schema->string()
                 ->description('The unit label for the value.')
                 ->max(50)
                 ->nullable(),
-            'status' => $schema
-                ->string()
+            'status' => $schema->string()
                 ->description('The goal status.')
                 ->enum(['not_started', 'in_progress', 'completed', 'paused', 'abandoned'])
                 ->nullable(),
-            'priority' => $schema
-                ->string()
+            'priority' => $schema->string()
                 ->description('The goal priority.')
                 ->enum(['low', 'medium', 'high'])
                 ->nullable(),
-            'recurrence' => $schema
-                ->string()
+            'recurrence' => $schema->string()
                 ->description('The check-in cadence for a recurring goal.')
                 ->enum(['daily', 'weekly', 'monthly', 'annually'])
                 ->nullable(),
-            'polarity' => $schema
-                ->string()
+            'polarity' => $schema->string()
                 ->description('Whether the habit is positive (build) or negative (quit).')
                 ->enum(['positive', 'negative'])
                 ->nullable(),
-            'points' => $schema
-                ->integer()
+            'points' => $schema->integer()
                 ->description('Gamification points awarded.')
                 ->min(0)
                 ->nullable(),
-            'is_public' => $schema
-                ->boolean()
+            'is_public' => $schema->boolean()
                 ->description('Whether the goal is visible to others.')
                 ->nullable(),
-            'description' => $schema
-                ->string()
+            'description' => $schema->string()
                 ->description('An optional longer description of the goal.')
                 ->nullable(),
-            'icon' => $schema
-                ->string()
+            'icon' => $schema->string()
                 ->description('An optional emoji or icon.')
                 ->max(50)
                 ->nullable(),
-            'category_id' => $schema
-                ->integer()
+            'category_id' => $schema->integer()
                 ->description('An optional category id.')
                 ->nullable(),
-            'start_date' => $schema
-                ->string()
+            'start_date' => $schema->string()
                 ->description('An optional start date as YYYY-MM-DD.')
                 ->format('date')
                 ->nullable(),
-            'deadline' => $schema
-                ->string()
+            'deadline' => $schema->string()
                 ->description('An optional deadline as YYYY-MM-DD. Must be on or after the goal\'s start date.')
                 ->format('date')
                 ->nullable(),
-            'completed_at' => $schema
-                ->string()
+            'completed_at' => $schema->string()
                 ->description('An optional completion timestamp. Must be after the goal\'s start date.')
                 ->format('date')
                 ->nullable(),
-            'order' => $schema
-                ->integer()
+            'order' => $schema->integer()
                 ->description('Display order.')
                 ->nullable(),
         ];

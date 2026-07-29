@@ -51,7 +51,7 @@ class CheckInTool extends IgniteTool
             $rules['entry_date'][] = 'after_or_equal:'.$goal->start_date->toDateString();
         }
 
-        $validated = $request->validate($rules);
+        $validated = $this->validateTrimmed($request, $rules);
 
         $entry = $this->goalEntryService->recordCheckIn(
             $user,

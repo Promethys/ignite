@@ -32,7 +32,7 @@ class LogProgressTool extends IgniteTool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
-        $validated = $request->validate([
+        $validated = $this->validateTrimmed($request, [
             'goal_id' => 'required|integer|exists:goals,id',
             'increment' => 'required|numeric',
             'note' => 'nullable|string|max:500',

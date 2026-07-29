@@ -31,7 +31,7 @@ class UpdateEntryTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
-        $validated = $request->validate([
+        $validated = $this->validateTrimmed($request, [
             'entry_id' => 'required|integer|exists:goal_entries,id',
             'increment' => 'required|numeric',
             'note' => 'nullable|string|max:500',

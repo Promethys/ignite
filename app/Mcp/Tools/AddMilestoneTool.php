@@ -33,7 +33,7 @@ class AddMilestoneTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
-        $validated = $request->validate([
+        $validated = $this->validateTrimmed($request, [
             ...MilestoneRules::rules(),
             'goal_id' => 'required|integer|exists:goals,id',
         ]);
