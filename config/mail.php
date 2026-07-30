@@ -126,4 +126,23 @@ return [
     */
 
     'reply_to' => env('MAIL_REPLY_TO'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Markdown Mail Settings
+    |--------------------------------------------------------------------------
+    |
+    | These settings configure the markdown mail renderer. The theme selects
+    | a custom CSS theme resolved as the view mail::themes.<theme>, so a typo
+    | here throws on the first send rather than degrading. Only an entirely
+    | absent markdown block falls back to Laravel's default theme.
+    |
+    */
+
+    'markdown' => [
+        'theme' => 'ignite',
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
 ];
