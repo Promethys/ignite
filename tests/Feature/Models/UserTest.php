@@ -84,6 +84,13 @@ class UserTest extends TestCase
         $this->assertEquals('fr', $user->locale);
     }
 
+    public function test_preferred_locale_returns_the_stored_locale_column()
+    {
+        $user = User::factory()->create(['locale' => 'fr']);
+
+        $this->assertEquals('fr', $user->preferredLocale());
+    }
+
     // =========================================================================
     // SERIALIZATION TESTS
     // =========================================================================

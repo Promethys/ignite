@@ -6,11 +6,12 @@ use App\Models\User;
 use App\Providers\MailServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
-use Symfony\Component\Mime\Email;
+use Tests\Concerns\InteractsWithSentMail;
 use Tests\TestCase;
 
 class MailServiceProviderTest extends TestCase
 {
+    use InteractsWithSentMail;
     use RefreshDatabase;
 
     public function test_outgoing_mail_carries_the_configured_reply_to_address(): void
@@ -56,13 +57,7 @@ class MailServiceProviderTest extends TestCase
      */
     private function replyToAddressesOfLastMessage(): array
     {
-        $sentMessage = Mail::getSymfonyTransport()->messages()->last();
-
-        $this->assertNotNull($sentMessage, 'No message was sent.');
-
-        $email = $sentMessage->getOriginalMessage();
-
-        $this->assertInstanceOf(Email::class, $email);
+        $email = $this->lastMessage();
 
         return array_map(fn ($address) => $address->getAddress(), $email->getReplyTo());
     }
