@@ -113,4 +113,17 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Global "ReplyTo" Address
+    |--------------------------------------------------------------------------
+    |
+    | You may wish for replies to all emails sent by your application to go
+    | to a monitored address rather than to the "from" address above. Here
+    | you may specify the address that is used globally as the reply-to.
+    | Leave it unset to send no reply-to header at all.
+    |
+    */
+
+    'reply_to' => env('MAIL_REPLY_TO'),
 ];
