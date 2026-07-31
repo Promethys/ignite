@@ -76,6 +76,19 @@ MAIL_REPLY_TO=contact@your-domain
 
 Most transactional providers issue an API key that doubles as the SMTP password, and require the `MAIL_FROM_ADDRESS` domain to be verified in their dashboard before they will accept mail. Check your provider's own SMTP guide for the host, port, and username to use.
 
+### When SMTP is blocked
+
+Many hosting platforms block outbound SMTP on their lower tiers to protect their IP reputation from abuse, usually on every port at once (25, 465, 587 and 2525). The symptom is a connection timeout rather than an authentication error, and the same credentials work fine from your laptop.
+
+The fix is to send over an HTTPS API instead of SMTP, since port 443 is never blocked. Laravel ships transports for several providers; `resend/resend-php` is included as a dependency, so that one needs no extra install:
+
+```ini
+MAIL_MAILER=resend
+RESEND_KEY=your-api-key
+```
+
+`MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` and `MAIL_REPLY_TO` still apply. The `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, `MAIL_USERNAME`, `MAIL_PASSWORD` and `MAIL_TIMEOUT` variables configure the SMTP mailer only and are ignored. An HTTPS call is also a single round trip rather than SMTP's several, which is worth having when mail is sent inside the request on a `sync` queue.
+
 ## Logging
 
 | Variable | What it does | Default / example |

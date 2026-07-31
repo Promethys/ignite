@@ -87,6 +87,8 @@ Ignite sends two emails, both tied to authentication: the address-verification l
 
 Mail is deliberately unopinionated: any SMTP provider, or your own mail server, works with the standard variables. See [Configuration](/configuration) for the full list and a worked example.
 
+**Check whether your platform allows outbound SMTP before you rely on it.** Many managed hosts block it on their cheaper tiers, on every port at once, to stop their address space being used for spam. It fails as a connection timeout rather than a clear error, and only once deployed, since the same credentials work from a laptop. If you hit that, send over an HTTPS API transport instead; see [Configuration](/configuration) for the two variables involved.
+
 Leaving `MAIL_MAILER=log` together with `VERIFY_EMAIL=false` is a perfectly valid single-user setup: mail is written to `storage/logs/laravel.log` and nobody is ever asked to verify anything.
 
 ### Two ways to lock your users out
