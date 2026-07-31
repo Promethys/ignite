@@ -27,6 +27,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.9",
+        "resend/resend-php": "^1.7",
         "spatie/laravel-permission": "^8.3",
         "svix/svix": "^1.97"
     },
