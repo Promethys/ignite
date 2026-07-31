@@ -49,12 +49,15 @@ Locally, queued jobs are stored in the `jobs` database table and processed by a 
 | `MAIL_FROM_ADDRESS` | From address on outgoing mail. | `hello@example.com` |
 | `MAIL_FROM_NAME` | From name on outgoing mail. | `${APP_NAME}` |
 | `MAIL_REPLY_TO` | Address applied as `Reply-To` on every outgoing message, so replies reach a monitored inbox instead of the no-reply From address. Leave unset to send no `Reply-To` header. | unset by default |
+| `MAIL_TIMEOUT` | Seconds the SMTP mailer waits on a stalled connection before giving up. Unset means PHP's own `default_socket_timeout` applies, which is usually 60. | `null` |
 
 In development, `MAIL_MAILER=log` writes outgoing mail to `storage/logs/laravel.log` instead of sending it, so no SMTP credentials are required to try the app locally.
 
 `MAIL_ENCRYPTION` does nothing on this version of Laravel. It was replaced by `MAIL_SCHEME`, and many provider guides still show the old variable. Setting it is silently ignored.
 
 Ignite only sends two emails, both tied to authentication: email verification and password reset. Both are queued notifications, which matters if `QUEUE_CONNECTION` is not `sync`. See [Self-Hosting](/self-hosting) for the consequences.
+
+Set `MAIL_TIMEOUT` to something short, around 10 seconds, whenever `QUEUE_CONNECTION=sync`. Mail is then sent inside the web request, so an unresponsive SMTP server would otherwise hold a registration or password-reset request open for the full socket timeout.
 
 ### Sending real email
 
