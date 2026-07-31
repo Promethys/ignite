@@ -213,7 +213,6 @@ class InitDataSeeder extends Seeder
                 'title' => 'Complete advanced course',
                 'target_value' => 1,
                 'order' => 1,
-                'is_completed' => true,
                 'completed_at' => now()->subMonth(),
                 'points_reward' => 50,
             ]);
@@ -223,7 +222,6 @@ class InitDataSeeder extends Seeder
                 'title' => 'Build 3 side projects',
                 'target_value' => 3,
                 'order' => 2,
-                'is_completed' => false,
                 'points_reward' => 100,
             ]);
 
@@ -232,7 +230,6 @@ class InitDataSeeder extends Seeder
                 'title' => 'Get promoted',
                 'target_value' => 1,
                 'order' => 3,
-                'is_completed' => false,
                 'points_reward' => 200,
             ]);
 
