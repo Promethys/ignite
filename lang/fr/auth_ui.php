@@ -69,8 +69,8 @@ return [
     'verify' => [
         'head' => 'Vérification de l\'e-mail',
         'title' => 'Vérifier l\'e-mail',
-        'description' => 'Veuillez vérifier votre adresse e-mail en cliquant sur le lien que nous venons de vous envoyer.',
-        'sent' => 'Un nouveau lien de vérification a été envoyé à l\'adresse e-mail fournie lors de votre inscription.',
+        'description' => 'Veuillez vérifier votre adresse e-mail en cliquant sur le lien que nous venons de vous envoyer. S\'il n\'est pas dans votre boîte de réception, consultez votre dossier spam.',
+        'sent' => 'Un nouveau lien de vérification a été envoyé à l\'adresse e-mail fournie lors de votre inscription. S\'il n\'est pas dans votre boîte de réception, consultez votre dossier spam.',
         'resend' => 'Renvoyer l\'e-mail de vérification',
         'log_out' => 'Se déconnecter',
     ],

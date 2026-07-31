@@ -69,8 +69,8 @@ return [
     'verify' => [
         'head' => 'Email verification',
         'title' => 'Verify email',
-        'description' => 'Please verify your email address by clicking on the link we just emailed to you.',
-        'sent' => 'A new verification link has been sent to the email address you provided during registration.',
+        'description' => 'Please verify your email address by clicking on the link we just emailed to you. If it is not in your inbox, check your spam folder.',
+        'sent' => 'A new verification link has been sent to the email address you provided during registration. If it is not in your inbox, check your spam folder.',
         'resend' => 'Resend verification email',
         'log_out' => 'Log out',
     ],
