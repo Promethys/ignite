@@ -40,7 +40,7 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the workfl
 
 ## Sponsor
 
-Ignite is source-available and free to self-host under the [FSL-1.1-MIT](LICENSE) license. If it is useful to you and you would like to support its development, you can [sponsor the project](https://github.com/sponsors/Promethys). Sponsoring is optional: it does not unlock features and does not change your rights under the license.
+Ignite is source-available and free to self-host under the [FSL-1.1-MIT](LICENSE) license. If it is useful to you and you would like to support its development, you can [sponsor the project](https://github.com/sponsors/nirine1). Sponsoring is optional: it does not unlock features and does not change your rights under the license.
 
 ## Security
 

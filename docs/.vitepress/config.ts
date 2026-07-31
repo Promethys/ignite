@@ -68,7 +68,7 @@ export default withMermaid(defineConfig({
     ],
     footer: {
       message:
-        'Source-available under the FSL-1.1-MIT license. <a href="https://github.com/sponsors/Promethys">Sponsoring</a> is optional and supports development.',
+        'Source-available under the FSL-1.1-MIT license. <a href="https://github.com/sponsors/nirine1">Sponsoring</a> is optional and supports development.',
       copyright: `Copyright © ${copyrightYears} Ilainiriko Tambaza`,
     },
   },
