@@ -4,6 +4,7 @@ namespace Tests\Feature\Mcp\Tools;
 
 use App\Mcp\Servers\IgniteServer;
 use App\Mcp\Tools\UpdateGoalTool;
+use App\Models\Category;
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -108,6 +109,43 @@ class UpdateGoalToolTest extends TestCase
         ])->assertHasErrors();
 
         $this->assertSame('Old', $goal->fresh()->title);
+    }
+
+    public function test_a_goal_cannot_be_moved_into_another_users_category(): void
+    {
+        $user = User::factory()->create();
+        $stranger = User::factory()->create();
+        $foreignCategory = Category::factory()->for($stranger)->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id, 'category_id' => null]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'category_id' => $foreignCategory->id,
+        ])->assertHasErrors();
+
+        $this->assertNull($goal->fresh()->category_id);
+    }
+
+    public function test_the_response_reflects_a_changed_category_rather_than_the_previous_one(): void
+    {
+        $user = User::factory()->create();
+        $from = Category::factory()->for($user)->create(['name' => 'Before']);
+        $to = Category::factory()->for($user)->create(['name' => 'After']);
+        $goal = Goal::factory()->create(['user_id' => $user->id, 'category_id' => $from->id]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'category_id' => $to->id,
+        ])
+            ->assertOk()
+            ->assertStructuredContent(fn ($json) => $json
+                ->where('category.id', $to->id)
+                ->where('category.name', 'After')
+                ->etc());
     }
 
     public function test_it_denies_updating_another_users_goal(): void

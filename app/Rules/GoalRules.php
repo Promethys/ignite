@@ -3,21 +3,31 @@
 namespace App\Rules;
 
 use App\Traits\Rules\HandlesPartialRules;
+use Illuminate\Validation\Rule;
 
 /**
  * Goal validation rules shared by the web controller and the MCP tools.
+ *
+ * Pass the acting user's id so `category_id` only accepts categories they own.
+ * Omitting it leaves the rule unscoped, which lets one user attach, and then
+ * read back, another user's category.
  */
 class GoalRules
 {
     use HandlesPartialRules;
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
-    public static function rules(): array
+    public static function rules(?int $userId = null): array
     {
         return [
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => [
+                'nullable',
+                $userId === null
+                    ? Rule::exists('categories', 'id')
+                    : Rule::exists('categories', 'id')->where('user_id', $userId),
+            ],
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'icon' => 'nullable|string|max:50',
