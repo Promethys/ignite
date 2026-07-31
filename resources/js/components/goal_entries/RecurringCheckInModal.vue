@@ -45,14 +45,12 @@ const recordDate = props.record
 
 const formState = props.record
     ? {
-          formName: null,
           title: 'goals.entries.form.edit_title',
           description: 'goals.entries.form.edit_description',
           action: update({ goal: props.goal, goalEntry: props.record }),
           submitLabel: 'goals.entries.form.submit_edit',
       }
     : {
-          formName: 'RecurringCheckInForm',
           title: `goals.checkin.title_${polarity.value}`,
           description: `goals.checkin.description_${polarity.value}`,
           action: store(props.goal),
@@ -64,9 +62,7 @@ const formData = {
     note: props.record?.note ?? '',
 };
 
-const form = formState.formName
-    ? useForm(formState.formName, formData)
-    : useForm(formData);
+const form = useForm(formData);
 
 const open = ref<boolean>(props.open ?? false);
 
