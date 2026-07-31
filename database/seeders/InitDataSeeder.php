@@ -337,11 +337,20 @@ class InitDataSeeder extends Seeder
             $this->command->info('🎯 Creating goals for active user...');
             $bar = $this->command->getOutput()->createProgressBar(5);
 
+            $activeUserCategories = collect($categories)->map(fn (array $category, int $index) => Category::create([
+                'user_id' => $activeUser->id,
+                'name' => $category['name'],
+                'description' => "Goals related to {$category['name']}",
+                'color' => $category['color'],
+                'icon' => $category['icon'],
+                'order' => $index,
+            ]));
+
             for ($i = 0; $i < 5; $i++) {
                 Goal::factory()
                     ->for($activeUser)
                     ->inProgress()
-                    ->create();
+                    ->create(['category_id' => $activeUserCategories->random()->id]);
                 $bar->advance();
             }
 

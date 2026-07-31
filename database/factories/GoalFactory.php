@@ -99,7 +99,12 @@ class GoalFactory extends Factory
 
         return [
             'user_id' => User::factory(),
-            'category_id' => fake()->optional(0.8)->randomElement([null, Category::factory()]),
+            // Always owned by the same user as the goal. Pulling a random
+            // category, or minting one from its own factory, produced goals
+            // pointing at another user's category.
+            'category_id' => fn (array $attributes) => fake()->boolean(80)
+                ? Category::factory()->create(['user_id' => $attributes['user_id']])->id
+                : null,
             'title' => $title,
             'description' => fake()->optional(0.7)->paragraph(),
             'icon' => fake()->randomElement($icons),
