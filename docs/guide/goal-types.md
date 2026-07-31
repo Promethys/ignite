@@ -16,6 +16,8 @@ Two things are worth knowing:
 
 Quantifiable goals complete themselves the moment you reach the target. You can overshoot, and the percentage will show it: reading 60 books against a target of 50 shows 120%.
 
+![A quantifiable goal, showing the percentage complete, the current and target values, and a chart of progress over time](/quantifiable_goal.png)
+
 ## Recurring
 
 **Use it when the point is doing something regularly, not reaching a total.** Meditate daily. Publish weekly. Review finances monthly.
@@ -26,6 +28,8 @@ One detail worth trusting: **missing today does not break a daily streak.** The 
 
 Streaks are counted in your own timezone, so a late-night check-in belongs to the day you experienced, not to UTC.
 
+![A recurring goal, showing the current streak and the history of check-ins](/recurring_goal.png)
+
 Recurring goals can also be inverted, where a check-in records a lapse rather than a success and the streak counts the time since the last one. That fits goals like staying off something, where the number you want to grow is days clean.
 
 ## Multi-step
@@ -33,6 +37,8 @@ Recurring goals can also be inverted, where a check-in records a lapse rather th
 **Use it when the goal is a sequence of checkpoints rather than a number.** Launch a product. Write a dissertation. Plan a wedding.
 
 You break the goal into milestones and tick them off as you finish them. Progress is how many are done. This is the right type whenever "how far along am I?" is better answered by a list than by a percentage.
+
+![A multi-step goal, showing steps completed out of the total and a timeline of each step](/multi_step_goal.png)
 
 Milestones can be attached to any goal type, but for multi-step goals they are the whole structure.
 
