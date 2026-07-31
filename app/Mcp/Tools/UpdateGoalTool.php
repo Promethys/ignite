@@ -46,7 +46,7 @@ class UpdateGoalTool extends IgniteTool
             return Response::error('No fields were provided to update.');
         }
 
-        $rules = GoalRules::partialRules();
+        $rules = GoalRules::partialRules($user->id);
 
         $merged = array_merge($goal->only(array_keys($rules)), $provided);
 
@@ -54,7 +54,8 @@ class UpdateGoalTool extends IgniteTool
 
         $updateAttributes = array_intersect_key($validated, $provided);
 
-        $updated = $this->goalService->update($user, $goal, $updateAttributes);
+        $updated = $this->goalService->update($user, $goal, $updateAttributes)
+            ->load('category', 'milestones');
 
         return Response::make(
             Response::text('Updated the goal "'.$updated->title.'".')

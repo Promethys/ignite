@@ -12,19 +12,29 @@ const copyrightYears =
 // https://vitepress.dev/reference/site-config
 export default withMermaid(defineConfig({
   title: 'Ignite',
-  description: 'Developer documentation for Ignite, a Laravel + Vue goal tracking app',
+  description: 'Documentation for Ignite, a goal tracking app you can use or self-host',
   cleanUrls: true,
   srcExclude: ['superpowers/**', 'tmp/**', 'use-containerized-services/**'],
   themeConfig: {
     nav: [
-      { text: 'Guide', link: '/getting-started' },
-      { text: 'Features', link: '/features/authentication' },
+      { text: 'Using Ignite', link: '/guide/' },
+      { text: 'Developers', link: '/getting-started' },
     ],
-    sidebar: [
+    sidebar: {
+      '/guide/': [
+        {
+          text: 'Using Ignite',
+          items: [
+            { text: 'Getting Started', link: '/guide/' },
+            { text: 'Goal Types', link: '/guide/goal-types' },
+            { text: 'Tracking Progress', link: '/guide/tracking-progress' },
+          ],
+        },
+      ],
+      '/': [
       {
-        text: 'Getting Started',
+        text: 'Introduction',
         items: [
-          { text: 'Introduction', link: '/' },
           { text: 'Getting Started', link: '/getting-started' },
           { text: 'Installation', link: '/installation' },
         ],
@@ -62,7 +72,8 @@ export default withMermaid(defineConfig({
           { text: 'Testing', link: '/testing' },
         ],
       },
-    ],
+      ],
+    },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/Promethys/ignite' },
     ],

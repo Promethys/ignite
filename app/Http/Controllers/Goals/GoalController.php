@@ -14,13 +14,18 @@ use Inertia\Inertia;
 
 class GoalController extends Controller
 {
-    protected array $rules;
+    public function __construct(private readonly GoalService $goalService) {}
 
-    public function __construct(private readonly GoalService $goalService)
+    /**
+     * Validation rules scoped to the acting user.
+     *
+     * @return array<string, mixed>
+     */
+    protected function rulesFor(Request $request): array
     {
-        $this->rules = [
+        return [
             'user_id' => 'required|exists:users,id',
-            ...GoalRules::rules(),
+            ...GoalRules::rules($request->user()?->id),
         ];
     }
 
@@ -59,7 +64,7 @@ class GoalController extends Controller
 
     public function store(Request $request)
     {
-        $rules = $this->rules;
+        $rules = $this->rulesFor($request);
         if ($request->input('type') === 'quantifiable') {
             $rules['target_value'] = 'required|numeric';
         }
@@ -126,7 +131,7 @@ class GoalController extends Controller
 
     public function update(Request $request, Goal $goal)
     {
-        $validated = $request->validate($this->rules);
+        $validated = $request->validate($this->rulesFor($request));
 
         $this->goalService->update($request->user(), $goal, $validated);
 
@@ -147,7 +152,7 @@ class GoalController extends Controller
     public function updateStatus(Request $request, Goal $goal)
     {
         $validated = $request->validate([
-            'status' => $this->rules['status'],
+            'status' => GoalRules::rules()['status'],
         ]);
 
         $this->goalService->setStatus($request->user(), $goal, $validated['status']);

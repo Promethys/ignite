@@ -124,7 +124,7 @@ class CreateGoalToolTest extends TestCase
     public function test_the_created_goal_carries_its_category(): void
     {
         $user = User::factory()->create();
-        $category = Category::factory()->create();
+        $category = Category::factory()->for($user)->create();
 
         Sanctum::actingAs($user, ['read', 'write']);
 
@@ -137,6 +137,25 @@ class CreateGoalToolTest extends TestCase
                 ->where('category.id', $category->id)
                 ->where('category.name', $category->name)
                 ->etc());
+    }
+
+    public function test_a_goal_cannot_be_created_in_another_users_category(): void
+    {
+        $user = User::factory()->create();
+        $stranger = User::factory()->create();
+        $foreignCategory = Category::factory()->for($stranger)->create();
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(CreateGoalTool::class, [
+            ...$this->validGoal,
+            'category_id' => $foreignCategory->id,
+        ])->assertHasErrors();
+
+        $this->assertDatabaseMissing('goals', [
+            'user_id' => $user->id,
+            'category_id' => $foreignCategory->id,
+        ]);
     }
 
     public function test_the_created_goal_carries_a_null_category_when_it_has_none(): void

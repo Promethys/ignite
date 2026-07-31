@@ -203,6 +203,52 @@ class GoalControllerTest extends TestCase
         ]);
     }
 
+    public function test_a_goal_cannot_be_created_in_another_users_category()
+    {
+        $foreignCategory = Category::factory()->create(['user_id' => $this->otherUser->id]);
+
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), [
+                ...$this->validGoalData(),
+                'category_id' => $foreignCategory->id,
+            ])
+            ->assertSessionHasErrors('category_id');
+
+        $this->assertDatabaseMissing('goals', ['category_id' => $foreignCategory->id]);
+    }
+
+    public function test_a_goal_cannot_be_moved_into_another_users_category()
+    {
+        $goal = Goal::factory()->create(['user_id' => $this->user->id, 'category_id' => null]);
+        $foreignCategory = Category::factory()->create(['user_id' => $this->otherUser->id]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.update', $goal), [
+                ...$this->validGoalData(),
+                'category_id' => $foreignCategory->id,
+            ])
+            ->assertSessionHasErrors('category_id');
+
+        $this->assertNull($goal->fresh()->category_id);
+    }
+
+    public function test_a_goal_can_be_created_in_a_category_the_user_owns()
+    {
+        $category = Category::factory()->create(['user_id' => $this->user->id]);
+
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), [
+                ...$this->validGoalData(),
+                'category_id' => $category->id,
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('goals', [
+            'user_id' => $this->user->id,
+            'category_id' => $category->id,
+        ]);
+    }
+
     public function test_create_page_passes_selected_category_when_owned_by_user()
     {
         $category = Category::factory()->create(['user_id' => $this->user->id]);

@@ -33,7 +33,7 @@ class CreateGoalTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
-        $rules = GoalRules::partialRules();
+        $rules = GoalRules::partialRules($this->actor($request)->id);
 
         $rules['title'] = 'required|string|max:255';
         $rules['type'] = 'required|in:simple,quantifiable,recurring,multi_step';

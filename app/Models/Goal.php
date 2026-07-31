@@ -121,7 +121,7 @@ class Goal extends Model
      */
     public function milestones(): HasMany
     {
-        return $this->hasMany(Milestone::class);
+        return $this->hasMany(Milestone::class)->orderBy('order')->orderBy('id');
     }
 
     protected function progressPercentage(): Attribute
