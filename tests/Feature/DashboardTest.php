@@ -127,8 +127,8 @@ class DashboardTest extends TestCase
             'current_value' => 0,
         ]);
 
-        Milestone::factory()->for($goal)->create(['completed_at' => now()->subDay()]);
-        Milestone::factory()->for($goal)->create(['completed_at' => null]);
+        Milestone::factory()->for($goal)->create(['order' => 1, 'completed_at' => now()->subDay()]);
+        Milestone::factory()->for($goal)->create(['order' => 2, 'completed_at' => null]);
 
         $this->actingAs($user)
             ->get(route('dashboard'))
@@ -136,6 +136,33 @@ class DashboardTest extends TestCase
                 ->has('activeGoalsList.0.milestones', 2)
                 ->where('activeGoalsList.0.milestones.0.is_completed', true)
                 ->where('activeGoalsList.0.milestones.1.is_completed', false)
+                ->etc()
+            );
+    }
+
+    public function test_dashboard_milestones_follow_their_order_not_their_insertion()
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'multi_step',
+            'status' => 'in_progress',
+            'completed_at' => null,
+            'target_value' => null,
+            'current_value' => 0,
+        ]);
+
+        Milestone::factory()->for($goal)->create(['order' => 3, 'completed_at' => null, 'title' => 'Third']);
+        Milestone::factory()->for($goal)->create(['order' => 2, 'completed_at' => null, 'title' => 'Second']);
+        Milestone::factory()->for($goal)->create(['order' => 1, 'completed_at' => now()->subDay(), 'title' => 'First']);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('activeGoalsList.0.milestones.0.title', 'First')
+                ->where('activeGoalsList.0.milestones.1.title', 'Second')
+                ->where('activeGoalsList.0.milestones.2.title', 'Third')
+                ->where('activeGoalsList.0.milestones.0.is_completed', true)
                 ->etc()
             );
     }
