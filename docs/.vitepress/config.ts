@@ -14,7 +14,6 @@ export default withMermaid(defineConfig({
   title: 'Ignite',
   description: 'Developer documentation for Ignite, a Laravel + Vue goal tracking app',
   cleanUrls: true,
-  base: '/ignite/',
   srcExclude: ['superpowers/**', 'tmp/**', 'use-containerized-services/**'],
   themeConfig: {
     nav: [
