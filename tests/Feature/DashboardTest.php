@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Goal;
 use App\Models\GoalEntry;
+use App\Models\Milestone;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -111,6 +112,31 @@ class DashboardTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->has('activeGoalsList', 1)
                 ->where('activeGoalsList.0.title', 'Active Goal')
+            );
+    }
+
+    public function test_dashboard_includes_milestones_so_multi_step_cards_can_show_progress()
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'multi_step',
+            'status' => 'in_progress',
+            'completed_at' => null,
+            'target_value' => null,
+            'current_value' => 0,
+        ]);
+
+        Milestone::factory()->for($goal)->create(['completed_at' => now()->subDay()]);
+        Milestone::factory()->for($goal)->create(['completed_at' => null]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('activeGoalsList.0.milestones', 2)
+                ->where('activeGoalsList.0.milestones.0.is_completed', true)
+                ->where('activeGoalsList.0.milestones.1.is_completed', false)
+                ->etc()
             );
     }
 

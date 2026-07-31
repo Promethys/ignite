@@ -13,7 +13,7 @@ class DashboardController extends Controller
         $user = $request->user();
 
         $activeGoalsList = $user->goals()
-            ->with(['category', 'entries'])
+            ->with(['category', 'entries', 'milestones'])
             ->whereNull('completed_at')
             ->where('status', 'in_progress')
             ->get()
