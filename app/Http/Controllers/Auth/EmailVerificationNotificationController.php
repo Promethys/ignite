@@ -18,10 +18,16 @@ class EmailVerificationNotificationController extends Controller
             return redirect()->intended(route('dashboard', absolute: false));
         }
 
-        $request->user()->sendEmailVerificationNotification();
+        $notified = $request->user()->sendEmailVerificationNotification();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.auth.verification_sent')]);
+        if ($notified) {
+            Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.auth.verification_sent')]);
 
-        return back()->with('status', 'verification-link-sent');
+            return back()->with('status', 'verification-link-sent');
+        } else {
+            Inertia::flash('toast', ['type' => 'error', 'message' => __('toasts.auth.verification_error')]);
+
+            return back()->with('status', 'verification-link-error');
+        }
     }
 }

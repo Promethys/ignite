@@ -59,6 +59,7 @@ return [
         'signed_out' => 'You have been signed out.',
         'registered' => 'Welcome to Ignite!',
         'verification_sent' => 'Verification link sent.',
+        'verification_error' => 'We could not send the link, please try again in a moment.',
         'email_verified' => 'Email verified.',
         'reset_link' => 'A reset link will be sent if the account exists.',
     ],

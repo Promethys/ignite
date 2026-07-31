@@ -6,10 +6,12 @@ use App\Models\Category;
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\InteractsWithSentMail;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
+    use InteractsWithSentMail;
     use RefreshDatabase;
 
     // =========================================================================
@@ -89,6 +91,37 @@ class UserTest extends TestCase
         $user = User::factory()->create(['locale' => 'fr']);
 
         $this->assertEquals('fr', $user->preferredLocale());
+    }
+
+    // =========================================================================
+    // NOTIFICATION TESTS
+    // =========================================================================
+
+    public function test_sending_the_verification_notification_reports_success(): void
+    {
+        $user = User::factory()->unverified()->create();
+
+        $this->assertTrue($user->sendEmailVerificationNotification());
+    }
+
+    public function test_sending_the_verification_notification_reports_a_transport_failure(): void
+    {
+        $this->makeMailTransportFail();
+
+        $user = User::factory()->unverified()->create();
+
+        $this->assertFalse($user->sendEmailVerificationNotification());
+    }
+
+    public function test_sending_the_password_reset_notification_swallows_a_transport_failure(): void
+    {
+        $this->makeMailTransportFail();
+
+        $user = User::factory()->create();
+
+        $user->sendPasswordResetNotification('token');
+
+        $this->assertTrue(true, 'No exception escaped the send.');
     }
 
     // =========================================================================

@@ -3,13 +3,15 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\Auth\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Tests\Concerns\InteractsWithSentMail;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
 {
+    use InteractsWithSentMail;
     use RefreshDatabase;
 
     public function test_registration_screen_can_be_rendered()
@@ -113,6 +115,25 @@ class RegistrationTest extends TestCase
         $this->assertNull($user->email_verified_at);
 
         Notification::assertSentTo($user, VerifyEmail::class);
+    }
+
+    public function test_registration_survives_a_mail_transport_failure()
+    {
+        $this->makeMailTransportFail();
+
+        $response = $this->post(route('register.store'), [
+            'name' => 'Undeliverable User',
+            'email' => 'undeliverable@example.com',
+            'password' => 'Strong-P@ssw0rd',
+            'password_confirmation' => 'Strong-P@ssw0rd',
+        ]);
+
+        $response->assertRedirect(route('dashboard'));
+
+        $user = User::where('email', 'undeliverable@example.com')->first();
+
+        $this->assertNotNull($user);
+        $this->assertTrue($user->categories()->exists(), 'Default categories were not created.');
     }
 
     public function test_new_user_is_auto_verified_when_email_verification_is_disabled()

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Notifications\Auth\ResetPassword;
+use App\Notifications\Auth\VerifyEmail;
 use App\Traits\Models\HasRecentScope;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -14,9 +16,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class User extends Authenticatable implements FilamentUser, HasLocalePreference, MustVerifyEmail
 {
@@ -193,5 +197,52 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
     public function preferredLocale(): string
     {
         return $this->locale ?? config('app.fallback_locale');
+    }
+
+    /**
+     * Send the email verification notification.
+     */
+    public function sendEmailVerificationNotification(): bool
+    {
+        try {
+            $this->notify(new VerifyEmail);
+
+            return true;
+        } catch (TransportExceptionInterface $exception) {
+            Log::error('Error sending email verification notification to user.', [
+                'category' => 'auth',
+                'user_id' => $this->id,
+                'notification' => VerifyEmail::class,
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'code' => $exception->getCode(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token)
+    {
+        try {
+            $this->notify(new ResetPassword($token));
+        } catch (TransportExceptionInterface $exception) {
+            Log::error('Error sending password reset notification to user.', [
+                'category' => 'auth',
+                'user_id' => $this->id,
+                'notification' => ResetPassword::class,
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'code' => $exception->getCode(),
+            ]);
+        }
     }
 }

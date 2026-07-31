@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Feature\Notifications;
+namespace Tests\Feature\Notifications\Auth;
 
 use App\Models\User;
-use App\Notifications\ResetPassword;
+use App\Notifications\Auth\ResetPassword;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithSentMail;
