@@ -73,4 +73,47 @@ class GoalObserverTest extends TestCase
 
         $this->assertTrue($goal->fresh()->completed_at->greaterThan($before));
     }
+
+    public function test_creating_a_goal_with_a_completed_status_stamps_the_completion_time()
+    {
+        $goal = Goal::factory()->create([
+            'type' => 'simple',
+            'target_value' => null,
+            'status' => 'completed',
+            'completed_at' => null,
+        ]);
+
+        $this->assertNotNull($goal->fresh()->completed_at);
+        $this->assertTrue($goal->fresh()->is_completed);
+    }
+
+    public function test_moving_a_goal_to_a_completed_status_stamps_the_completion_time()
+    {
+        $goal = Goal::factory()->create([
+            'type' => 'simple',
+            'target_value' => null,
+            'status' => 'in_progress',
+            'completed_at' => null,
+        ]);
+
+        $goal->update(['status' => 'completed']);
+
+        $this->assertNotNull($goal->fresh()->completed_at);
+    }
+
+    public function test_an_existing_completion_time_is_not_overwritten()
+    {
+        $completedAt = now()->subMonths(3);
+
+        $goal = Goal::factory()->create([
+            'type' => 'simple',
+            'target_value' => null,
+            'status' => 'completed',
+            'completed_at' => $completedAt,
+        ]);
+
+        $goal->update(['title' => 'Renamed']);
+
+        $this->assertTrue($goal->fresh()->completed_at->isSameSecond($completedAt));
+    }
 }

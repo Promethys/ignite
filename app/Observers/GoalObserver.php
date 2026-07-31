@@ -25,6 +25,20 @@ class GoalObserver
         ) {
             $this->markAsCompleted($goal);
         }
+
+        $this->stampCompletionTime($goal);
+    }
+
+    /**
+     * A goal whose status says completed must carry the timestamp that
+     * date-keyed views read, otherwise it counts in status-driven totals but
+     * disappears from anything grouped by completion date.
+     */
+    protected function stampCompletionTime(Goal $goal): void
+    {
+        if ($goal->status === 'completed' && $goal->completed_at === null) {
+            $goal->completed_at = now();
+        }
     }
 
     /**
@@ -51,6 +65,8 @@ class GoalObserver
         ) {
             $this->markAsCompleted($goal);
         }
+
+        $this->stampCompletionTime($goal);
     }
 
     /**
