@@ -30,9 +30,7 @@ class GoalObserver
     }
 
     /**
-     * A goal whose status says completed must carry the timestamp that
-     * date-keyed views read, otherwise it counts in status-driven totals but
-     * disappears from anything grouped by completion date.
+     * Give a completed goal the timestamp that date-keyed views read.
      */
     protected function stampCompletionTime(Goal $goal): void
     {

@@ -17,8 +17,7 @@ class GoalController extends Controller
     public function __construct(private readonly GoalService $goalService) {}
 
     /**
-     * Validation rules scoped to the acting user, so `category_id` only accepts
-     * categories they own.
+     * Validation rules scoped to the acting user.
      *
      * @return array<string, mixed>
      */

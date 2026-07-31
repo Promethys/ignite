@@ -9,8 +9,6 @@ use Illuminate\Validation\Rule;
  * Goal validation rules shared by the web controller and the MCP tools.
  *
  * Pass the acting user's id so `category_id` only accepts categories they own.
- * Omitting it leaves the rule unscoped, which lets one user attach, and then
- * read back, another user's category.
  */
 class GoalRules
 {
