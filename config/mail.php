@@ -45,7 +45,7 @@ return [
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            'timeout' => env('MAIL_TIMEOUT', null),
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 
@@ -113,4 +113,36 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Global "ReplyTo" Address
+    |--------------------------------------------------------------------------
+    |
+    | You may wish for replies to all emails sent by your application to go
+    | to a monitored address rather than to the "from" address above. Here
+    | you may specify the address that is used globally as the reply-to.
+    | Leave it unset to send no reply-to header at all.
+    |
+    */
+
+    'reply_to' => env('MAIL_REPLY_TO'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Markdown Mail Settings
+    |--------------------------------------------------------------------------
+    |
+    | These settings configure the markdown mail renderer. The theme selects
+    | a custom CSS theme resolved as the view mail::themes.<theme>, so a typo
+    | here throws on the first send rather than degrading. Only an entirely
+    | absent markdown block falls back to Laravel's default theme.
+    |
+    */
+
+    'markdown' => [
+        'theme' => 'ignite',
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
 ];

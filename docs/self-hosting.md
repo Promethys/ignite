@@ -81,6 +81,24 @@ This wrapping is required, not stylistic. Railway's pre-deploy step, under a Doc
 
 Seeding on every deploy is safe here because production only runs the roles seeder through `updateOrCreate` (the user-account seeder is env-gated off in production), so re-running it is idempotent.
 
+## Mail
+
+Ignite sends two emails, both tied to authentication: the address-verification link and the password-reset link. There is no newsletter, no reminder mail, and no third-party mail SDK in the app. Anything Laravel can send through, Ignite can send through.
+
+Mail is deliberately unopinionated: any SMTP provider, or your own mail server, works with the standard variables. See [Configuration](/configuration) for the full list and a worked example.
+
+Leaving `MAIL_MAILER=log` together with `VERIFY_EMAIL=false` is a perfectly valid single-user setup: mail is written to `storage/logs/laravel.log` and nobody is ever asked to verify anything.
+
+### Two ways to lock your users out
+
+Both emails are **queued notifications**, and the verification wall gates every authenticated route in the app. That combination has two failure modes worth understanding before you enable verification.
+
+**A queue with no worker.** If `QUEUE_CONNECTION` is anything other than `sync`, the notification is written to the queue and sent only when a worker picks it up. With no worker running, it is never sent, and nothing appears to be wrong: the request succeeds and the user is told a link is on its way. Either keep `QUEUE_CONNECTION=sync`, which is the `.env.example` default and sends in-request, or run `php artisan queue:work` as a long-lived process.
+
+**Verification enabled before mail works.** Setting `VERIFY_EMAIL=true` while mail is misconfigured means new accounts are created unverified and can reach nothing but the verification prompt. Send yourself a real verification email and click the link before turning the wall on. If you lock yourself out anyway, an existing admin can mark accounts verified from the admin panel.
+
+Ignite never lets a mail failure break registration or password reset: if the transport throws, the account is still created, the request still succeeds, and the failure is written to the log. That is a deliberate trade, and it means **your log is the only place a delivery failure is visible**, so make sure you can actually read it (see the logging note in [Configuration](/configuration); on a container platform that means `LOG_CHANNEL=stderr`).
+
 ## Deliberate simplifications
 
 This deploy shape trades operational simplicity for headroom it doesn't yet need. Each of these is a choice with a documented upgrade path, not an oversight:

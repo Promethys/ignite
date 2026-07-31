@@ -3,13 +3,15 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\Auth\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Tests\Concerns\InteractsWithSentMail;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
 {
+    use InteractsWithSentMail;
     use RefreshDatabase;
 
     public function test_reset_password_link_screen_can_be_rendered()
@@ -28,6 +30,17 @@ class PasswordResetTest extends TestCase
         $this->post(route('password.email'), ['email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class);
+    }
+
+    public function test_a_transport_failure_still_returns_the_neutral_response()
+    {
+        $this->makeMailTransportFail();
+
+        $user = User::factory()->create();
+
+        $this->post(route('password.email'), ['email' => $user->email])
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('status', __('toasts.auth.reset_link'));
     }
 
     public function test_reset_password_screen_can_be_rendered()

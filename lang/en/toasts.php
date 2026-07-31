@@ -58,8 +58,9 @@ return [
         'welcome_back' => 'Welcome back!',
         'signed_out' => 'You have been signed out.',
         'registered' => 'Welcome to Ignite!',
-        'verification_sent' => 'Verification link sent.',
+        'verification_sent' => 'Verification link sent. Check your spam folder if it does not arrive.',
+        'verification_error' => 'We could not send the link, please try again in a moment.',
         'email_verified' => 'Email verified.',
-        'reset_link' => 'A reset link will be sent if the account exists.',
+        'reset_link' => 'A reset link will be sent if the account exists. Check your spam folder if it does not arrive.',
     ],
 ];

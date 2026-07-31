@@ -58,8 +58,9 @@ return [
         'welcome_back' => 'Bon retour !',
         'signed_out' => 'Vous avez été déconnecté.',
         'registered' => 'Bienvenue sur Ignite !',
-        'verification_sent' => 'Lien de vérification envoyé.',
+        'verification_sent' => 'Lien de vérification envoyé. Consultez vos spams s\'il n\'arrive pas.',
+        'verification_error' => 'Nous n\'avons pas pu envoyer le lien, veuillez réessayer ultérieurement.',
         'email_verified' => 'E-mail vérifié.',
-        'reset_link' => 'Un lien de réinitialisation sera envoyé si le compte existe.',
+        'reset_link' => 'Un lien de réinitialisation sera envoyé si le compte existe. Consultez vos spams s\'il n\'arrive pas.',
     ],
 ];
