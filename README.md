@@ -19,7 +19,9 @@ Ignite is a full-stack web application designed to combat project abandonment by
 
 ## Documentation
 
-Full developer documentation (installation, configuration, self-hosting, architecture, testing, and the feature pages above) lives in [`docs/`](docs/), built with [VitePress](https://vitepress.dev/). Browse it locally with:
+Full developer documentation, covering installation, configuration, self-hosting, architecture, testing, and each feature above, is published at **[ignite-docs.promethys.dev](https://ignite-docs.promethys.dev/)**.
+
+The source lives in [`docs/`](docs/) and is built with [VitePress](https://vitepress.dev/). To browse it locally:
 
 ```bash
 npm run docs:dev
