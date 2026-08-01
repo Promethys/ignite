@@ -217,6 +217,8 @@ return [
         'load_more' => 'Load more',
         'delete_title' => 'Delete entry',
         'delete_description' => 'Delete that entry from progress history?',
+        'note_show_more' => 'Show more',
+        'note_show_less' => 'Show less',
         'no_result' => 'No result found.',
         'form' => [
             'create_title' => 'Log progress',

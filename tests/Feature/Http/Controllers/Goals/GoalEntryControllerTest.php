@@ -597,6 +597,42 @@ class GoalEntryControllerTest extends TestCase
             ->assertSessionHasErrors('increment');
     }
 
+    public function test_a_note_of_two_thousand_characters_is_accepted()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.entries.store', $this->goal), [
+                'increment' => 10,
+                'note' => str_repeat('a', 2000),
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(2000, strlen($this->goal->entries()->latest('id')->first()->note));
+    }
+
+    public function test_a_note_longer_than_two_thousand_characters_is_rejected()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.entries.store', $this->goal), [
+                'increment' => 10,
+                'note' => str_repeat('a', 2001),
+            ])
+            ->assertSessionHasErrors('note');
+    }
+
+    public function test_a_note_keeps_the_line_breaks_the_user_typed()
+    {
+        $note = "First line\nSecond line\n\nFourth line";
+
+        $this->actingAs($this->user)
+            ->post(route('goals.entries.store', $this->goal), [
+                'increment' => 10,
+                'note' => $note,
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame($note, $this->goal->entries()->latest('id')->first()->note);
+    }
+
     public function test_adding_entry_updates_goal_current_value()
     {
         $this->actingAs($this->user)

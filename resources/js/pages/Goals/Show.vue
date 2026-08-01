@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ProgressChart from '@/components/charts/ProgressChart.vue';
+import EntryNote from '@/components/goal_entries/EntryNote.vue';
 import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
 import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInModal.vue';
 import GoalBadges from '@/components/goals/GoalBadges.vue';
@@ -741,12 +742,11 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                     <span class="text-muted-foreground">
                                         {{ fmtDate(entry.entry_date) }}
                                     </span>
-                                    <p
+                                    <EntryNote
                                         v-if="entry.note"
-                                        class="text-foreground"
-                                    >
-                                        {{ entry.note }}
-                                    </p>
+                                        :note="entry.note"
+                                        text-class="text-foreground"
+                                    />
                                 </div>
                                 <AlertDialog>
                                     <AlertDialogTrigger as-child>

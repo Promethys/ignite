@@ -68,8 +68,8 @@ class LogProgressTool extends IgniteTool
                 ->description('The amount to add to (or subtract from) the goal\'s current value. Positive advances an ascending goal; use a negative value to reduce progress.')
                 ->required(),
             'note' => $schema->string()
-                ->description('An optional note attached to the progress entry, up to 500 characters.')
-                ->max(500)
+                ->description('An optional note attached to the progress entry, up to 2000 characters.')
+                ->max(2000)
                 ->nullable(),
         ];
     }

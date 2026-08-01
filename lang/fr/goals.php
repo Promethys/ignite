@@ -217,6 +217,8 @@ return [
         'load_more' => 'Charger plus',
         'delete_title' => 'Supprimer l\'entrée',
         'delete_description' => 'Supprimer cette entrée de l\'historique de progression ?',
+        'note_show_more' => 'Voir plus',
+        'note_show_less' => 'Voir moins',
         'no_result' => 'Aucun résultat.',
         'form' => [
             'create_title' => 'Enregistrer une progression',

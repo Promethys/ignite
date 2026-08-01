@@ -67,8 +67,8 @@ class UpdateEntryTool extends IgniteTool
                 ->description('The new increment value for this entry, replacing its previous one. The goal\'s current value shifts by the difference.')
                 ->required(),
             'note' => $schema->string()
-                ->description('An optional note to store on the entry, up to 500 characters.')
-                ->max(500)
+                ->description('An optional note to store on the entry, up to 2000 characters.')
+                ->max(2000)
                 ->nullable(),
         ];
     }

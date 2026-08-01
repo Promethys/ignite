@@ -19,7 +19,7 @@ class GoalEntryRules
     {
         return [
             'increment' => 'required|numeric',
-            'note' => 'nullable|string|max:500',
+            'note' => 'nullable|string|max:2000',
         ];
     }
 
@@ -40,7 +40,7 @@ class GoalEntryRules
 
         $rules = [
             'entry_date' => ['required', 'date', "before_or_equal:{$today}"],
-            'note' => ['nullable', 'string', 'max:500'],
+            'note' => ['nullable', 'string', 'max:2000'],
         ];
 
         if ($goal->start_date) {

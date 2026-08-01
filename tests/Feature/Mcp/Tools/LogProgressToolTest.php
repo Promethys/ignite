@@ -61,6 +61,26 @@ class LogProgressToolTest extends TestCase
         ])->assertHasErrors();
     }
 
+    public function test_the_note_limit_matches_the_web_form(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id, 'type' => 'quantifiable']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(LogProgressTool::class, [
+            'goal_id' => $goal->id,
+            'increment' => 5,
+            'note' => str_repeat('a', 2000),
+        ])->assertOk();
+
+        IgniteServer::tool(LogProgressTool::class, [
+            'goal_id' => $goal->id,
+            'increment' => 5,
+            'note' => str_repeat('a', 2001),
+        ])->assertHasErrors();
+    }
+
     public function test_it_rejects_logging_progress_on_a_recurring_goal(): void
     {
         $user = User::factory()->create();

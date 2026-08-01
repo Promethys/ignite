@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import EntryNote from '@/components/goal_entries/EntryNote.vue';
 import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
 import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInModal.vue';
 import PageHeader from '@/components/PageHeader.vue';
@@ -402,9 +403,10 @@ const resetFilters = () => {
                                     </div>
 
                                     <!-- Entry Note (if exists) -->
-                                    <p v-if="entry.note" class="text-sm">
-                                        {{ entry.note }}
-                                    </p>
+                                    <EntryNote
+                                        v-if="entry.note"
+                                        :note="entry.note"
+                                    />
                                 </div>
                             </template>
 

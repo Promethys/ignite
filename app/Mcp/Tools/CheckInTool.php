@@ -71,8 +71,8 @@ class CheckInTool extends IgniteTool
                 ->max(255)
                 ->required(),
             'note' => $schema->string()
-                ->description('An optional note attached to the check-in, up to 500 characters.')
-                ->max(500)
+                ->description('An optional note attached to the check-in, up to 2000 characters.')
+                ->max(2000)
                 ->nullable(),
         ];
     }
