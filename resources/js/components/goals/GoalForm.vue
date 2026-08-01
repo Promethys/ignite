@@ -377,8 +377,8 @@ form.transform((data) => ({
                         <InputError :message="form.errors.status" />
                     </div>
 
-                    <!-- Points -->
-                    <div class="grid gap-2">
+                    <!-- Points: hidden until achievements and gamification ship -->
+                    <!-- <div class="grid gap-2">
                         <Label for="points">{{
                             $t('goals.form.points')
                         }}</Label>
@@ -392,7 +392,7 @@ form.transform((data) => ({
                             required
                         />
                         <InputError :message="form.errors.points" />
-                    </div>
+                    </div> -->
 
                     <!-- Is Public: FIXME: show only when we handle communities -->
                     <!-- <div class="grid gap-2">
