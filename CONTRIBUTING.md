@@ -38,6 +38,21 @@ Ignite follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
 
 Because the version bump follows from the commit type, keep commit messages accurate.
 
+### Releases
+
+A tag marks a releasable batch, not a merge. Group related work of one theme under a single tag, and let a lone `chore:` or `docs:` ride along with the next real release. The bump reflects the highest-severity change in the batch. If you cannot name the tag as "a thing that shipped", it is too small to tag on its own.
+
+**Every tag from `1.18.3` onward also gets a [GitHub Release](https://github.com/Promethys/ignite/releases).** The tag is the repository checkpoint; the Release is the public, readable version of it. Earlier tags were never released and are deliberately not backfilled.
+
+Write the body for someone outside the project:
+
+- Lead with a short human summary of what changed and why it matters, in plain prose. Generated notes can go underneath.
+- Describe user-visible effects, not commit titles. "Password reset now works on the hosted version" beats "fix(auth): wire reset broker".
+- Name security fixes plainly, including what was and was not exposed.
+- No em-dashes, matching the rest of the project's written material.
+
+`gh release create <tag> --generate-notes` is fine for later releases, but always pass `--notes-start-tag <previous>` so the generated list covers only the batch.
+
 ## Adding Translations
 
 All user-visible strings must use translation keys instead of hardcoded text.
