@@ -173,7 +173,12 @@ form.transform((data) => ({
 
                     <!-- Type -->
                     <div class="grid gap-2">
-                        <Label for="type">{{ $t('goals.form.type') }}</Label>
+                        <Label for="type" class="space-x-2">
+                            {{ $t('goals.form.type') }}
+                            <HelpTooltip>
+                                {{ $t('goals.form.type_help') }}
+                            </HelpTooltip>
+                        </Label>
                         <Select
                             id="type"
                             v-model="form.type"
@@ -214,9 +219,12 @@ form.transform((data) => ({
 
                     <!-- Current Value -->
                     <div class="grid gap-2">
-                        <Label for="current_value">{{
-                            $t('goals.form.current_value')
-                        }}</Label>
+                        <Label for="current_value" class="space-x-2">
+                            {{ $t('goals.form.current_value') }}
+                            <HelpTooltip>
+                                {{ $t('goals.form.current_value_help') }}
+                            </HelpTooltip>
+                        </Label>
                         <Input
                             id="current_value"
                             v-model="form.current_value"
@@ -467,9 +475,12 @@ form.transform((data) => ({
 
                     <!-- Recurrence -->
                     <div class="grid gap-2">
-                        <Label for="recurrence">{{
-                            $t('goals.form.recurrence')
-                        }}</Label>
+                        <Label for="recurrence" class="space-x-2">
+                            {{ $t('goals.form.recurrence') }}
+                            <HelpTooltip>
+                                {{ $t('goals.form.recurrence_help') }}
+                            </HelpTooltip>
+                        </Label>
                         <Select
                             id="recurrence"
                             v-model="form.recurrence"
