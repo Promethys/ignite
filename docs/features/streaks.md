@@ -30,7 +30,9 @@ For goals with `polarity !== 'negative'` (the default), a streak counts periods 
 - If it doesn't, count starts at `0` and `current_period_satisfied` is `false`, but the streak isn't reset yet: the cursor still steps back one period and keeps counting.
 - From there, the cursor steps backward one period at a time, incrementing the count for every consecutive period (working backward) that has a matching entry, and stops at the first period (going backward) with no entry.
 
-The practical effect: **not having logged the current, still-open period does not break the streak on its own.** The streak only actually breaks once there are two consecutive missing periods (the current one and the one before it) with no entry, because at that point the backward walk finds nothing on its very first step and the count stays `0`.
+::: info The current period is forgiving
+Not having logged the current, still-open period does not break the streak on its own. The streak only actually breaks once there are two consecutive missing periods (the current one and the one before it) with no entry, because at that point the backward walk finds nothing on its very first step and the count stays `0`.
+:::
 
 **Longest streak** (`evaluateLongestStreak`): takes the distinct period-start dates across all of a goal's entries, sorted chronologically, and finds the longest run of periods that are each exactly one unit apart from the next (no gaps). Returns `0` only if there are no entries at all; otherwise the minimum is `1`.
 

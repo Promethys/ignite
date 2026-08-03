@@ -1,0 +1,20 @@
+/*
+ * The default theme gives tables `display: block` so wide ones can scroll,
+ * which leaves the real table box shrink-to-fit and short tables at half
+ * width. Scrolling moves to the wrapper so the table can stretch again.
+ */
+.vp-doc .table-wrapper {
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.vp-doc .table-wrapper > table {
+  display: table;
+  width: 100%;
+  margin: 0;
+}
+
+.vp-doc .table-wrapper:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+}

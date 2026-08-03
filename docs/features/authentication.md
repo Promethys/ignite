@@ -18,7 +18,11 @@ Email verification is gated by a single variable:
 VERIFY_EMAIL=false
 ```
 
-This is the default in `.env.example`. It's read in `config/auth.php` as `'verify_email' => (bool) env('VERIFY_EMAIL', true)`, so note the asymmetry: `.env.example` ships it `false` for local dev, but if the variable is absent entirely (unset, not just empty), the code-level default is `true`.
+This is the default in `.env.example`. It's read in `config/auth.php` as `'verify_email' => (bool) env('VERIFY_EMAIL', true)`.
+
+::: warning The default flips depending on where you look
+`.env.example` ships it `false` for local dev, but if the variable is absent entirely (unset, not just empty), the code-level default is `true`. A deployment that never sets it therefore enforces verification.
+:::
 
 Behavior:
 
@@ -47,7 +51,9 @@ Verification and password reset are the only two emails Ignite sends. Both are q
 
 If the mail transport throws, Ignite catches it, logs it, and lets the request finish. Registration still creates the account and signs the user in; a password-reset request still returns its usual neutral response, which deliberately reveals nothing about whether the address exists. Only the resend button reports the failure directly, telling the user the link could not be sent and inviting them to try again.
 
+::: warning
 The consequence is that **a failed send is visible only in the log**. On a container platform, that means `LOG_CHANNEL` must point at `stderr` or the evidence is lost. Failures are recorded with a `category` of `auth`.
+:::
 
 ## How to verify
 

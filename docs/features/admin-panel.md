@@ -8,7 +8,9 @@ A Filament v5 panel mounted at `/admin` for operational visibility into the app.
 - **Goals**: read-only, list and view pages only, no create or edit.
 - **Stats widget**: total users, new users, goals created, entries logged, completion rate, and the abandonment rate (share of goals with `status: abandoned` out of all goals ever created). Additional widgets cover recent activity and registrations/entries per day.
 
+::: info
 There is no in-app link to `/admin`. You navigate to it directly by URL.
+:::
 
 ## Prerequisites
 
@@ -24,7 +26,7 @@ php artisan app:make-admin <user> --force
 
 Exact signature (`app/Console/Commands/MakeUserAdminCommand.php`):
 
-```
+```text
 app:make-admin
     {user : The ID or email of the user}
     {--force}

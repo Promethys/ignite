@@ -26,7 +26,9 @@ MCP_LOCAL_USER=you@example.com
 
 The value must be the **email address** of an existing user. It is matched case insensitively. If it is unset, or no user matches it, no tools are exposed over stdio at all.
 
+::: danger The local transport has no scopes
 Because a local user has no token, **no scope restrictions apply to them**: every tool, including the delete tools, is available. That is deliberate, since anyone able to run the process already has database access. Only set `MCP_LOCAL_USER` on a machine where that is acceptable.
+:::
 
 ## Authentication
 
@@ -38,7 +40,7 @@ Access uses **Laravel Sanctum personal access tokens**. A user creates one under
 
 The client sends it as a bearer token:
 
-```
+```http
 Authorization: Bearer <token>
 ```
 
@@ -120,7 +122,9 @@ A confirmation token is:
 
 An invalid or expired token returns an error and deletes nothing. Expired and forged tokens are rejected identically, so nothing can be learned by guessing.
 
+::: warning
 Because tokens are held in the cache, the configured cache store must be shared across requests (the `database` driver used in production is). A per-process store such as `array` would break the exchange.
+:::
 
 ## Rate limiting
 

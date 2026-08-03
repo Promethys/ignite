@@ -53,6 +53,28 @@ Write the body for someone outside the project:
 
 `gh release create <tag> --generate-notes` is fine for later releases, but always pass `--notes-start-tag <previous>` so the generated list covers only the batch.
 
+## Writing Documentation
+
+Public docs live in `docs/` as a VitePress site. Run `npm run docs:dev` to preview and `npm run docs:build` before pushing; the build is a CI gate and fails on dead internal links.
+
+VitePress adds markdown extensions on top of standard syntax. Only the following are used, so that pages read the same way throughout:
+
+- **A language on every fence.** Use `text` for directory trees, command signatures, and plain output. An unrecognised language id fails the build.
+- **Custom containers** for an aside the reader can act on out of the flow, never for prose that carries the argument. Roughly two or three per page:
+  - `::: danger` when the consequence is lost data, a leaked secret, or being locked out.
+  - `::: warning` for a trap that costs time: a silently ignored variable, a default that differs from `.env.example`, a platform limitation.
+  - `::: tip` for optional advice, `::: info` for context that is merely surprising.
+  - Give the container a title when the first line would otherwise repeat the surrounding heading.
+- **Code groups** (`::: code-group` with `[Label]` on each fence) only when the blocks are alternatives the reader picks between. Sequential steps stay as separate blocks.
+- **Line highlighting** (` ```json{8} `) when the prose immediately below points at those lines. Do not highlight a block nobody is discussing line by line.
+- **Diff markers** for preferred/avoid pairs: `// [!code ++]` on the recommended lines, `// [!code --]` on the ones to avoid, keeping a short `// Preferred` / `// Avoid` label so the meaning does not rest on colour alone. Use `// [!code error]` instead when the line genuinely throws at runtime.
+
+Deliberately not used: line numbers, `[!code focus]`, `<<<` snippet imports, and `[[toc]]`. The outline sidebar already covers the last one, and the others add noise without answering a question a reader has.
+
+Screenshots belong in the user guide (`docs/guide/`) rather than the developer pages, and are lazy loaded globally via `markdown.image.lazyLoading` in `docs/.vitepress/config.ts`. Every image needs alt text describing what it shows.
+
+Tables always span the full content width. The default theme makes each table its own scroll container, which leaves short ones stranded at half width, so `config.ts` wraps every table in a `.table-wrapper` and `docs/.vitepress/theme/style.css` moves the scrolling onto that wrapper. Nothing is needed per table; write plain markdown.
+
 ## Adding Translations
 
 All user-visible strings must use translation keys instead of hardcoded text.

@@ -53,11 +53,15 @@ Locally, queued jobs are stored in the `jobs` database table and processed by a 
 
 In development, `MAIL_MAILER=log` writes outgoing mail to `storage/logs/laravel.log` instead of sending it, so no SMTP credentials are required to try the app locally.
 
-`MAIL_ENCRYPTION` does nothing on this version of Laravel. It was replaced by `MAIL_SCHEME`, and many provider guides still show the old variable. Setting it is silently ignored.
+::: warning `MAIL_ENCRYPTION` does nothing
+It was replaced by `MAIL_SCHEME` on this version of Laravel, but many provider guides still show the old variable. Setting it is silently ignored.
+:::
 
 Ignite only sends two emails, both tied to authentication: email verification and password reset. Both are queued notifications, which matters if `QUEUE_CONNECTION` is not `sync`. See [Self-Hosting](/self-hosting) for the consequences.
 
+::: tip
 Set `MAIL_TIMEOUT` to something short, around 10 seconds, whenever `QUEUE_CONNECTION=sync`. Mail is then sent inside the web request, so an unresponsive SMTP server would otherwise hold a registration or password-reset request open for the full socket timeout.
+:::
 
 ### Sending real email
 
@@ -78,7 +82,9 @@ Most transactional providers issue an API key that doubles as the SMTP password,
 
 ### When SMTP is blocked
 
+::: warning
 Many hosting platforms block outbound SMTP on their lower tiers to protect their IP reputation from abuse, usually on every port at once (25, 465, 587 and 2525). The symptom is a connection timeout rather than an authentication error, and the same credentials work fine from your laptop.
+:::
 
 The fix is to send over an HTTPS API instead of SMTP, since port 443 is never blocked. Laravel ships transports for several providers; `resend/resend-php` is included as a dependency, so that one needs no extra install:
 
@@ -99,9 +105,15 @@ RESEND_KEY=your-api-key
 
 The default writes rotating files under `storage/logs`, which suits a VPS or bare-metal install.
 
-**On any container platform, set `LOG_CHANNEL=stderr` instead.** Railway, Docker, Fly, Render and Kubernetes all collect logs from the container's standard output and standard error, and none of them read files out of the filesystem. Left on the file default, logs are invisible to the platform's log viewer and are discarded whenever the container is replaced, which happens on every deploy.
+::: warning On a container platform, set `LOG_CHANNEL=stderr`
+Docker, Railway, Fly, Render and Kubernetes all collect logs from the container's standard output and standard error, and none of them read files out of the filesystem. Left on the file default, logs are invisible to the platform's log viewer and are discarded whenever the container is replaced, which happens on every deploy.
+
+```ini
+LOG_CHANNEL=stderr
+```
 
 This matters more than it looks. When an email fails to send, Ignite deliberately keeps the request working and records the failure in the log instead of surfacing an error, so that log line is the only evidence the failure happened.
+:::
 
 ## Feature gates
 

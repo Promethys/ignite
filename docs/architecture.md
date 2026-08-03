@@ -63,7 +63,7 @@ Relationships are declared the standard Eloquent way (`belongsTo`, `hasMany`) on
 
 ### Directory layout
 
-```
+```text
 resources/js/
 ├── app.ts / ssr.ts       # entry points
 ├── actions/              # Wayfinder-generated actions (generated, do not edit)

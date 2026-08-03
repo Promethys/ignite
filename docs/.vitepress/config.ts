@@ -15,6 +15,14 @@ export default withMermaid(defineConfig({
   description: 'Documentation for Ignite, a goal tracking app you can use or self-host',
   cleanUrls: true,
   srcExclude: ['superpowers/**', 'tmp/**', 'use-containerized-services/**'],
+  markdown: {
+    image: { lazyLoading: true },
+    config: (md) => {
+      md.renderer.rules.table_open = () =>
+        '<div class="table-wrapper" tabindex="0">\n<table>\n'
+      md.renderer.rules.table_close = () => '</table>\n</div>\n'
+    },
+  },
   themeConfig: {
     nav: [
       { text: 'Using Ignite', link: '/guide/' },

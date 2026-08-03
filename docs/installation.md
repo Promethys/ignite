@@ -66,13 +66,21 @@ DB_PASSWORD=your_password
 
 Create the database:
 
-```bash
+::: code-group
+
+```bash [createdb]
 createdb ignite
-# or via psql:
-# psql -U postgres -c "CREATE DATABASE ignite;"
 ```
 
-On Windows, make sure the `pdo_pgsql` extension is enabled in `php.ini`.
+```bash [psql]
+psql -U postgres -c "CREATE DATABASE ignite;"
+```
+
+:::
+
+::: warning Windows
+The `pdo_pgsql` extension is commented out in a default PHP install. Uncomment it in `php.ini` and restart PHP, or every database command will fail with a driver-not-found error.
+:::
 
 ### 6. Run migrations
 
@@ -100,39 +108,45 @@ To remove this demo data without touching the schema, run `php artisan db:seed -
 
 ### 8. Build assets
 
-```bash
-# Development build
-npm run dev
+::: code-group
 
-# Or a production build
+```bash [Development]
+npm run dev
+```
+
+```bash [Production]
 npm run build
 ```
 
+:::
+
 ### 9. Start the development server
 
-```bash
+`composer dev` runs the Laravel server, the queue worker, and the Vite dev server concurrently, and is the preferred entry point. The individual commands stay available when you want to restart or watch a single process on its own.
+
+::: code-group
+
+```bash [All at once]
 composer dev
 ```
 
-This is the preferred command: it runs the Laravel server, the queue worker, and the Vite dev server concurrently.
-
-Or start each process individually:
-
-```bash
+```bash [Individually]
 php artisan serve                   # Backend server (localhost:8000)
 npm run dev                         # Vite dev server (HMR)
 php artisan queue:listen --tries=1  # Queue worker
 ```
 
+:::
+
 ### 10. Visit the application
 
-```
+```text
 http://localhost:8000
 ```
 
 ## Development workflow
 
-Day to day, `composer dev` is the preferred entry point since it starts the server, queue worker, and Vite together in one terminal. The individual commands above remain available when you want to run, restart, or watch a single process on its own.
+Day to day, step 9 above is the whole loop: `composer dev` starts the server, queue worker, and Vite together in one terminal.
 
 An SSR mode is also available for production-like server-side rendering testing:
 

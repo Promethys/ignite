@@ -21,11 +21,13 @@ Progress is exposed as the `progress_percentage` accessor on the `Goal` model (`
 - If `target_value` equals `initial_value` (a zero-width range), it returns `100` when the goal is completed, otherwise `0`.
 - Otherwise, it computes:
 
-  ```
+  ```text
   ((current_value - initial_value) / (target_value - initial_value)) * 100
   ```
 
-  The result is floored at `0` (never negative) but **not capped at 100**: a goal that overshoots its target can show more than 100% progress.
+::: warning Progress is not capped at 100
+The result is floored at `0` (never negative) but has no upper bound: a goal that overshoots its target can show more than 100% progress.
+:::
 
 ## Direction
 

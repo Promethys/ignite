@@ -42,6 +42,8 @@ All commented out (unset) in `.env.example`. On the frontend, `formbricksEnabled
 - With `FORMBRICKS_WORKSPACE_ID` and the matching `VITE_FORMBRICKS_*` set: the feedback survey trigger becomes available in the app.
 - With `DISCORD_OPS_ENABLED=true` and a valid `DISCORD_OPS_WEBHOOK_URL`: a real Formbricks survey response should appear as a message in the configured Discord channel shortly after submission.
 
-Never commit real values for `FORMBRICKS_WEBHOOK_SECRET` or `DISCORD_OPS_WEBHOOK_URL`; keep them in your local `.env` or the host's secret store only.
+::: danger
+Never commit real values for `FORMBRICKS_WEBHOOK_SECRET` or `DISCORD_OPS_WEBHOOK_URL`. Keep them in your local `.env` or the host's secret store only. A Discord webhook URL is itself the credential: anyone holding it can post to the channel.
+:::
 
 See [Configuration](/configuration) for the full environment variable reference.

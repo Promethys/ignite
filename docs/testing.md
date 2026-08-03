@@ -42,15 +42,15 @@ The backend test suite is divided into three categories:
 - Names describe the behavior, not the implementation
 
 ```php
-// Good
-test_user_can_create_a_goal()
-test_guest_is_redirected_to_login()
-test_progress_percentage_is_capped_at_100()
+// Avoid              // [!code --]
+test_goal()           // [!code --]
+test_create()         // [!code --]
+test_it_works()       // [!code --]
 
-// Avoid
-test_goal()
-test_create()
-test_it_works()
+// Preferred                                    // [!code ++]
+test_user_can_create_a_goal()                   // [!code ++]
+test_guest_is_redirected_to_login()             // [!code ++]
+test_progress_percentage_is_never_negative()    // [!code ++]
 ```
 
 ## Backend architecture (PHPUnit)
@@ -59,7 +59,7 @@ test_it_works()
 
 Feature tests mirror the `app/` directory structure:
 
-```
+```text
 app/
 ├── Http/Controllers/Goals/GoalController.php
 ├── Models/Goal.php
@@ -116,7 +116,7 @@ class GoalTest extends TestCase
 
 Frontend tests mirror `resources/js/`:
 
-```
+```text
 resources/js/
 ├── components/goals/BaseGoalCard.vue
 ├── components/categories/CategoryFormModal.vue
@@ -229,7 +229,9 @@ The `LARAVEL_BYPASS_ENV_CHECK` flag skips the Laravel Vite plugin's environment 
 
 `composer check` runs Pint (formatting check), PHPStan, and the full backend test suite in sequence.
 
-> Do not run the full backend or frontend suite speculatively during day-to-day work; run only the tests you created or changed, or the ones in the same group/folder. Let CI run the full suite.
+::: warning
+Do not run the full backend or frontend suite speculatively during day-to-day work; run only the tests you created or changed, or the ones in the same group/folder. Let CI run the full suite.
+:::
 
 ## Writing backend tests
 
@@ -324,12 +326,11 @@ public function test_progress_percentage_for_ascending_goal()
 Never use hardcoded IDs for foreign keys:
 
 ```php
-// Fails on FK constraint
-Goal::factory()->create(['user_id' => 999]);
+Goal::factory()->create(['user_id' => 999]);    // [!code error]
 
-// Correct: always create the related record
-$user = User::factory()->create();
-Goal::factory()->create(['user_id' => $user->id]);
+// Always create the related record             // [!code ++]
+$user = User::factory()->create();              // [!code ++]
+Goal::factory()->create(['user_id' => $user->id]);  // [!code ++]
 ```
 
 Observer vs factory: factories bypass observers by default in some configurations. To test observer logic, use `Model::create()` directly instead of factories.
@@ -602,11 +603,8 @@ Split separate behaviors into separate tests. A test named `test_user_can_create
 ### Use factories, not raw `create()`
 
 ```php
-// Preferred
-$goal = Goal::factory()->inProgress()->create(['user_id' => $user->id]);
-
-// Avoid
-Goal::create(['user_id' => 1, 'title' => 'Test', 'type' => 'simple', ...]);
+Goal::create(['user_id' => 1, 'title' => 'Test', 'type' => 'simple', ...]);  // [!code --]
+$goal = Goal::factory()->inProgress()->create(['user_id' => $user->id]);  // [!code ++]
 ```
 
 Exception: observer tests must use `Model::create()` to trigger the observer.
@@ -614,11 +612,8 @@ Exception: observer tests must use `Model::create()` to trigger the observer.
 ### Always use named routes
 
 ```php
-// Preferred
-$this->get(route('goals.index'));
-
-// Avoid
-$this->get('/goals');
+$this->get('/goals');               // [!code --]
+$this->get(route('goals.index'));   // [!code ++]
 ```
 
 ## CI/CD integration

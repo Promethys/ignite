@@ -21,7 +21,7 @@ Two stages:
 
 ### Caddyfile
 
-```
+```text{3,7}
 {
 	frankenphp
 	auto_https off
@@ -35,13 +35,13 @@ Two stages:
 }
 ```
 
-Two things worth calling out:
+The two highlighted lines are the ones that matter:
 - `auto_https off` because Railway terminates TLS at its edge and forwards plain HTTP to the container; without a hostname in the site address, Caddy would otherwise try to provision its own certificate.
 - The bind address is `:{$PORT:8080}`, i.e. whatever port Railway injects via `$PORT`, falling back to `8080` for local experiments. `php_server` handles the `try_files → index.php` rewrite and static asset serving in one directive.
 
 ### entrypoint.sh
 
-```sh
+```sh{4-6}
 #!/bin/sh
 set -e
 
@@ -56,7 +56,7 @@ Caching is deliberately done here, at container startup, and not during the Dock
 
 ## railway.json
 
-```json
+```json{8}
 {
 	"$schema": "https://railway.com/railway.schema.json",
 	"build": {
@@ -87,7 +87,9 @@ Ignite sends two emails, both tied to authentication: the address-verification l
 
 Mail is deliberately unopinionated: any SMTP provider, or your own mail server, works with the standard variables. See [Configuration](/configuration) for the full list and a worked example.
 
-**Check whether your platform allows outbound SMTP before you rely on it.** Many managed hosts block it on their cheaper tiers, on every port at once, to stop their address space being used for spam. It fails as a connection timeout rather than a clear error, and only once deployed, since the same credentials work from a laptop. If you hit that, send over an HTTPS API transport instead; see [Configuration](/configuration) for the two variables involved.
+::: warning Check whether your platform allows outbound SMTP before you rely on it
+Many managed hosts block it on their cheaper tiers, on every port at once, to stop their address space being used for spam. It fails as a connection timeout rather than a clear error, and only once deployed, since the same credentials work from a laptop. If you hit that, send over an HTTPS API transport instead; see [Configuration](/configuration) for the two variables involved.
+:::
 
 Leaving `MAIL_MAILER=log` together with `VERIFY_EMAIL=false` is a perfectly valid single-user setup: mail is written to `storage/logs/laravel.log` and nobody is ever asked to verify anything.
 
@@ -95,9 +97,13 @@ Leaving `MAIL_MAILER=log` together with `VERIFY_EMAIL=false` is a perfectly vali
 
 Both emails are **queued notifications**, and the verification wall gates every authenticated route in the app. That combination has two failure modes worth understanding before you enable verification.
 
-**A queue with no worker.** If `QUEUE_CONNECTION` is anything other than `sync`, the notification is written to the queue and sent only when a worker picks it up. With no worker running, it is never sent, and nothing appears to be wrong: the request succeeds and the user is told a link is on its way. Either keep `QUEUE_CONNECTION=sync`, which is the `.env.example` default and sends in-request, or run `php artisan queue:work` as a long-lived process.
+::: danger A queue with no worker
+If `QUEUE_CONNECTION` is anything other than `sync`, the notification is written to the queue and sent only when a worker picks it up. With no worker running, it is never sent, and nothing appears to be wrong: the request succeeds and the user is told a link is on its way. Either keep `QUEUE_CONNECTION=sync`, which is the `.env.example` default and sends in-request, or run `php artisan queue:work` as a long-lived process.
+:::
 
-**Verification enabled before mail works.** Setting `VERIFY_EMAIL=true` while mail is misconfigured means new accounts are created unverified and can reach nothing but the verification prompt. Send yourself a real verification email and click the link before turning the wall on. If you lock yourself out anyway, an existing admin can mark accounts verified from the admin panel.
+::: danger Verification enabled before mail works
+Setting `VERIFY_EMAIL=true` while mail is misconfigured means new accounts are created unverified and can reach nothing but the verification prompt. Send yourself a real verification email and click the link before turning the wall on. If you lock yourself out anyway, an existing admin can mark accounts verified from the admin panel.
+:::
 
 Ignite never lets a mail failure break registration or password reset: if the transport throws, the account is still created, the request still succeeds, and the failure is written to the log. That is a deliberate trade, and it means **your log is the only place a delivery failure is visible**, so make sure you can actually read it (see the logging note in [Configuration](/configuration); on a container platform that means `LOG_CHANNEL=stderr`).
 
@@ -116,4 +122,6 @@ All of the above state (sessions, cache, queue-when-not-sync) lives in the singl
 
 ## Not covered
 
+::: warning Legacy deployment stack
 The repo also contains a legacy VPS-style deployment stack: `compose.prod.yaml` and `docker/production/{nginx,php-fpm}/`. This predates the FrankenPHP/Railway setup and is dead code, not documented here. Do not use it as a reference for how production actually runs.
+:::
