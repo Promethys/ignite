@@ -1,25 +1,170 @@
 # Self-Hosting
 
-Ignite is source-available (FSL-1.1-MIT) and self-hostable. This page documents the deploy shape actually shipped in this repo (the one running in production on Railway), not a generic Laravel deployment tutorial. For local development, see [Installation](/installation).
+Ignite is source-available (FSL-1.1-MIT) and self-hostable. This page covers running your own instance with the Docker Compose stack shipped in the repo, and then documents the image itself and the deploy shape used by the hosted version, which builds from the same `Dockerfile`.
 
-## The shape: one container
+For local development, including a separate Docker setup with hot reload, see [Installation](/installation).
 
-Production runs as a single [FrankenPHP](https://frankenphp.dev/) container. FrankenPHP fuses the Caddy web server and the PHP runtime into one binary, so there is no separate nginx/php-fpm split, no Redis, and no queue worker process: the app, the web server, and the app server are all inside one image.
+## Quick start
 
-The relevant artifacts live under `docker/production/frankenphp/`:
+You need Docker Engine with the Compose v2 plugin. Nothing else: PHP, Node and PostgreSQL all live inside the stack.
 
-- `Dockerfile`: multi-stage build
-- `Caddyfile`: Caddy site config, handed to FrankenPHP at runtime
-- `entrypoint.sh`: startup script run before the app boots
+### 1. Clone and create your environment file
 
-### Dockerfile
+```bash
+git clone https://github.com/Promethys/ignite.git
+cd ignite
+cp .env.example .env
+```
 
-Two stages:
+::: warning `.env` has to exist before any Docker command
+Compose reads it twice, for two unrelated reasons: `env_file:` injects it into the app containers, and `${DB_DATABASE}`, `${DB_USERNAME}` and `${DB_PASSWORD}` are interpolated into the `postgres` service definition before any container exists. Without the file, Compose fails before it builds anything.
 
-1. **`builder`**: based on the `dunglas/frankenphp` image (chosen as the build base specifically because `npm run build` shells out to `php artisan` via the Wayfinder and i18n Vite plugins, so PHP has to be present at build time too). It installs Node 22 and the PHP extensions needed to run `artisan` (`pdo_pgsql`, `intl`, `zip`, `bcmath`, `opcache`), runs `composer install --no-dev`, then `npm ci && npm run build`, and drops `node_modules` afterward.
-2. **`production`**: a fresh copy of the same FrankenPHP base with the same PHP extensions, `COPY --from=builder` pulls over the fully built app (vendor and `public/build` included), and the Railway-tuned `Caddyfile` and `entrypoint.sh` are copied in. `APP_ENV=production` and `APP_DEBUG=false` are baked in as image env. The entrypoint is the container `ENTRYPOINT`; the default `CMD` is `frankenphp run --config /etc/caddy/Caddyfile`.
+The file is deliberately excluded from the image by `.dockerignore` and never ships inside a container. Compose turns it into real environment variables at run time, the same way a managed platform injects its dashboard variables. An empty `.env` inside a running container is therefore normal.
+:::
+
+### 2. Set your own values
+
+At minimum, edit these in `.env`:
+
+```ini
+APP_URL=https://ignite.example.com
+DB_PASSWORD=<something-other-than-the-default>
+```
+
+`.env.example` ships `DB_PASSWORD=secret`. Compose uses it to create the database on first boot, so change it before that first boot rather than after.
+
+Mail is optional. See [Configuration](/configuration) for the `MAIL_*` variables and the [Mail](#mail) section below for what Ignite actually sends.
+
+### 3. Generate the application key
+
+```bash
+docker compose run --rm --no-deps --entrypoint php web artisan key:generate --show
+```
+
+Copy the printed value into `.env`, unquoted and including the `base64:` prefix:
+
+```ini
+APP_KEY=base64:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=
+```
+
+This is the command that builds the image, so expect it to take a few minutes the first time.
+
+`--show` prints the key instead of writing it. That matters here: unlike the development stack, the production container does not bind-mount your working directory, so a key written inside it would disappear along with the container.
+
+::: danger Generate the key once, then never change it
+`APP_KEY` encrypts session cookies and the two-factor secrets and recovery codes stored in the database. Replacing it signs every user out and makes existing two-factor enrolments permanently undecryptable, with no error message saying why.
+
+For the same reason the startup script refuses to generate one for you. A key minted automatically on each boot would look convenient and quietly destroy data on the first container recreate. If `APP_KEY` is missing or empty, the container exits immediately with instructions; read them with `docker compose logs web`.
+:::
+
+### 4. Start the stack
+
+```bash
+docker compose up -d
+```
+
+Compose waits for PostgreSQL to report healthy, runs the migrations and seeders to completion, and only then starts the web container.
+
+### 5. Visit the application
+
+```text
+http://localhost:8080
+```
+
+Set `APP_PORT` in `.env` to publish a different port. The first account you register becomes an ordinary user; promoting someone to admin is covered in [Admin Panel](/features/admin-panel).
+
+## What the stack contains
+
+| Service | Role | Notes |
+| --- | --- | --- |
+| `web` | The application, served by FrankenPHP | The only service published to the host |
+| `postgres` | PostgreSQL 18 | Deliberately not published; reachable only on the internal network |
+| `migrate` | One-shot migration and seed run | Runs to completion before `web` starts, then exits |
+
+Two named volumes hold everything that must survive a rebuild: `postgres-data-production` for the database and `laravel-storage-production` for uploaded and generated files under `storage/`.
+
+Migrations live in their own short-lived service rather than in the web container's startup script. If they ran at startup, a database that was briefly unreachable would turn into a restart loop of the whole app instead of a single failed job.
+
+## Values Compose sets for you
+
+Four variables are pinned in `compose.yaml` and override whatever `.env` says:
+
+| Variable | Forced to | Why |
+| --- | --- | --- |
+| `APP_ENV` | `production` | `.env.example` ships `local`. Left alone, the seeder would create demo accounts with published credentials on a public instance. |
+| `APP_DEBUG` | `false` | Stack traces and environment values must never be rendered to a visitor. |
+| `DB_HOST` / `DB_PORT` | `postgres` / `5432` | The database service name on the internal Compose network, not the `127.0.0.1` a native install uses. |
+| `LOG_CHANNEL` | `stderr` | Containers surface standard output and error, and read nothing from the filesystem. On the file default, logs are invisible to `docker compose logs` and discarded on every rebuild. |
+
+Everything else in `.env` applies normally. Only these four are ignored if you set them.
+
+## Putting it on the internet
+
+The container speaks plain HTTP and does not obtain certificates. Run a reverse proxy in front of it (Caddy, nginx, Traefik) or expose it through a tunnel, and terminate TLS there.
+
+The application already trusts forwarded headers (`trustProxies(at: '*')` in `bootstrap/app.php`), so it generates correct `https://` URLs and marks the session cookie `Secure` once a proxy sets `X-Forwarded-Proto`. That wildcard is safe only while the container is reachable exclusively through your proxy. Do not also publish its port straight to the internet, or a client could forge those headers itself.
+
+Set `APP_URL` to the public HTTPS address. It is what signed links in verification and password-reset emails are built from.
+
+## Day two
+
+### Backups
+
+Everything worth keeping is in PostgreSQL. Substitute the user and database from your `.env`:
+
+```bash
+docker compose exec -T postgres pg_dump -U postgres ignite > ignite-backup.sql
+```
+
+Restore into a running stack:
+
+```bash
+docker compose exec -T postgres psql -U postgres -d ignite < ignite-backup.sql
+```
+
+### Upgrading Ignite
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+The `migrate` service reruns on every `up` and must finish before `web` starts. Re-seeding is safe: in production the seeder only creates roles, through `updateOrCreate`.
+
+::: danger Never delete the Postgres volume to clear a startup error
+`postgres-data-production` holds all of your data, and `docker compose down -v` deletes it permanently.
+
+The error you are most likely to meet is PostgreSQL refusing a volume it considers wrongly laid out. Version 18 keeps its files in a major-version subdirectory of `/var/lib/postgresql`, and refuses to start if it finds a data directory at the root of that path instead, which is exactly what a volume created by an older image looks like. The answer to a major-version upgrade is `pg_upgrade` against a backup, never wiping the volume.
+:::
+
+### Reading logs
+
+```bash
+docker compose logs -f web
+```
+
+With `APP_DEBUG=false`, this is the only place a real error appears. Visitors see the branded error page and nothing else.
+
+## The image
+
+One `Dockerfile` at the repository root defines four stages.
+
+| Stage | Purpose |
+| --- | --- |
+| `base` | FrankenPHP on PHP 8.5, plus Node 22, Composer, and the extensions `artisan` needs: `pdo_pgsql`, `intl`, `zip`, `bcmath`, `opcache` |
+| `development` | `base` plus Xdebug and the development entrypoint, used by `compose.dev.yaml` |
+| `builder` | Installs `composer install --no-dev --optimize-autoloader`, runs `npm ci && npm run build`, then discards `node_modules` |
+| `production` | A clean FrankenPHP base that copies the finished application out of `builder` |
+
+`builder` is based on a PHP image rather than a plain Node one because `npm run build` shells out to `php artisan` through the Wayfinder and i18n Vite plugins, so PHP has to be present at build time too.
+
+::: warning `production` must stay the last stage in the file
+A build that names no `--target` builds whichever stage comes last, and some deploy platforms offer no way to name one in their configuration. The ordering is what makes a bare `docker build .` produce the production image. Move `development` below it and you would silently ship a debug image with Xdebug in it.
+:::
 
 ### Caddyfile
+
+FrankenPHP fuses the Caddy web server and the PHP runtime into a single binary, so there is no nginx and php-fpm split, no Redis, and no separate application server. `docker/Caddyfile` configures it:
 
 ```text{3,7}
 {
@@ -35,15 +180,19 @@ Two stages:
 }
 ```
 
-The two highlighted lines are the ones that matter:
-- `auto_https off` because Railway terminates TLS at its edge and forwards plain HTTP to the container; without a hostname in the site address, Caddy would otherwise try to provision its own certificate.
-- The bind address is `:{$PORT:8080}`, i.e. whatever port Railway injects via `$PORT`, falling back to `8080` for local experiments. `php_server` handles the `try_files → index.php` rewrite and static asset serving in one directive.
+The two highlighted lines are the ones that matter. `auto_https off` keeps Caddy from trying to provision its own certificate, which it must not do when something in front of it already terminates TLS. The site address binds to `$PORT` when the platform injects one and falls back to `8080` otherwise, which is what the Compose stack uses. `php_server` covers the `try_files` rewrite to `index.php` and static asset serving in one directive.
 
 ### entrypoint.sh
 
-```sh{4-6}
+```sh
 #!/bin/sh
 set -e
+
+if [ -z "$APP_KEY" ]; then
+  echo "Ignite cannot start: APP_KEY is not set." >&2
+  ...
+  exit 1
+fi
 
 php artisan config:cache
 php artisan route:cache
@@ -52,34 +201,9 @@ php artisan view:cache
 exec "$@"
 ```
 
-Caching is deliberately done here, at container startup, and not during the Docker build: Railway injects environment variables at runtime, not at build time, so `config:cache` has to run after env is available or it would bake in empty values. The script then `exec`s into whatever `CMD` the image was given (the FrankenPHP run command).
+The caching runs at container startup rather than during the build on purpose: environment variables arrive at run time, so a `config:cache` performed while building would bake in empty values that no variable could later override. Cached configuration bypasses `env()` entirely, which makes that particular mistake very hard to diagnose.
 
-## railway.json
-
-```json{8}
-{
-	"$schema": "https://railway.com/railway.schema.json",
-	"build": {
-		"builder": "DOCKERFILE",
-		"dockerfilePath": "docker/production/frankenphp/Dockerfile"
-	},
-	"deploy": {
-		"preDeployCommand": "/bin/sh -c 'php artisan migrate --force && php artisan db:seed --force'",
-		"healthcheckPath": "/up",
-		"healthcheckTimeout": 300,
-		"restartPolicyType": "ON_FAILURE",
-		"restartPolicyMaxRetries": 3
-	}
-}
-```
-
-### The `/bin/sh -c` gotcha
-
-The `preDeployCommand` runs `php artisan migrate --force`, then `php artisan db:seed --force`. Both are wrapped in a single string passed to `/bin/sh -c '...'`.
-
-This wrapping is required, not stylistic. Railway's pre-deploy step, under a Dockerfile-based build, has no implicit shell: if `preDeployCommand` were given as a bare `command1 && command2` string (or an array of two commands), only the first command would actually run and the `&&` would be interpreted literally rather than as a shell operator. Wrapping the whole chain in `/bin/sh -c '...'` gives `&&` a shell to be interpreted by, so both `migrate` and `db:seed` run in sequence, in one process.
-
-Seeding on every deploy is safe here because production only runs the roles seeder through `updateOrCreate` (the user-account seeder is env-gated off in production), so re-running it is idempotent.
+The script then hands off to the image's `CMD`, the FrankenPHP run command.
 
 ## Mail
 
@@ -91,7 +215,7 @@ Mail is deliberately unopinionated: any SMTP provider, or your own mail server, 
 Many managed hosts block it on their cheaper tiers, on every port at once, to stop their address space being used for spam. It fails as a connection timeout rather than a clear error, and only once deployed, since the same credentials work from a laptop. If you hit that, send over an HTTPS API transport instead; see [Configuration](/configuration) for the two variables involved.
 :::
 
-Leaving `MAIL_MAILER=log` together with `VERIFY_EMAIL=false` is a perfectly valid single-user setup: mail is written to `storage/logs/laravel.log` and nobody is ever asked to verify anything.
+Leaving `MAIL_MAILER=log` together with `VERIFY_EMAIL=false` is a perfectly valid single-user setup: mail is written to the log and nobody is ever asked to verify anything.
 
 ### Two ways to lock your users out
 
@@ -105,23 +229,46 @@ If `QUEUE_CONNECTION` is anything other than `sync`, the notification is written
 Setting `VERIFY_EMAIL=true` while mail is misconfigured means new accounts are created unverified and can reach nothing but the verification prompt. Send yourself a real verification email and click the link before turning the wall on. If you lock yourself out anyway, an existing admin can mark accounts verified from the admin panel.
 :::
 
-Ignite never lets a mail failure break registration or password reset: if the transport throws, the account is still created, the request still succeeds, and the failure is written to the log. That is a deliberate trade, and it means **your log is the only place a delivery failure is visible**, so make sure you can actually read it (see the logging note in [Configuration](/configuration); on a container platform that means `LOG_CHANNEL=stderr`).
+Ignite never lets a mail failure break registration or password reset: if the transport throws, the account is still created, the request still succeeds, and the failure is written to the log. That is a deliberate trade, and it means **your log is the only place a delivery failure is visible**, so make sure you can actually read it.
 
 ## Deliberate simplifications
 
-This deploy shape trades operational simplicity for headroom it doesn't yet need. Each of these is a choice with a documented upgrade path, not an oversight:
+This deploy shape trades operational simplicity for headroom it does not yet need. Each of these is a choice with a documented upgrade path, not an oversight:
 
 | Concern | Current choice | Upgrade path when needed |
 | --- | --- | --- |
-| Queue | `QUEUE_CONNECTION=sync` (set via a Railway environment variable, overriding the `.env.example` default of `database`) | Jobs run synchronously, in-request. No worker process to keep alive. Switch to `database` or `redis` and run a `queue:work` process (e.g. a second Railway service) once background jobs need to survive request timeouts or run concurrently. |
-| Cache | `CACHE_STORE=database` | No Redis dependency; cache reads/writes hit Postgres. Move to `redis` if cache traffic becomes a bottleneck. |
-| Session | `SESSION_DRIVER=database` | Same trade-off as cache: one less moving part, at the cost of a bit more Postgres load per request. |
-| Rendering | No SSR | The image only builds the client bundle (`npm run build`), not `build:ssr`. Inertia SSR would need its own long-running Node process; add it if first-paint/SEO requirements change. |
+| Queue | `QUEUE_CONNECTION=sync` | Jobs run synchronously, in-request. No worker process to keep alive. Switch to `database` or `redis` and run a `queue:work` process once background jobs need to survive request timeouts or run concurrently. |
+| Cache | `CACHE_STORE=database` | No Redis dependency; cache reads and writes hit PostgreSQL. Move to `redis` if cache traffic becomes a bottleneck. |
+| Session | `SESSION_DRIVER=database` | Same trade-off as cache: one less moving part, at the cost of a little more database load per request. |
+| Rendering | No SSR | The image builds the client bundle only (`npm run build`), not `build:ssr`. Inertia SSR would need its own long-running Node process; add it if first-paint or SEO requirements change. |
 
-All of the above state (sessions, cache, queue-when-not-sync) lives in the single managed Postgres instance; there is currently no Redis, no dedicated worker dyno, and no SSR server in production.
+All of that state lives in the single PostgreSQL instance. There is no Redis, no dedicated worker, and no SSR server.
 
-## Not covered
+## Running on a platform instead of Compose
 
-::: warning Legacy deployment stack
-The repo also contains a legacy VPS-style deployment stack: `compose.prod.yaml` and `docker/production/{nginx,php-fpm}/`. This predates the FrankenPHP/Railway setup and is dead code, not documented here. Do not use it as a reference for how production actually runs.
-:::
+The same `Dockerfile` deploys unchanged to a container platform, which is how the hosted version of Ignite runs. Two details of that setup are worth borrowing.
+
+Platform variables replace `.env` entirely. They are injected into the process environment, and Laravel's dotenv loader never overwrites a variable that is already set, so no `.env` file is needed at run time. That is the same mechanism `env_file:` uses in Compose.
+
+Migrations belong in a pre-deploy hook rather than the entrypoint, for the reason given above. `railway.json` in the repository shows the shape:
+
+```json{8}
+{
+	"$schema": "https://railway.com/railway.schema.json",
+	"build": {
+		"builder": "DOCKERFILE",
+		"dockerfilePath": "./Dockerfile"
+	},
+	"deploy": {
+		"preDeployCommand": "/bin/sh -c 'php artisan migrate --force && php artisan db:seed --force'",
+		"healthcheckPath": "/up",
+		"healthcheckTimeout": 300,
+		"restartPolicyType": "ON_FAILURE",
+		"restartPolicyMaxRetries": 3
+	}
+}
+```
+
+The highlighted line wraps both commands in `/bin/sh -c '...'`, and that wrapping is required rather than stylistic. A pre-deploy step on a Dockerfile-based build has no implicit shell, so a bare `command1 && command2` string would run only the first command and treat `&&` as a literal argument. Giving the chain a shell is what makes both run in sequence.
+
+`/up` is the health endpoint, registered in `bootstrap/app.php`.

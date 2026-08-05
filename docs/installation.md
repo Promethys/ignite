@@ -1,32 +1,137 @@
 # Installation
 
-This page covers the full local development setup: prerequisites, initial setup, and the day-to-day development workflow.
+There are two supported ways to set up Ignite for local development.
 
-## Prerequisites
+**Docker is the recommended path.** It needs nothing on your machine except Docker itself, and it gives every contributor the same PHP, Node and PostgreSQL versions. **The manual path stays fully supported** for anyone who would rather run the toolchain natively.
+
+Both paths described here are for local development. To run Ignite as a real deployment, see [Self-Hosting](/self-hosting).
+
+## Option A: Docker
+
+### Prerequisites
+
+Docker Engine with the Compose v2 plugin. Docker Desktop bundles both.
+
+```bash
+docker --version
+docker compose version
+```
+
+That is the whole list. PHP, Node, Composer and PostgreSQL all live inside the containers.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Promethys/ignite.git
+cd ignite
+```
+
+### 2. Create your environment file
+
+```bash
+cp .env.example .env
+```
+
+Leave the `DB_*` values as they ship. Compose creates the PostgreSQL database from them and overrides the host and port for you.
+
+::: warning `.env` has to exist before any Docker command
+Compose reads it for two unrelated reasons: `env_file:` injects it into the app containers, and `${DB_DATABASE}`, `${DB_USERNAME}` and `${DB_PASSWORD}` are interpolated into the `postgres` service definition. Both happen before any container exists, which is why copying the file is a real first step and not something the startup script could do for you. Without it, Compose fails before it builds anything.
+
+The file is deliberately excluded from the images by `.dockerignore`. It never ships inside a container. Compose turns it into real environment variables at run time, which is why an empty `.env` inside a running container is normal and correct.
+:::
+
+### 3. Start the stack
+
+```bash
+docker compose -f compose.dev.yaml up -d --build
+```
+
+`--build` guarantees the containers match the current `Dockerfile` instead of reusing an image that happens to be tagged already. Later restarts do not need it; see [everyday commands](#everyday-commands) below.
+
+The first run takes a few minutes while the images build. On boot the `web` container installs the PHP dependencies if `vendor/` is missing, generates `APP_KEY` if your `.env` does not have one yet, clears the caches, then runs the migrations and seeders. The `vite` container installs the Node dependencies and starts the dev server.
+
+Both of those first two steps are skipped on later boots, so restarting is fast.
+
+::: tip The key is generated for you here, but not when self-hosting
+The development container bind-mounts your working directory, so `key:generate` writes into the `.env` on your disk and the key survives every rebuild. A production container has no bind mount, which is why [Self-Hosting](/self-hosting) makes you generate the key yourself: one written inside that container would be lost on the next recreate, taking every session and stored two-factor secret with it.
+:::
+
+| Service | What it runs | Reachable at |
+| --- | --- | --- |
+| `web` | FrankenPHP serving the application | `http://localhost:8080` |
+| `vite` | Vite dev server and hot module replacement | `http://localhost:5173` |
+| `postgres` | PostgreSQL 18 | `localhost:5433` |
+
+PostgreSQL is published on **5433**, not the usual 5432, so it cannot collide with an instance you already run natively.
+
+### 4. Visit the application
+
+```text
+http://localhost:8080
+```
+
+Sign in with `admin@example.com` / `password`, created by the seeder. The optional demo dataset described in step 7 of the manual path works here too, run through `docker compose -f compose.dev.yaml exec web`.
+
+Change the published port by setting `APP_PORT` in `.env`, and match `APP_URL` to it.
+
+### Everyday commands
+
+```bash
+docker compose -f compose.dev.yaml logs -f web       # follow the app log
+docker compose -f compose.dev.yaml exec web bash     # shell inside the app
+docker compose -f compose.dev.yaml exec web php artisan migrate
+docker compose -f compose.dev.yaml exec web php artisan test
+docker compose -f compose.dev.yaml exec vite npm run lint
+docker compose -f compose.dev.yaml down              # stop, keeping the database
+```
+
+Editing a `.vue`, `.ts` or `.css` file reloads the browser. Editing PHP takes effect on the next request. Both come from the same bind mount, so neither needs a rebuild. Rebuild the images only when the `Dockerfile` itself changes, with `up -d --build`.
+
+### How hot reload works in a container
+
+`vite.config.ts` carries three settings that exist purely for this setup:
+
+- `host: '0.0.0.0'` so the dev server accepts connections from outside its own container.
+- A fixed `hmr.host` so the browser opens its websocket back to your machine rather than to the container's internal hostname, which does not resolve from the host.
+- `watch: { usePolling: true }` because filesystem change events do not cross a bind mount reliably on Windows or macOS. Without it, saving a file changes nothing on screen.
+
+If a page loads but arrives unstyled and without any interactivity, Vite is not running. Check `logs -f vite`.
+
+### Debugging with Xdebug
+
+The development image ships Xdebug in `start_with_request=trigger` mode, so it stays dormant until a request carries the trigger, and normal browsing keeps full speed. Point your IDE at `host.docker.internal` with the IDE key `DOCKER`.
+
+The build arguments at the top of the `development` stage in `Dockerfile` control the mode, host, IDE key and log level. Setting `XDEBUG_ENABLED=false` builds the image without it.
+
+::: warning A native `vendor/` or `node_modules/` will be reused as-is
+The dev containers bind-mount your whole working directory, so directories built by a native install are picked up unchanged. If you have previously run `composer install` or `npm install` on the host with different PHP or Node versions, delete both directories and let the containers rebuild them, or you will chase errors that have nothing to do with your code.
+:::
+
+## Option B: Manual installation
+
+### Prerequisites
 
 - **PHP** `^8.5` (the exact constraint from `composer.json`)
 - **Node.js** 22
 - **Composer**
-- **PostgreSQL** (the app's default database; see [Database](#configure-the-database) below). No minimum version is enforced by the app; CI runs against PostgreSQL 18.
+- **PostgreSQL** (the app's default database, configured in step 5 below). No minimum version is enforced by the app; CI runs against PostgreSQL 18.
 
 SQLite is used only for the automated test suite (via `phpunit.xml`), not for local development or production.
 
 Check your installed versions:
 
 ```bash
-php --version        # Should satisfy ^8.5
+php --version         # Should satisfy ^8.5
 node --version        # Should be 22+
 composer --version
 npm --version
-psql --version         # PostgreSQL client
+psql --version        # PostgreSQL client
 ```
-
-## Initial setup
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Promethys/ignite
+git clone https://github.com/Promethys/ignite.git
 cd ignite
 ```
 
@@ -48,6 +153,14 @@ npm install
 cp .env.example .env
 php artisan key:generate
 ```
+
+`.env.example` defaults `APP_URL` to the port the Docker setup uses. For a native `php artisan serve`, change it:
+
+```ini
+APP_URL=http://localhost:8000
+```
+
+It only affects URLs built outside a request, such as the links in verification and password-reset mail, so a mismatch is easy to miss.
 
 See [Configuration](/configuration) for a full reference of the environment variables in `.env.example`.
 
@@ -146,9 +259,21 @@ http://localhost:8000
 
 ## Development workflow
 
-Day to day, step 9 above is the whole loop: `composer dev` starts the server, queue worker, and Vite together in one terminal.
+Day to day the loop is a single command, whichever path you chose:
 
-An SSR mode is also available for production-like server-side rendering testing:
+::: code-group
+
+```bash [Docker]
+docker compose -f compose.dev.yaml up -d
+```
+
+```bash [Manual]
+composer dev
+```
+
+:::
+
+An SSR mode is also available for production-like server-side rendering testing. It is only wired up for the manual path:
 
 ```bash
 composer dev:ssr
