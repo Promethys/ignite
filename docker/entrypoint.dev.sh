@@ -2,7 +2,12 @@
 set -e
 
 if [ ! -d "/app/vendor" ]; then
-  composer install
+  composer install --no-interaction --prefer-dist --no-progress
+fi
+
+if ! grep -q '^APP_KEY=base64:' /app/.env; then
+  php artisan key:generate
+  unset APP_KEY
 fi
 
 php artisan optimize:clear
