@@ -26,4 +26,14 @@ export default defineConfig({
         }),
         i18n(),
     ],
+    server: {
+        origin: 'http://127.0.0.1:5173',
+        host: '0.0.0.0',
+        hmr: {
+            host: '127.0.0.1'
+        },
+        watch: {
+            usePolling: true
+        }
+    }
 });

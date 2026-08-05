@@ -3,62 +3,71 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: development
+      target: production
     restart: unless-stopped
     volumes:
-      - type: bind
-        source: .
-        target: /app
+      - laravel-storage-production:/app/storage
     networks:
-      - laravel-development
+      - laravel-production
     ports:
       - "${APP_PORT:-8080}:8080"
     env_file:
       - .env
     environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
       - DB_HOST=postgres
       - DB_PORT=5432
+      - LOG_CHANNEL=stderr
     depends_on:
       postgres:
         condition: service_healthy
         restart: true
+      migrate:
+        condition: service_completed_successfully
 
   postgres:
     image: postgres:18
-    ports:
-      - "5433:5432"
+    restart: unless-stopped
+    user: postgres
     environment:
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
-      - postgres-data-development:/var/lib/postgresql
+      - postgres-data-production:/var/lib/postgresql
     networks:
-      - laravel-development
+      - laravel-production
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  vite:
-    build:
+  migrate:
+    build: 
       context: .
       dockerfile: ./Dockerfile
-      target: development
+      target: production
     entrypoint: []
-    command: sh -c "npm install && npm run dev"
-    volumes:
-      - ./:/app
-    ports:
-      - "5173:5173"
+    command: sh -c "php artisan migrate --force && php artisan db:seed --force"
     env_file:
       - .env
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - LOG_CHANNEL=stderr
+    depends_on:
+      postgres: 
+        condition: service_healthy
     networks:
-      - laravel-development
+      - laravel-production
 
 networks:
-  laravel-development:
+  laravel-production:
 
 volumes:
-  postgres-data-development:
+  postgres-data-production:
+  laravel-storage-production:
