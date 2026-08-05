@@ -10,9 +10,9 @@ if ! grep -q '^APP_KEY=base64:' /app/.env; then
   unset APP_KEY
 fi
 
-php artisan optimize:clear
-
 php artisan migrate --force && php artisan db:seed --force
+
+php artisan optimize:clear
 
 # Hand off to the image's default command (frankenphp run, see Dockerfile CMD).
 exec "$@"
