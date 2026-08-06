@@ -29,12 +29,18 @@ npm run docs:dev
 
 ## Installation
 
+With Docker, from a fresh clone:
+
 ```bash
 git clone https://github.com/Promethys/ignite.git
 cd ignite
+cp .env.example .env
+docker compose -f compose.dev.yaml up -d --build
 ```
 
-See the [Getting Started guide](docs/getting-started.md) for the full setup (prerequisites, environment, database, and running the app).
+The app comes up on `http://localhost:8080` with hot reload, a seeded database, and no PHP, Node or PostgreSQL needed on your machine. A native setup is equally supported.
+
+See the [Getting Started guide](docs/getting-started.md) for both paths, and [Self-Hosting](docs/self-hosting.md) to run your own instance for real.
 
 ## Contributing
 

@@ -3,76 +3,77 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: development
+      target: production
     restart: unless-stopped
     volumes:
-      - type: bind
-        source: .
-        target: /app
-      - vendor-development:/app/vendor
-      - node-modules-development:/app/node_modules
+      - laravel-storage-production:/app/storage
     networks:
-      - laravel-development
+      - laravel-production
     ports:
       - "${APP_PORT:-8080}:8080"
     env_file:
       - .env
     environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
       - DB_HOST=postgres
       - DB_PORT=5432
+      - LOG_CHANNEL=stderr
     healthcheck:
       test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1:8080/up') === false ? 1 : 0);"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 120s
+      start_period: 30s
     depends_on:
       postgres:
         condition: service_healthy
         restart: true
+      migrate:
+        condition: service_completed_successfully
 
   postgres:
     image: postgres:18
-    ports:
-      - "5433:5432"
+    restart: unless-stopped
+    user: postgres
     environment:
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
-      - postgres-data-development:/var/lib/postgresql
+      - postgres-data-production:/var/lib/postgresql
     networks:
-      - laravel-development
+      - laravel-production
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  vite:
-    build:
+  migrate:
+    build: 
       context: .
       dockerfile: ./Dockerfile
-      target: development
+      target: production
     entrypoint: []
-    command: sh -c "npm install && until [ -f /app/vendor/autoload.php ]; do sleep 2; done; npm run dev"
-    healthcheck:
-      disable: true
-    volumes:
-      - ./:/app
-      - vendor-development:/app/vendor
-      - node-modules-development:/app/node_modules
-    ports:
-      - "5173:5173"
+    command: sh -c "php artisan migrate --force && php artisan db:seed --force"
     env_file:
       - .env
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - LOG_CHANNEL=stderr
+    depends_on:
+      postgres: 
+        condition: service_healthy
     networks:
-      - laravel-development
+      - laravel-production
 
 networks:
-  laravel-development:
+  laravel-production:
 
 volumes:
-  postgres-data-development:
-  vendor-development:
-  node-modules-development:
+  postgres-data-production:
+  laravel-storage-production:

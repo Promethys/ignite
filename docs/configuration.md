@@ -9,7 +9,7 @@ Ignite is configured entirely through environment variables, read from a `.env` 
 | `APP_NAME` | Display name for the app, used in mail, page titles, and vite build. | `Ignite` |
 | `APP_ENV` | Runtime environment (`local`, `production`, etc). | `local` |
 | `APP_KEY` | Encryption key used for sessions, cookies, and encrypted data. Generate with `php artisan key:generate`. | empty until generated |
-| `APP_URL` | Base URL the app is served from. | `http://localhost` |
+| `APP_URL` | Base URL the app is served from. Matches the Docker setup's port by default; change it to `http://localhost:8000` for a native `php artisan serve`. | `http://localhost:8080` |
 | `APP_LOCALE` | Default application locale. | `en` |
 | `APP_FALLBACK_LOCALE` | Locale used when a translation is missing for `APP_LOCALE`. | `en` |
 
