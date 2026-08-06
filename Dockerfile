@@ -1,12 +1,17 @@
-FROM dunglas/frankenphp:1.12.4-php8.5 AS base
+# syntax=docker/dockerfile:1
+
+FROM dunglas/frankenphp:1.12.4-php8.5 AS runtime
+
+RUN install-php-extensions pdo_pgsql intl zip bcmath opcache
+
+
+FROM runtime AS base
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git unzip ca-certificates curl gnupg \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN install-php-extensions pdo_pgsql intl zip bcmath opcache
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -49,9 +54,18 @@ FROM base AS builder
 
 WORKDIR /app
 
+COPY composer.json composer.lock ./
+
+RUN --mount=type=cache,target=/root/.composer/cache \
+    composer install --no-dev --no-scripts --no-autoloader --no-interaction --prefer-dist --no-progress
+
+COPY package.json package-lock.json ./
+
+RUN --mount=type=cache,target=/root/.npm npm ci
+
 COPY . /app
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+RUN composer dump-autoload --no-dev --optimize --classmap-authoritative
 
 ARG VITE_APP_NAME=Ignite
 ENV VITE_APP_NAME=$VITE_APP_NAME
@@ -62,12 +76,10 @@ ENV VITE_FORMBRICKS_WORKSPACE_ID=$VITE_FORMBRICKS_WORKSPACE_ID
 ARG VITE_FORMBRICKS_APP_URL
 ENV VITE_FORMBRICKS_APP_URL=$VITE_FORMBRICKS_APP_URL
 
-RUN npm ci && npm run build && rm -rf node_modules
+RUN npm run build && rm -rf node_modules
 
 
-FROM dunglas/frankenphp:1.12.4-php8.5 AS production
-
-RUN install-php-extensions pdo_pgsql intl zip bcmath opcache
+FROM runtime AS production
 
 WORKDIR /app
 
