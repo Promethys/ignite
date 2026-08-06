@@ -85,6 +85,8 @@ Two named volumes hold everything that must survive a rebuild: `postgres-data-pr
 
 Migrations live in their own short-lived service rather than in the web container's startup script. If they ran at startup, a database that was briefly unreachable would turn into a restart loop of the whole app instead of a single failed job.
 
+`web` declares a health check that requests `/up` through PHP, the production image carrying no curl. `docker compose ps` reports whether the application is answering, and other services can depend on it with `condition: service_healthy`.
+
 ## Values Compose sets for you
 
 Four variables are pinned in `compose.yaml` and override whatever `.env` says:
@@ -147,16 +149,21 @@ With `APP_DEBUG=false`, this is the only place a real error appears. Visitors se
 
 ## The image
 
-One `Dockerfile` at the repository root defines four stages.
+One `Dockerfile` at the repository root defines five stages.
 
 | Stage | Purpose |
 | --- | --- |
-| `base` | FrankenPHP on PHP 8.5, plus Node 22, Composer, and the extensions `artisan` needs: `pdo_pgsql`, `intl`, `zip`, `bcmath`, `opcache` |
+| `runtime` | FrankenPHP on PHP 8.5 plus the extensions `artisan` needs: `pdo_pgsql`, `intl`, `zip`, `bcmath`, `opcache` |
+| `base` | `runtime` plus the build tooling: Node 22, Composer, git and unzip |
 | `development` | `base` plus Xdebug and the development entrypoint, used by `compose.dev.yaml` |
-| `builder` | Installs `composer install --no-dev --optimize-autoloader`, runs `npm ci && npm run build`, then discards `node_modules` |
-| `production` | A clean FrankenPHP base that copies the finished application out of `builder` |
+| `builder` | Installs the PHP and Node dependencies, runs `npm run build`, then discards `node_modules` |
+| `production` | `runtime` again, copying the finished application out of `builder` |
+
+`development` and `production` both trace back to `runtime`, which declares the extension list once. `production` derives from `runtime` directly rather than from `base`, so the shipped image carries no Node, Composer or git.
 
 `builder` is based on a PHP image rather than a plain Node one because `npm run build` shells out to `php artisan` through the Wayfinder and i18n Vite plugins, so PHP has to be present at build time too.
+
+It copies `composer.json` and `composer.lock`, then `package.json` and `package-lock.json`, and installs from those before the rest of the source arrives. Both dependency layers are then reused on any build where only application code changed. The autoloader is generated in a later step, after the source is in place, since `composer dump-autoload` runs `package:discover` against the application.
 
 ::: warning `production` must stay the last stage in the file
 A build that names no `--target` builds whichever stage comes last, and some deploy platforms offer no way to name one in their configuration. The ordering is what makes a bare `docker build .` produce the production image. Move `development` below it and you would silently ship a debug image with Xdebug in it.

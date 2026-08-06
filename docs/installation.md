@@ -48,7 +48,7 @@ docker compose -f compose.dev.yaml up -d --build
 
 `--build` guarantees the containers match the current `Dockerfile` instead of reusing an image that happens to be tagged already. Later restarts do not need it; see [everyday commands](#everyday-commands) below.
 
-The first run takes a few minutes while the images build. On boot the `web` container installs the PHP dependencies if `vendor/` is missing, generates `APP_KEY` if your `.env` does not have one yet, clears the caches, then runs the migrations and seeders. The `vite` container installs the Node dependencies and starts the dev server.
+The first run takes a few minutes while the images build. On boot the `web` container installs the PHP dependencies if `vendor/` is missing, generates `APP_KEY` if your `.env` does not have one yet, then runs the migrations and seeders. The `vite` container installs the Node dependencies and starts the dev server.
 
 Both of those first two steps are skipped on later boots, so restarting is fast.
 
@@ -89,22 +89,52 @@ Editing a `.vue`, `.ts` or `.css` file reloads the browser. Editing PHP takes ef
 
 ### How hot reload works in a container
 
-`vite.config.ts` carries three settings that exist purely for this setup:
+`vite.config.ts` carries four settings that exist purely for this setup:
 
 - `host: '0.0.0.0'` so the dev server accepts connections from outside its own container.
 - A fixed `hmr.host` so the browser opens its websocket back to your machine rather than to the container's internal hostname, which does not resolve from the host.
 - `watch: { usePolling: true }` because filesystem change events do not cross a bind mount reliably on Windows or macOS. Without it, saving a file changes nothing on screen.
+- `cors.origin`, the list of origins the dev server will serve assets to. It covers `localhost`, `127.0.0.1` and `[::1]` on any port.
+
+`server.origin` and `cors.origin` work together. `laravel-vite-plugin` derives the CORS list from `server.origin` when `cors` is unset, so both are declared: change one and set the other to match, or the browser rejects every asset the page requests.
 
 If a page loads but arrives unstyled and without any interactivity, Vite is not running. Check `logs -f vite`.
+
+### Performance on Windows and macOS
+
+Reads from a bind-mounted working directory cross a filesystem boundary: WSL2 on Windows, virtiofs on macOS. A single file read costs around 5 ms there, against around 0.01 ms from a Docker volume, and booting Laravel touches a few thousand files.
+
+The dev stack is laid out around that. `/app/vendor` and `/app/node_modules` are named volumes, so the dependency trees stay on the Linux side, and your own code stays on the bind mount so edits apply immediately.
+
+Hot reload is polled rather than event-driven, since change events do not cross the boundary either. On Windows, a save reaches the browser in about five seconds.
+
+Two ways to avoid the boundary entirely:
+
+- Keep the clone inside the Linux filesystem, under `\\wsl$\` on Windows with the WSL2 integration enabled. This is a per-developer choice and changes nothing in the repository.
+- Use [Option B](#option-b-manual-installation). A native toolchain has no boundary to cross.
+
+Linux hosts are unaffected.
 
 ### Debugging with Xdebug
 
 The development image ships Xdebug in `start_with_request=trigger` mode, so it stays dormant until a request carries the trigger, and normal browsing keeps full speed. Point your IDE at `host.docker.internal` with the IDE key `DOCKER`.
 
-The build arguments at the top of the `development` stage in `Dockerfile` control the mode, host, IDE key and log level. Setting `XDEBUG_ENABLED=false` builds the image without it.
+The default mode is `develop,debug`, which covers step debugging and readable stack traces. `coverage` and `profile` are not enabled.
 
-::: warning A native `vendor/` or `node_modules/` will be reused as-is
-The dev containers bind-mount your whole working directory, so directories built by a native install are picked up unchanged. If you have previously run `composer install` or `npm install` on the host with different PHP or Node versions, delete both directories and let the containers rebuild them, or you will chase errors that have nothing to do with your code.
+Xdebug reads the `XDEBUG_MODE` environment variable at run time, so any mode can be enabled for a single command without rebuilding:
+
+```bash
+docker compose -f compose.dev.yaml exec -e XDEBUG_MODE=coverage web php artisan test --coverage
+```
+
+The build arguments at the top of the `development` stage in `Dockerfile` control the default mode, host, IDE key and log level. Setting `XDEBUG_ENABLED=false` builds the image without it.
+
+::: tip `vendor/` and `node_modules/` live in Docker volumes, not your working directory
+The dev stack bind-mounts your working directory, then mounts named volumes over `/app/vendor` and `/app/node_modules`. The containers install their own dependencies against the PHP and Node versions in the image, and a native install on your host is never used.
+
+- A named volume shadows the path inside the container without altering it on disk. Your host `vendor/` and `node_modules/` stay intact and keep serving native tooling such as Pint, PHPStan, ESLint and IDE autocomplete.
+- The two copies are independent. After changing a dependency, install on the host for your tooling, and run `exec web composer install` or `exec vite npm install` for the containers.
+- `down -v` removes these volumes along with the database. The next boot reinstalls both.
 :::
 
 ## Option B: Manual installation

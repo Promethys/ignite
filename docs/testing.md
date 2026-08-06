@@ -197,6 +197,14 @@ php artisan test --coverage
 
 `composer test` runs `php artisan config:clear` followed by `php artisan test`.
 
+::: tip Coverage inside the dev container
+The development image defaults Xdebug to `develop,debug`, which excludes the coverage driver, and `--coverage` reports that none is available. Xdebug reads `XDEBUG_MODE` at run time, so enable it for the single command:
+
+```bash
+docker compose -f compose.dev.yaml exec -e XDEBUG_MODE=coverage web php artisan test --coverage
+```
+:::
+
 ### Frontend
 
 ```bash
