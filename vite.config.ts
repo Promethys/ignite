@@ -28,6 +28,9 @@ export default defineConfig({
     ],
     server: {
         origin: 'http://127.0.0.1:5173',
+        cors: {
+            origin: [/^https?:\/\/(?:(?:[^:]+\.)?localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/]
+        },
         host: '0.0.0.0',
         hmr: {
             host: '127.0.0.1'
