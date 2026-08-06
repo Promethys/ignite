@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 FROM dunglas/frankenphp:1.12.4-php8.5 AS runtime
 
 RUN install-php-extensions pdo_pgsql intl zip bcmath opcache
@@ -56,12 +54,11 @@ WORKDIR /app
 
 COPY composer.json composer.lock ./
 
-RUN --mount=type=cache,target=/root/.composer/cache \
-    composer install --no-dev --no-scripts --no-autoloader --no-interaction --prefer-dist --no-progress
+RUN composer install --no-dev --no-scripts --no-autoloader --no-interaction --prefer-dist --no-progress
 
 COPY package.json package-lock.json ./
 
-RUN --mount=type=cache,target=/root/.npm npm ci
+RUN npm ci
 
 COPY . /app
 
