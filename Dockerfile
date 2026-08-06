@@ -20,7 +20,7 @@ FROM base AS development
 
 # Use ARG to define environment variables passed from the Docker build command or Docker Compose.
 ARG XDEBUG_ENABLED=true
-ARG XDEBUG_MODE=develop,coverage,debug,profile
+ARG XDEBUG_MODE=develop,debug
 ARG XDEBUG_HOST=host.docker.internal
 ARG XDEBUG_IDE_KEY=DOCKER
 ARG XDEBUG_LOG=/dev/stdout
