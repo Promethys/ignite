@@ -31,13 +31,6 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // SetLocale must run before HandleInertiaRequests so the resolved
-        // locale is available when the Inertia shared props are evaluated.
-        $middleware->priority([
-            SetLocale::class,
-            HandleInertiaRequests::class,
-        ]);
-
         $middleware->alias([
             'webhook.signature' => VerifyStandardWebhookSignature::class,
         ]);
