@@ -8,8 +8,8 @@ Thank you for your interest in contributing! 🎉
 2. Fork the repository
 3. Create a feature branch: `git checkout -b feature/your-feature`
 4. Make your changes
-5. Run tests: `php artisan test`
-6. Run linters: `npm run lint && ./vendor/bin/pint`
+5. Auto-fix formatting: `npm run fix && ./vendor/bin/pint`
+6. Run the checks: `npm run check && php artisan test`
 7. Commit with conventional commits: `git commit -m "feat: add feature"`
 8. Push and create a Pull Request
 

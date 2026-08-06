@@ -78,10 +78,13 @@ jobs:
         run: vendor/bin/pint --test
 
       - name: Run ESLint
-        run: npm run lint:check
+        run: npm run lint
 
       - name: Run Prettier
-        run: npm run format:check
+        run: npm run format
+
+      - name: Run vue-tsc
+        run: npm run typecheck
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --memory-limit=512M
