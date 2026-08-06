@@ -9,6 +9,8 @@ services:
       - type: bind
         source: .
         target: /app
+      - vendor-development:/app/vendor
+      - node-modules-development:/app/node_modules
     networks:
       - laravel-development
     ports:
@@ -50,6 +52,8 @@ services:
     command: sh -c "npm install && until [ -f /app/vendor/autoload.php ]; do sleep 2; done; npm run dev"
     volumes:
       - ./:/app
+      - vendor-development:/app/vendor
+      - node-modules-development:/app/node_modules
     ports:
       - "5173:5173"
     env_file:
@@ -62,3 +66,5 @@ networks:
 
 volumes:
   postgres-data-development:
+  vendor-development:
+  node-modules-development:
