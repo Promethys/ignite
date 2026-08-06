@@ -1,5 +1,5 @@
-import type { ChartOptions } from '@/lib/chart-theme';
 import { useMutationObserver } from '@vueuse/core';
+import type { ApexOptions } from 'apexcharts';
 import { computed, ref, type ComputedRef } from 'vue';
 
 /**
@@ -12,8 +12,8 @@ import { computed, ref, type ComputedRef } from 'vue';
  * theme: the appearance setting, and the system-preference listener.
  */
 export function useChartTheme(
-    factory: () => ChartOptions,
-): ComputedRef<ChartOptions> {
+    factory: () => ApexOptions,
+): ComputedRef<ApexOptions> {
     const revision = ref(0);
 
     useMutationObserver(
