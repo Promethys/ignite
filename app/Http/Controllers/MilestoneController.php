@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Goals\StoreMilestoneRequest;
+use App\Http\Requests\Goals\UpdateMilestoneRequest;
 use App\Models\Goal;
 use App\Models\Milestone;
-use App\Rules\MilestoneRules;
 use App\Services\Goals\MilestoneService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -19,14 +20,12 @@ class MilestoneController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Goal $goal)
+    public function store(StoreMilestoneRequest $request, Goal $goal)
     {
-        $validated = $request->validate(MilestoneRules::rules());
-
         $this->milestoneService->add(
             $request->user(),
             $goal,
-            $validated
+            $request->validated()
         );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.added')]);
@@ -37,17 +36,9 @@ class MilestoneController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Goal $goal, Milestone $milestone)
+    public function update(UpdateMilestoneRequest $request, Goal $goal, Milestone $milestone)
     {
-        Gate::authorize('update', $milestone);
-
-        $validated = $request->validate(MilestoneRules::rules());
-
-        if ($goal->isNot($milestone->goal)) {
-            abort(403);
-        }
-
-        $milestone->update($validated);
+        $milestone->update($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.updated')]);
 

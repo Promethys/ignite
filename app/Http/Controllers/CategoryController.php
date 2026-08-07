@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -9,15 +11,6 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
-    protected $rules = [
-        'name' => 'required|string|max:255',
-        'slug' => 'nullable|string|max:255',
-        'description' => 'nullable|string',
-        'color' => 'nullable|string|max:10',
-        'icon' => 'nullable|string|max:50',
-        'order' => 'nullable|integer',
-    ];
-
     /**
      * Display a listing of the resource.
      */
@@ -53,11 +46,9 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        Gate::authorize('create', Category::class);
-
-        $validated = $request->validate($this->rules);
+        $validated = $request->validated();
 
         $validated['user_id'] = auth()->id();
 
@@ -101,13 +92,9 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
-        Gate::authorize('update', $category);
-
-        $validated = $request->validate($this->rules);
-
-        $category->update($validated);
+        $category->update($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.category.updated')]);
 

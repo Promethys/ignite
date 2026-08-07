@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\StoreApiTokenRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,7 +14,7 @@ class ApiTokenController extends Controller
     /**
      * Allowed token abilities. `write` implies `read` at issue time.
      */
-    private const ALLOWED_ABILITIES = ['read', 'write', 'delete'];
+    public const ALLOWED_ABILITIES = ['read', 'write', 'delete'];
 
     /**
      * Show the user's personal access tokens.
@@ -36,13 +37,9 @@ class ApiTokenController extends Controller
     /**
      * Create a new personal access token.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreApiTokenRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'abilities' => ['required', 'array'],
-            'abilities.*' => ['in:'.implode(',', self::ALLOWED_ABILITIES)],
-        ]);
+        $validated = $request->validated();
 
         $abilities = $this->normalizeAbilities($validated['abilities']);
 

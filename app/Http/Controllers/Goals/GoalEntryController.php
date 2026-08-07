@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Goals;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Goals\StoreGoalEntryRequest;
+use App\Http\Requests\Goals\UpdateGoalEntryRequest;
 use App\Models\Goal;
 use App\Models\GoalEntry;
-use App\Rules\GoalEntryRules;
 use App\Services\Goals\GoalEntryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -52,86 +53,50 @@ class GoalEntryController extends Controller
         return Inertia::render('GoalEntries/Index', compact('goal', 'entries', 'today'));
     }
 
-    public function update(Request $request, Goal $goal, GoalEntry $goalEntry)
+    public function update(UpdateGoalEntryRequest $request, Goal $goal, GoalEntry $goalEntry)
     {
-        Gate::authorize('update', $goalEntry);
-
-        if ($goal->id !== $goalEntry->goal_id) {
-            abort(404);
-        }
+        $validated = $request->validated();
 
         if ($goal->type === 'recurring') {
-            return $this->updateCheckIn($request, $goal, $goalEntry);
+            $this->goalEntryService->updateCheckIn(
+                $request->user(),
+                $goalEntry,
+                $validated['entry_date'],
+                $validated['note'] ?? null
+            );
+        } else {
+            $this->goalEntryService->updateEntry(
+                $request->user(),
+                $goalEntry,
+                $validated['increment'],
+                $validated['note'] ?? null
+            );
         }
-
-        $validated = $request->validate(GoalEntryRules::progressRules());
-
-        $this->goalEntryService->updateEntry(
-            $request->user(),
-            $goalEntry,
-            $validated['increment'],
-            $validated['note'] ?? null
-        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
 
         return back();
     }
 
-    public function store(Request $request, Goal $goal)
+    public function store(StoreGoalEntryRequest $request, Goal $goal)
     {
-        Gate::authorize('update', $goal);
+        $validated = $request->validated();
 
         if ($goal->type === 'recurring') {
-            return $this->storeCheckIn($request, $goal);
+            $this->goalEntryService->recordCheckIn(
+                $request->user(),
+                $goal,
+                $validated['entry_date'],
+                $validated['note'] ?? null
+            );
+        } else {
+            $this->goalEntryService->logProgress(
+                $request->user(),
+                $goal,
+                $validated['increment'],
+                $validated['note'] ?? null
+            );
         }
-
-        $validated = $request->validate(GoalEntryRules::progressRules());
-
-        $this->goalEntryService->logProgress(
-            $request->user(),
-            $goal,
-            $validated['increment'],
-            $validated['note'] ?? null
-        );
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
-
-        return back();
-    }
-
-    /**
-     * Move an existing check-in, or change its note.
-     */
-    protected function updateCheckIn(Request $request, Goal $goal, GoalEntry $goalEntry)
-    {
-        $validated = $request->validate(GoalEntryRules::checkInRules($goal));
-
-        $this->goalEntryService->updateCheckIn(
-            $request->user(),
-            $goalEntry,
-            $validated['entry_date'],
-            $validated['note'] ?? null
-        );
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
-
-        return back();
-    }
-
-    /**
-     * Record a dated check-in for a recurring goal without touching current_value.
-     */
-    protected function storeCheckIn(Request $request, Goal $goal)
-    {
-        $validated = $request->validate(GoalEntryRules::checkInRules($goal));
-
-        $this->goalEntryService->recordCheckIn(
-            $request->user(),
-            $goal,
-            $validated['entry_date'],
-            $validated['note'] ?? null
-        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.entry.saved')]);
 
