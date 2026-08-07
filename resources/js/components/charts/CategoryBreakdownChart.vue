@@ -18,27 +18,27 @@ const props = defineProps<{
 
 const isEmpty = computed(() => props.data.length === 0);
 
-const chartSeries = computed(() => props.data.map((item) => item.count));
+const chartSeries = computed(() =>
+    props.data.map((item: CategoryBreakdownItem) => item.count),
+);
 
 const totalLabel = wTrans('dashboard.charts.categories.total');
 
 const chartOptions = useChartTheme(() => {
     const base = donutChartOptions();
-    const baseLabels = (base.plotOptions as Record<string, any>).pie.donut
-        .labels as object;
+    const baseLabels = base.plotOptions?.pie?.donut?.labels ?? {};
 
     return {
         ...base,
-        colors: props.data.map((item) => item.color),
-        labels: props.data.map((item) => item.name),
+        colors: props.data.map((item: CategoryBreakdownItem) => item.color),
+        labels: props.data.map((item: CategoryBreakdownItem) => item.name),
         plotOptions: {
             pie: {
                 donut: {
                     labels: {
                         ...baseLabels,
                         total: {
-                            ...((baseLabels as Record<string, any>)
-                                .total as object),
+                            ...(baseLabels?.total ?? {}),
                             label: totalLabel.value,
                         },
                     },

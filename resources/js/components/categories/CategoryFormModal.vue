@@ -21,6 +21,7 @@ import { useForm } from '@inertiajs/vue3';
 import { Edit, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
 import InputError from '../InputError.vue';
+import InputRequiredIndicator from '../InputRequiredIndicator.vue';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 
@@ -52,9 +53,11 @@ const formData = {
     color: props.record?.color ?? undefined,
 };
 
-const form = formState.formName
-    ? useForm(formState.formName, formData)
-    : useForm(formData);
+const form = (
+    formState.formName
+        ? useForm(formState.formName, formData)
+        : useForm(formData)
+).withPrecognition(formState.action);
 
 form.transform((data) => ({
     ...data,
@@ -99,9 +102,12 @@ const open = ref<boolean>(props.open ?? false);
             >
                 <div class="mb-4 grid gap-4">
                     <div class="grid gap-3">
-                        <Label for="name">{{
-                            $t('categories.form.name')
-                        }}</Label>
+                        <Label for="name">
+                            <span>
+                                {{ $t('categories.form.name') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Input
                             id="name"
                             name="name"
@@ -109,6 +115,8 @@ const open = ref<boolean>(props.open ?? false);
                                 $t('categories.form.name_placeholder')
                             "
                             v-model="form.name"
+                            aria-required="true"
+                            @change="form.validate('name')"
                         />
                         <InputError
                             v-if="form.errors.name"

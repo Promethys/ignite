@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Goals;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Goals\StoreGoalRequest;
+use App\Http\Requests\Goals\UpdateGoalRequest;
 use App\Models\Goal;
 use App\Rules\GoalRules;
 use App\Services\Goals\GoalService;
@@ -15,19 +17,6 @@ use Inertia\Inertia;
 class GoalController extends Controller
 {
     public function __construct(private readonly GoalService $goalService) {}
-
-    /**
-     * Validation rules scoped to the acting user.
-     *
-     * @return array<string, mixed>
-     */
-    protected function rulesFor(Request $request): array
-    {
-        return [
-            'user_id' => 'required|exists:users,id',
-            ...GoalRules::rules($request->user()?->id),
-        ];
-    }
 
     public function index(Request $request)
     {
@@ -62,16 +51,9 @@ class GoalController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreGoalRequest $request)
     {
-        $rules = $this->rulesFor($request);
-        if ($request->input('type') === 'quantifiable') {
-            $rules['target_value'] = 'required|numeric';
-        }
-
-        $validated = $request->validate($rules);
-
-        $this->goalService->create($request->user(), $validated);
+        $this->goalService->create($request->user(), $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.created')]);
 
@@ -129,11 +111,9 @@ class GoalController extends Controller
         ]);
     }
 
-    public function update(Request $request, Goal $goal)
+    public function update(UpdateGoalRequest $request, Goal $goal)
     {
-        $validated = $request->validate($this->rulesFor($request));
-
-        $this->goalService->update($request->user(), $goal, $validated);
+        $this->goalService->update($request->user(), $goal, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.updated')]);
 

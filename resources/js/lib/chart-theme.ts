@@ -1,6 +1,5 @@
 import { prefersReducedMotion, readCssVar } from '@/lib/chart-utils';
-
-export type ChartOptions = Record<string, unknown>;
+import type { ApexOptions } from 'apexcharts';
 
 /**
  * Shared ApexCharts configuration.
@@ -10,7 +9,7 @@ export type ChartOptions = Record<string, unknown>;
  * fights the card surface in dark mode. Every colour here resolves through
  * readCssVar instead, so a chart inherits whatever the active theme defines.
  */
-export function baseChartOptions(): ChartOptions {
+export function baseChartOptions(): ApexOptions {
     const border = readCssVar('--border');
     const muted = readCssVar('--muted-foreground');
 
@@ -52,23 +51,23 @@ export function baseChartOptions(): ChartOptions {
     };
 }
 
-export function lineChartOptions(): ChartOptions {
+export function lineChartOptions(): ApexOptions {
     const base = baseChartOptions();
 
     return {
         ...base,
-        chart: { ...(base.chart as object), type: 'line' },
+        chart: { ...base.chart, type: 'line' },
         markers: { size: 0, hover: { size: 5 } },
         colors: [readCssVar('--chart-1')],
     };
 }
 
-export function barChartOptions(): ChartOptions {
+export function barChartOptions(): ApexOptions {
     const base = baseChartOptions();
 
     return {
         ...base,
-        chart: { ...(base.chart as object), type: 'bar' },
+        chart: { ...base.chart, type: 'bar' },
         plotOptions: {
             bar: {
                 borderRadius: 4,
@@ -82,22 +81,20 @@ export function barChartOptions(): ChartOptions {
     };
 }
 
-export function donutChartOptions(): ChartOptions {
+export function donutChartOptions(): ApexOptions {
     const base = baseChartOptions();
     const foreground = readCssVar('--foreground');
     const muted = readCssVar('--muted-foreground');
 
     return {
         ...base,
-        chart: { ...(base.chart as object), type: 'donut' },
+        chart: { ...base.chart, type: 'donut' },
         // No colours here. The donut is driven by each Category.color, which is
         // user-chosen and deliberately left ungoverned.
         stroke: { width: 2, colors: [readCssVar('--card')] },
         legend: {
-            ...(base.legend as object),
+            ...base.legend,
             position: 'right',
-            // ApexCharts draws the marker flush against its label by default.
-            // Negative offsetX pulls the marker away from the text.
             markers: { size: 6, offsetX: -6 },
         },
         plotOptions: {

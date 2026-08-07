@@ -43,6 +43,12 @@ Grouped by feature in subdirectories under `app/Http/Controllers/`:
 
 Every controller returns an Inertia response (`Inertia::render(...)`), never raw JSON, and uses route model binding for model parameters. See `app/Http/Controllers/Goals/GoalController.php` for a representative example.
 
+### Validation
+
+Form submissions are validated by form requests under `app/Http/Requests/`, which carry both the rules and the authorization check. Rule sets shared with another entry point live in `app/Rules/` (`GoalRules`, `GoalEntryRules`, `MilestoneRules`, `CategoryRules`), so the web form and the MCP tools validate identically.
+
+Forms validate as they are filled, using [Laravel Precognition](https://laravel.com/docs/13.x/precognition), which Inertia supports out of the box. The routes involved carry the `HandlePrecognitiveRequests` middleware, and the frontend calls `validate('field')` on a field's `change` event. Precognition resolves the route's form request and then stops, so the rules are never duplicated in JavaScript and the action itself never runs. It only reaches validation performed while the controller's parameters are resolved, which is why these routes type-hint a form request rather than calling `$request->validate()` in the method body.
+
 ### Models
 
 The core data graph, all under `app/Models/`:

@@ -42,6 +42,8 @@ const createMockForm = (
     reset: vi.fn(),
     clearErrors: vi.fn(),
     transform: vi.fn(),
+    validate: vi.fn(),
+    withPrecognition: vi.fn().mockReturnThis(),
     ...overrides,
 });
 
@@ -227,7 +229,7 @@ describe('MilestoneFormModal', () => {
         });
 
         const labels = wrapper.findAll('label');
-        expect(labels.some((l) => l.text() === 'milestones.form.title')).toBe(
+        expect(labels.some((l) => l.text().startsWith('milestones.form.title'))).toBe(
             true,
         );
     });

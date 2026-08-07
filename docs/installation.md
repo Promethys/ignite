@@ -81,7 +81,7 @@ docker compose -f compose.dev.yaml logs -f web       # follow the app log
 docker compose -f compose.dev.yaml exec web bash     # shell inside the app
 docker compose -f compose.dev.yaml exec web php artisan migrate
 docker compose -f compose.dev.yaml exec web php artisan test
-docker compose -f compose.dev.yaml exec vite npm run lint
+docker compose -f compose.dev.yaml exec vite npm run fix    # lint and format
 docker compose -f compose.dev.yaml down              # stop, keeping the database
 ```
 

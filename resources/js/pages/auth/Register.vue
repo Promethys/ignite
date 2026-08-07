@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import RegisteredUserController from '@/actions/App/Http/Controllers/Auth/RegisteredUserController';
 import InputError from '@/components/InputError.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,12 +23,17 @@ import { LoaderCircle } from 'lucide-vue-next';
         <Form
             v-bind="RegisteredUserController.store.form()"
             :reset-on-success="['password', 'password_confirmation']"
-            v-slot="{ errors, processing }"
+            v-slot="{ errors, processing, validate }"
             class="flex flex-col gap-6"
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="name">{{ $t('auth_ui.register.name') }}</Label>
+                    <Label for="name">
+                        <span>
+                            {{ $t('auth_ui.register.name') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <Input
                         id="name"
                         type="text"
@@ -37,14 +43,18 @@ import { LoaderCircle } from 'lucide-vue-next';
                         autocomplete="name"
                         name="name"
                         :placeholder="$t('auth_ui.register.name_placeholder')"
+                        @change="validate('name')"
                     />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">{{
-                        $t('auth_ui.register.email')
-                    }}</Label>
+                    <Label for="email">
+                        <span>
+                            {{ $t('auth_ui.register.email') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <Input
                         id="email"
                         type="email"
@@ -53,14 +63,18 @@ import { LoaderCircle } from 'lucide-vue-next';
                         autocomplete="email"
                         name="email"
                         :placeholder="$t('auth_ui.register.email_placeholder')"
+                        @change="validate('email')"
                     />
                     <InputError :message="errors.email" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">{{
-                        $t('auth_ui.register.password')
-                    }}</Label>
+                    <Label for="password">
+                        <span>
+                            {{ $t('auth_ui.register.password') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <PasswordInput
                         id="password"
                         required
@@ -70,6 +84,8 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :placeholder="
                             $t('auth_ui.register.password_placeholder')
                         "
+                        @change="validate('password')"
+                        @input="errors.password && validate('password')"
                     />
                     <p class="text-xs text-muted-foreground">
                         {{ $t('auth_ui.register.password_requirements') }}
@@ -78,9 +94,12 @@ import { LoaderCircle } from 'lucide-vue-next';
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">{{
-                        $t('auth_ui.register.confirm_password')
-                    }}</Label>
+                    <Label for="password_confirmation">
+                        <span>
+                            {{ $t('auth_ui.register.confirm_password') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <PasswordInput
                         id="password_confirmation"
                         required
@@ -89,6 +108,11 @@ import { LoaderCircle } from 'lucide-vue-next';
                         name="password_confirmation"
                         :placeholder="
                             $t('auth_ui.register.confirm_password_placeholder')
+                        "
+                        @change="validate('password_confirmation')"
+                        @input="
+                            errors.password_confirmation &&
+                            validate('password_confirmation')
                         "
                     />
                     <InputError :message="errors.password_confirmation" />

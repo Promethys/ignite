@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
 import InputError from '@/components/InputError.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -36,12 +37,17 @@ defineProps<{
         <Form
             v-bind="AuthenticatedSessionController.store.form()"
             :reset-on-success="['password']"
-            v-slot="{ errors, processing }"
+            v-slot="{ errors, processing, validate }"
             class="flex flex-col gap-6"
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="email">{{ $t('auth_ui.login.email') }}</Label>
+                    <Label for="email">
+                        <span>
+                            {{ $t('auth_ui.login.email') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <Input
                         id="email"
                         type="email"
@@ -51,15 +57,19 @@ defineProps<{
                         :tabindex="1"
                         autocomplete="email"
                         :placeholder="$t('auth_ui.login.email_placeholder')"
+                        @change="validate('email')"
                     />
                     <InputError :message="errors.email" />
                 </div>
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
-                        <Label for="password">{{
-                            $t('auth_ui.login.password')
-                        }}</Label>
+                        <Label for="password">
+                            <span>
+                                {{ $t('auth_ui.login.password') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <TextLink
                             v-if="canResetPassword"
                             :href="request()"

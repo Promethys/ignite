@@ -9,6 +9,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,12 +32,12 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // SetLocale must run before HandleInertiaRequests so the resolved
-        // locale is available when the Inertia shared props are evaluated.
-        $middleware->priority([
-            SetLocale::class,
-            HandleInertiaRequests::class,
-        ]);
+        // Added to the framework's priority list rather than replacing it, so
+        // the ordering guarantees for session, authentication and binding
+        // middleware survive. SetLocale has to resolve the locale before
+        // HandleInertiaRequests evaluates the shared props that carry it.
+        $middleware->appendToPriorityList(SubstituteBindings::class, SetLocale::class);
+        $middleware->appendToPriorityList(SetLocale::class, HandleInertiaRequests::class);
 
         $middleware->alias([
             'webhook.signature' => VerifyStandardWebhookSignature::class,

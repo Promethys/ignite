@@ -21,6 +21,7 @@ import { useForm } from '@inertiajs/vue3';
 import { Edit, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
 import InputError from '../InputError.vue';
+import InputRequiredIndicator from '../InputRequiredIndicator.vue';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 
@@ -58,7 +59,7 @@ const formData = {
     // points_reward: 0,
 };
 
-const form = useForm(formData);
+const form = useForm(formData).withPrecognition(formState.action);
 
 form.transform((data) => ({
     ...data,
@@ -107,9 +108,12 @@ const open = ref<boolean>(props.open ?? false);
             >
                 <div class="mb-4 grid gap-4">
                     <div class="grid gap-3">
-                        <Label for="title">{{
-                            $t('milestones.form.title')
-                        }}</Label>
+                        <Label for="title">
+                            <span>
+                                {{ $t('milestones.form.title') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Input
                             id="title"
                             name="title"
@@ -117,6 +121,8 @@ const open = ref<boolean>(props.open ?? false);
                                 $t(`${labelNamespace}.form.title_placeholder`)
                             "
                             v-model="form.title"
+                            aria-required="true"
+                            @change="form.validate('title')"
                         />
                         <InputError
                             v-if="form.errors.title"

@@ -21,6 +21,7 @@ import { useForm } from '@inertiajs/vue3';
 import { Check } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import InputError from '../InputError.vue';
+import InputRequiredIndicator from '../InputRequiredIndicator.vue';
 import { Button } from '../ui/button';
 
 const props = defineProps<{
@@ -62,7 +63,7 @@ const formData = {
     note: props.record?.note ?? '',
 };
 
-const form = useForm(formData);
+const form = useForm(formData).withPrecognition(formState.action);
 
 const open = ref<boolean>(props.open ?? false);
 
@@ -103,15 +104,19 @@ const submit = () => {
                 @submit.prevent="submit"
             >
                 <div class="space-y-2">
-                    <Label for="entry_date">{{
-                        $t('goals.checkin.date_label')
-                    }}</Label>
+                    <Label for="entry_date">
+                        <span>
+                            {{ $t('goals.checkin.date_label') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <Input
                         id="entry_date"
                         v-model="form.entry_date"
                         type="date"
                         :max="today"
-                        required
+                        aria-required="true"
+                        @change="form.validate('entry_date')"
                     />
                     <InputError :message="form.errors.entry_date" />
                 </div>

@@ -12,7 +12,7 @@ This page covers the testing infrastructure, conventions, and tools used in Igni
 | Backend database | SQLite in-memory (fast, isolated) |
 | Frontend test runner | Vitest |
 | Frontend component testing | `@vue/test-utils` |
-| Static analysis | Larastan / PHPStan (level 3) |
+| Static analysis | Larastan / PHPStan (level 3) for PHP, `vue-tsc` for TypeScript |
 | CI | GitHub Actions |
 
 ## Testing conventions
@@ -236,6 +236,14 @@ The `LARAVEL_BYPASS_ENV_CHECK` flag skips the Laravel Vite plugin's environment 
 ```
 
 `composer check` runs Pint (formatting check), PHPStan, and the full backend test suite in sequence.
+
+The frontend equivalent is `npm run check`, which runs ESLint, Prettier, `vue-tsc` and Vitest. Every one of them only reports. To rewrite files instead, run `npm run fix`, which applies ESLint's auto-fixes and then Prettier. The same split applies to the individual scripts: `lint` and `format` report, `lint:fix` and `format:fix` write.
+
+```bash
+npm run typecheck
+```
+
+Type errors are invisible to the build, since Vite strips types without checking them, so `vue-tsc` is the only thing that catches them outside an editor.
 
 ::: warning
 Do not run the full backend or frontend suite speculatively during day-to-day work; run only the tests you created or changed, or the ones in the same group/folder. Let CI run the full suite.
@@ -626,4 +634,4 @@ $this->get(route('goals.index'));   // [!code ++]
 
 ## CI/CD integration
 
-Tests run automatically on every push and pull request to `main` via the `ci` GitHub Actions workflow (`.github/workflows/ci.yml`). The pipeline sets up PHP and Node, installs dependencies, builds frontend assets, then runs the backend suite (`./vendor/bin/phpunit`) and the frontend suite (`LARAVEL_BYPASS_ENV_CHECK=1 npx vitest --run`).
+Tests run automatically on every push and pull request to `main` via the `ci` GitHub Actions workflow (`.github/workflows/ci.yml`). The pipeline sets up PHP and Node, installs dependencies, then runs Pint, ESLint (`npm run lint`), Prettier (`npm run format`), `vue-tsc` (`npm run typecheck`) and PHPStan, builds the frontend assets and the docs site, and finishes with the backend suite (`./vendor/bin/phpunit`) and the frontend suite (`LARAVEL_BYPASS_ENV_CHECK=1 npx vitest --run`).

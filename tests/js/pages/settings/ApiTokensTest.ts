@@ -19,6 +19,8 @@ const mocks = vi.hoisted(() => ({
         post: vi.fn(),
         submit: vi.fn(),
         reset: vi.fn(),
+        validate: vi.fn(),
+        withPrecognition: vi.fn().mockReturnThis(),
     },
 }));
 

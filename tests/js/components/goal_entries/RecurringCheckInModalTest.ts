@@ -13,6 +13,8 @@ vi.mock('@inertiajs/vue3', () => ({
             submit: vi.fn(),
             reset: vi.fn(),
             clearErrors: vi.fn(),
+            validate: vi.fn(),
+            withPrecognition: vi.fn().mockReturnThis(),
         };
     },
 }));

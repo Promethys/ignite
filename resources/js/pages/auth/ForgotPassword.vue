@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PasswordResetLinkController from '@/actions/App/Http/Controllers/Auth/PasswordResetLinkController';
 import InputError from '@/components/InputError.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,17 +33,24 @@ defineProps<{
         <div class="space-y-6">
             <Form
                 v-bind="PasswordResetLinkController.store.form()"
-                v-slot="{ errors, processing }"
+                v-slot="{ errors, processing, validate }"
             >
                 <div class="grid gap-2">
-                    <Label for="email">{{ $t('auth_ui.forgot.email') }}</Label>
+                    <Label for="email">
+                        <span>
+                            {{ $t('auth_ui.forgot.email') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <Input
                         id="email"
                         type="email"
                         name="email"
                         autocomplete="off"
                         autofocus
+                        required
                         :placeholder="$t('auth_ui.forgot.email_placeholder')"
+                        @change="validate('email')"
                     />
                     <InputError :message="errors.email" />
                 </div>

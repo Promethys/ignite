@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import NewPasswordController from '@/actions/App/Http/Controllers/Auth/NewPasswordController';
 import InputError from '@/components/InputError.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,7 +30,7 @@ const inputEmail = ref(props.email);
             v-bind="NewPasswordController.store.form()"
             :transform="(data) => ({ ...data, token, email })"
             :reset-on-success="['password', 'password_confirmation']"
-            v-slot="{ errors, processing }"
+            v-slot="{ errors, processing, validate }"
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
@@ -47,16 +48,22 @@ const inputEmail = ref(props.email);
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">{{
-                        $t('auth_ui.reset.password')
-                    }}</Label>
+                    <Label for="password">
+                        <span>
+                            {{ $t('auth_ui.reset.password') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <PasswordInput
                         id="password"
                         name="password"
                         autocomplete="new-password"
                         class="mt-1 block w-full"
                         autofocus
+                        required
                         :placeholder="$t('auth_ui.reset.password_placeholder')"
+                        @change="validate('password')"
+                        @input="errors.password && validate('password')"
                     />
                     <p class="text-xs text-muted-foreground">
                         {{ $t('auth_ui.reset.password_requirements') }}
@@ -66,14 +73,23 @@ const inputEmail = ref(props.email);
 
                 <div class="grid gap-2">
                     <Label for="password_confirmation">
-                        {{ $t('auth_ui.reset.confirm') }}
+                        <span>
+                            {{ $t('auth_ui.reset.confirm') }}
+                            <InputRequiredIndicator />
+                        </span>
                     </Label>
                     <PasswordInput
                         id="password_confirmation"
                         name="password_confirmation"
                         autocomplete="new-password"
                         class="mt-1 block w-full"
+                        required
                         :placeholder="$t('auth_ui.reset.confirm_placeholder')"
+                        @change="validate('password_confirmation')"
+                        @input="
+                            errors.password_confirmation &&
+                            validate('password_confirmation')
+                        "
                     />
                     <InputError :message="errors.password_confirmation" />
                 </div>

@@ -12,11 +12,12 @@ import { formbricksEnabled } from '@/lib/formbricks';
 import formbricks from '@formbricks/js';
 import { router } from '@inertiajs/vue3';
 import { Globe } from 'lucide-vue-next';
+import type { AcceptableValue } from 'reka-ui';
 
 const { current, supported, switchTo } = useLocale();
 
-async function change(code: string) {
-    if (current.value === code) {
+async function change(code: AcceptableValue) {
+    if (typeof code !== 'string' || current.value === code) {
         return;
     }
 

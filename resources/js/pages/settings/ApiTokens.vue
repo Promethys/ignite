@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -51,7 +52,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
 const createForm = useForm({
     name: '',
     abilities: ['read'] as string[],
-});
+}).withPrecognition(store());
 
 const abilityOptions = [
     { value: 'read', label: 'settings.api_tokens.ability_read' },
@@ -182,17 +183,22 @@ function abilityShortLabel(ability: string): string {
                 <!-- Create form -->
                 <form class="space-y-4" @submit.prevent="submit">
                     <div class="grid gap-2">
-                        <Label for="name">{{
-                            $t('settings.api_tokens.name')
-                        }}</Label>
+                        <Label for="name">
+                            <span>
+                                {{ $t('settings.api_tokens.name') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Input
                             id="name"
                             v-model="createForm.name"
                             type="text"
                             class="mt-1 block w-full"
+                            aria-required="true"
                             :placeholder="
                                 $t('settings.api_tokens.name_placeholder')
                             "
+                            @change="createForm.validate('name')"
                         />
                         <InputError :message="createForm.errors.name" />
                     </div>
