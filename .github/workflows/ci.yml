@@ -83,6 +83,12 @@ jobs:
       - name: Run Prettier
         run: npm run format
 
+      # The route and action helpers are generated, and git-ignored, so they
+      # have to exist before anything type checks the code that imports them.
+      # --with-form matches the formVariants option the Vite plugin uses.
+      - name: Generate Wayfinder Helpers
+        run: php artisan wayfinder:generate --with-form
+
       - name: Run vue-tsc
         run: npm run typecheck
 
