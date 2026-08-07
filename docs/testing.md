@@ -635,3 +635,5 @@ $this->get(route('goals.index'));   // [!code ++]
 ## CI/CD integration
 
 Tests run automatically on every push and pull request to `main` via the `ci` GitHub Actions workflow (`.github/workflows/ci.yml`). The pipeline sets up PHP and Node, installs dependencies, then runs Pint, ESLint (`npm run lint`), Prettier (`npm run format`), `vue-tsc` (`npm run typecheck`) and PHPStan, builds the frontend assets and the docs site, and finishes with the backend suite (`./vendor/bin/phpunit`) and the frontend suite (`LARAVEL_BYPASS_ENV_CHECK=1 npx vitest --run`).
+
+The type check is preceded by `php artisan wayfinder:generate --with-form`. The route and action helpers under `resources/js/routes` and `resources/js/actions` are generated and not committed, so on a fresh clone they do not exist until something creates them, and `vue-tsc` runs before the asset build that normally would. The `--with-form` flag matches the `formVariants` option set on the Wayfinder plugin in `vite.config.ts`; without it the generated helpers lack the `.form()` variants that several pages import.
