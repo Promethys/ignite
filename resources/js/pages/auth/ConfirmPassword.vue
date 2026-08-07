@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
@@ -23,9 +24,12 @@ import { LoaderCircle } from 'lucide-vue-next';
         >
             <div class="space-y-6">
                 <div class="grid gap-2">
-                    <Label htmlFor="password">{{
-                        $t('auth_ui.confirm.password')
-                    }}</Label>
+                    <Label htmlFor="password">
+                        <span>
+                            {{ $t('auth_ui.confirm.password') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <PasswordInput
                         id="password"
                         name="password"

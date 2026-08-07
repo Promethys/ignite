@@ -7,6 +7,7 @@ import { edit } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
 
 import HeadingSmall from '@/components/HeadingSmall.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
@@ -46,14 +47,18 @@ const breadcrumbItems: BreadcrumbItem[] = [
                     v-slot="{ errors, processing, recentlySuccessful }"
                 >
                     <div class="grid gap-2">
-                        <Label for="current_password">{{
-                            $t('settings.password.current')
-                        }}</Label>
+                        <Label for="current_password">
+                            <span>
+                                {{ $t('settings.password.current') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <PasswordInput
                             id="current_password"
                             name="current_password"
                             class="mt-1 block w-full"
                             autocomplete="current-password"
+                            required
                             :placeholder="
                                 $t('settings.password.current_placeholder')
                             "
@@ -62,14 +67,18 @@ const breadcrumbItems: BreadcrumbItem[] = [
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="password">{{
-                            $t('settings.password.new')
-                        }}</Label>
+                        <Label for="password">
+                            <span>
+                                {{ $t('settings.password.new') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <PasswordInput
                             id="password"
                             name="password"
                             class="mt-1 block w-full"
                             autocomplete="new-password"
+                            required
                             :placeholder="
                                 $t('settings.password.new_placeholder')
                             "
@@ -81,14 +90,18 @@ const breadcrumbItems: BreadcrumbItem[] = [
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="password_confirmation">{{
-                            $t('settings.password.confirm')
-                        }}</Label>
+                        <Label for="password_confirmation">
+                            <span>
+                                {{ $t('settings.password.confirm') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <PasswordInput
                             id="password_confirmation"
                             name="password_confirmation"
                             class="mt-1 block w-full"
                             autocomplete="new-password"
+                            required
                             :placeholder="
                                 $t('settings.password.confirm_placeholder')
                             "

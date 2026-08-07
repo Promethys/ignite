@@ -107,6 +107,7 @@ return [
         'status' => 'Status',
         'select_status' => 'Select a status',
         'points' => 'Points',
+        'is_public' => 'Public',
         'type_help' => 'Decides how progress is measured and how you log it. Quantifiable counts toward a number, recurring tracks a habit as a streak, multi-step is a list of checkpoints, and simple is done or not done. You can change it later.',
         'current_value_help' => 'Where you are starting from. Progress is measured from this point forward, so a goal created at 120 of 500 km shows what you add from now on.',
         'recurrence_help' => 'How often the habit repeats. Each period counts once toward the streak, and missing the current one does not break it until the period closes.',

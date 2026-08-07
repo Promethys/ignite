@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -182,14 +183,18 @@ function abilityShortLabel(ability: string): string {
                 <!-- Create form -->
                 <form class="space-y-4" @submit.prevent="submit">
                     <div class="grid gap-2">
-                        <Label for="name">{{
-                            $t('settings.api_tokens.name')
-                        }}</Label>
+                        <Label for="name">
+                            <span>
+                                {{ $t('settings.api_tokens.name') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Input
                             id="name"
                             v-model="createForm.name"
                             type="text"
                             class="mt-1 block w-full"
+                            required
                             :placeholder="
                                 $t('settings.api_tokens.name_placeholder')
                             "

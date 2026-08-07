@@ -227,7 +227,7 @@ describe('MilestoneFormModal', () => {
         });
 
         const labels = wrapper.findAll('label');
-        expect(labels.some((l) => l.text() === 'milestones.form.title')).toBe(
+        expect(labels.some((l) => l.text().startsWith('milestones.form.title'))).toBe(
             true,
         );
     });

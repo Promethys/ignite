@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import NewPasswordController from '@/actions/App/Http/Controllers/Auth/NewPasswordController';
 import InputError from '@/components/InputError.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,15 +48,19 @@ const inputEmail = ref(props.email);
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">{{
-                        $t('auth_ui.reset.password')
-                    }}</Label>
+                    <Label for="password">
+                        <span>
+                            {{ $t('auth_ui.reset.password') }}
+                            <InputRequiredIndicator />
+                        </span>
+                    </Label>
                     <PasswordInput
                         id="password"
                         name="password"
                         autocomplete="new-password"
                         class="mt-1 block w-full"
                         autofocus
+                        required
                         :placeholder="$t('auth_ui.reset.password_placeholder')"
                     />
                     <p class="text-xs text-muted-foreground">
@@ -66,13 +71,17 @@ const inputEmail = ref(props.email);
 
                 <div class="grid gap-2">
                     <Label for="password_confirmation">
-                        {{ $t('auth_ui.reset.confirm') }}
+                        <span>
+                            {{ $t('auth_ui.reset.confirm') }}
+                            <InputRequiredIndicator />
+                        </span>
                     </Label>
                     <PasswordInput
                         id="password_confirmation"
                         name="password_confirmation"
                         autocomplete="new-password"
                         class="mt-1 block w-full"
+                        required
                         :placeholder="$t('auth_ui.reset.confirm_placeholder')"
                     />
                     <InputError :message="errors.password_confirmation" />

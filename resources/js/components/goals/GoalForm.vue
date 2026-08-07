@@ -23,6 +23,7 @@ import {
 import { nullToEmpty, nullToUndefined } from '@/lib/utils';
 import categories from '@/routes/categories';
 import goals from '@/routes/goals';
+import InputRequiredIndicator from '../InputRequiredIndicator.vue';
 import TextLink from '../TextLink.vue';
 import HelpTooltip from '../ui/HelpTooltip.vue';
 import {
@@ -111,7 +112,12 @@ form.transform((data) => ({
                 >
                     <!-- Title -->
                     <div class="grid gap-2">
-                        <Label for="title">{{ $t('goals.form.title') }}</Label>
+                        <Label for="title">
+                            <span>
+                                {{ $t('goals.form.title') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Input
                             id="title"
                             v-model="form.title"
@@ -173,8 +179,11 @@ form.transform((data) => ({
 
                     <!-- Type -->
                     <div class="grid gap-2">
-                        <Label for="type" class="space-x-2">
-                            {{ $t('goals.form.type') }}
+                        <Label for="type">
+                            <span>
+                                {{ $t('goals.form.type') }}
+                                <InputRequiredIndicator />
+                            </span>
                             <HelpTooltip>
                                 {{ $t('goals.form.type_help') }}
                             </HelpTooltip>
@@ -219,8 +228,11 @@ form.transform((data) => ({
 
                     <!-- Current Value -->
                     <div class="grid gap-2">
-                        <Label for="current_value" class="space-x-2">
-                            {{ $t('goals.form.current_value') }}
+                        <Label for="current_value">
+                            <span>
+                                {{ $t('goals.form.current_value') }}
+                                <InputRequiredIndicator />
+                            </span>
                             <HelpTooltip>
                                 {{ $t('goals.form.current_value_help') }}
                             </HelpTooltip>
@@ -301,9 +313,14 @@ form.transform((data) => ({
 
                     <!-- Completed At -->
                     <div class="grid gap-2">
-                        <Label for="completed_at">{{
-                            $t('goals.form.completed_at')
-                        }}</Label>
+                        <Label for="completed_at">
+                            <span>
+                                {{ $t('goals.form.completed_at') }}
+                                <InputRequiredIndicator
+                                    v-if="form.status === 'completed'"
+                                />
+                            </span>
+                        </Label>
                         <Input
                             id="completed_at"
                             v-model="form.completed_at"
@@ -311,15 +328,19 @@ form.transform((data) => ({
                             name="completed_at"
                             :tabindex="10"
                             :required="form.status === 'completed'"
+                            :aria-required="form.status === 'completed'"
                         />
                         <InputError :message="form.errors.completed_at" />
                     </div>
 
                     <!-- Priority -->
                     <div class="grid gap-2">
-                        <Label for="priority">{{
-                            $t('goals.form.priority')
-                        }}</Label>
+                        <Label for="priority">
+                            <span>
+                                {{ $t('goals.form.priority') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Select
                             id="priority"
                             v-model="form.priority"
@@ -348,9 +369,12 @@ form.transform((data) => ({
 
                     <!-- Status -->
                     <div class="grid gap-2">
-                        <Label for="status">{{
-                            $t('goals.form.status')
-                        }}</Label>
+                        <Label for="status">
+                            <span>
+                                {{ $t('goals.form.status') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Select
                             id="status"
                             v-model="form.status"
@@ -379,9 +403,12 @@ form.transform((data) => ({
 
                     <!-- Points: hidden until achievements and gamification ship -->
                     <!-- <div class="grid gap-2">
-                        <Label for="points">{{
-                            $t('goals.form.points')
-                        }}</Label>
+                        <Label for="points">
+                            <span>
+                                {{ $t('goals.form.points') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Input
                             id="points"
                             v-model="form.points"
@@ -396,20 +423,29 @@ form.transform((data) => ({
 
                     <!-- Is Public: FIXME: show only when we handle communities -->
                     <!-- <div class="grid gap-2">
-                        <Label for="is_public">Is public</Label>
+                        <Label for="is_public">
+                            <span>
+                                {{ $t('goals.form.is_public') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Switch 
                             id="is_public" 
                             v-model="form.is_public"
                             name="is_public" 
                             :tabindex="14"
+                            required
                         />
                         <InputError :message="form.errors.is_public" />
                     </div> -->
 
                     <!-- Direction -->
                     <div class="grid gap-2">
-                        <Label for="direction" class="space-x-2">
-                            {{ $t('goals.form.direction') }}
+                        <Label for="direction">
+                            <span>
+                                {{ $t('goals.form.direction') }}
+                                <InputRequiredIndicator />
+                            </span>
                             <HelpTooltip>
                                 {{ $t('goals.form.direction_help') }}
                             </HelpTooltip>
@@ -418,6 +454,7 @@ form.transform((data) => ({
                             id="direction"
                             v-model="form.direction"
                             name="direction"
+                            required
                         >
                             <SelectTrigger :tabindex="14">
                                 <SelectValue

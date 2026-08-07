@@ -7,6 +7,7 @@ import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import DeleteUser from '@/components/DeleteUser.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,9 +60,12 @@ const user = page.props.auth.user;
                     v-slot="{ errors, processing, recentlySuccessful }"
                 >
                     <div class="grid gap-2">
-                        <Label for="name">{{
-                            $t('settings.profile.name')
-                        }}</Label>
+                        <Label for="name">
+                            <span>
+                                {{ $t('settings.profile.name') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Input
                             id="name"
                             class="mt-1 block w-full"
@@ -77,9 +81,12 @@ const user = page.props.auth.user;
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="email">{{
-                            $t('settings.profile.email')
-                        }}</Label>
+                        <Label for="email">
+                            <span>
+                                {{ $t('settings.profile.email') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Input
                             id="email"
                             type="email"
@@ -116,9 +123,12 @@ const user = page.props.auth.user;
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="timezone">{{
-                            $t('settings.profile.timezone')
-                        }}</Label>
+                        <Label for="timezone">
+                            <span>
+                                {{ $t('settings.profile.timezone') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
                         <Select
                             id="timezone"
                             name="timezone"
