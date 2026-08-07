@@ -53,9 +53,11 @@ const formData = {
     color: props.record?.color ?? undefined,
 };
 
-const form = formState.formName
-    ? useForm(formState.formName, formData)
-    : useForm(formData);
+const form = (
+    formState.formName
+        ? useForm(formState.formName, formData)
+        : useForm(formData)
+).withPrecognition(formState.action);
 
 form.transform((data) => ({
     ...data,
@@ -113,7 +115,8 @@ const open = ref<boolean>(props.open ?? false);
                                 $t('categories.form.name_placeholder')
                             "
                             v-model="form.name"
-                            required
+                            aria-required="true"
+                            @change="form.validate('name')"
                         />
                         <InputError
                             v-if="form.errors.name"

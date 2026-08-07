@@ -52,7 +52,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
 const createForm = useForm({
     name: '',
     abilities: ['read'] as string[],
-});
+}).withPrecognition(store());
 
 const abilityOptions = [
     { value: 'read', label: 'settings.api_tokens.ability_read' },
@@ -194,10 +194,11 @@ function abilityShortLabel(ability: string): string {
                             v-model="createForm.name"
                             type="text"
                             class="mt-1 block w-full"
-                            required
+                            aria-required="true"
                             :placeholder="
                                 $t('settings.api_tokens.name_placeholder')
                             "
+                            @change="createForm.validate('name')"
                         />
                         <InputError :message="createForm.errors.name" />
                     </div>

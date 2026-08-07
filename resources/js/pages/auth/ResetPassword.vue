@@ -30,7 +30,7 @@ const inputEmail = ref(props.email);
             v-bind="NewPasswordController.store.form()"
             :transform="(data) => ({ ...data, token, email })"
             :reset-on-success="['password', 'password_confirmation']"
-            v-slot="{ errors, processing }"
+            v-slot="{ errors, processing, validate }"
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
@@ -62,6 +62,8 @@ const inputEmail = ref(props.email);
                         autofocus
                         required
                         :placeholder="$t('auth_ui.reset.password_placeholder')"
+                        @change="validate('password')"
+                        @input="errors.password && validate('password')"
                     />
                     <p class="text-xs text-muted-foreground">
                         {{ $t('auth_ui.reset.password_requirements') }}
@@ -83,6 +85,11 @@ const inputEmail = ref(props.email);
                         class="mt-1 block w-full"
                         required
                         :placeholder="$t('auth_ui.reset.confirm_placeholder')"
+                        @change="validate('password_confirmation')"
+                        @input="
+                            errors.password_confirmation &&
+                            validate('password_confirmation')
+                        "
                     />
                     <InputError :message="errors.password_confirmation" />
                 </div>

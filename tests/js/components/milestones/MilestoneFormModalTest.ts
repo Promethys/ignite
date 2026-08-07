@@ -42,6 +42,8 @@ const createMockForm = (
     reset: vi.fn(),
     clearErrors: vi.fn(),
     transform: vi.fn(),
+    validate: vi.fn(),
+    withPrecognition: vi.fn().mockReturnThis(),
     ...overrides,
 });
 

@@ -63,7 +63,7 @@ const formData = {
     note: props.record?.note ?? '',
 };
 
-const form = useForm(formData);
+const form = useForm(formData).withPrecognition(formState.action);
 
 const open = ref<boolean>(props.open ?? false);
 
@@ -115,7 +115,8 @@ const submit = () => {
                         v-model="form.entry_date"
                         type="date"
                         :max="today"
-                        required
+                        aria-required="true"
+                        @change="form.validate('entry_date')"
                     />
                     <InputError :message="form.errors.entry_date" />
                 </div>

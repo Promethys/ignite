@@ -57,7 +57,12 @@ const user = page.props.auth.user;
                 <Form
                     v-bind="ProfileController.update.form()"
                     class="space-y-6"
-                    v-slot="{ errors, processing, recentlySuccessful }"
+                    v-slot="{
+                        errors,
+                        processing,
+                        recentlySuccessful,
+                        validate,
+                    }"
                 >
                     <div class="grid gap-2">
                         <Label for="name">
@@ -76,6 +81,7 @@ const user = page.props.auth.user;
                             :placeholder="
                                 $t('settings.profile.name_placeholder')
                             "
+                            @change="validate('name')"
                         />
                         <InputError class="mt-2" :message="errors.name" />
                     </div>
@@ -98,6 +104,7 @@ const user = page.props.auth.user;
                             :placeholder="
                                 $t('settings.profile.email_placeholder')
                             "
+                            @change="validate('email')"
                         />
                         <InputError class="mt-2" :message="errors.email" />
                     </div>

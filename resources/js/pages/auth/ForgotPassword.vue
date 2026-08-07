@@ -33,7 +33,7 @@ defineProps<{
         <div class="space-y-6">
             <Form
                 v-bind="PasswordResetLinkController.store.form()"
-                v-slot="{ errors, processing }"
+                v-slot="{ errors, processing, validate }"
             >
                 <div class="grid gap-2">
                     <Label for="email">
@@ -50,6 +50,7 @@ defineProps<{
                         autofocus
                         required
                         :placeholder="$t('auth_ui.forgot.email_placeholder')"
+                        @change="validate('email')"
                     />
                     <InputError :message="errors.email" />
                 </div>

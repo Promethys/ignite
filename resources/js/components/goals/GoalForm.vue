@@ -83,9 +83,11 @@ const formData = {
     order: props.record?.order ?? 0,
 };
 
-const form = formState.formName
-    ? useForm(formState.formName, formData)
-    : useForm(formData);
+const form = (
+    formState.formName
+        ? useForm(formState.formName, formData)
+        : useForm(formData)
+).withPrecognition(formState.action);
 
 form.transform((data) => ({
     ...data,
@@ -123,9 +125,10 @@ form.transform((data) => ({
                             v-model="form.title"
                             type="text"
                             name="title"
-                            required
+                            aria-required="true"
                             autofocus
                             :tabindex="1"
+                            @change="form.validate('title')"
                         />
                         <InputError :message="form.errors.title" />
                     </div>
@@ -192,7 +195,7 @@ form.transform((data) => ({
                             id="type"
                             v-model="form.type"
                             name="type"
-                            required
+                            aria-required="true"
                         >
                             <SelectTrigger :tabindex="3">
                                 <SelectValue
@@ -244,7 +247,7 @@ form.transform((data) => ({
                             step="0.01"
                             name="current_value"
                             :tabindex="5"
-                            required
+                            aria-required="true"
                         />
                         <InputError :message="form.errors.current_value" />
                     </div>
@@ -307,6 +310,7 @@ form.transform((data) => ({
                             type="date"
                             name="deadline"
                             :tabindex="9"
+                            @change="form.validate('deadline')"
                         />
                         <InputError :message="form.errors.deadline" />
                     </div>
@@ -327,8 +331,8 @@ form.transform((data) => ({
                             type="date"
                             name="completed_at"
                             :tabindex="10"
-                            :required="form.status === 'completed'"
                             :aria-required="form.status === 'completed'"
+                            @change="form.validate('completed_at')"
                         />
                         <InputError :message="form.errors.completed_at" />
                     </div>
@@ -345,7 +349,7 @@ form.transform((data) => ({
                             id="priority"
                             v-model="form.priority"
                             name="priority"
-                            required
+                            aria-required="true"
                         >
                             <SelectTrigger :tabindex="11">
                                 <SelectValue
@@ -379,7 +383,7 @@ form.transform((data) => ({
                             id="status"
                             v-model="form.status"
                             name="status"
-                            required
+                            aria-required="true"
                         >
                             <SelectTrigger :tabindex="12">
                                 <SelectValue
@@ -416,7 +420,7 @@ form.transform((data) => ({
                             name="points"
                             min="0"
                             :tabindex="13"
-                            required
+                            aria-required="true"
                         />
                         <InputError :message="form.errors.points" />
                     </div> -->
@@ -434,7 +438,7 @@ form.transform((data) => ({
                             v-model="form.is_public"
                             name="is_public" 
                             :tabindex="14"
-                            required
+                            aria-required="true"
                         />
                         <InputError :message="form.errors.is_public" />
                     </div> -->
@@ -454,7 +458,7 @@ form.transform((data) => ({
                             id="direction"
                             v-model="form.direction"
                             name="direction"
-                            required
+                            aria-required="true"
                         >
                             <SelectTrigger :tabindex="14">
                                 <SelectValue

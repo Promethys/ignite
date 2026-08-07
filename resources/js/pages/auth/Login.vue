@@ -37,7 +37,7 @@ defineProps<{
         <Form
             v-bind="AuthenticatedSessionController.store.form()"
             :reset-on-success="['password']"
-            v-slot="{ errors, processing }"
+            v-slot="{ errors, processing, validate }"
             class="flex flex-col gap-6"
         >
             <div class="grid gap-6">
@@ -57,6 +57,7 @@ defineProps<{
                         :tabindex="1"
                         autocomplete="email"
                         :placeholder="$t('auth_ui.login.email_placeholder')"
+                        @change="validate('email')"
                     />
                     <InputError :message="errors.email" />
                 </div>

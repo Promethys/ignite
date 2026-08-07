@@ -23,7 +23,7 @@ import { LoaderCircle } from 'lucide-vue-next';
         <Form
             v-bind="RegisteredUserController.store.form()"
             :reset-on-success="['password', 'password_confirmation']"
-            v-slot="{ errors, processing }"
+            v-slot="{ errors, processing, validate }"
             class="flex flex-col gap-6"
         >
             <div class="grid gap-6">
@@ -43,6 +43,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                         autocomplete="name"
                         name="name"
                         :placeholder="$t('auth_ui.register.name_placeholder')"
+                        @change="validate('name')"
                     />
                     <InputError :message="errors.name" />
                 </div>
@@ -62,6 +63,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                         autocomplete="email"
                         name="email"
                         :placeholder="$t('auth_ui.register.email_placeholder')"
+                        @change="validate('email')"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -82,6 +84,8 @@ import { LoaderCircle } from 'lucide-vue-next';
                         :placeholder="
                             $t('auth_ui.register.password_placeholder')
                         "
+                        @change="validate('password')"
+                        @input="errors.password && validate('password')"
                     />
                     <p class="text-xs text-muted-foreground">
                         {{ $t('auth_ui.register.password_requirements') }}
@@ -104,6 +108,11 @@ import { LoaderCircle } from 'lucide-vue-next';
                         name="password_confirmation"
                         :placeholder="
                             $t('auth_ui.register.confirm_password_placeholder')
+                        "
+                        @change="validate('password_confirmation')"
+                        @input="
+                            errors.password_confirmation &&
+                            validate('password_confirmation')
                         "
                     />
                     <InputError :message="errors.password_confirmation" />

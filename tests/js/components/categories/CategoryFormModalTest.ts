@@ -14,6 +14,8 @@ vi.mock('@inertiajs/vue3', () => ({
         transform: vi.fn(function (this: Record<string, unknown>, fn: (data: Record<string, unknown>) => Record<string, unknown>) {
             return { ...this, ...fn(data) };
         }),
+        validate: vi.fn(),
+        withPrecognition: vi.fn().mockReturnThis(),
     }),
 }));
 

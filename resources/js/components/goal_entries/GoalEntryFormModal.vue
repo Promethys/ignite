@@ -55,9 +55,11 @@ const formState = props.record
           submitBtnLabel: 'goals.entries.form.submit_create',
       };
 
-const form = formState.formName
-    ? useForm(formState.formName, formData)
-    : useForm(formData);
+const form = (
+    formState.formName
+        ? useForm(formState.formName, formData)
+        : useForm(formData)
+).withPrecognition(formState.action);
 
 watch(
     () => props.record,
@@ -115,7 +117,8 @@ const open = ref<boolean>(props.open ?? false);
                             :placeholder="
                                 $t('goals.show.progress_value_placeholder')
                             "
-                            required
+                            aria-required="true"
+                            @change="form.validate('increment')"
                         />
                         <span class="pb-2 text-sm text-muted-foreground">{{
                             goal.unit
@@ -130,6 +133,7 @@ const open = ref<boolean>(props.open ?? false);
                         v-model="form.note"
                         :placeholder="$t('goals.show.note_placeholder')"
                         rows="3"
+                        @change="form.validate('note')"
                     />
                     <InputError :message="form.errors.note" />
                 </div>

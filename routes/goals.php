@@ -3,6 +3,7 @@
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalEntryController;
 use App\Http\Controllers\MilestoneController;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -11,10 +12,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // Goals
             Route::get('/', 'index')->name('goals.index');
             Route::get('/create', 'create')->name('goals.create');
-            Route::post('/', 'store')->name('goals.store');
+            Route::post('/', 'store')->name('goals.store')
+                ->middleware([HandlePrecognitiveRequests::class]);
             Route::get('/{goal}', 'show')->name('goals.show');
             Route::get('/{goal}/edit', 'edit')->name('goals.edit');
-            Route::put('/{goal}', 'update')->name('goals.update');
+            Route::put('/{goal}', 'update')->name('goals.update')
+                ->middleware([HandlePrecognitiveRequests::class]);
             Route::delete('/{goal}', 'destroy')->name('goals.destroy');
 
             // Quick actions (optional, for better UX)
@@ -26,15 +29,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::controller(GoalEntryController::class)->group(function () {
             // Goal entries (nested resource)
             Route::get('/{goal}/entries', 'index')->name('goals.entries');
-            Route::post('/{goal}/entries', 'store')->name('goals.entries.store');
-            Route::put('/{goal}/entries/{goalEntry}', 'update')->name('goals.entries.update');
+            Route::post('/{goal}/entries', 'store')->name('goals.entries.store')
+                ->middleware([HandlePrecognitiveRequests::class]);
+            Route::put('/{goal}/entries/{goalEntry}', 'update')->name('goals.entries.update')
+                ->middleware([HandlePrecognitiveRequests::class]);
             Route::delete('/{goal}/entries/{goalEntry}', 'destroy')->name('goals.entries.destroy');
         });
 
         Route::controller(MilestoneController::class)->group(function () {
             // Goal milestones (nested resource)
-            Route::post('/{goal}/milestones', 'store')->name('milestones.store');
-            Route::put('/{goal}/milestones/{milestone}', 'update')->name('milestones.update');
+            Route::post('/{goal}/milestones', 'store')->name('milestones.store')
+                ->middleware([HandlePrecognitiveRequests::class]);
+            Route::put('/{goal}/milestones/{milestone}', 'update')->name('milestones.update')
+                ->middleware([HandlePrecognitiveRequests::class]);
             Route::delete('/{goal}/milestones/{milestone}', 'destroy')->name('milestones.destroy');
             Route::patch('/{goal}/milestones/{milestone}/complete', 'complete')->name('milestones.complete');
             Route::patch('/{goal}/milestones/{milestone}/uncomplete', 'uncomplete')->name('milestones.uncomplete');

@@ -59,7 +59,7 @@ const formData = {
     // points_reward: 0,
 };
 
-const form = useForm(formData);
+const form = useForm(formData).withPrecognition(formState.action);
 
 form.transform((data) => ({
     ...data,
@@ -121,7 +121,8 @@ const open = ref<boolean>(props.open ?? false);
                                 $t(`${labelNamespace}.form.title_placeholder`)
                             "
                             v-model="form.title"
-                            required
+                            aria-required="true"
+                            @change="form.validate('title')"
                         />
                         <InputError
                             v-if="form.errors.title"
