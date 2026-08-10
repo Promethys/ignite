@@ -222,3 +222,15 @@
 .apexcharts-tooltip-title {
     border-bottom: 1px solid var(--border) !important;
 }
+
+/*
+  NProgress style override
+*/
+#nprogress .bar {
+    background: linear-gradient(
+        90deg,
+        hsl(262 83% 58%),
+        hsl(292 80% 68%)
+    ) !important;
+    box-shadow: 0 0 10px 1px hsl(292 80% 68% / 0.7) !important;
+}
