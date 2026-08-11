@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import AppLogo from '@/components/AppLogo.vue';
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { dashboard, login, register } from '@/routes';
 import { AppPageProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { Flame, LayoutGrid, Target, Trophy } from 'lucide-vue-next';
+import { LayoutGrid, Target, Trophy } from 'lucide-vue-next';
 import 'vue-sonner/style.css';
 
 const supportEmail = usePage().props.supportEmail;
@@ -53,15 +54,8 @@ const appPublicRepo = usePage<AppPageProps>().props.githubUrl;
             <div
                 class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6"
             >
-                <div class="flex items-center gap-2">
-                    <span
-                        class="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground"
-                    >
-                        <Flame class="size-4" />
-                    </span>
-                    <span class="font-display text-lg font-semibold">
-                        Ignite
-                    </span>
+                <div class="flex items-center gap-2 [&>svg]:size-4 [&>svg]:shrink-0 text-sm">
+                    <AppLogo />
                 </div>
                 <nav class="flex items-center gap-2">
                     <LanguageSwitcher />

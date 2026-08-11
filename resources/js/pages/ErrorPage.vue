@@ -33,9 +33,7 @@ const descriptionKey = computed(() => `errors.${statusKey.value}.description`);
                 class="flex items-center gap-2 font-medium"
             >
                 <div class="flex h-9 w-9 items-center justify-center">
-                    <AppLogoIcon
-                        class="size-9 fill-current text-black dark:text-white"
-                    />
+                    <AppLogoIcon class="size-9" />
                 </div>
             </Link>
 

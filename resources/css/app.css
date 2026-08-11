@@ -114,6 +114,10 @@
     /* Brand: violet. Used sparingly. */
     --primary: hsl(262 83% 58%);
     --primary-foreground: hsl(0 0% 100%);
+    /* Brand mark: one flat colour per chevron, base to tip. */
+    --brand-mark-base: hsl(262 83% 58%);
+    --brand-mark-mid: hsl(276 82% 60%);
+    --brand-mark-tip: hsl(292 80% 62%);
     --secondary: hsl(260 24% 95%);
     --secondary-foreground: hsl(260 15% 15%);
     --muted: hsl(260 24% 96%);
@@ -158,6 +162,9 @@
     /* Brand: violet, slightly brighter in dark. */
     --primary: hsl(262 83% 62%);
     --primary-foreground: hsl(0 0% 100%);
+    --brand-mark-base: hsl(262 83% 62%);
+    --brand-mark-mid: hsl(276 82% 66%);
+    --brand-mark-tip: hsl(292 80% 71%);
     --secondary: hsl(260 12% 16%);
     --secondary-foreground: hsl(260 15% 96%);
     --muted: hsl(260 12% 16%);
