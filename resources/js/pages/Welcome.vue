@@ -54,7 +54,9 @@ const appPublicRepo = usePage<AppPageProps>().props.githubUrl;
             <div
                 class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6"
             >
-                <div class="flex items-center gap-2 [&>svg]:size-4 [&>svg]:shrink-0 text-sm">
+                <div
+                    class="flex items-center gap-2 text-sm [&>svg]:size-4 [&>svg]:shrink-0"
+                >
                     <AppLogo />
                 </div>
                 <nav class="flex items-center gap-2">

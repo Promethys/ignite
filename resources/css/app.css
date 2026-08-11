@@ -70,6 +70,28 @@
 
     --color-success-subtle: var(--success-subtle);
     --color-success-subtle-border: var(--success-subtle-border);
+
+    --animate-mark-settle-mid: settle 1.2s ease-in-out 0.55s infinite;
+    --animate-mark-settle-tip: settle 1.2s ease-in-out 0.75s infinite;
+
+    @keyframes settle {
+        0% {
+            transform: translateY(0) scaleY(1);
+        }
+
+        28% {
+            transform: translateY(-0.7px) scaleY(1.06);
+        }
+
+        55% {
+            transform: translateY(-0.2px) scaleY(0.98);
+        }
+
+        83%,
+        100% {
+            transform: translateY(0) scaleY(1);
+        }
+    }
 }
 
 /*
@@ -118,6 +140,9 @@
     --brand-mark-base: hsl(262 83% 58%);
     --brand-mark-mid: hsl(276 82% 60%);
     --brand-mark-tip: hsl(292 80% 62%);
+    --brand-mark-base-hover: hsl(262 88% 64%);
+    --brand-mark-mid-hover: hsl(276 88% 70%);
+    --brand-mark-tip-hover: hsl(292 90% 76%);
     --secondary: hsl(260 24% 95%);
     --secondary-foreground: hsl(260 15% 15%);
     --muted: hsl(260 24% 96%);
@@ -165,6 +190,9 @@
     --brand-mark-base: hsl(262 83% 62%);
     --brand-mark-mid: hsl(276 82% 66%);
     --brand-mark-tip: hsl(292 80% 71%);
+    --brand-mark-base-hover: hsl(262 88% 68%);
+    --brand-mark-mid-hover: hsl(276 88% 74%);
+    --brand-mark-tip-hover: hsl(292 90% 81%);
     --secondary: hsl(260 12% 16%);
     --secondary-foreground: hsl(260 15% 96%);
     --muted: hsl(260 12% 16%);
@@ -240,4 +268,9 @@
         hsl(292 80% 68%)
     ) !important;
     box-shadow: 0 0 10px 1px hsl(292 80% 68% / 0.7) !important;
+}
+
+.app-logo-icon path {
+    transform-box: fill-box;
+    transform-origin: bottom center;
 }
