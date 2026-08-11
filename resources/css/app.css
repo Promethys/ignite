@@ -74,6 +74,20 @@
     --animate-mark-settle-mid: settle 1.2s ease-in-out 0.55s infinite;
     --animate-mark-settle-tip: settle 1.2s ease-in-out 0.75s infinite;
 
+    @keyframes bounce {
+        0% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(20px);
+        }
+
+        100% {
+            transform: translateY(0);
+        }
+    }
+
     @keyframes settle {
         0% {
             transform: translateY(0) scaleY(1);
@@ -273,4 +287,57 @@
 .app-logo-icon path {
     transform-box: fill-box;
     transform-origin: bottom center;
+}
+
+/*
+  The public surface is always dark and always sharp, whatever theme the
+  visitor has chosen for the app. Zeroing the radius here rather than adding
+  rounded-none to every element keeps shared ui components usable on public
+  pages without editing them, which would leak the sharp style into the app.
+*/
+.public-surface {
+    --background: hsl(260 20% 4%);
+    --card: hsl(260 16% 7%);
+    --popover: hsl(260 16% 7%);
+    --border: hsl(260 10% 13%);
+    --input: hsl(260 10% 13%);
+    --muted: hsl(260 12% 11%);
+    --radius: 0;
+}
+
+.public-surface
+    :is(
+        button,
+        input,
+        select,
+        textarea,
+        [role='menu'],
+        [role='menuitem'],
+        [role='menuitemradio'],
+        [data-slot='dropdown-menu-content']
+    ) {
+    border-radius: 0;
+}
+
+.public-surface-grid {
+    background-image:
+        linear-gradient(hsl(0 0% 100% / 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, hsl(0 0% 100% / 0.03) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(
+        ellipse 90% 70% at 30% 0%,
+        #000 30%,
+        transparent 75%
+    );
+}
+
+.public-surface-glow {
+    background: radial-gradient(
+        ellipse at center,
+        hsl(262 83% 58% / 0.4),
+        hsl(292 80% 60% / 0.12) 45%,
+        transparent 70%
+    );
+    filter: blur(30px);
+    animation: bounce 3s linear infinite;
 }

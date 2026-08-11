@@ -51,3 +51,14 @@ export function nullToUndefined(
 ): number | undefined {
     return value ?? undefined;
 }
+
+export function getCopyrightYears() {
+    const firstPublished = 2026;
+    const currentYear = new Date().getFullYear();
+    const copyrightYears =
+        currentYear > firstPublished
+            ? `${firstPublished}-${currentYear}`
+            : `${firstPublished}`;
+
+    return copyrightYears;
+}
