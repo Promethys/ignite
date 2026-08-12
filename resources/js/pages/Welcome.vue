@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import DemoSlot from '@/components/public/DemoSlot.vue';
 import FeatureRows from '@/components/public/FeatureRows.vue';
-import PublicHero from '@/components/public/PublicHero.vue';
 import PublicShell from '@/components/public/PublicShell.vue';
 import { Button } from '@/components/ui/button';
 import { register } from '@/routes';
@@ -69,7 +69,7 @@ const trust = [
                     </ul>
                 </section>
 
-                <PublicHero class="relative" />
+                <DemoSlot />
             </div>
 
             <FeatureRows />

@@ -14,6 +14,9 @@ return [
         'start' => 'Commencer gratuitement',
         'how_it_works' => 'Voir comment ça marche',
     ],
+    'demo' => [
+        'poster_alt' => 'Le tableau de bord Ignite, avec les objectifs actifs et leurs barres de progression, une série en cours et les graphiques de complétion et de catégories',
+    ],
     'features' => [
         'section_title' => 'Ce que ça fait',
         'types' => [

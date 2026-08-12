@@ -14,6 +14,9 @@ return [
         'start' => 'Start free',
         'how_it_works' => 'See how it works',
     ],
+    'demo' => [
+        'poster_alt' => 'The Ignite dashboard, showing active goals with progress bars, a streak, and charts of completions and categories',
+    ],
     'features' => [
         'section_title' => 'What it does',
         'types' => [
