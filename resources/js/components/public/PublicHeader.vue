@@ -11,7 +11,7 @@ import Button from '../ui/button/Button.vue';
         <div
             class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6"
         >
-            <div class="flex items-center gap-2 text-sm">
+            <div class="flex items-center gap-2">
                 <AppLogo />
             </div>
             <nav class="flex items-center gap-2">
