@@ -4,17 +4,57 @@
  * width. Scrolling moves to the wrapper so the table can stretch again.
  */
 .vp-doc .table-wrapper {
-  margin: 20px 0;
-  overflow-x: auto;
+    margin: 20px 0;
+    overflow-x: auto;
 }
 
 .vp-doc .table-wrapper > table {
-  display: table;
-  width: 100%;
-  margin: 0;
+    display: table;
+    width: 100%;
+    margin: 0;
 }
 
 .vp-doc .table-wrapper:focus-visible {
-  outline: 2px solid var(--vp-c-brand-1);
-  outline-offset: 2px;
+    outline: 2px solid var(--vp-c-brand-1);
+    outline-offset: 2px;
+}
+
+/*
+ * Brand and type, taken from the app. `--vp-c-brand-1` colours body links, so
+ * it is held to AA against the page background rather than only against a
+ * button fill. The light value measures 5.7:1 on white; the app's dark violet
+ * only reaches 3.6:1 on the dark background, so dark mode uses a lighter tint
+ * at 6.5:1. VitePress has no separate heading token, so Fraunces is applied
+ * directly.
+ */
+:root {
+    --vp-c-brand-1: #7c3bed;
+    --vp-c-brand-2: #6d28d9;
+    --vp-c-brand-3: #7c3bed;
+    --vp-c-brand-soft: rgba(124, 59, 237, 0.14);
+
+    --vp-home-hero-name-color: transparent;
+    --vp-home-hero-name-background: linear-gradient(
+        96deg,
+        #a67cf7 10%,
+        #d76ff0 90%
+    );
+
+    --vp-font-family-base: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.dark {
+    --vp-c-brand-1: #b38bf9;
+    --vp-c-brand-2: #c9aefb;
+    --vp-c-brand-3: #7c3bed;
+    --vp-c-brand-soft: rgba(124, 59, 237, 0.24);
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.VPHome .name,
+.VPHome .text {
+    font-family: Fraunces, ui-serif, Georgia, serif;
+    letter-spacing: -0.015em;
 }

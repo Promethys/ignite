@@ -1,7 +1,7 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
 import NavMain from '@/components/NavMain.vue';
+import { mount } from '@vue/test-utils';
 import { LayoutDashboard } from 'lucide-vue-next';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@inertiajs/vue3', () => ({
     Link: { template: '<a><slot /></a>' },
@@ -25,9 +25,17 @@ const fr: Record<string, string> = {
 };
 
 const items = [
-    { title: 'common.nav.dashboard', href: '/dashboard', icon: LayoutDashboard },
+    {
+        title: 'common.nav.dashboard',
+        href: '/dashboard',
+        icon: LayoutDashboard,
+    },
     { title: 'common.nav.goals', href: '/goals', icon: LayoutDashboard },
-    { title: 'common.nav.categories', href: '/categories', icon: LayoutDashboard },
+    {
+        title: 'common.nav.categories',
+        href: '/categories',
+        icon: LayoutDashboard,
+    },
 ];
 
 describe('NavMain', () => {

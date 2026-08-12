@@ -1,229 +1,78 @@
 <script setup lang="ts">
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
+import DemoSlot from '@/components/public/DemoSlot.vue';
+import FeatureRows from '@/components/public/FeatureRows.vue';
+import PublicShell from '@/components/public/PublicShell.vue';
 import { Button } from '@/components/ui/button';
-import { Toaster } from '@/components/ui/sonner';
-import { dashboard, login, register } from '@/routes';
-import { AppPageProps } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/vue3';
-import { Flame, LayoutGrid, Target, Trophy } from 'lucide-vue-next';
+import { register } from '@/routes';
+import { Link } from '@inertiajs/vue3';
 import 'vue-sonner/style.css';
 
-const supportEmail = usePage().props.supportEmail;
-
-const stats = [
-    { n: '8', l: 'landing.stats.active' },
-    { n: '12', l: 'landing.stats.completed' },
-    { n: '61%', l: 'landing.stats.completion' },
-    { n: '20', l: 'landing.stats.total' },
+const trust = [
+    'landing.trust.source_available',
+    'landing.trust.self_hostable',
+    'landing.trust.ai_ready',
 ];
-
-const previewGoals = [
-    { title: 'landing.preview.marathon', progress: 62 },
-    { title: 'landing.preview.portfolio', progress: 60 },
-    { title: 'landing.preview.meditation', progress: 71 },
-];
-
-const features = [
-    {
-        icon: Target,
-        title: 'landing.features.visual.title',
-        description: 'landing.features.visual.description',
-    },
-    {
-        icon: LayoutGrid,
-        title: 'landing.features.types.title',
-        description: 'landing.features.types.description',
-    },
-    {
-        icon: Trophy,
-        title: 'landing.features.milestones.title',
-        description: 'landing.features.milestones.description',
-    },
-];
-
-const appPublicRepo = usePage<AppPageProps>().props.githubUrl;
 </script>
 
 <template>
-    <Head title="Welcome" />
+    <PublicShell title="Welcome">
+        <main class="relative mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6">
+            <div class="relative grid grid-cols-1 items-center lg:grid-cols-2">
+                <div
+                    class="public-surface-glow pointer-events-none absolute -top-40 left-[15%] h-[26rem] w-[42rem] max-w-full"
+                />
 
-    <div class="flex min-h-screen flex-col bg-background text-foreground">
-        <!-- Top nav (full-width border, centered content) -->
-        <header class="border-b">
-            <div
-                class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6"
-            >
-                <div class="flex items-center gap-2">
-                    <span
-                        class="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground"
+                <section class="relative px-2 py-7 sm:py-10">
+                    <p
+                        class="flex items-center gap-2 font-mono text-xs tracking-widest text-primary uppercase"
                     >
-                        <Flame class="size-4" />
-                    </span>
-                    <span class="font-display text-lg font-semibold">
-                        Ignite
-                    </span>
-                </div>
-                <nav class="flex items-center gap-2">
-                    <LanguageSwitcher />
-                    <template v-if="$page.props.auth.user">
-                        <Button as-child>
-                            <Link :href="dashboard()">{{
-                                $t('common.nav.dashboard')
-                            }}</Link>
-                        </Button>
-                    </template>
-                    <template v-else>
-                        <Button variant="ghost" as-child>
-                            <Link :href="login()">{{
-                                $t('common.actions.log_in')
-                            }}</Link>
-                        </Button>
-                        <Button as-child>
-                            <Link :href="register()">{{
-                                $t('common.actions.get_started')
-                            }}</Link>
-                        </Button>
-                    </template>
-                </nav>
-            </div>
-        </header>
-
-        <!-- Body (max width) -->
-        <main class="mx-auto w-full max-w-5xl flex-1 px-4 sm:px-6">
-            <!-- Hero -->
-            <section class="px-2 py-14 text-center sm:py-20">
-                <p
-                    class="text-xs font-semibold tracking-wide text-primary uppercase"
-                >
-                    {{ $t('landing.hero.eyebrow') }}
-                </p>
-                <h1
-                    class="mx-auto mt-3 max-w-2xl font-display text-4xl font-bold text-balance sm:text-5xl"
-                >
-                    {{ $t('landing.hero.title_lead') }}
-                    <em class="text-primary italic">{{
-                        $t('landing.hero.title_highlight')
-                    }}</em
-                    >.
-                </h1>
-                <p
-                    class="mx-auto mt-4 max-w-xl text-pretty text-muted-foreground sm:text-lg"
-                >
-                    {{ $t('landing.hero.subtitle') }}
-                </p>
-                <div class="mt-7 flex justify-center gap-3">
-                    <Button size="lg" as-child>
-                        <Link :href="register()">{{
-                            $t('landing.hero.start')
-                        }}</Link>
-                    </Button>
-                    <Button size="lg" variant="outline" as-child>
-                        <a href="#features">{{
-                            $t('landing.hero.how_it_works')
-                        }}</a>
-                    </Button>
-                </div>
-            </section>
-
-            <!-- Product preview -->
-            <section
-                class="rounded-t-xl border border-b-0 bg-muted/40 p-4 sm:p-6"
-            >
-                <div class="mb-3 grid grid-cols-4 gap-2 sm:gap-3">
-                    <div
-                        v-for="stat in stats"
-                        :key="stat.l"
-                        class="rounded-lg bg-muted px-3 py-2"
-                    >
-                        <p class="font-display text-base font-semibold">
-                            {{ stat.n }}
-                        </p>
-                        <p class="text-[10px] text-muted-foreground">
-                            {{ $t(stat.l) }}
-                        </p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <div
-                        v-for="goal in previewGoals"
-                        :key="goal.title"
-                        class="rounded-lg border bg-card p-3"
-                    >
-                        <p class="mb-2 font-display text-xs font-semibold">
-                            {{ $t(goal.title) }}
-                        </p>
-                        <div
-                            class="h-1.5 overflow-hidden rounded-full bg-muted"
-                        >
-                            <div
-                                class="h-full rounded-full bg-primary"
-                                :style="{ width: `${goal.progress}%` }"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Value props -->
-            <section
-                id="features"
-                class="grid gap-8 border-t py-14 sm:grid-cols-3 sm:gap-6"
-            >
-                <div v-for="feature in features" :key="feature.title">
-                    <span
-                        class="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary"
-                    >
-                        <component :is="feature.icon" class="size-5" />
-                    </span>
-                    <h4 class="mt-3 font-display text-base font-semibold">
-                        {{ $t(feature.title) }}
-                    </h4>
-                    <p class="mt-1 text-sm text-muted-foreground">
-                        {{ $t(feature.description) }}
+                        <span
+                            class="size-2 shrink-0 bg-primary shadow-[0_0_16px_1px] shadow-primary/70"
+                        />
+                        {{ $t('landing.hero.eyebrow') }}
                     </p>
-                </div>
-            </section>
-        </main>
-
-        <!-- Footer (full-width border, centered content) -->
-        <footer class="border-t">
-            <div
-                class="mx-auto flex max-w-5xl items-center justify-between px-4 py-5 text-xs text-muted-foreground sm:px-6"
-            >
-                <span>© Ignite</span>
-                <span class="flex items-center gap-3">
-                    <span>
-                        {{ $t('landing.footer.privacy') }}
-                    </span>
-                    ·
-                    <span>
-                        {{ $t('landing.footer.terms') }}
-                    </span>
-                    ·
-                    <a
-                        :href="`mailto:${supportEmail}`"
-                        target="_blank"
-                        rel="noopener"
-                        class="underline-offset-2 hover:underline"
-                        >{{ $t('landing.footer.contact') }}</a
+                    <h1
+                        class="mt-3 max-w-2xl font-display text-4xl font-bold text-balance sm:text-5xl"
                     >
-                    ·
-                    <a
-                        :href="appPublicRepo"
-                        target="_blank"
-                        rel="noopener"
-                        class="underline-offset-2 hover:underline"
-                        >{{ $t('common.nav.repository') }}</a
-                    ></span
-                >
-            </div>
-        </footer>
-    </div>
+                        {{ $t('landing.hero.title_lead') }}
+                        <em
+                            class="bg-[linear-gradient(96deg,hsl(262_83%_68%)_10%,hsl(292_80%_68%)_90%)] bg-clip-text text-transparent italic"
+                            >{{ $t('landing.hero.title_highlight') }}</em
+                        >.
+                    </h1>
+                    <p class="mt-7 max-w-xl text-pretty text-muted-foreground">
+                        {{ $t('landing.hero.subtitle') }}
+                    </p>
+                    <div class="mt-7 flex gap-3">
+                        <Button size="lg" variant="inverse" as-child>
+                            <Link :href="register()">
+                                {{ $t('landing.hero.start') }}
+                            </Link>
+                        </Button>
+                        <Button size="lg" variant="outline" as-child>
+                            <a href="#features">
+                                {{ $t('landing.hero.how_it_works') }}
+                            </a>
+                        </Button>
+                    </div>
+                    <ul
+                        class="mt-7 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground"
+                    >
+                        <li
+                            v-for="(item, index) in trust"
+                            :key="item"
+                            class="flex items-center gap-3"
+                        >
+                            <span v-if="index > 0" aria-hidden="true">·</span>
+                            {{ $t(item) }}
+                        </li>
+                    </ul>
+                </section>
 
-    <Toaster
-        position="top-right"
-        close-button
-        close-button-position="top-right"
-        theme="system"
-    />
+                <DemoSlot />
+            </div>
+
+            <FeatureRows />
+        </main>
+    </PublicShell>
 </template>

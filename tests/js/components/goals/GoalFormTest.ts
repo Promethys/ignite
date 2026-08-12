@@ -49,8 +49,7 @@ const stubs = {
     HelpTooltip: { template: '<span><slot /></span>' },
     Select: {
         props: ['modelValue'],
-        template:
-            '<div class="select" :data-value="modelValue"><slot /></div>',
+        template: '<div class="select" :data-value="modelValue"><slot /></div>',
     },
     SelectTrigger: { template: '<div><slot /></div>' },
     SelectContent: { template: '<div><slot /></div>' },
@@ -63,7 +62,10 @@ const mountForm = (props: Record<string, unknown> = {}) =>
 
 describe('GoalForm', () => {
     it('seeds the category from the selectedCategory prop in create mode', () => {
-        const user = { id: 1, categories: { '1': 'Health', '2': 'Learning' } } as unknown as User;
+        const user = {
+            id: 1,
+            categories: { '1': 'Health', '2': 'Learning' },
+        } as unknown as User;
 
         const wrapper = mountForm({ user, selectedCategory: '1' });
 
@@ -73,10 +75,15 @@ describe('GoalForm', () => {
     });
 
     it('leaves the category unset when no selectedCategory is provided', () => {
-        const user = { id: 1, categories: { '1': 'Health' } } as unknown as User;
+        const user = {
+            id: 1,
+            categories: { '1': 'Health' },
+        } as unknown as User;
 
         const wrapper = mountForm({ user });
 
-        expect(wrapper.find('.select#category_id').attributes('data-value')).toBeUndefined();
+        expect(
+            wrapper.find('.select#category_id').attributes('data-value'),
+        ).toBeUndefined();
     });
 });

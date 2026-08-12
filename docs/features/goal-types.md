@@ -4,12 +4,12 @@ Every goal has a `type`, set when it's created: `simple`, `quantifiable`, `recur
 
 ## The four types
 
-| Type | Typical shape | Progress driven by |
-| --- | --- | --- |
-| `simple` | A goal with no numeric target (e.g. "Write a book") | Manual status change; no `target_value` in practice |
-| `quantifiable` | A goal with a numeric target and unit (e.g. "Read 50 books") | `current_value` moving toward `target_value` via logged entries |
-| `recurring` | A goal repeated on a cadence (e.g. "Daily meditation") | Dated check-ins, tracked as a streak (see [Streaks](/features/streaks)) |
-| `multi_step` | A goal broken into checkpoints | Milestones (see [Milestones](/features/milestones)) |
+| Type           | Typical shape                                                | Progress driven by                                                      |
+| -------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `simple`       | A goal with no numeric target (e.g. "Write a book")          | Manual status change; no `target_value` in practice                     |
+| `quantifiable` | A goal with a numeric target and unit (e.g. "Read 50 books") | `current_value` moving toward `target_value` via logged entries         |
+| `recurring`    | A goal repeated on a cadence (e.g. "Daily meditation")       | Dated check-ins, tracked as a streak (see [Streaks](/features/streaks)) |
+| `multi_step`   | A goal broken into checkpoints                               | Milestones (see [Milestones](/features/milestones))                     |
 
 `quantifiable` is the only type where `target_value` is enforced server-side: `GoalController::store()` adds `'target_value' => 'required|numeric'` to the validation rules specifically when `type === 'quantifiable'`. For the other three types `target_value` is optional and typically left null.
 
@@ -21,9 +21,9 @@ Progress is exposed as the `progress_percentage` accessor on the `Goal` model (`
 - If `target_value` equals `initial_value` (a zero-width range), it returns `100` when the goal is completed, otherwise `0`.
 - Otherwise, it computes:
 
-  ```text
-  ((current_value - initial_value) / (target_value - initial_value)) * 100
-  ```
+    ```text
+    ((current_value - initial_value) / (target_value - initial_value)) * 100
+    ```
 
 ::: warning Progress is not capped at 100
 The result is floored at `0` (never negative) but has no upper bound: a goal that overshoots its target can show more than 100% progress.

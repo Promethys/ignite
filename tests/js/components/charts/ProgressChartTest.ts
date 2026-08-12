@@ -1,7 +1,7 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
 import ProgressChart from '@/components/charts/ProgressChart.vue';
 import type { GoalEntry } from '@/types/models';
+import { mount } from '@vue/test-utils';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/composables/useAppearance', () => ({
     getBinaryTheme: () => 'light',

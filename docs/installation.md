@@ -56,11 +56,11 @@ Both of those first two steps are skipped on later boots, so restarting is fast.
 The development container bind-mounts your working directory, so `key:generate` writes into the `.env` on your disk and the key survives every rebuild. A production container has no bind mount, which is why [Self-Hosting](/self-hosting) makes you generate the key yourself: one written inside that container would be lost on the next recreate, taking every session and stored two-factor secret with it.
 :::
 
-| Service | What it runs | Reachable at |
-| --- | --- | --- |
-| `web` | FrankenPHP serving the application | `http://localhost:8080` |
-| `vite` | Vite dev server and hot module replacement | `http://localhost:5173` |
-| `postgres` | PostgreSQL 18 | `localhost:5433` |
+| Service    | What it runs                               | Reachable at            |
+| ---------- | ------------------------------------------ | ----------------------- |
+| `web`      | FrankenPHP serving the application         | `http://localhost:8080` |
+| `vite`     | Vite dev server and hot module replacement | `http://localhost:5173` |
+| `postgres` | PostgreSQL 18                              | `localhost:5433`        |
 
 PostgreSQL is published on **5433**, not the usual 5432, so it cannot collide with an instance you already run natively.
 
@@ -135,7 +135,7 @@ The dev stack bind-mounts your working directory, then mounts named volumes over
 - A named volume shadows the path inside the container without altering it on disk. Your host `vendor/` and `node_modules/` stay intact and keep serving native tooling such as Pint, PHPStan, ESLint and IDE autocomplete.
 - The two copies are independent. After changing a dependency, install on the host for your tooling, and run `exec web composer install` or `exec vite npm install` for the containers.
 - `down -v` removes these volumes along with the database. The next boot reinstalls both.
-:::
+  :::
 
 ## Option B: Manual installation
 

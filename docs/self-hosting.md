@@ -75,11 +75,11 @@ Set `APP_PORT` in `.env` to publish a different port. The first account you regi
 
 ## What the stack contains
 
-| Service | Role | Notes |
-| --- | --- | --- |
-| `web` | The application, served by FrankenPHP | The only service published to the host |
-| `postgres` | PostgreSQL 18 | Deliberately not published; reachable only on the internal network |
-| `migrate` | One-shot migration and seed run | Runs to completion before `web` starts, then exits |
+| Service    | Role                                  | Notes                                                              |
+| ---------- | ------------------------------------- | ------------------------------------------------------------------ |
+| `web`      | The application, served by FrankenPHP | The only service published to the host                             |
+| `postgres` | PostgreSQL 18                         | Deliberately not published; reachable only on the internal network |
+| `migrate`  | One-shot migration and seed run       | Runs to completion before `web` starts, then exits                 |
 
 Two named volumes hold everything that must survive a rebuild: `postgres-data-production` for the database and `laravel-storage-production` for uploaded and generated files under `storage/`.
 
@@ -91,12 +91,12 @@ Migrations live in their own short-lived service rather than in the web containe
 
 Four variables are pinned in `compose.yaml` and override whatever `.env` says:
 
-| Variable | Forced to | Why |
-| --- | --- | --- |
-| `APP_ENV` | `production` | `.env.example` ships `local`. Left alone, the seeder would create demo accounts with published credentials on a public instance. |
-| `APP_DEBUG` | `false` | Stack traces and environment values must never be rendered to a visitor. |
-| `DB_HOST` / `DB_PORT` | `postgres` / `5432` | The database service name on the internal Compose network, not the `127.0.0.1` a native install uses. |
-| `LOG_CHANNEL` | `stderr` | Containers surface standard output and error, and read nothing from the filesystem. On the file default, logs are invisible to `docker compose logs` and discarded on every rebuild. |
+| Variable              | Forced to           | Why                                                                                                                                                                                  |
+| --------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `APP_ENV`             | `production`        | `.env.example` ships `local`. Left alone, the seeder would create demo accounts with published credentials on a public instance.                                                     |
+| `APP_DEBUG`           | `false`             | Stack traces and environment values must never be rendered to a visitor.                                                                                                             |
+| `DB_HOST` / `DB_PORT` | `postgres` / `5432` | The database service name on the internal Compose network, not the `127.0.0.1` a native install uses.                                                                                |
+| `LOG_CHANNEL`         | `stderr`            | Containers surface standard output and error, and read nothing from the filesystem. On the file default, logs are invisible to `docker compose logs` and discarded on every rebuild. |
 
 Everything else in `.env` applies normally. Only these four are ignored if you set them.
 
@@ -151,13 +151,13 @@ With `APP_DEBUG=false`, this is the only place a real error appears. Visitors se
 
 One `Dockerfile` at the repository root defines five stages.
 
-| Stage | Purpose |
-| --- | --- |
-| `runtime` | FrankenPHP on PHP 8.5 plus the extensions `artisan` needs: `pdo_pgsql`, `intl`, `zip`, `bcmath`, `opcache` |
-| `base` | `runtime` plus the build tooling: Node 22, Composer, git and unzip |
-| `development` | `base` plus Xdebug and the development entrypoint, used by `compose.dev.yaml` |
-| `builder` | Installs the PHP and Node dependencies, runs `npm run build`, then discards `node_modules` |
-| `production` | `runtime` again, copying the finished application out of `builder` |
+| Stage         | Purpose                                                                                                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------- |
+| `runtime`     | FrankenPHP on PHP 8.5 plus the extensions `artisan` needs: `pdo_pgsql`, `intl`, `zip`, `bcmath`, `opcache` |
+| `base`        | `runtime` plus the build tooling: Node 22, Composer, git and unzip                                         |
+| `development` | `base` plus Xdebug and the development entrypoint, used by `compose.dev.yaml`                              |
+| `builder`     | Installs the PHP and Node dependencies, runs `npm run build`, then discards `node_modules`                 |
+| `production`  | `runtime` again, copying the finished application out of `builder`                                         |
 
 `development` and `production` both trace back to `runtime`, which declares the extension list once. `production` derives from `runtime` directly rather than from `base`, so the shipped image carries no Node, Composer or git.
 
@@ -242,12 +242,12 @@ Ignite never lets a mail failure break registration or password reset: if the tr
 
 This deploy shape trades operational simplicity for headroom it does not yet need. Each of these is a choice with a documented upgrade path, not an oversight:
 
-| Concern | Current choice | Upgrade path when needed |
-| --- | --- | --- |
-| Queue | `QUEUE_CONNECTION=sync` | Jobs run synchronously, in-request. No worker process to keep alive. Switch to `database` or `redis` and run a `queue:work` process once background jobs need to survive request timeouts or run concurrently. |
-| Cache | `CACHE_STORE=database` | No Redis dependency; cache reads and writes hit PostgreSQL. Move to `redis` if cache traffic becomes a bottleneck. |
-| Session | `SESSION_DRIVER=database` | Same trade-off as cache: one less moving part, at the cost of a little more database load per request. |
-| Rendering | No SSR | The image builds the client bundle only (`npm run build`), not `build:ssr`. Inertia SSR would need its own long-running Node process; add it if first-paint or SEO requirements change. |
+| Concern   | Current choice            | Upgrade path when needed                                                                                                                                                                                       |
+| --------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Queue     | `QUEUE_CONNECTION=sync`   | Jobs run synchronously, in-request. No worker process to keep alive. Switch to `database` or `redis` and run a `queue:work` process once background jobs need to survive request timeouts or run concurrently. |
+| Cache     | `CACHE_STORE=database`    | No Redis dependency; cache reads and writes hit PostgreSQL. Move to `redis` if cache traffic becomes a bottleneck.                                                                                             |
+| Session   | `SESSION_DRIVER=database` | Same trade-off as cache: one less moving part, at the cost of a little more database load per request.                                                                                                         |
+| Rendering | No SSR                    | The image builds the client bundle only (`npm run build`), not `build:ssr`. Inertia SSR would need its own long-running Node process; add it if first-paint or SEO requirements change.                        |
 
 All of that state lives in the single PostgreSQL instance. There is no Redis, no dedicated worker, and no SSR server.
 

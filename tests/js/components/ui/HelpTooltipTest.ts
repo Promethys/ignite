@@ -1,13 +1,15 @@
+import HelpTooltip from '@/components/ui/HelpTooltip.vue';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
-import HelpTooltip from '@/components/ui/HelpTooltip.vue';
 
 vi.mock('lucide-vue-next', () => ({
     CircleQuestionMark: { template: '<span class="icon-circle-question" />' },
 }));
 
 const stubs = {
-    TooltipProvider: { template: '<div class="tooltip-provider"><slot /></div>' },
+    TooltipProvider: {
+        template: '<div class="tooltip-provider"><slot /></div>',
+    },
     Tooltip: { template: '<div class="tooltip"><slot /></div>' },
     TooltipTrigger: {
         template: '<div class="tooltip-trigger" tabindex="-1"><slot /></div>',

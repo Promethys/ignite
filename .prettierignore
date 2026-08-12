@@ -1,2 +1,5 @@
 resources/js/components/ui/*
 resources/views/mail/*
+docs/superpowers/
+docs/tmp/
+docs/.vitepress/dist/

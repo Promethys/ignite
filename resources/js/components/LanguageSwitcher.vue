@@ -52,7 +52,6 @@ async function change(code: string) {
         <DropdownMenuTrigger as-child>
             <Button
                 variant="outline"
-                size="sm"
                 class="gap-2"
                 :aria-label="`Change language, current: ${currentLabel}`"
             >

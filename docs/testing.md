@@ -6,14 +6,14 @@ This page covers the testing infrastructure, conventions, and tools used in Igni
 
 ### Testing stack
 
-| Layer | Tool |
-| --- | --- |
-| Backend test framework | PHPUnit (via Laravel) |
-| Backend database | SQLite in-memory (fast, isolated) |
-| Frontend test runner | Vitest |
-| Frontend component testing | `@vue/test-utils` |
-| Static analysis | Larastan / PHPStan (level 3) for PHP, `vue-tsc` for TypeScript |
-| CI | GitHub Actions |
+| Layer                      | Tool                                                           |
+| -------------------------- | -------------------------------------------------------------- |
+| Backend test framework     | PHPUnit (via Laravel)                                          |
+| Backend database           | SQLite in-memory (fast, isolated)                              |
+| Frontend test runner       | Vitest                                                         |
+| Frontend component testing | `@vue/test-utils`                                              |
+| Static analysis            | Larastan / PHPStan (level 3) for PHP, `vue-tsc` for TypeScript |
+| CI                         | GitHub Actions                                                 |
 
 ## Testing conventions
 
@@ -22,23 +22,26 @@ This page covers the testing infrastructure, conventions, and tools used in Igni
 The backend test suite is divided into three categories:
 
 **Unit tests**: `tests/Unit/`
+
 - No Laravel boot, no database
 - Pure PHP logic: helpers, value objects, standalone services
 - Fast and side-effect-free
 
 **Feature tests**: `tests/Feature/`
+
 - Laravel fully booted, database available
 - Mirror the `app/` directory structure
 - Cover controllers, models, observers, policies
 
 **Integration tests**: `tests/Integration/`
+
 - Multi-component workflows (e.g. creation, progress, auto-completion)
 - Do not map to a single class
 
 ### Naming conventions
 
 - All test classes use the `*Test` suffix
-- Test method names use snake_case prefixed with `test_`
+- Test method names use snake*case prefixed with `test*`
 - Names describe the behavior, not the implementation
 
 ```php
@@ -203,6 +206,7 @@ The development image defaults Xdebug to `develop,debug`, which excludes the cov
 ```bash
 docker compose -f compose.dev.yaml exec -e XDEBUG_MODE=coverage web php artisan test --coverage
 ```
+
 :::
 
 ### Frontend
@@ -281,6 +285,7 @@ class GoalTest extends TestCase
 #### Relationship tests
 
 For each relationship, verify:
+
 1. The FK record exists in the database
 2. The relationship method returns the correct model type
 
@@ -356,6 +361,7 @@ Observer vs factory: factories bypass observers by default in some configuration
 Controller tests live in `tests/Feature/Http/Controllers/`, mirroring `app/Http/Controllers/`.
 
 Every controller test must cover:
+
 - **Authorization**: guest redirect, ownership enforcement
 - **Happy path**: successful action with correct DB state and redirect
 - **Validation**: required fields, type constraints
@@ -460,9 +466,9 @@ Three things about this are easy to get wrong:
 
 - `Sanctum::actingAs($user)` with **no** abilities argument grants an empty set, so `tokenCan()` is false for everything and every tool disappears. Always pass the abilities explicitly.
 - `actingAs` does **not** apply the `write` implies `read` normalization that token creation does. A real `write` token stores `['read', 'write']`, so simulate it as `['read', 'write']` or read tools will wrongly appear unavailable.
-- To test that an ability is *missing*, pick one that genuinely excludes it. `['delete']` is a good stand-in for "no read access"; `['write']` is not, because a real write token carries read.
+- To test that an ability is _missing_, pick one that genuinely excludes it. `['delete']` is a good stand-in for "no read access"; `['write']` is not, because a real write token carries read.
 
-**A scope test needs both directions.** Assert that a granted ability works *and* that a withheld one is refused. A lone negative assertion passes just as well when the mechanism is broken and refuses everything.
+**A scope test needs both directions.** Assert that a granted ability works _and_ that a withheld one is refused. A lone negative assertion passes just as well when the mechanism is broken and refuses everything.
 
 **`assertSee` and `assertStructuredContent` check different payloads.** `assertSee` inspects the text content; `assertStructuredContent` inspects the structured JSON. A tool can return correct text while its structured payload is wrong, and clients that prefer structured content would then receive nothing useful. Assert on whichever payload the consumer actually reads, and on both when a tool returns both:
 
@@ -484,10 +490,10 @@ Asserting `missing()` on fields that must never be exposed is worth doing explic
 Each test file mounts a component using `@vue/test-utils` and asserts on the rendered output:
 
 ```ts
-import { mount } from '@vue/test-utils'
-import { describe, it, expect } from 'vitest'
-import QuantifiableGoalCard from '@/components/goals/QuantifiableGoalCard.vue'
-import type { Goal } from '@/types/models'
+import { mount } from '@vue/test-utils';
+import { describe, it, expect } from 'vitest';
+import QuantifiableGoalCard from '@/components/goals/QuantifiableGoalCard.vue';
+import type { Goal } from '@/types/models';
 
 const baseGoal: Goal = {
     id: 1,
@@ -496,27 +502,27 @@ const baseGoal: Goal = {
     type: 'quantifiable',
     progress_percentage: 50,
     // ... other required fields
-}
+};
 
 describe('QuantifiableGoalCard', () => {
     it('shows pause option when goal is in_progress', () => {
         const wrapper = mount(QuantifiableGoalCard, {
             props: { item: { ...baseGoal, status: 'in_progress' } },
-        })
+        });
 
-        expect(wrapper.text()).toContain('Pause')
-        expect(wrapper.text()).not.toContain('Resume')
-    })
+        expect(wrapper.text()).toContain('Pause');
+        expect(wrapper.text()).not.toContain('Resume');
+    });
 
     it('shows resume option when goal is paused', () => {
         const wrapper = mount(QuantifiableGoalCard, {
             props: { item: { ...baseGoal, status: 'paused' } },
-        })
+        });
 
-        expect(wrapper.text()).toContain('Resume')
-        expect(wrapper.text()).not.toContain('Pause')
-    })
-})
+        expect(wrapper.text()).toContain('Resume');
+        expect(wrapper.text()).not.toContain('Pause');
+    });
+});
 ```
 
 ### Page tests
@@ -572,19 +578,19 @@ Assert on what the page renders from its props, and on the router calls it trigg
 Pure functions need no component mounting:
 
 ```ts
-import { describe, it, expect } from 'vitest'
-import { getDateDiffFromNow } from '@/lib/utils'
+import { describe, it, expect } from 'vitest';
+import { getDateDiffFromNow } from '@/lib/utils';
 
 describe('getDateDiffFromNow', () => {
     it('returns 0 for today', () => {
-        const today = new Date().toISOString().split('T')[0]
-        expect(getDateDiffFromNow(today)).toBe(0)
-    })
+        const today = new Date().toISOString().split('T')[0];
+        expect(getDateDiffFromNow(today)).toBe(0);
+    });
 
     it('returns negative for past dates', () => {
-        expect(getDateDiffFromNow('2020-01-01')).toBeLessThan(0)
-    })
-})
+        expect(getDateDiffFromNow('2020-01-01')).toBeLessThan(0);
+    });
+});
 ```
 
 ## Best practices

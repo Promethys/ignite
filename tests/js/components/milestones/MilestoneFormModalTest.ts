@@ -229,9 +229,9 @@ describe('MilestoneFormModal', () => {
         });
 
         const labels = wrapper.findAll('label');
-        expect(labels.some((l) => l.text().startsWith('milestones.form.title'))).toBe(
-            true,
-        );
+        expect(
+            labels.some((l) => l.text().startsWith('milestones.form.title')),
+        ).toBe(true);
     });
 
     it('renders description textarea with label', () => {
