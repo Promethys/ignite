@@ -298,7 +298,7 @@ class GoalEntryControllerTest extends TestCase
             ->assertSessionHasErrors('entry_date');
     }
 
-    public function test_a_check_in_cannot_be_moved_before_the_goal_start_date()
+    public function test_a_check_in_can_be_moved_before_the_goal_start_date()
     {
         Carbon::setTestNow('2026-07-16 10:00:00');
 
@@ -314,7 +314,9 @@ class GoalEntryControllerTest extends TestCase
             ->put(route('goals.entries.update', ['goal' => $goal, 'goalEntry' => $entry]), [
                 'entry_date' => '2026-06-30',
             ])
-            ->assertSessionHasErrors('entry_date');
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('2026-06-30', $entry->fresh()->entry_date->toDateString());
     }
 
     public function test_an_entry_cannot_be_updated_through_another_goal()
@@ -410,7 +412,7 @@ class GoalEntryControllerTest extends TestCase
         $this->assertSame('2026-07-13', GoalEntry::where('goal_id', $goal->id)->sole()->entry_date->toDateString());
     }
 
-    public function test_recurring_check_in_rejects_a_date_before_start_date()
+    public function test_recurring_check_in_accepts_a_date_before_start_date()
     {
         Carbon::setTestNow('2026-07-16 10:00:00');
 
@@ -426,9 +428,12 @@ class GoalEntryControllerTest extends TestCase
             ->post(route('goals.entries.store', $goal), [
                 'entry_date' => '2026-07-05',
             ])
-            ->assertSessionHasErrors('entry_date');
+            ->assertSessionHasNoErrors();
 
-        $this->assertDatabaseMissing('goal_entries', ['goal_id' => $goal->id]);
+        $this->assertDatabaseHas('goal_entries', [
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-05 00:00:00',
+        ]);
     }
 
     public function test_recurring_check_in_rejects_a_second_entry_in_the_same_period()

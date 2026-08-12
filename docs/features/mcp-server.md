@@ -80,16 +80,18 @@ Seventeen tools, grouped by the ability they require.
 | `complete_goal`      | Mark a goal completed and record the completion time                                                                                                                        |
 | `uncomplete_goal`    | Revert a completed goal to an active status and clear its completion time. A goal that was never completed is rejected; use `set_goal_status` for an ordinary status change |
 | `set_goal_status`    | Change a goal's status                                                                                                                                                      |
-| `log_progress`       | Shift a non-recurring goal's current value by an increment and record an entry                                                                                              |
+| `log_progress`       | Shift a non-recurring goal's current value by an increment and record an entry. Takes an optional `entry_date` so past progress can be filled in                            |
 | `check_in`           | Record a dated check-in on a recurring goal, one per period, without touching the current value                                                                             |
 | `update_entry`       | Edit an entry's increment; the goal's current value shifts by the difference                                                                                                |
 | `add_milestone`      | Append a milestone to a goal                                                                                                                                                |
 | `complete_milestone` | Check off a milestone                                                                                                                                                       |
 | `set_user`           | Partial update of the acting user's own `name`, `timezone`, or `locale`                                                                                                     |
 
-`get_user` and `set_user` exist mainly for **timezone correctness**. Check-in dates are validated against "today" in the user's timezone, so a client that does not know the timezone can log check-ins on the wrong day. Neither tool exposes or accepts the account email, password, or two-factor data: the mutable set is deliberately limited to fields whose worst-case misuse is cosmetic. See [Security model](#security-model).
+`get_user` and `set_user` exist mainly for **timezone correctness**. Entry dates are validated against "today" in the user's timezone, so a client that does not know the timezone can log entries on the wrong day. Neither tool exposes or accepts the account email, password, or two-factor data: the mutable set is deliberately limited to fields whose worst-case misuse is cosmetic. See [Security model](#security-model).
 
 `log_progress` and `check_in` are not interchangeable. Logging progress on a recurring goal, or checking in on a non-recurring one, is rejected with an explanatory message. See [Goal Types](/features/goal-types).
+
+Both accept a date no later than today in the owner's timezone, and both allow a date earlier than the goal's own start date, so a goal created today can carry the history that led to it. Entries store running totals rather than deltas, so an entry landing before existing ones shifts the later totals to keep the progress chart rising in date order.
 
 ### `delete`
 

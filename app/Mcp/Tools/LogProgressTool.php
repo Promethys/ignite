@@ -33,19 +33,21 @@ class LogProgressTool extends IgniteTool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
-        $validated = $this->validateTrimmed($request, [
-            'goal_id' => 'required|integer|exists:goals,id',
-            ...GoalEntryRules::progressRules(),
+        $goalValidated = $request->validate([
+            'goal_id' => ['required', 'integer', 'exists:goals,id'],
         ]);
 
         $user = $this->actor($request);
-        $goal = $this->goalService->find($user, $validated['goal_id']);
+        $goal = $this->goalService->find($user, $goalValidated['goal_id']);
+
+        $validated = $this->validateTrimmed($request, GoalEntryRules::progressRules($goal));
 
         $entry = $this->goalEntryService->logProgress(
             $user,
             $goal,
             $validated['increment'],
-            $validated['note'] ?? null
+            $validated['note'] ?? null,
+            $validated['entry_date'] ?? null
         );
 
         return Response::make(
@@ -67,6 +69,11 @@ class LogProgressTool extends IgniteTool
             'increment' => $schema->number()
                 ->description('The amount to add to (or subtract from) the goal\'s current value. Positive advances an ascending goal; use a negative value to reduce progress.')
                 ->required(),
+            'entry_date' => $schema->string()
+                ->description('An optional calendar date for the entry as YYYY-MM-DD, defaulting to today. Must be on or before today. It may predate the start date, so past progress can be filled in after the goal was created.')
+                ->format('date')
+                ->max(255)
+                ->nullable(),
             'note' => $schema->string()
                 ->description('An optional note attached to the progress entry, up to 2000 characters.')
                 ->max(2000)

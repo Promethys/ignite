@@ -94,7 +94,8 @@ class GoalEntryController extends Controller
                 $request->user(),
                 $goal,
                 $validated['increment'],
-                $validated['note'] ?? null
+                $validated['note'] ?? null,
+                $validated['entry_date'] ?? null
             );
         }
 

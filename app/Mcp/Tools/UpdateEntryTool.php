@@ -32,13 +32,14 @@ class UpdateEntryTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
-        $validated = $this->validateTrimmed($request, [
-            'entry_id' => 'required|integer|exists:goal_entries,id',
-            ...GoalEntryRules::progressRules(),
+        $entryValidated = $request->validate([
+            'entry_id' => ['required', 'integer', 'exists:goal_entries,id'],
         ]);
 
         $user = $this->actor($request);
-        $goalEntry = GoalEntry::findOrFail($validated['entry_id']);
+        $goalEntry = GoalEntry::findOrFail($entryValidated['entry_id']);
+
+        $validated = $this->validateTrimmed($request, GoalEntryRules::progressRules($goalEntry->goal));
 
         $entry = $this->goalEntryService->updateEntry(
             $user,

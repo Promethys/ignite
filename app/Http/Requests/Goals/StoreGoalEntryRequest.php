@@ -24,7 +24,7 @@ class StoreGoalEntryRequest extends FormRequest
     {
         return $this->goal()->type === 'recurring'
             ? GoalEntryRules::checkInRules($this->goal())
-            : GoalEntryRules::progressRules();
+            : GoalEntryRules::progressRules($this->goal());
     }
 
     protected function goal(): Goal
