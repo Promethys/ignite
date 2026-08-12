@@ -17,7 +17,7 @@ const trust = [
 <template>
     <PublicShell title="Welcome">
         <main class="relative mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6">
-            <div class="relative grid grid-cols-1 items-center md:grid-cols-2">
+            <div class="relative grid grid-cols-1 items-center lg:grid-cols-2">
                 <div
                     class="public-surface-glow pointer-events-none absolute -top-40 left-[15%] h-[26rem] w-[42rem] max-w-full"
                 />
