@@ -6,7 +6,7 @@ How you record progress depends on the goal's type. All four are quick, and the 
 
 Open the goal and log how much you did. Ignite adds it to your total and updates the bar. You are recording the amount you added, not the new total, so a run of 5 kilometres is logged as 5 whether it is your first or your fortieth.
 
-Each entry carries a date and an optional note. The note is worth using: three months later, "felt easy, new shoes" tells you something the number cannot.
+Each entry carries a date and an optional note. The date defaults to today, and you can set it to any day up to today, so catching up after a week away records the work when it happened rather than all at once. It can even predate the goal itself, which is what you want when you create a goal for something you already started. The note is worth using: three months later, "felt easy, new shoes" tells you something the number cannot.
 
 Entries can be edited or deleted afterwards. Correcting an old entry adjusts your total correctly rather than double-counting, so fix mistakes freely.
 

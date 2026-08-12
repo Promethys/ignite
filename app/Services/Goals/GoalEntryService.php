@@ -56,7 +56,7 @@ class GoalEntryService
         ];
     }
 
-    public function logProgress(User $actor, Goal $goal, float $increment, ?string $note = null): GoalEntry
+    public function logProgress(User $actor, Goal $goal, float $increment, ?string $note = null, ?string $entryDate = null): GoalEntry
     {
         Gate::forUser($actor)->authorize('update', $goal);
 
@@ -66,19 +66,50 @@ class GoalEntryService
             ]);
         }
 
+        $entryDate ??= now()->toDateString();
         $newValue = $goal->current_value + $increment;
 
-        return \DB::transaction(function () use ($goal, $newValue, $note): GoalEntry {
+        return \DB::transaction(function () use ($goal, $increment, $newValue, $note, $entryDate): GoalEntry {
+            $laterEntries = $goal->entries()
+                ->whereDate('entry_date', '>', $entryDate)
+                ->get();
+
+            $previousValue = $laterEntries->isEmpty()
+                ? (float) $goal->current_value
+                : $this->cumulativeValueOn($goal, $entryDate);
+
             $entry = $goal->entries()->create([
-                'value' => $newValue,
-                'previous_value' => $goal->current_value,
+                'value' => $previousValue + $increment,
+                'previous_value' => $previousValue,
                 'note' => $note,
-                'entry_date' => now()->toDateString(),
+                'entry_date' => $entryDate,
             ]);
+
+            foreach ($laterEntries as $later) {
+                $later->update([
+                    'previous_value' => $later->previous_value + $increment,
+                    'value' => $later->value + $increment,
+                ]);
+            }
+
             $goal->update(['current_value' => $newValue]);
 
-            return $entry;
+            return $entry->fresh();
         });
+    }
+
+    /**
+     * The goal's running total as it stood at the end of the given date.
+     */
+    protected function cumulativeValueOn(Goal $goal, string $entryDate): float
+    {
+        $latest = $goal->entries()
+            ->whereDate('entry_date', '<=', $entryDate)
+            ->orderBy('entry_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        return (float) ($latest?->value ?? $goal->initial_value ?? 0);
     }
 
     public function recordCheckIn(User $actor, Goal $goal, string $entryDate, ?string $note = null): GoalEntry
