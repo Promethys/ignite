@@ -3,7 +3,7 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
 </script>
 
 <template>
-    <div class="group flex flex-1 items-center gap-2 overflow-hidden">
+    <div class="group/logo flex flex-1 items-center gap-2 overflow-hidden">
         <AppLogoIcon class="size-8 shrink-0" />
         <div class="hidden flex-1 text-left text-sm sm:grid">
             <span
