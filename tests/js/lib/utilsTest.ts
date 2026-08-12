@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import {
     cn,
     formatDate,
@@ -9,6 +8,7 @@ import {
     toUrl,
     urlIsActive,
 } from '@/lib/utils';
+import { describe, expect, it } from 'vitest';
 
 // =========================================================================
 // getDateDiffFromNow
@@ -22,13 +22,17 @@ describe('getDateDiffFromNow', () => {
     });
 
     it('returns negative value for past dates', () => {
-        const past = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
+        const past = new Date(
+            Date.now() - 5 * 24 * 60 * 60 * 1000,
+        ).toISOString();
 
         expect(getDateDiffFromNow(past)).toBeLessThan(0);
     });
 
     it('returns positive value for future dates', () => {
-        const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        const future = new Date(
+            Date.now() + 7 * 24 * 60 * 60 * 1000,
+        ).toISOString();
 
         expect(getDateDiffFromNow(future)).toBeGreaterThan(0);
     });
@@ -114,7 +118,9 @@ describe('urlIsActive', () => {
     });
 
     it('compares object href url property against current url', () => {
-        expect(urlIsActive({ url: '/goals', method: 'get' }, '/goals')).toBe(true);
+        expect(urlIsActive({ url: '/goals', method: 'get' }, '/goals')).toBe(
+            true,
+        );
     });
 });
 

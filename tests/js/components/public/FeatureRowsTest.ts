@@ -24,9 +24,7 @@ describe('FeatureRows', () => {
         expect(indexes[0]).toBe('01');
         expect(indexes[1]).toBe('02');
         expect(indexes).toEqual(
-            indexes.map((_, position) =>
-                String(position + 1).padStart(2, '0'),
-            ),
+            indexes.map((_, position) => String(position + 1).padStart(2, '0')),
         );
     });
 

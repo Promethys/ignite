@@ -91,9 +91,7 @@ const mountIndex = () =>
     });
 
 const findCreateLink = (wrapper: ReturnType<typeof mountIndex>) =>
-    wrapper
-        .findAll('a')
-        .find((a) => a.text().includes('goals.actions.new'));
+    wrapper.findAll('a').find((a) => a.text().includes('goals.actions.new'));
 
 describe('Goals/Index filtering', () => {
     it('renders every goal by default', () => {

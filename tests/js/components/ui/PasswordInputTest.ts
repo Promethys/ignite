@@ -1,6 +1,6 @@
+import PasswordInput from '@/components/ui/password-input/PasswordInput.vue';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
-import PasswordInput from '@/components/ui/password-input/PasswordInput.vue';
 
 vi.mock('lucide-vue-next', () => ({
     Eye: { template: '<span class="icon-eye" />' },

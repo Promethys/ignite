@@ -50,11 +50,11 @@ No target, no cadence, no milestones. You mark it complete when it is complete. 
 
 ## Choosing quickly
 
-| If you would describe the goal as... | Use |
-| --- | --- |
-| "X by the numbers" | Quantifiable |
-| "every day / week / month" | Recurring |
-| "a series of stages" | Multi-step |
-| "a thing I need to get done" | Simple |
+| If you would describe the goal as... | Use          |
+| ------------------------------------ | ------------ |
+| "X by the numbers"                   | Quantifiable |
+| "every day / week / month"           | Recurring    |
+| "a series of stages"                 | Multi-step   |
+| "a thing I need to get done"         | Simple       |
 
 When two fit, prefer the one that makes logging easiest. The type you will actually keep up with beats the one that models the goal most precisely.

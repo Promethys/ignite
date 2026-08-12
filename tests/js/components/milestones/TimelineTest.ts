@@ -1,7 +1,7 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
 import Timeline from '@/components/milestones/Timeline.vue';
 import type { Goal, Milestone } from '@/types/models';
+import { mount } from '@vue/test-utils';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/utils', () => ({
     formatDate: (date: string) => `formatted:${date}`,
@@ -18,7 +18,8 @@ vi.mock('lucide-vue-next', () => ({
 const stubs = {
     Badge: { template: '<span class="badge"><slot /></span>' },
     MilestoneFormModal: {
-        template: '<div class="milestone-form-modal"><slot /><slot name="trigger" /></div>',
+        template:
+            '<div class="milestone-form-modal"><slot /><slot name="trigger" /></div>',
     },
 };
 
@@ -118,9 +119,7 @@ describe('Timeline', () => {
     // =========================================================================
 
     it('shows check icon for completed milestones', () => {
-        const milestones = [
-            makeMilestone({ id: 1, is_completed: true }),
-        ];
+        const milestones = [makeMilestone({ id: 1, is_completed: true })];
 
         const wrapper = mount(Timeline, {
             props: { record: makeGoal({ milestones }) },
@@ -140,14 +139,14 @@ describe('Timeline', () => {
             global: { stubs },
         });
 
-        const titleSpan = wrapper.findAll('span').find((s) => s.text() === 'Done');
+        const titleSpan = wrapper
+            .findAll('span')
+            .find((s) => s.text() === 'Done');
         expect(titleSpan?.classes()).toContain('line-through');
     });
 
     it('applies opacity-60 to completed milestone content', () => {
-        const milestones = [
-            makeMilestone({ id: 1, is_completed: true }),
-        ];
+        const milestones = [makeMilestone({ id: 1, is_completed: true })];
 
         const wrapper = mount(Timeline, {
             props: { record: makeGoal({ milestones }) },
@@ -160,7 +159,11 @@ describe('Timeline', () => {
 
     it('shows completed date for completed milestones with completed_at', () => {
         const milestones = [
-            makeMilestone({ id: 1, is_completed: true, completed_at: '2026-03-15' }),
+            makeMilestone({
+                id: 1,
+                is_completed: true,
+                completed_at: '2026-03-15',
+            }),
         ];
 
         const wrapper = mount(Timeline, {
@@ -273,7 +276,12 @@ describe('Timeline', () => {
 
     it('applies warning text color to active milestone title', () => {
         const milestones = [
-            makeMilestone({ id: 1, title: 'Active', target_value: 500, is_completed: false }),
+            makeMilestone({
+                id: 1,
+                title: 'Active',
+                target_value: 500,
+                is_completed: false,
+            }),
         ];
 
         const wrapper = mount(Timeline, {
@@ -281,7 +289,9 @@ describe('Timeline', () => {
             global: { stubs },
         });
 
-        const titleSpan = wrapper.findAll('span').find((s) => s.text() === 'Active');
+        const titleSpan = wrapper
+            .findAll('span')
+            .find((s) => s.text() === 'Active');
         expect(titleSpan?.classes()).toContain('text-warning');
     });
 
@@ -290,9 +300,7 @@ describe('Timeline', () => {
     // =========================================================================
 
     it('displays target value with unit when milestone has target_value', () => {
-        const milestones = [
-            makeMilestone({ id: 1, target_value: 250 }),
-        ];
+        const milestones = [makeMilestone({ id: 1, target_value: 250 })];
 
         const wrapper = mount(Timeline, {
             props: { record: makeGoal({ milestones, unit: 'euros' }) },
@@ -304,9 +312,7 @@ describe('Timeline', () => {
     });
 
     it('does not display target value when milestone has no target_value', () => {
-        const milestones = [
-            makeMilestone({ id: 1, target_value: null }),
-        ];
+        const milestones = [makeMilestone({ id: 1, target_value: null })];
 
         const wrapper = mount(Timeline, {
             props: { record: makeGoal({ milestones }) },

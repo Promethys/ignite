@@ -37,12 +37,17 @@ const stubs = {
     Textarea: { template: '<textarea />', props: ['modelValue'] },
     InputError: { template: '<span />', props: ['message'] },
     Input: {
-        template: '<input :id="id" :type="type" :max="max" :value="modelValue" />',
+        template:
+            '<input :id="id" :type="type" :max="max" :value="modelValue" />',
         props: ['modelValue', 'id', 'type', 'max'],
     },
 };
 
-const goal = { id: 1, type: 'recurring', polarity: 'positive' } as unknown as Goal;
+const goal = {
+    id: 1,
+    type: 'recurring',
+    polarity: 'positive',
+} as unknown as Goal;
 
 const mountModal = (props: Record<string, unknown> = {}) =>
     mount(RecurringCheckInModal, {
@@ -71,7 +76,8 @@ describe('RecurringCheckInModal', () => {
         const wrapper = mountModal();
 
         expect(
-            (wrapper.find('input#entry_date').element as HTMLInputElement).value,
+            (wrapper.find('input#entry_date').element as HTMLInputElement)
+                .value,
         ).toBe('2026-07-16');
     });
 
@@ -87,7 +93,8 @@ describe('RecurringCheckInModal', () => {
         // Sliced from the ISO string: parsing it through the browser timezone
         // would render the 13th for anyone west of UTC.
         expect(
-            (wrapper.find('input#entry_date').element as HTMLInputElement).value,
+            (wrapper.find('input#entry_date').element as HTMLInputElement)
+                .value,
         ).toBe('2026-07-14');
     });
 

@@ -48,11 +48,11 @@ Authorization: Bearer <token>
 
 Each token carries one or more abilities, chosen at creation:
 
-| Ability | Grants |
-| --- | --- |
-| `read` | View goals, entries, milestones, and streaks |
-| `write` | Create and modify goals, log progress, record check-ins, manage milestones |
-| `delete` | Permanently delete goals and progress entries |
+| Ability  | Grants                                                                     |
+| -------- | -------------------------------------------------------------------------- |
+| `read`   | View goals, entries, milestones, and streaks                               |
+| `write`  | Create and modify goals, log progress, record check-ins, manage milestones |
+| `delete` | Permanently delete goals and progress entries                              |
 
 `write` implies `read` (both are stored when `write` is selected). **`delete` is independent and must be selected explicitly**, so an everyday token cannot destroy anything.
 
@@ -64,28 +64,28 @@ Seventeen tools, grouped by the ability they require.
 
 ### `read`
 
-| Tool | What it does |
-| --- | --- |
-| `list_goals` | The user's goals with status, type, progress, streak, and category. Accepts `status`, `type`, `category_id`, `search` (title and description), and `limit` (max 100), and reports the matching `total` |
-| `get_goal` | One goal, including its recent entries, ordered milestones, and streak |
-| `list_entries` | A goal's progress entries, newest first. Accepts `search` (note text), `from`, `to`, and `limit` (default 50, max 200), and reports the matching `total` |
-| `get_user` | The acting user's id, name, timezone, and locale |
+| Tool           | What it does                                                                                                                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `list_goals`   | The user's goals with status, type, progress, streak, and category. Accepts `status`, `type`, `category_id`, `search` (title and description), and `limit` (max 100), and reports the matching `total` |
+| `get_goal`     | One goal, including its recent entries, ordered milestones, and streak                                                                                                                                 |
+| `list_entries` | A goal's progress entries, newest first. Accepts `search` (note text), `from`, `to`, and `limit` (default 50, max 200), and reports the matching `total`                                               |
+| `get_user`     | The acting user's id, name, timezone, and locale                                                                                                                                                       |
 
 ### `write`
 
-| Tool | What it does |
-| --- | --- |
-| `create_goal` | Create a goal. Only `title` and `type` are required (plus `target_value` for a quantifiable goal); operational fields default server side |
-| `update_goal` | Partial update. Supply `goal_id` plus only the fields to change; omitted fields keep their current value |
-| `complete_goal` | Mark a goal completed and record the completion time |
-| `uncomplete_goal` | Revert a completed goal to an active status and clear its completion time. A goal that was never completed is rejected; use `set_goal_status` for an ordinary status change |
-| `set_goal_status` | Change a goal's status |
-| `log_progress` | Shift a non-recurring goal's current value by an increment and record an entry |
-| `check_in` | Record a dated check-in on a recurring goal, one per period, without touching the current value |
-| `update_entry` | Edit an entry's increment; the goal's current value shifts by the difference |
-| `add_milestone` | Append a milestone to a goal |
-| `complete_milestone` | Check off a milestone |
-| `set_user` | Partial update of the acting user's own `name`, `timezone`, or `locale` |
+| Tool                 | What it does                                                                                                                                                                |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `create_goal`        | Create a goal. Only `title` and `type` are required (plus `target_value` for a quantifiable goal); operational fields default server side                                   |
+| `update_goal`        | Partial update. Supply `goal_id` plus only the fields to change; omitted fields keep their current value                                                                    |
+| `complete_goal`      | Mark a goal completed and record the completion time                                                                                                                        |
+| `uncomplete_goal`    | Revert a completed goal to an active status and clear its completion time. A goal that was never completed is rejected; use `set_goal_status` for an ordinary status change |
+| `set_goal_status`    | Change a goal's status                                                                                                                                                      |
+| `log_progress`       | Shift a non-recurring goal's current value by an increment and record an entry                                                                                              |
+| `check_in`           | Record a dated check-in on a recurring goal, one per period, without touching the current value                                                                             |
+| `update_entry`       | Edit an entry's increment; the goal's current value shifts by the difference                                                                                                |
+| `add_milestone`      | Append a milestone to a goal                                                                                                                                                |
+| `complete_milestone` | Check off a milestone                                                                                                                                                       |
+| `set_user`           | Partial update of the acting user's own `name`, `timezone`, or `locale`                                                                                                     |
 
 `get_user` and `set_user` exist mainly for **timezone correctness**. Check-in dates are validated against "today" in the user's timezone, so a client that does not know the timezone can log check-ins on the wrong day. Neither tool exposes or accepts the account email, password, or two-factor data: the mutable set is deliberately limited to fields whose worst-case misuse is cosmetic. See [Security model](#security-model).
 
@@ -93,9 +93,9 @@ Seventeen tools, grouped by the ability they require.
 
 ### `delete`
 
-| Tool | What it does |
-| --- | --- |
-| `delete_goal` | Permanently delete a goal and, by database cascade, all of its entries and milestones |
+| Tool           | What it does                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------------- |
+| `delete_goal`  | Permanently delete a goal and, by database cascade, all of its entries and milestones             |
 | `delete_entry` | Permanently delete one progress entry, rewinding the goal's current value for non-recurring goals |
 
 ## Destructive operations require confirmation
@@ -106,9 +106,9 @@ MCP has no modal dialog, so deletion is a **two-step exchange** handled by `App\
 
 ```json
 {
-  "requires_confirmation": true,
-  "confirmation_token": "…",
-  "preview": "This will permanently delete the goal 'Write a book', its 3 milestones and 2 progress entries. This cannot be undone."
+    "requires_confirmation": true,
+    "confirmation_token": "…",
+    "preview": "This will permanently delete the goal 'Write a book', its 3 milestones and 2 progress entries. This cannot be undone."
 }
 ```
 
@@ -194,7 +194,7 @@ It starts a browser UI against `/mcp`. The app itself must be running and reacha
 ## Troubleshooting
 
 **Some tools are missing from my client.**
-Almost always a scope mismatch. Because scopes are enforced at registration, a token without an ability makes the corresponding tools *invisible* rather than returning a permission error. A client with a `read`-only token that is asked to delete something will answer that it has no such tool. Check the token's abilities under **Settings > API tokens**, and if they are wrong, revoke it and create a new one with the abilities you need.
+Almost always a scope mismatch. Because scopes are enforced at registration, a token without an ability makes the corresponding tools _invisible_ rather than returning a permission error. A client with a `read`-only token that is asked to delete something will answer that it has no such tool. Check the token's abilities under **Settings > API tokens**, and if they are wrong, revoke it and create a new one with the abilities you need.
 
 **I changed my token's abilities, or upgraded Ignite, and nothing changed.**
 Clients fetch the tool list once, when they connect, and cache it. Restarting Ignite itself changes nothing on the client side. Reconnect the MCP server so the client requests the list again; if the tools still do not appear, remove the server from your client's configuration and add it back, which forces a fresh handshake rather than reusing held connection state.

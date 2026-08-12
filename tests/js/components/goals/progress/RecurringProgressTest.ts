@@ -1,7 +1,7 @@
 import RecurringProgress from '@/components/goals/progress/RecurringProgress.vue';
 import type { Goal, StreakData } from '@/types/models';
-import { Flame } from 'lucide-vue-next';
 import { mount } from '@vue/test-utils';
+import { Flame } from 'lucide-vue-next';
 import { describe, expect, it } from 'vitest';
 
 const baseGoal: Goal = {
@@ -34,7 +34,8 @@ const baseGoal: Goal = {
     is_completed: false,
 };
 
-const mountProgress = (item: Goal) => mount(RecurringProgress, { props: { item } });
+const mountProgress = (item: Goal) =>
+    mount(RecurringProgress, { props: { item } });
 
 describe('RecurringProgress', () => {
     it('renders the current streak with the unit noun', () => {
@@ -59,7 +60,11 @@ describe('RecurringProgress', () => {
             current_period_satisfied: true,
         };
 
-        const wrapper = mountProgress({ ...baseGoal, recurrence: 'weekly', streak });
+        const wrapper = mountProgress({
+            ...baseGoal,
+            recurrence: 'weekly',
+            streak,
+        });
 
         expect(wrapper.text()).toContain('goals.streak.positive.week');
     });

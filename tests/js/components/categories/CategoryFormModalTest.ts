@@ -1,7 +1,7 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
 import CategoryFormModal from '@/components/categories/CategoryFormModal.vue';
 import type { Category } from '@/types/models';
+import { mount } from '@vue/test-utils';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@inertiajs/vue3', () => ({
     useForm: (data: Record<string, unknown>) => ({
@@ -11,7 +11,10 @@ vi.mock('@inertiajs/vue3', () => ({
         submit: vi.fn(),
         reset: vi.fn(),
         clearErrors: vi.fn(),
-        transform: vi.fn(function (this: Record<string, unknown>, fn: (data: Record<string, unknown>) => Record<string, unknown>) {
+        transform: vi.fn(function (
+            this: Record<string, unknown>,
+            fn: (data: Record<string, unknown>) => Record<string, unknown>,
+        ) {
             return { ...this, ...fn(data) };
         }),
         validate: vi.fn(),
@@ -21,7 +24,10 @@ vi.mock('@inertiajs/vue3', () => ({
 
 vi.mock('@/actions/App/Http/Controllers/CategoryController', () => ({
     store: () => ({ method: 'POST', url: '/categories' }),
-    update: (_record: Category) => ({ method: 'PUT', url: `/categories/${_record?.id}` }),
+    update: (_record: Category) => ({
+        method: 'PUT',
+        url: `/categories/${_record?.id}`,
+    }),
 }));
 
 const stubs = {
@@ -39,8 +45,14 @@ const stubs = {
     Input: { template: '<input />', props: ['modelValue'] },
     Label: { template: '<label><slot /></label>' },
     Textarea: { template: '<textarea />', props: ['modelValue'] },
-    Button: { template: '<button><slot /></button>', props: ['disabled', 'variant'] },
-    FormError: { template: '<span class="form-error">{{ error }}</span>', props: ['error'] },
+    Button: {
+        template: '<button><slot /></button>',
+        props: ['disabled', 'variant'],
+    },
+    FormError: {
+        template: '<span class="form-error">{{ error }}</span>',
+        props: ['error'],
+    },
     Spinner: { template: '<span class="spinner" />' },
 };
 

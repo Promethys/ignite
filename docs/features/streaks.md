@@ -12,12 +12,12 @@ There is no `streak` column anywhere. `StreakService::for(Goal $goal)` recompute
 
 Each `recurrence` value maps to a bucketing unit and date format (`StreakService::cadenceFormats()`):
 
-| `recurrence` | unit | bucket format |
-| --- | --- | --- |
-| `daily` | day | `Y-m-d` |
-| `weekly` | week | `o-W` (ISO week) |
-| `monthly` | month | `Y-m` |
-| `annually` | year | `Y` |
+| `recurrence` | unit  | bucket format    |
+| ------------ | ----- | ---------------- |
+| `daily`      | day   | `Y-m-d`          |
+| `weekly`     | week  | `o-W` (ISO week) |
+| `monthly`    | month | `Y-m`            |
+| `annually`   | year  | `Y`              |
 
 An entry "counts" for a period if its `entry_date`, formatted with that bucket format, matches the period being checked. All streak math is done in the goal owner's timezone (`$goal->user->timezone`, falling back to `config('app.timezone')`).
 
@@ -26,6 +26,7 @@ An entry "counts" for a period if its `entry_date`, formatted with that bucket f
 For goals with `polarity !== 'negative'` (the default), a streak counts periods where the user showed up.
 
 **Current streak** (`evaluateCurrentStreak`): starting from "now", check whether the current period has a matching entry.
+
 - If it does, count starts at `1` and `current_period_satisfied` is `true`.
 - If it doesn't, count starts at `0` and `current_period_satisfied` is `false`, but the streak isn't reset yet: the cursor still steps back one period and keeps counting.
 - From there, the cursor steps backward one period at a time, incrementing the count for every consecutive period (working backward) that has a matching entry, and stops at the first period (going backward) with no entry.
@@ -53,6 +54,7 @@ Negative polarity flips the meaning: an entry represents a lapse (e.g. a relapse
 ## Deadline-based auto-completion for negative-polarity goals
 
 `StreakService::isDeadlineCompletionEligible(Goal $goal)` returns `true` only when all of:
+
 - `polarity === 'negative'` and the goal isn't already `completed`,
 - the goal has a `deadline` that is not in the future (today or past),
 - and there are zero entries between the goal's start (`start_date` or `created_at`) and its `deadline`.

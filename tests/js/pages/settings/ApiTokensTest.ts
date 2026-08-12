@@ -44,7 +44,9 @@ vi.mock('@inertiajs/vue3', async (importOriginal) => {
 });
 
 const passthrough = (names: string[]) =>
-    Object.fromEntries(names.map((n) => [n, { template: '<div><slot /></div>' }]));
+    Object.fromEntries(
+        names.map((n) => [n, { template: '<div><slot /></div>' }]),
+    );
 
 // A checkbox that forwards model updates, so toggle behavior is testable.
 // `id` arrives as a fallthrough attr and lands on the native input.
@@ -84,13 +86,17 @@ const stubs = {
     ]),
     // Mark the footer so the revoke confirm button can be scoped within it,
     // distinct from the trigger button (both render the same label).
-    DialogFooter: { template: '<div data-testid="dialog-footer"><slot /></div>' },
+    DialogFooter: {
+        template: '<div data-testid="dialog-footer"><slot /></div>',
+    },
     Button,
     Input,
     Checkbox,
 };
 
-const makeToken = (overrides: Partial<PersonalAccessToken>): PersonalAccessToken =>
+const makeToken = (
+    overrides: Partial<PersonalAccessToken>,
+): PersonalAccessToken =>
     ({
         id: 1,
         name: 'Claude Desktop',
@@ -115,7 +121,9 @@ describe('settings/ApiTokens', () => {
             newToken: { name: 'fresh', token: 'plain-secret-value' },
         });
 
-        expect(wrapperWith.text()).toContain('settings.api_tokens.reveal_title');
+        expect(wrapperWith.text()).toContain(
+            'settings.api_tokens.reveal_title',
+        );
         expect(wrapperWith.text()).toContain('plain-secret-value');
 
         const wrapperWithout = mountPage({ newToken: null });
@@ -135,13 +143,21 @@ describe('settings/ApiTokens', () => {
     it('renders a badge per ability using the short translated labels', () => {
         const wrapper = mountPage({
             tokens: [
-                makeToken({ id: 7, name: 'Cursor', abilities: ['read', 'write'] }),
+                makeToken({
+                    id: 7,
+                    name: 'Cursor',
+                    abilities: ['read', 'write'],
+                }),
             ],
         });
 
         expect(wrapper.text()).toContain('Cursor');
-        expect(wrapper.text()).toContain('settings.api_tokens.ability_short.read');
-        expect(wrapper.text()).toContain('settings.api_tokens.ability_short.write');
+        expect(wrapper.text()).toContain(
+            'settings.api_tokens.ability_short.read',
+        );
+        expect(wrapper.text()).toContain(
+            'settings.api_tokens.ability_short.write',
+        );
     });
 
     it('toggles an ability into and out of the form array', async () => {
@@ -150,7 +166,9 @@ describe('settings/ApiTokens', () => {
         expect(mocks.createForm.abilities).toEqual(['read']);
 
         await wrapper.find('#ability-write').setValue(true);
-        expect(mocks.createForm.abilities).toEqual(expect.arrayContaining(['write']));
+        expect(mocks.createForm.abilities).toEqual(
+            expect.arrayContaining(['write']),
+        );
 
         await wrapper.find('#ability-write').setValue(false);
         expect(mocks.createForm.abilities).not.toContain('write');
