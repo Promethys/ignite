@@ -62,5 +62,7 @@ return [
         'verification_error' => 'Nous n\'avons pas pu envoyer le lien, veuillez réessayer ultérieurement.',
         'email_verified' => 'E-mail vérifié.',
         'reset_link' => 'Un lien de réinitialisation sera envoyé si le compte existe. Consultez vos spams s\'il n\'arrive pas.',
+        'sso_error' => 'Impossible de vous connecter avec ce fournisseur. Veuillez réessayer.',
+        'sso_unverified_email' => 'Cet e-mail est déjà enregistré mais le fournisseur ne l\'a pas confirmé comme vérifié. Veuillez d\'abord vous connecter avec votre mot de passe.',
     ],
 ];

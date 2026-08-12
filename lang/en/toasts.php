@@ -62,5 +62,7 @@ return [
         'verification_error' => 'We could not send the link, please try again in a moment.',
         'email_verified' => 'Email verified.',
         'reset_link' => 'A reset link will be sent if the account exists. Check your spam folder if it does not arrive.',
+        'sso_error' => 'We could not sign you in with that provider. Please try again.',
+        'sso_unverified_email' => 'That email is already registered but the provider did not confirm it as verified. Please sign in with your password first.',
     ],
 ];

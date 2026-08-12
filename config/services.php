@@ -45,4 +45,16 @@ return [
         'ops_webhook_url' => env('DISCORD_OPS_WEBHOOK_URL'),
         'ops_enabled' => env('DISCORD_OPS_ENABLED', false),
     ],
+
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => '/auth/github/callback',
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => '/auth/google/callback',
+    ],
 ];

@@ -11,6 +11,8 @@ export interface BreadcrumbItem {
     href: string;
 }
 
+export type SsoProvider = 'google' | 'github';
+
 export interface NavItem {
     title: string;
     href: NonNullable<InertiaLinkProps['href']>;
@@ -29,6 +31,7 @@ export type AppPageProps<
     supportedLocales: Record<string, string>;
     supportEmail: string;
     githubUrl: string;
+    ssoProviders: SsoProvider[];
 };
 
 export type BreadcrumbItemType = BreadcrumbItem;

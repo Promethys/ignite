@@ -2,6 +2,7 @@
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
 import InputError from '@/components/InputError.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
+import SocialLoginButtons from '@/components/SocialLoginButtons.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -111,6 +112,8 @@ defineProps<{
                     {{ $t('auth_ui.login.submit') }}
                 </Button>
             </div>
+
+            <SocialLoginButtons :providers="$page.props.ssoProviders" />
 
             <div class="text-center text-sm text-muted-foreground">
                 {{ $t('auth_ui.login.no_account') }}

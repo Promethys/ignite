@@ -50,6 +50,10 @@ class HandleInertiaRequests extends Middleware
             'supportedLocales' => config('locales.supported'),
             'supportEmail' => config('app.support_email'),
             'githubUrl' => config('app.github_url'),
+            'ssoProviders' => collect(config('auth.sso.supported', []))
+                ->filter(fn ($provider) => config("services.{$provider}.client_id"))
+                ->values()
+                ->all(),
         ];
     }
 }

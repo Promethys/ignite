@@ -61,4 +61,32 @@ class HandleInertiaRequestsTest extends TestCase
                 ->where('githubUrl', 'https://github.com/example/repo')
             );
     }
+
+    public function test_only_configured_sso_providers_are_shared()
+    {
+        config(['services.google.client_id' => 'google-id']);
+        config(['services.github.client_id' => null]);
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (AssertableJson $page) => $page
+                ->where('ssoProviders', ['google'])
+            );
+    }
+
+    public function test_no_sso_providers_are_shared_when_none_are_configured()
+    {
+        config(['services.google.client_id' => null]);
+        config(['services.github.client_id' => null]);
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (AssertableJson $page) => $page
+                ->where('ssoProviders', [])
+            );
+    }
 }

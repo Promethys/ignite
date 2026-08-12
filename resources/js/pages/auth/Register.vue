@@ -2,6 +2,7 @@
 import RegisteredUserController from '@/actions/App/Http/Controllers/Auth/RegisteredUserController';
 import InputError from '@/components/InputError.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
+import SocialLoginButtons from '@/components/SocialLoginButtons.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -132,6 +133,8 @@ import { LoaderCircle } from 'lucide-vue-next';
                     {{ $t('auth_ui.register.submit') }}
                 </Button>
             </div>
+
+            <SocialLoginButtons :providers="$page.props.ssoProviders" />
 
             <div class="text-center text-sm text-muted-foreground">
                 {{ $t('auth_ui.register.have_account') }}
