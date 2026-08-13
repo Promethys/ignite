@@ -12,48 +12,50 @@ class SocialLoginService
 {
     public function resolveUser(string $provider, SocialiteUser $ssoUser, ?string $locale = null): User
     {
-        $account = SocialAccount::where('provider', $provider)
-            ->where('provider_id', $ssoUser->getId())
-            ->first();
+        return DB::transaction(function () use ($provider, $ssoUser, $locale) {
+            $account = SocialAccount::where('provider', $provider)
+                ->where('provider_id', $ssoUser->getId())
+                ->first();
 
-        if ($account) {
-            $this->syncTokens($account, $ssoUser);
+            if ($account) {
+                $this->syncProviderData($account, $ssoUser);
 
-            return $account->user;
-        }
-
-        $user = User::where('email', $ssoUser->getEmail())->first();
-
-        if ($user) {
-            if (! $this->emailVerified($ssoUser)) {
-                throw new UnverifiedSocialEmailException;
+                return $account->user;
             }
 
+            $user = User::where('email', $ssoUser->getEmail())->first();
+
+            if ($user) {
+                if (! $this->emailVerified($ssoUser, $provider)) {
+                    throw new UnverifiedSocialEmailException;
+                }
+
+                $this->linkProvider($user, $provider, $ssoUser);
+
+                return $user;
+            }
+
+            $user = $this->createUser($ssoUser, $locale);
             $this->linkProvider($user, $provider, $ssoUser);
 
             return $user;
-        }
-
-        $user = $this->createUser($ssoUser, $locale);
-        $this->linkProvider($user, $provider, $ssoUser);
-
-        return $user;
+        });
     }
 
-    private function emailVerified(SocialiteUser $ssoUser): bool
+    private function emailVerified(SocialiteUser $ssoUser, string $provider): bool
     {
+        if (config("services.$provider.all_emails_verified") === true) {
+            return true;
+        }
+
         $raw = $ssoUser->getRaw() ?? [];
 
         return (bool) ($raw['verified_email'] ?? $raw['email_verified'] ?? false);
     }
 
-    private function syncTokens(SocialAccount $account, SocialiteUser $ssoUser): void
+    private function syncProviderData(SocialAccount $account, SocialiteUser $ssoUser): void
     {
-        $account->update([
-            'token' => $ssoUser->token,
-            'refresh_token' => $ssoUser->refreshToken,
-            'provider_data' => $ssoUser->getRaw(),
-        ]);
+        $account->update(['provider_data' => $ssoUser->getRaw()]);
     }
 
     private function linkProvider(User $user, string $provider, SocialiteUser $ssoUser): SocialAccount
@@ -62,8 +64,6 @@ class SocialLoginService
             ['provider' => $provider],
             [
                 'provider_id' => $ssoUser->getId(),
-                'token' => $ssoUser->token,
-                'refresh_token' => $ssoUser->refreshToken,
                 'provider_data' => $ssoUser->getRaw(),
             ],
         );
@@ -71,14 +71,12 @@ class SocialLoginService
 
     private function createUser(SocialiteUser $ssoUser, ?string $locale): User
     {
-        $user = DB::transaction(function () use ($ssoUser, $locale) {
-            return User::create([
-                'name' => $ssoUser->getName() ?: $ssoUser->getNickname(),
-                'email' => $ssoUser->getEmail(),
-                'password' => null,
-                'locale' => $locale ?? config('app.fallback_locale'),
-            ]);
-        });
+        $user = User::create([
+            'name' => $ssoUser->getName() ?: $ssoUser->getNickname(),
+            'email' => $ssoUser->getEmail(),
+            'password' => null,
+            'locale' => $locale ?? config('app.fallback_locale'),
+        ]);
 
         $user->markEmailAsVerified();
 

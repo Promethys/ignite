@@ -28,11 +28,10 @@ class SSOControllerTest extends TestCase
 
     public function test_redirect_delegates_to_socialite()
     {
-        Socialite::shouldReceive('driver->redirect')
-            ->andReturn(redirect('https://provider.test/authorize'));
+        Socialite::fake('google');
 
         $this->get(route('sso.redirect', ['provider' => 'google']))
-            ->assertRedirect('https://provider.test/authorize');
+            ->assertRedirect();
     }
 
     public function test_callback_rejects_an_unsupported_provider()
@@ -49,7 +48,7 @@ class SSOControllerTest extends TestCase
             'provider_id' => '12345',
         ]);
 
-        $this->mockSocialiteUser('google', $this->socialiteUser());
+        Socialite::fake('google', $this->socialiteUser());
 
         $this->get(route('sso.callback', ['provider' => 'google']))
             ->assertRedirect(route('dashboard', absolute: false))
@@ -58,11 +57,29 @@ class SSOControllerTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_callback_registers_an_unknown_visitor_and_logs_them_in()
+    {
+        Socialite::fake('google', $this->socialiteUser());
+
+        $this->get(route('sso.callback', ['provider' => 'google']))
+            ->assertRedirect(route('dashboard', absolute: false));
+
+        $user = User::where('email', 'jane@example.com')->sole();
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertNotNull($user->email_verified_at);
+        $this->assertDatabaseHas('social_accounts', [
+            'user_id' => $user->id,
+            'provider' => 'google',
+            'provider_id' => '12345',
+        ]);
+    }
+
     public function test_callback_redirects_to_login_when_the_provider_email_is_unverified()
     {
         User::factory()->create(['email' => 'jane@example.com']);
 
-        $this->mockSocialiteUser('google', $this->socialiteUser(['verified_email' => false]));
+        Socialite::fake('google', $this->socialiteUser(['verified_email' => false]));
 
         $this->get(route('sso.callback', ['provider' => 'google']))
             ->assertRedirect(route('login'))
@@ -84,30 +101,46 @@ class SSOControllerTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_callback_regenerates_the_session_so_a_fixed_id_cannot_survive_login()
+    {
+        $user = User::factory()->create();
+        SocialAccount::factory()->for($user)->create([
+            'provider' => 'google',
+            'provider_id' => '12345',
+        ]);
+
+        Socialite::fake('google', $this->socialiteUser());
+
+        $this->startSession();
+        $idBeforeLogin = session()->getId();
+
+        $this->get(route('sso.callback', ['provider' => 'google']));
+
+        $this->assertNotSame($idBeforeLogin, session()->getId());
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_an_authenticated_visitor_cannot_re_enter_the_callback()
+    {
+        $user = User::factory()->create();
+
+        Socialite::fake('google', $this->socialiteUser());
+
+        $this->actingAs($user)
+            ->get(route('sso.callback', ['provider' => 'google']))
+            ->assertRedirect(route('dashboard', absolute: false));
+
+        $this->assertDatabaseCount('social_accounts', 0);
+    }
+
     private function socialiteUser(array $overrides = []): SocialiteUser
     {
-        $attributes = array_merge([
+        return SocialiteUser::fake(array_merge([
             'id' => '12345',
             'nickname' => 'janedoe',
             'name' => 'Jane Doe',
             'email' => 'jane@example.com',
             'verified_email' => true,
-        ], $overrides);
-
-        $user = (new SocialiteUser)
-            ->setRaw($attributes)
-            ->map($attributes);
-
-        $user->token = 'fresh-token';
-        $user->refreshToken = 'fresh-refresh';
-
-        return $user;
-    }
-
-    private function mockSocialiteUser(string $provider, SocialiteUser $user): void
-    {
-        $driver = Mockery::mock();
-        $driver->shouldReceive('user')->andReturn($user);
-        Socialite::shouldReceive('driver')->with($provider)->andReturn($driver);
+        ], $overrides));
     }
 }

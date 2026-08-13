@@ -41,11 +41,6 @@ class SSOController extends Controller
             return $this->reject('toasts.auth.sso_error');
         }
 
-        Log::debug('SSO login data', [
-            'provider' => $provider,
-            'userData' => $ssoUser,
-        ]);
-
         try {
             $user = $this->socialLogin->resolveUser(
                 $provider,

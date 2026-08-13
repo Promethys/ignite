@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\SocialAccount;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,15 +19,21 @@ class SocialAccountFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => User::factory(),
             'provider' => fake()->randomElement(['google', 'github']),
             'provider_id' => (string) fake()->unique()->randomNumber(7),
-            'token' => fake()->sha256(),
-            'refresh_token' => fake()->optional()->sha256(),
             'provider_data' => [
                 'name' => fake()->name(),
                 'email' => fake()->safeEmail(),
                 'avatar' => fake()->imageUrl(),
             ],
         ];
+    }
+
+    public function provider(string $provider): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'provider' => $provider,
+        ]);
     }
 }

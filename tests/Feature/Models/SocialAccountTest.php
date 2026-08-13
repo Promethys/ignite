@@ -33,19 +33,15 @@ class SocialAccountTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $account = SocialAccount::create([
-            'user_id' => $user->id,
+        $account = $user->socialAccounts()->create([
             'provider' => 'github',
             'provider_id' => '67890',
-            'token' => 'access-token',
-            'refresh_token' => 'refresh-token',
             'provider_data' => ['avatar_url' => 'https://cdn.test/v.png'],
         ]);
 
         $this->assertEquals('github', $account->provider);
         $this->assertEquals('67890', $account->provider_id);
-        $this->assertEquals('access-token', $account->token);
-        $this->assertEquals('refresh-token', $account->refresh_token);
+        $this->assertTrue($account->user->is($user));
     }
 
     public function test_provider_data_is_cast_to_and_from_an_array()

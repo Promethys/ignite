@@ -15,8 +15,6 @@ class SocialAccount extends Model
     protected $fillable = [
         'provider',
         'provider_id',
-        'token',
-        'refresh_token',
         'provider_data',
     ];
 

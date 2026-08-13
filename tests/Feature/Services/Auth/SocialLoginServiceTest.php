@@ -25,21 +25,18 @@ class SocialLoginServiceTest extends TestCase
         $this->service = app(SocialLoginService::class);
     }
 
-    public function test_existing_account_returns_its_user_and_syncs_tokens()
+    public function test_existing_account_returns_its_user_and_refreshes_provider_data()
     {
         $user = User::factory()->create();
         $account = SocialAccount::factory()->for($user)->create([
             'provider' => 'google',
             'provider_id' => '12345',
-            'token' => 'old-token',
-            'refresh_token' => 'old-refresh',
+            'provider_data' => ['avatar' => 'https://cdn.test/stale.png'],
         ]);
 
         $resolved = $this->service->resolveUser('google', $this->socialiteUser());
 
         $this->assertTrue($resolved->is($user));
-        $this->assertSame('fresh-token', $account->fresh()->token);
-        $this->assertSame('fresh-refresh', $account->fresh()->refresh_token);
         $this->assertSame('https://cdn.test/jane.png', $account->fresh()->provider_data['avatar']);
     }
 
@@ -133,6 +130,101 @@ class SocialLoginServiceTest extends TestCase
             'email' => 'jane@example.com',
             'locale' => config('app.fallback_locale'),
         ]);
+    }
+
+    public function test_one_user_can_link_two_different_providers()
+    {
+        $user = User::factory()->create(['email' => 'jane@example.com']);
+
+        $this->service->resolveUser('google', $this->socialiteUser(['id' => 'google-1']));
+        $this->service->resolveUser('github', $this->socialiteUser(['id' => 'github-1']));
+
+        $this->assertSame(2, $user->socialAccounts()->count());
+        $this->assertSame(1, User::count());
+    }
+
+    public function test_a_second_login_through_the_same_provider_does_not_duplicate_the_link()
+    {
+        $user = User::factory()->create(['email' => 'jane@example.com']);
+
+        $this->service->resolveUser('google', $this->socialiteUser());
+        $this->service->resolveUser('google', $this->socialiteUser());
+
+        $this->assertSame(1, $user->socialAccounts()->count());
+    }
+
+    public function test_the_name_falls_back_to_the_nickname_when_the_provider_has_none()
+    {
+        $this->service->resolveUser('google', $this->socialiteUser(['name' => null]));
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'jane@example.com',
+            'name' => 'janedoe',
+        ]);
+    }
+
+    public function test_a_provider_that_does_not_vouch_for_emails_is_rejected_when_the_payload_omits_the_flag()
+    {
+        config(['services.google.all_emails_verified' => false]);
+
+        $user = User::factory()->create(['email' => 'jane@example.com']);
+        $ssoUser = $this->socialiteUser();
+        $raw = $ssoUser->getRaw();
+        unset($raw['verified_email']);
+        $ssoUser->setRaw($raw);
+
+        $this->expectException(UnverifiedSocialEmailException::class);
+
+        try {
+            $this->service->resolveUser('google', $ssoUser);
+        } finally {
+            $this->assertSame(0, $user->socialAccounts()->count());
+        }
+    }
+
+    public function test_a_provider_that_vouches_for_every_email_links_without_a_payload_flag()
+    {
+        config(['services.google.all_emails_verified' => true]);
+
+        $user = User::factory()->create(['email' => 'jane@example.com']);
+        $ssoUser = $this->socialiteUser();
+        $raw = $ssoUser->getRaw();
+        unset($raw['verified_email']);
+        $ssoUser->setRaw($raw);
+
+        $resolved = $this->service->resolveUser('google', $ssoUser);
+
+        $this->assertTrue($resolved->is($user));
+        $this->assertSame(1, $user->socialAccounts()->count());
+    }
+
+    public function test_a_failure_after_the_user_is_created_rolls_it_back_rather_than_stranding_it()
+    {
+        // Registered fires inside createUser, so a listener that throws stands in
+        // for anything failing between the user row and its social account. Without
+        // the surrounding transaction this leaves an account with no password and
+        // no linked provider, which can never be logged into and holds the email.
+        Event::listen(Registered::class, function () {
+            throw new \RuntimeException('listener exploded');
+        });
+
+        $this->expectException(\RuntimeException::class);
+
+        try {
+            $this->service->resolveUser('google', $this->socialiteUser());
+        } finally {
+            $this->assertDatabaseMissing('users', ['email' => 'jane@example.com']);
+            $this->assertDatabaseCount('social_accounts', 0);
+        }
+    }
+
+    public function test_linking_does_not_verify_a_local_account_that_was_never_verified()
+    {
+        $user = User::factory()->unverified()->create(['email' => 'jane@example.com']);
+
+        $this->service->resolveUser('google', $this->socialiteUser());
+
+        $this->assertNull($user->fresh()->email_verified_at);
     }
 
     private function socialiteUser(array $overrides = []): SocialiteUser
