@@ -11,8 +11,6 @@ export interface BreadcrumbItem {
     href: string;
 }
 
-export type SsoProvider = 'google' | 'github';
-
 export interface NavItem {
     title: string;
     href: NonNullable<InertiaLinkProps['href']>;
@@ -36,4 +34,4 @@ export type AppPageProps<
 
 export type BreadcrumbItemType = BreadcrumbItem;
 
-export type { PersonalAccessToken, User } from './models';
+export type { PersonalAccessToken, SsoProvider, User } from './models';

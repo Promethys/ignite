@@ -1,3 +1,5 @@
+import { AchievementCriteria } from './achievements';
+
 export interface User {
     id: number;
     name: string;
@@ -17,6 +19,7 @@ export interface User {
     achievementsInProgress?: Achievement[];
     activeGoals?: Goal[];
     completedGoals?: Goal[];
+    socialAccounts?: SocialAccount[];
 }
 
 export interface Category {
@@ -164,4 +167,16 @@ export interface PersonalAccessToken {
     last_used_at: string | null;
     expires_at: string | null;
     created_at: string;
+}
+
+export type SsoProvider = 'google' | 'github';
+
+export interface SocialAccount {
+    id: number;
+    user_id: number;
+    provider: SsoProvider;
+    provider_id: string;
+    provider_data: Record<string, unknown> | null;
+    created_at: string;
+    updated_at: string;
 }
