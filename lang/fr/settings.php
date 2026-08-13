@@ -54,6 +54,12 @@ return [
         'confirm' => 'Confirmer le mot de passe',
         'confirm_placeholder' => 'Confirmer le mot de passe',
         'save' => 'Enregistrer le mot de passe',
+        'create_title' => 'Créer un mot de passe',
+        'create_description' => 'Vous vous connectez avec un compte lié. Ajoutez un mot de passe pour pouvoir aussi vous connecter avec votre adresse e-mail.',
+        'create_save' => 'Créer le mot de passe',
+        'linked_title' => 'Lié à :providers',
+        'linked_without_password' => 'Vous vous connectez uniquement avec :providers. Créer un mot de passe vous donne un second moyen de connexion, et le compte lié reste actif dans tous les cas.',
+        'linked_with_password' => 'Vous pouvez vous connecter avec votre e-mail et votre mot de passe, ou avec :providers.',
     ],
 
     'appearance' => [

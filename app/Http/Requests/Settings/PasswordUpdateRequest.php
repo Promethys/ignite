@@ -12,8 +12,17 @@ class PasswordUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $hasPassword = $this->user()->hasPassword();
+        $rules = [];
+
+        if ($hasPassword) {
+            $rules = [
+                'current_password' => ['required', 'current_password'],
+            ];
+        }
+
         return [
-            'current_password' => ['required', 'current_password'],
+            ...$rules,
             'password' => ['required', Password::defaults(), 'confirmed'],
         ];
     }

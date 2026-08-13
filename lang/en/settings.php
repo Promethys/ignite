@@ -54,6 +54,12 @@ return [
         'confirm' => 'Confirm password',
         'confirm_placeholder' => 'Confirm password',
         'save' => 'Save password',
+        'create_title' => 'Create a password',
+        'create_description' => 'You sign in with a linked account. Add a password so you can also sign in with your email address.',
+        'create_save' => 'Create password',
+        'linked_title' => 'Linked to :providers',
+        'linked_without_password' => 'You currently sign in with :providers only. Creating a password gives you a second way in, and you keep the linked account either way.',
+        'linked_with_password' => 'You can sign in with your email and password, or with :providers.',
     ],
 
     'appearance' => [
