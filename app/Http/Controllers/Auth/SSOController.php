@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Laravel\Fortify\Features;
 use Laravel\Socialite\Socialite;
 
 class SSOController extends Controller
@@ -49,6 +50,15 @@ class SSOController extends Controller
             );
         } catch (UnverifiedSocialEmailException $e) {
             return $this->reject('toasts.auth.sso_unverified_email');
+        }
+
+        if (Features::enabled(Features::twoFactorAuthentication()) && $user->hasEnabledTwoFactorAuthentication()) {
+            $request->session()->put([
+                'login.id' => $user->getKey(),
+                'login.remember' => $request->boolean('remember'),
+            ]);
+
+            return to_route('two-factor.login');
         }
 
         return $this->login($user);

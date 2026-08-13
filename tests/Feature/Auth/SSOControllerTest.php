@@ -133,6 +133,90 @@ class SSOControllerTest extends TestCase
         $this->assertDatabaseCount('social_accounts', 0);
     }
 
+    public function test_callback_challenges_a_user_with_two_factor_enabled_instead_of_logging_them_in()
+    {
+        $user = User::factory()->withTwoFactor()->create();
+        SocialAccount::factory()->for($user)->create([
+            'provider' => 'google',
+            'provider_id' => '12345',
+        ]);
+
+        Socialite::fake('google', $this->socialiteUser());
+
+        $this->get(route('sso.callback', ['provider' => 'google']))
+            ->assertRedirect(route('two-factor.login'));
+
+        $this->assertGuest();
+    }
+
+    public function test_callback_hands_the_challenge_the_session_keys_fortify_reads()
+    {
+        $user = User::factory()->withTwoFactor()->create();
+        SocialAccount::factory()->for($user)->create([
+            'provider' => 'google',
+            'provider_id' => '12345',
+        ]);
+
+        Socialite::fake('google', $this->socialiteUser());
+
+        $this->get(route('sso.callback', ['provider' => 'google']))
+            ->assertSessionHas('login.id', $user->id)
+            ->assertSessionHas('login.remember', false);
+    }
+
+    public function test_callback_links_the_account_even_though_the_login_is_deferred_to_the_challenge()
+    {
+        $user = User::factory()->withTwoFactor()->create(['email' => 'jane@example.com']);
+
+        Socialite::fake('google', $this->socialiteUser());
+
+        $this->get(route('sso.callback', ['provider' => 'google']))
+            ->assertRedirect(route('two-factor.login'));
+
+        $this->assertDatabaseHas('social_accounts', [
+            'user_id' => $user->id,
+            'provider' => 'google',
+            'provider_id' => '12345',
+        ]);
+        $this->assertGuest();
+    }
+
+    public function test_callback_does_not_challenge_a_user_who_never_confirmed_the_two_factor_setup()
+    {
+        $user = User::factory()->withTwoFactor()->create([
+            'two_factor_confirmed_at' => null,
+        ]);
+        SocialAccount::factory()->for($user)->create([
+            'provider' => 'google',
+            'provider_id' => '12345',
+        ]);
+
+        Socialite::fake('google', $this->socialiteUser());
+
+        $this->get(route('sso.callback', ['provider' => 'google']))
+            ->assertRedirect(route('dashboard', absolute: false));
+
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_callback_logs_in_normally_when_the_two_factor_feature_is_disabled()
+    {
+        config(['fortify.features' => []]);
+
+        $user = User::factory()->withTwoFactor()->create();
+        SocialAccount::factory()->for($user)->create([
+            'provider' => 'google',
+            'provider_id' => '12345',
+        ]);
+
+        Socialite::fake('google', $this->socialiteUser());
+
+        $this->get(route('sso.callback', ['provider' => 'google']))
+            ->assertRedirect(route('dashboard', absolute: false));
+
+        $this->assertAuthenticatedAs($user);
+    }
+
     private function socialiteUser(array $overrides = []): SocialiteUser
     {
         return SocialiteUser::fake(array_merge([
