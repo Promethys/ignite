@@ -14,6 +14,16 @@ class ConnectedAccountsTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config([
+            'services.google.client_id' => 'google-test-client-id',
+            'services.github.client_id' => 'github-test-client-id',
+        ]);
+    }
+
     public function test_the_page_requires_authentication()
     {
         $this->get(route('connected-accounts.index'))
@@ -57,9 +67,21 @@ class ConnectedAccountsTest extends TestCase
             ->assertInertia(fn ($page) => $page->has('connectedProviders', 0));
     }
 
-    public function test_the_page_is_hidden_when_no_provider_is_configured()
+    public function test_the_page_is_hidden_when_no_provider_is_supported()
     {
         config(['auth.sso.supported' => []]);
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('connected-accounts.index'))
+            ->assertNotFound();
+    }
+
+    public function test_the_page_is_hidden_when_no_provider_has_credentials()
+    {
+        config([
+            'services.google.client_id' => null,
+            'services.github.client_id' => null,
+        ]);
 
         $this->actingAs(User::factory()->create())
             ->get(route('connected-accounts.index'))
