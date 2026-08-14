@@ -62,7 +62,7 @@ const isLinked = computed(() => props.socialAccounts.length > 0);
                     "
                 />
 
-                <Alert v-if="isLinked">
+                <Alert v-if="isLinked && !hasPassword">
                     <Info aria-hidden="true" />
                     <AlertTitle>
                         {{
@@ -73,14 +73,9 @@ const isLinked = computed(() => props.socialAccounts.length > 0);
                     </AlertTitle>
                     <AlertDescription>
                         {{
-                            hasPassword
-                                ? $t('settings.password.linked_with_password', {
-                                      providers,
-                                  })
-                                : $t(
-                                      'settings.password.linked_without_password',
-                                      { providers },
-                                  )
+                            $t('settings.password.linked_without_password', {
+                                providers,
+                            })
                         }}
                     </AlertDescription>
                 </Alert>

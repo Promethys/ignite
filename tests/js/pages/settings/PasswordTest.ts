@@ -115,20 +115,15 @@ describe('settings/Password', () => {
         expect(wrapper.text()).toContain(
             'settings.password.linked_without_password',
         );
-        expect(wrapper.text()).not.toContain(
-            'settings.password.linked_with_password',
-        );
     });
 
-    it('tells a linked user who already has a password that both routes work', () => {
+    it('leaves the linked accounts alone once a password exists', () => {
         const wrapper = renderPage({
             hasPassword: true,
             socialAccounts: ['google'],
         });
 
-        expect(wrapper.text()).toContain(
-            'settings.password.linked_with_password',
-        );
+        expect(wrapper.text()).not.toContain('settings.password.linked_title');
         expect(wrapper.text()).not.toContain(
             'settings.password.linked_without_password',
         );
