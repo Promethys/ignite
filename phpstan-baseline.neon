@@ -97,6 +97,12 @@ parameters:
 			path: app/Models/User.php
 
 		-
+			message: '#^Property ''has_password'' does not exist in model\.$#'
+			identifier: rules.modelAppends
+			count: 1
+			path: app/Models/User.php
+
+		-
 			message: '#^Property ''level'' does not exist in model\.$#'
 			identifier: rules.modelAppends
 			count: 1

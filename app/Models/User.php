@@ -22,6 +22,9 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
+/**
+ * @property-read bool $has_password
+ */
 class User extends Authenticatable implements FilamentUser, HasLocalePreference, MustVerifyEmail
 {
     use HasApiTokens;
@@ -65,6 +68,7 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
      * @var array
      */
     protected $appends = [
+        'has_password',
         'total_points',
         'level',
     ];
@@ -135,6 +139,14 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
     }
 
     /**
+     * @return HasMany<SocialAccount, $this>
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
+    /**
      * Get active goals for the user.
      *
      * @return HasMany<Goal, $this>
@@ -152,6 +164,13 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
     public function completedGoals(): HasMany
     {
         return $this->goals()->where('status', 'completed');
+    }
+
+    public function hasPassword(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->password !== null
+        );
     }
 
     /**

@@ -87,4 +87,8 @@ return [
         'continue' => 'Continuer',
         'or_you_can' => 'ou vous pouvez',
     ],
+
+    'sso' => [
+        'divider' => 'ou continuez avec',
+    ],
 ];

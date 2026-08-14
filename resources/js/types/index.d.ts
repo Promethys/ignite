@@ -29,8 +29,9 @@ export type AppPageProps<
     supportedLocales: Record<string, string>;
     supportEmail: string;
     githubUrl: string;
+    ssoProviders: SsoProvider[];
 };
 
 export type BreadcrumbItemType = BreadcrumbItem;
 
-export type { PersonalAccessToken, User } from './models';
+export type { PersonalAccessToken, SsoProvider, User } from './models';

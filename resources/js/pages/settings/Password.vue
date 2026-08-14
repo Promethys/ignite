@@ -5,13 +5,22 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { edit } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { type BreadcrumbItem } from '@/types';
+import { type SsoProvider } from '@/types/models';
+import { Info } from 'lucide-vue-next';
+
+const props = defineProps<{
+    hasPassword: boolean;
+    socialAccounts: SsoProvider[];
+}>();
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -19,6 +28,19 @@ const breadcrumbItems: BreadcrumbItem[] = [
         href: edit().url,
     },
 ];
+
+const providerLabels: Record<SsoProvider, string> = {
+    google: 'Google',
+    github: 'GitHub',
+};
+
+const providers = computed(() =>
+    props.socialAccounts
+        .map((provider) => providerLabels[provider] ?? provider)
+        .join(', '),
+);
+
+const isLinked = computed(() => props.socialAccounts.length > 0);
 </script>
 
 <template>
@@ -28,9 +50,35 @@ const breadcrumbItems: BreadcrumbItem[] = [
         <SettingsLayout>
             <div class="space-y-6">
                 <HeadingSmall
-                    :title="$t('settings.password.title')"
-                    :description="$t('settings.password.description')"
+                    :title="
+                        hasPassword
+                            ? $t('settings.password.title')
+                            : $t('settings.password.create_title')
+                    "
+                    :description="
+                        hasPassword
+                            ? $t('settings.password.description')
+                            : $t('settings.password.create_description')
+                    "
                 />
+
+                <Alert v-if="isLinked && !hasPassword">
+                    <Info aria-hidden="true" />
+                    <AlertTitle>
+                        {{
+                            $t('settings.password.linked_title', {
+                                providers,
+                            })
+                        }}
+                    </AlertTitle>
+                    <AlertDescription>
+                        {{
+                            $t('settings.password.linked_without_password', {
+                                providers,
+                            })
+                        }}
+                    </AlertDescription>
+                </Alert>
 
                 <Form
                     v-bind="PasswordController.update.form()"
@@ -46,7 +94,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                     class="space-y-6"
                     v-slot="{ errors, processing, recentlySuccessful }"
                 >
-                    <div class="grid gap-2">
+                    <div v-if="hasPassword" class="grid gap-2">
                         <Label for="current_password">
                             <span>
                                 {{ $t('settings.password.current') }}
@@ -113,7 +161,11 @@ const breadcrumbItems: BreadcrumbItem[] = [
                         <Button
                             :disabled="processing"
                             data-test="update-password-button"
-                            >{{ $t('settings.password.save') }}</Button
+                            >{{
+                                hasPassword
+                                    ? $t('settings.password.save')
+                                    : $t('settings.password.create_save')
+                            }}</Button
                         >
 
                         <Transition

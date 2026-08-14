@@ -115,7 +115,7 @@
 
         /* Completeness */
         // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
-        "skipLibCheck": true /* Skip type checking all .d.ts files. */
+        "skipLibCheck": true /* Skips dependency .d.ts files. Our own model types live in models.ts, a real module, so they are still checked. */
     },
     "include": [
         "resources/js/**/*.ts",

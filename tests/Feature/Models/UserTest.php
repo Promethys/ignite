@@ -4,6 +4,7 @@ namespace Tests\Feature\Models;
 
 use App\Models\Category;
 use App\Models\Goal;
+use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithSentMail;
@@ -38,6 +39,16 @@ class UserTest extends TestCase
         $this->assertInstanceOf(Category::class, $user->categories->first());
     }
 
+    public function test_user_has_many_social_accounts()
+    {
+        $user = User::factory()->create();
+        $account = SocialAccount::factory()->create(['user_id' => $user->id]);
+
+        $this->assertCount(1, $user->socialAccounts);
+        $this->assertTrue($user->socialAccounts->contains($account));
+        $this->assertInstanceOf(SocialAccount::class, $user->socialAccounts->first());
+    }
+
     // =========================================================================
     // METHOD TESTS
     // =========================================================================
@@ -66,6 +77,15 @@ class UserTest extends TestCase
 
         $this->assertCount(1, $completedGoals);
         $this->assertEquals('completed', $completedGoals->first()->status);
+    }
+
+    public function test_has_password_reflects_the_password_column()
+    {
+        $this->assertTrue(User::factory()->create()->has_password);
+
+        $passwordless = User::factory()->create(['password' => null]);
+
+        $this->assertFalse($passwordless->has_password);
     }
 
     // =========================================================================

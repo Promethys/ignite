@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SSOController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 use Illuminate\Support\Facades\Route;
@@ -54,4 +55,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+});
+
+Route::prefix('auth')->controller(SSOController::class)->group(function () {
+    Route::get('/{provider}/redirect', 'redirect')->name('sso.redirect');
+    Route::get('/{provider}/callback', 'callback')->name('sso.callback');
+    Route::delete('/{provider}/logout', 'logout')->name('sso.logout')
+        ->middleware(['auth']);
 });
