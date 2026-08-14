@@ -19,7 +19,7 @@ class PasswordController extends Controller
     {
         $user = $request->user();
         $socialAccounts = $user->socialAccounts->pluck('provider')->toArray();
-        $hasPassword = $user->hasPassword();
+        $hasPassword = $user->has_password;
 
         return Inertia::render('settings/Password', compact('socialAccounts', 'hasPassword'));
     }

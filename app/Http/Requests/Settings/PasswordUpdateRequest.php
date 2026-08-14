@@ -12,7 +12,7 @@ class PasswordUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        $hasPassword = $this->user()->hasPassword();
+        $hasPassword = $this->user()->has_password;
         $rules = [];
 
         if ($hasPassword) {

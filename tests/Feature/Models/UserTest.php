@@ -81,11 +81,11 @@ class UserTest extends TestCase
 
     public function test_has_password_reflects_the_password_column()
     {
-        $this->assertTrue(User::factory()->create()->hasPassword());
+        $this->assertTrue(User::factory()->create()->has_password);
 
         $passwordless = User::factory()->create(['password' => null]);
 
-        $this->assertFalse($passwordless->hasPassword());
+        $this->assertFalse($passwordless->has_password);
     }
 
     // =========================================================================

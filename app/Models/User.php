@@ -65,6 +65,7 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
      * @var array
      */
     protected $appends = [
+        'has_password',
         'total_points',
         'level',
     ];
@@ -142,11 +143,6 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
         return $this->hasMany(SocialAccount::class);
     }
 
-    public function hasPassword(): bool
-    {
-        return $this->password !== null;
-    }
-
     /**
      * Get active goals for the user.
      *
@@ -165,6 +161,13 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
     public function completedGoals(): HasMany
     {
         return $this->goals()->where('status', 'completed');
+    }
+
+    public function hasPassword(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->password !== null
+        );
     }
 
     /**

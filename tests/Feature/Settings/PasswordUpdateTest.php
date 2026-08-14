@@ -120,7 +120,7 @@ class PasswordUpdateTest extends TestCase
             ])
             ->assertSessionHasNoErrors();
 
-        $this->assertTrue($user->refresh()->hasPassword());
+        $this->assertTrue($user->refresh()->has_password);
         $this->assertSame(1, $user->socialAccounts()->count());
     }
 

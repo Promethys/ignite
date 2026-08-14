@@ -6,6 +6,7 @@ export interface User {
     email: string;
     avatar?: string;
     timezone: string;
+    has_password: boolean;
     total_points: number;
     level: number;
     email_verified_at: string | null;

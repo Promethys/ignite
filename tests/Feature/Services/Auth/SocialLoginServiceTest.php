@@ -98,7 +98,7 @@ class SocialLoginServiceTest extends TestCase
         $resolved = $this->service->resolveUser('google', $this->socialiteUser());
 
         $this->assertNull($resolved->password);
-        $this->assertFalse($resolved->hasPassword());
+        $this->assertFalse($resolved->has_password);
         $this->assertTrue($resolved->hasVerifiedEmail());
 
         $this->assertDatabaseHas('social_accounts', [
