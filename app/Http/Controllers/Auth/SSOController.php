@@ -15,14 +15,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use Laravel\Socialite\Contracts\User as SocialiteUser;
+use Laravel\Socialite\AbstractUser as SocialiteUser;
 use Laravel\Socialite\Socialite;
+use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
 
 class SSOController extends Controller
 {
     public function __construct(private readonly SocialLoginService $socialLogin) {}
 
-    public function redirect(Request $request, string $provider): RedirectResponse
+    public function redirect(Request $request, string $provider): SymfonyRedirectResponse
     {
         $this->ensureSupportedProvider($provider);
 

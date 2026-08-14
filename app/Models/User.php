@@ -22,6 +22,9 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
+/**
+ * @property-read bool $has_password
+ */
 class User extends Authenticatable implements FilamentUser, HasLocalePreference, MustVerifyEmail
 {
     use HasApiTokens;

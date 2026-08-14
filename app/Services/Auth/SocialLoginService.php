@@ -6,7 +6,7 @@ use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\DB;
-use Laravel\Socialite\Contracts\User as SocialiteUser;
+use Laravel\Socialite\AbstractUser as SocialiteUser;
 
 class SocialLoginService
 {
