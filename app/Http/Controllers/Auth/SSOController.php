@@ -11,6 +11,7 @@ use App\Support\GuestLocale;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -71,39 +72,45 @@ class SSOController extends Controller
     {
         $this->ensureSupportedProvider($provider);
 
-        $user = $request->user();
-        $userIsConnectedToProvider = $user->socialAccounts()
-            ->where('provider', $provider)
-            ->exists();
+        return DB::transaction(function () use ($request, $provider) {
+            $requestUser = $request->user();
 
-        if (! $userIsConnectedToProvider) {
+            $user = User::lockForUpdate()
+                ->find($requestUser->id);
+
+            $userIsConnectedToProvider = $user->socialAccounts()
+                ->where('provider', $provider)
+                ->exists();
+
+            if (! $userIsConnectedToProvider) {
+                Inertia::flash('toast', [
+                    'type' => 'error',
+                    'message' => __('toasts.auth.sso_not_connected', ['provider' => $this->providerLabel($provider)]),
+                ]);
+
+                return redirect()->back();
+            }
+
+            if ($user->socialAccounts()->count() === 1 && ! $user->has_password) {
+                Inertia::flash('toast', [
+                    'type' => 'error',
+                    'message' => __('toasts.auth.sso_last_credential', ['provider' => $this->providerLabel($provider)]),
+                ]);
+
+                return redirect()->back();
+            }
+
+            $user->socialAccounts()
+                ->where('provider', $provider)
+                ->delete();
+
             Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => __('toasts.auth.sso_not_connected', ['provider' => $this->providerLabel($provider)]),
+                'type' => 'success',
+                'message' => __('toasts.auth.sso_disconnected', ['provider' => $this->providerLabel($provider)]),
             ]);
 
-            return redirect()->back();
-        }
-
-        if ($user->socialAccounts()->count() === 1 && ! $user->has_password) {
-            Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => __('toasts.auth.sso_last_credential', ['provider' => $this->providerLabel($provider)]),
-            ]);
-
-            return redirect()->back();
-        }
-
-        $user->socialAccounts()
-            ->where('provider', $provider)
-            ->delete();
-
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => __('toasts.auth.sso_disconnected', ['provider' => $this->providerLabel($provider)]),
-        ]);
-
-        return redirect()->route('connected-accounts.index');
+            return redirect()->route('connected-accounts.index');
+        });
     }
 
     private function handleLogin(Request $request, string $provider, SocialiteUser $ssoUser)

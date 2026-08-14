@@ -5,6 +5,7 @@ namespace Tests\Feature\Settings;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Tests\TestCase;
@@ -230,6 +231,46 @@ class ConnectedAccountsTest extends TestCase
 
         $this->assertSame('Original Name', $user->name);
         $this->assertSame('original@example.com', $user->email);
+    }
+
+    public function test_the_credential_check_runs_under_a_row_lock()
+    {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            $this->markTestSkipped('SQLite does not implement SELECT ... FOR UPDATE.');
+        }
+
+        $user = User::factory()->create();
+        SocialAccount::factory()->for($user)->create(['provider' => 'google']);
+        SocialAccount::factory()->for($user)->create(['provider' => 'github']);
+
+        $queries = [];
+        DB::listen(function ($query) use (&$queries) {
+            $queries[] = $query->sql;
+        });
+
+        $this->actingAs($user)->delete(route('sso.logout', ['provider' => 'google']));
+
+        $lockedRead = $this->firstQueryMatching($queries, fn ($sql) => str_contains($sql, 'for update'));
+        $credentialCount = $this->firstQueryMatching($queries, fn ($sql) => str_contains($sql, 'count(*)') && str_contains($sql, 'social_accounts'));
+
+        $this->assertNotNull($lockedRead, 'The user row should be read with a lock.');
+        $this->assertNotNull($credentialCount, 'The remaining credentials should be counted.');
+        $this->assertLessThan(
+            $credentialCount,
+            $lockedRead,
+            'The lock must be taken before the credentials are counted, or two requests can both read a stale count.'
+        );
+    }
+
+    private function firstQueryMatching(array $queries, callable $matches): ?int
+    {
+        foreach ($queries as $index => $sql) {
+            if ($matches($sql)) {
+                return $index;
+            }
+        }
+
+        return null;
     }
 
     private function socialiteUser(array $overrides = []): SocialiteUser
