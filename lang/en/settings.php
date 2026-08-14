@@ -8,6 +8,7 @@ return [
         'description' => 'Manage your profile and account settings',
         'profile' => 'Profile',
         'password' => 'Password',
+        'connected_accounts' => 'Connected Accounts',
         'two_factor' => 'Two-Factor Auth',
         'appearance' => 'Appearance',
         'api_tokens' => 'API Tokens',
@@ -60,6 +61,19 @@ return [
         'linked_title' => 'Linked to :providers',
         'linked_without_password' => 'You currently sign in with :providers only. Creating a password gives you a second way in, and you keep the linked account either way.',
         'linked_with_password' => 'You can sign in with your email and password, or with :providers.',
+    ],
+
+    'connected_accounts' => [
+        'head' => 'Connected accounts',
+        'breadcrumb' => 'Connected accounts',
+        'title' => 'Connected accounts',
+        'description' => 'Sign in to Ignite with an account you already have',
+        'linked_since' => 'Linked on :date',
+        'not_linked' => 'Not linked.',
+        'connect' => 'Connect',
+        'disconnect' => 'Disconnect',
+        'last_credential' => 'This is your only way to sign in. Create a password before disconnecting it.',
+        'create_password' => 'Create a password',
     ],
 
     'appearance' => [

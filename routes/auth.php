@@ -39,11 +39,6 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store')
         ->middleware([HandlePrecognitiveRequests::class]);
-
-    Route::prefix('auth')->controller(SSOController::class)->group(function () {
-        Route::get('/{provider}/redirect', 'redirect')->name('sso.redirect');
-        Route::get('/{provider}/callback', 'callback')->name('sso.callback');
-    });
 });
 
 Route::middleware('auth')->group(function () {
@@ -60,4 +55,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+});
+
+Route::prefix('auth')->controller(SSOController::class)->group(function () {
+    Route::get('/{provider}/redirect', 'redirect')->name('sso.redirect');
+    Route::get('/{provider}/callback', 'callback')->name('sso.callback');
+    Route::delete('/{provider}/logout', 'logout')->name('sso.logout')
+        ->middleware(['auth']);
 });

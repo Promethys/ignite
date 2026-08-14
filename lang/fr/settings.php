@@ -8,6 +8,7 @@ return [
         'description' => 'Gérez votre profil et les paramètres de votre compte',
         'profile' => 'Profil',
         'password' => 'Mot de passe',
+        'connected_accounts' => 'Comptes liés',
         'two_factor' => 'Double authentification',
         'appearance' => 'Apparence',
         'api_tokens' => 'Jetons API',
@@ -60,6 +61,19 @@ return [
         'linked_title' => 'Lié à :providers',
         'linked_without_password' => 'Vous vous connectez uniquement avec :providers. Créer un mot de passe vous donne un second moyen de connexion, et le compte lié reste actif dans tous les cas.',
         'linked_with_password' => 'Vous pouvez vous connecter avec votre e-mail et votre mot de passe, ou avec :providers.',
+    ],
+
+    'connected_accounts' => [
+        'head' => 'Comptes liés',
+        'breadcrumb' => 'Comptes liés',
+        'title' => 'Comptes liés',
+        'description' => 'Connectez-vous à Ignite avec un compte que vous possédez déjà',
+        'linked_since' => 'Lié le :date',
+        'not_linked' => 'Non lié.',
+        'connect' => 'Lier',
+        'disconnect' => 'Délier',
+        'last_credential' => 'C\'est votre seul moyen de connexion. Créez un mot de passe avant de le délier.',
+        'create_password' => 'Créer un mot de passe',
     ],
 
     'appearance' => [

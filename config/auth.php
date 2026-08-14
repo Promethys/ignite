@@ -136,5 +136,10 @@ return [
             'google',
             'github',
         ],
+
+        'labels' => [
+            'google' => 'Google',
+            'github' => 'GitHub',
+        ],
     ],
 ];

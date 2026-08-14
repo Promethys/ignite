@@ -64,5 +64,11 @@ return [
         'reset_link' => 'A reset link will be sent if the account exists. Check your spam folder if it does not arrive.',
         'sso_error' => 'We could not sign you in with that provider. Please try again.',
         'sso_unverified_email' => 'That email is already registered but the provider did not confirm it as verified. Please sign in with your password first.',
+        'sso_connected' => ':provider is now connected to your account.',
+        'sso_disconnected' => ':provider has been disconnected from your account.',
+        'sso_already_connected' => 'Your account is already connected to :provider.',
+        'sso_claimed_by_another_account' => 'That :provider account is already connected to a different Ignite account.',
+        'sso_not_connected' => 'Your account is not connected to :provider.',
+        'sso_last_credential' => 'That is your only way to sign in. Create a password before disconnecting :provider.',
     ],
 ];

@@ -42,6 +42,17 @@ class SocialLoginService
         });
     }
 
+    public function linkProvider(User $user, string $provider, SocialiteUser $ssoUser): SocialAccount
+    {
+        return $user->socialAccounts()->updateOrCreate(
+            ['provider' => $provider],
+            [
+                'provider_id' => $ssoUser->getId(),
+                'provider_data' => $ssoUser->getRaw(),
+            ],
+        );
+    }
+
     private function emailVerified(SocialiteUser $ssoUser, string $provider): bool
     {
         if (config("services.$provider.all_emails_verified") === true) {
@@ -56,17 +67,6 @@ class SocialLoginService
     private function syncProviderData(SocialAccount $account, SocialiteUser $ssoUser): void
     {
         $account->update(['provider_data' => $ssoUser->getRaw()]);
-    }
-
-    private function linkProvider(User $user, string $provider, SocialiteUser $ssoUser): SocialAccount
-    {
-        return $user->socialAccounts()->updateOrCreate(
-            ['provider' => $provider],
-            [
-                'provider_id' => $ssoUser->getId(),
-                'provider_data' => $ssoUser->getRaw(),
-            ],
-        );
     }
 
     private function createUser(SocialiteUser $ssoUser, ?string $locale): User

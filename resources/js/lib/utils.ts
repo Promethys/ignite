@@ -19,11 +19,11 @@ export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {
 }
 
 export function toTitleCase(str: string) {
-    return str.replace(
-        /\w\S*/g,
-        (text) =>
-            text.charAt(0).toUpperCase() + text.substring(1).toLowerCase(),
-    );
+    return str.replace(/\w\S*/g, (text) => capitalizeFirstLetter(text));
+}
+
+export function capitalizeFirstLetter(str: string) {
+    return str.charAt(0).toUpperCase() + str.substring(1).toLowerCase();
 }
 
 export function getDateDiffFromNow(date: string) {

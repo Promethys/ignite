@@ -120,7 +120,7 @@ class SSOControllerTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_an_authenticated_visitor_cannot_re_enter_the_callback()
+    public function test_an_authenticated_visitor_reaching_the_callback_connects_instead_of_logging_in()
     {
         $user = User::factory()->create();
 
@@ -128,9 +128,15 @@ class SSOControllerTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('sso.callback', ['provider' => 'google']))
-            ->assertRedirect(route('dashboard', absolute: false));
+            ->assertRedirect(route('connected-accounts.index'))
+            ->assertInertiaFlash('toast.type', 'success');
 
-        $this->assertDatabaseCount('social_accounts', 0);
+        $this->assertDatabaseHas('social_accounts', [
+            'user_id' => $user->id,
+            'provider' => 'google',
+            'provider_id' => '12345',
+        ]);
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_callback_challenges_a_user_with_two_factor_enabled_instead_of_logging_them_in()

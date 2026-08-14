@@ -5,13 +5,17 @@ import { Separator } from '@/components/ui/separator';
 import { toUrl, urlIsActive } from '@/lib/utils';
 import { index as indexApiTokens } from '@/routes/api-tokens';
 import { edit as editAppearance } from '@/routes/appearance';
+import { index as indexConnectedAccounts } from '@/routes/connected-accounts';
 import { edit as editPassword } from '@/routes/password';
 import { edit as editProfile } from '@/routes/profile';
 import { show } from '@/routes/two-factor';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
-const sidebarNavItems: NavItem[] = [
+const page = usePage();
+const hasConfiguredProviders = page.props.ssoProviders.length > 0;
+
+let sidebarNavItems: NavItem[] = [
     {
         title: 'settings.nav.profile',
         href: editProfile(),
@@ -20,6 +24,20 @@ const sidebarNavItems: NavItem[] = [
         title: 'settings.nav.password',
         href: editPassword(),
     },
+];
+
+if (hasConfiguredProviders) {
+    sidebarNavItems = [
+        ...sidebarNavItems,
+        {
+            title: 'settings.nav.connected_accounts',
+            href: indexConnectedAccounts(),
+        },
+    ];
+}
+
+sidebarNavItems = [
+    ...sidebarNavItems,
     {
         title: 'settings.nav.two_factor',
         href: show(),

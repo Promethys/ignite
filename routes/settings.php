@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\ApiTokenController;
+use App\Http\Controllers\Settings\ConnectedAccountController;
 use App\Http\Controllers\Settings\LocaleController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -23,6 +24,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('settings/password', [PasswordController::class, 'update'])
         ->middleware(['throttle:20,1', HandlePrecognitiveRequests::class])
         ->name('password.update');
+
+    Route::get('settings/connected-accounts', [ConnectedAccountController::class, 'index'])->name('connected-accounts.index');
 
     Route::get('settings/appearance', function () {
         return Inertia::render('settings/Appearance');
