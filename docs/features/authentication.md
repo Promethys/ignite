@@ -82,23 +82,51 @@ A provider's button appears the moment its `*_CLIENT_ID` is set. No restart or e
 
 ### The data model
 
-Linked providers live in a dedicated `social_accounts` table (`user_id`, `provider`, `provider_id`, tokens, and the full raw `provider_data` payload), **not** as columns on `users`. The raw payload preserves everything the provider returns (avatar, nickname, profile fields) so nothing is lost, and is cast to an array on read. This lets one user connect several providers and keeps the OAuth concerns off the user record. The supported providers are declared in `config/auth.php` under `auth.sso.supported`.
+Linked providers live in a dedicated `social_accounts` table (`user_id`, `provider`, `provider_id`, and the full raw `provider_data` payload), **not** as columns on `users`. Ignite does not store OAuth access or refresh tokens: it never calls a provider API on the user's behalf, so keeping them would be a liability with no use. The raw payload preserves what the provider returns at sign-in (avatar, nickname, profile fields) and is cast to an array on read. The supported providers are declared in `config/auth.php` under `auth.sso.supported`, with display names under `auth.sso.labels`.
+
+A unique index on `(provider, provider_id)` means one provider identity can belong to exactly one Ignite account. That constraint, not just controller logic, is what makes the linking rules below hold.
 
 ### Account linking and takeover protection
 
-When a provider callback arrives, Ignite resolves the identity in this order:
+When a provider callback arrives for a visitor who is **not** signed in, Ignite resolves the identity in this order:
 
 1. An existing `social_accounts` link for that provider and provider id logs the owning user straight in.
-2. Otherwise, if a user already owns that email **and the provider reports the email as verified**, the provider is linked to that user and they are logged in. Google always returns a verified flag; GitHub uses its own `email_verified` field.
+2. Otherwise, if a user already owns that email **and the provider reports the email as verified**, the provider is linked to that user and they are logged in.
 3. If the email exists but the provider did not confirm it as verified, the login is rejected. Ignite never blind-links an unverified email, because a provider that does not verify email cannot prove the person controls the address.
 4. No existing user matches: a new account is created with no password and a pre-verified email, the provider is linked, and the standard `Registered` event fires.
 
+How step 2 decides an email is verified depends on the provider, via `all_emails_verified` in `config/services.php`:
+
+- **Google** returns a `verified_email` flag in its payload, which is read directly.
+- **GitHub** exposes no such flag. Socialite fetches the address from GitHub's `/user/emails` endpoint and returns only the one that is both primary and verified, so any email that arrives at all is already verified. GitHub is therefore marked `all_emails_verified`.
+
+### Two-factor and social login
+
+Signing in with a provider goes through the same two-factor challenge as signing in with a password. If the account has two-factor enabled and confirmed, the callback does not log the user in; it hands off to Fortify's challenge screen, and the session is only established once the code is accepted. A linked provider is not a way around the second factor.
+
+### Managing connected accounts
+
+Signed-in users manage their providers under **Settings → Connected accounts**. The page lists every supported provider, connected or not, showing the provider account's email and when it was linked, so it is clear _which_ Google or GitHub account is attached.
+
+Connecting from this page is a different operation from signing in, and the callback handles it differently:
+
+- The identity always attaches to the account that is currently signed in, never to whoever happens to own the matching email.
+- If the provider identity already belongs to a different Ignite account, the request is refused. The link is never reassigned.
+- The provider email does not have to match the account's own email, and it does not need to be verified. Verification exists to stop someone claiming an identity by asserting an email; when connecting, the account holder is already authenticated.
+- Connecting never overwrites the account's name or email.
+
+Disconnecting is allowed as long as the account keeps a way to sign in: it needs either a password or another linked provider. A provider that is the only remaining credential cannot be disconnected, and the page offers a link to create a password instead of a dead button. The server enforces this independently of the interface.
+
+The page and its navigation entry appear only when at least one provider is configured.
+
 ### Password-less users
 
-An account created through SSO has no password, which is why the `users.password` column is nullable. Such users sign in only through their linked provider. Email-and-password login remains available to any user who has set a password.
+An account created through SSO has no password, which is why the `users.password` column is nullable. Such an account signs in through its linked provider.
+
+These users can add a password at any time from **Settings → Password**. The page adapts: with no password on the account it asks only for the new one and its confirmation, since there is no current password to prove. The new password still has to meet the same strength rules, and creating one does not unlink the provider. Both ways in then work.
 
 ::: tip Two-factor and the password gate
-Fortify's password-confirmation screens (used for 2FA setup and account deletion) assume a password exists. A password-less SSO user therefore needs a "set a password" path before those gates are fully usable. That path is planned but not yet shipped; until then, an SSO-only user should set a password from their settings before enabling 2FA.
+Fortify's password-confirmation screens (used for 2FA setup and account deletion) assume a password exists. An account that has never set one cannot clear those gates, so it must create a password before enabling two-factor authentication.
 :::
 
 If a provider returns an error mid-flow, Ignite logs it (with a `category` of `auth`) and redirects back to the login page with an error toast, rather than leaving the user on a broken callback.
@@ -113,5 +141,9 @@ If a provider returns an error mid-flow, Ignite logs it (with a `category` of `a
 - With both `GITHUB_CLIENT_ID` and `GOOGLE_CLIENT_ID` set, the login and register pages should show both provider buttons; with only one set, only that one appears.
 - Click a provider button: after the OAuth round trip you should land on the dashboard, and a `social_accounts` row should exist for your user.
 - Register first by email, then sign in via a provider whose email matches and is verified: the provider should link to your existing account (no duplicate user), and the second provider should link to the same account too.
+- Enable two-factor, sign out, then sign in with a provider: you should be stopped at the two-factor challenge rather than landing on the dashboard.
+- Open **Settings → Connected accounts** and connect the provider you have not linked yet: it should appear with its email and link date, and your account name and email should be unchanged.
+- With two providers linked and no password, disconnect one: it should succeed. Disconnect the second: the button should be gone, replaced by a prompt to create a password.
+- From a second account, try connecting a provider identity already linked elsewhere: it should be refused, and the original link should survive.
 
 See [Configuration](/configuration) for the full environment variable reference.
