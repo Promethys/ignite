@@ -18,14 +18,6 @@ export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {
     return typeof href === 'string' ? href : href?.url;
 }
 
-export function toTitleCase(str: string) {
-    return str.replace(/\w\S*/g, (text) => capitalizeFirstLetter(text));
-}
-
-export function capitalizeFirstLetter(str: string) {
-    return str.charAt(0).toUpperCase() + str.substring(1).toLowerCase();
-}
-
 export function getDateDiffFromNow(date: string) {
     const now = moment();
     const otherDate = moment(date);

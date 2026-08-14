@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import { providerLabel } from '@/lib/sso';
+import { redirect } from '@/routes/sso';
 import type { SsoProvider } from '@/types';
 import { computed } from 'vue';
 import Github from './ui/icon/Github.vue';
@@ -10,17 +12,6 @@ const props = defineProps<{
 }>();
 
 const visible = computed(() => props.providers.length > 0);
-
-function href(provider: SsoProvider): string {
-    return `/auth/${provider}/redirect`;
-}
-
-function label(provider: SsoProvider): string {
-    return {
-        google: 'Google',
-        github: 'GitHub',
-    }[provider];
-}
 </script>
 
 <template>
@@ -43,14 +34,14 @@ function label(provider: SsoProvider): string {
                 v-for="provider in providers"
                 :key="provider"
                 as="a"
-                :href="href(provider)"
+                :href="redirect({ provider }).url"
                 variant="outline"
                 class="w-full"
             >
                 <Github class="size-4" v-if="provider === 'github'" />
                 <Google class="size-4" v-else-if="provider === 'google'" />
 
-                {{ label(provider) }}
+                {{ providerLabel(provider) }}
             </Button>
         </div>
     </div>

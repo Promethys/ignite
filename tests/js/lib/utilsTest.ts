@@ -4,7 +4,6 @@ import {
     getDateDiffFromNow,
     nullToEmpty,
     nullToUndefined,
-    toTitleCase,
     toUrl,
     urlIsActive,
 } from '@/lib/utils';
@@ -61,28 +60,6 @@ describe('cn', () => {
 
     it('handles undefined and null values', () => {
         expect(cn('base', undefined, null, 'end')).toBe('base end');
-    });
-});
-
-// =========================================================================
-// toTitleCase
-// =========================================================================
-
-describe('toTitleCase', () => {
-    it('capitalizes the first letter of each word', () => {
-        expect(toTitleCase('hello world')).toBe('Hello World');
-    });
-
-    it('lowercases remaining letters of each word', () => {
-        expect(toTitleCase('HELLO WORLD')).toBe('Hello World');
-    });
-
-    it('handles single word', () => {
-        expect(toTitleCase('in_progress')).toBe('In_progress');
-    });
-
-    it('handles empty string', () => {
-        expect(toTitleCase('')).toBe('');
     });
 });
 
