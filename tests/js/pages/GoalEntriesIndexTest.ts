@@ -17,34 +17,41 @@ vi.mock('@inertiajs/vue3', async (importOriginal) => {
 
 // Mocked as modules rather than stubbed by name, so the assertions can tell
 // which modal the page chose without depending on how it is referenced.
-vi.mock('@/components/goal_entries/GoalEntryFormModal.vue', () => ({
+vi.mock('@/components/goal-entries/GoalEntryFormModal.vue', () => ({
     default: {
         name: 'GoalEntryFormModal',
         template: '<div class="progress-modal" />',
     },
 }));
 
-vi.mock('@/components/goal_entries/RecurringCheckInModal.vue', () => ({
+vi.mock('@/components/goal-entries/RecurringCheckInModal.vue', () => ({
     default: {
         name: 'RecurringCheckInModal',
         template: '<div class="checkin-modal" />',
     },
 }));
 
-const entry = {
+vi.mock('@/components/goal-entries/DeleteEntryDialog.vue', () => ({
+    default: {
+        name: 'DeleteEntryDialog',
+        template: '<div class="delete-dialog" />',
+    },
+}));
+
+const buildEntry = (note: string | null = null) => ({
     id: 7,
     entry_date: '2026-07-14T00:00:00.000000Z',
     increment_value: 5,
     previous_value: 0,
     value: 5,
-    note: null,
-};
+    note,
+});
 
-const mountPage = (goalType: string) =>
+const mountPage = (goalType: string, note: string | null = null) =>
     mount(GoalEntriesIndex, {
         props: {
             goal: { id: 1, title: 'A goal', type: goalType } as unknown as Goal,
-            entries: { data: [entry] },
+            entries: { data: [buildEntry(note)] },
             today: '2026-07-16',
         },
         global: { stubs: { AppLayout: { template: '<div><slot /></div>' } } },
@@ -84,5 +91,34 @@ describe('GoalEntries/Index', () => {
         const wrapper = mountPage('simple');
 
         expect(wrapper.text()).toContain('+5');
+    });
+
+    it('lists each entry as an item in a single group', () => {
+        const wrapper = mountPage('simple');
+
+        expect(wrapper.find('[data-slot="item-group"]').exists()).toBe(true);
+        expect(wrapper.findAll('[data-slot="item"]')).toHaveLength(1);
+    });
+
+    // The note sits in the item footer so it spans the full card width rather
+    // than competing with the actions for space on the first row.
+    it('renders the note in the entry footer', () => {
+        const wrapper = mountPage('simple', 'Ran in the rain');
+
+        expect(wrapper.find('[data-slot="item-footer"]').text()).toContain(
+            'Ran in the rain',
+        );
+    });
+
+    it('omits the footer on an entry without a note', () => {
+        const wrapper = mountPage('simple');
+
+        expect(wrapper.find('[data-slot="item-footer"]').exists()).toBe(false);
+    });
+
+    it('offers a delete dialog for each entry', () => {
+        const wrapper = mountPage('simple');
+
+        expect(wrapper.findAll('.delete-dialog')).toHaveLength(1);
     });
 });

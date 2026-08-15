@@ -1,4 +1,4 @@
-import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInModal.vue';
+import RecurringCheckInModal from '@/components/goal-entries/RecurringCheckInModal.vue';
 import type { Goal, GoalEntry } from '@/types/models';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';

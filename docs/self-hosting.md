@@ -242,14 +242,42 @@ Ignite never lets a mail failure break registration or password reset: if the tr
 
 This deploy shape trades operational simplicity for headroom it does not yet need. Each of these is a choice with a documented upgrade path, not an oversight:
 
-| Concern   | Current choice            | Upgrade path when needed                                                                                                                                                                                       |
-| --------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Queue     | `QUEUE_CONNECTION=sync`   | Jobs run synchronously, in-request. No worker process to keep alive. Switch to `database` or `redis` and run a `queue:work` process once background jobs need to survive request timeouts or run concurrently. |
-| Cache     | `CACHE_STORE=database`    | No Redis dependency; cache reads and writes hit PostgreSQL. Move to `redis` if cache traffic becomes a bottleneck.                                                                                             |
-| Session   | `SESSION_DRIVER=database` | Same trade-off as cache: one less moving part, at the cost of a little more database load per request.                                                                                                         |
-| Rendering | No SSR                    | The image builds the client bundle only (`npm run build`), not `build:ssr`. Inertia SSR would need its own long-running Node process; add it if first-paint or SEO requirements change.                        |
+| Concern   | Current choice            | Upgrade path when needed                                                                                                                                                                                                               |
+| --------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Queue     | `QUEUE_CONNECTION=sync`   | Jobs run synchronously, in-request. No worker process to keep alive. Switch to `database` or `redis` and run a `queue:work` process once background jobs need to survive request timeouts or run concurrently.                         |
+| Cache     | `CACHE_STORE=database`    | No Redis dependency; cache reads and writes hit PostgreSQL. Move to `redis` if cache traffic becomes a bottleneck.                                                                                                                     |
+| Session   | `SESSION_DRIVER=database` | Same trade-off as cache: one less moving part, at the cost of a little more database load per request.                                                                                                                                 |
+| Rendering | No SSR                    | The image builds the client bundle only (`npm run build`), not `build:ssr`. Inertia SSR would need its own long-running Node process; add it if first-paint requirements change. Crawler-facing meta does not depend on it, see below. |
 
 All of that state lives in the single PostgreSQL instance. There is no Redis, no dedicated worker, and no SSR server.
+
+### Search and link preview metadata
+
+The description, canonical URL, Open Graph and Twitter card tags are rendered by
+the root Blade template, `resources/views/app.blade.php`, so they are present in
+the HTML response itself rather than added by the client bundle. Social scrapers
+do not execute JavaScript, which is why these are not handled by Inertia's head
+manager alongside the page title.
+
+The values are derived rather than hardcoded, so a rebranded instance picks them
+up automatically:
+
+| Tag                                       | Source                                                      |
+| ----------------------------------------- | ----------------------------------------------------------- |
+| `og:site_name`, and the `og:title` prefix | `APP_NAME`                                                  |
+| `og:title` suffix                         | the `landing.meta.tagline` translation                      |
+| `description`, `og:description`           | the `landing.meta.description` translation                  |
+| `canonical`, `og:url`                     | the current request URL                                     |
+| `og:image`, `twitter:image`               | `/android-chrome-512x512.png`, paired with a `summary` card |
+| `og:locale`                               | the `open_graph` map in `config/locales.php`                |
+
+A `SoftwareApplication` JSON-LD block is emitted on the landing page only. It
+reads `APP_URL`, so set that to the public origin rather than leaving it at
+`http://localhost`.
+
+`public/robots.txt` disallows the authenticated areas and the auth screens,
+leaving the landing page as the only crawlable route. Adjust it if you expose
+anything else publicly.
 
 ## Running on a platform instead of Compose
 

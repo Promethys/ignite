@@ -1,4 +1,4 @@
-import NavMain from '@/components/NavMain.vue';
+import NavMain from '@/components/app/NavMain.vue';
 import { mount } from '@vue/test-utils';
 import { LayoutDashboard } from 'lucide-vue-next';
 import { describe, expect, it, vi } from 'vitest';

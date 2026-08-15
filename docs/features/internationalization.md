@@ -11,6 +11,18 @@ Ignite ships with two locales, English (`en`) and French (`fr`), covering both t
 ],
 ```
 
+The same file carries an `open_graph` map, because Open Graph expects a
+`language_TERRITORY` code rather than the bare language code used everywhere
+else. The root Blade template reads it for the `og:locale` tag, falling back to
+`en_US` for any locale missing from the map:
+
+```php
+'open_graph' => [
+    'en' => 'en_US',
+    'fr' => 'fr_FR',
+],
+```
+
 ## Prerequisites
 
 None. Both shipped locales work out of the box with no configuration.
@@ -46,9 +58,10 @@ On the frontend, `resources/js/lib/i18n.ts` boots `laravel-vue-i18n` from the lo
 ## Adding a new locale
 
 1. Add the locale code and display name to `config/locales.php`'s `supported` array.
-2. Create `lang/<locale>/` with the same PHP files as `lang/en/`, translated.
-3. Optionally add `lang/<locale>.json` for any frontend-only strings not covered by the PHP files.
-4. Rebuild frontend assets (`npm run build` or restart `npm run dev`) so the Vite plugin picks up the new `php_<locale>.json`.
+2. Add the matching `language_TERRITORY` code to the same file's `open_graph` map, so link previews advertise the right locale.
+3. Create `lang/<locale>/` with the same PHP files as `lang/en/`, translated, including the `landing.meta` tagline and description used by the social tags.
+4. Optionally add `lang/<locale>.json` for any frontend-only strings not covered by the PHP files.
+5. Rebuild frontend assets (`npm run build` or restart `npm run dev`) so the Vite plugin picks up the new `php_<locale>.json`.
 
 ## How to verify
 

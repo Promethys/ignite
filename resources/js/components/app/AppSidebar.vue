@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import NavFooter from '@/components/NavFooter.vue';
-import NavMain from '@/components/NavMain.vue';
-import NavUser from '@/components/NavUser.vue';
+import NavFooter from '@/components/app/NavFooter.vue';
+import NavMain from '@/components/app/NavMain.vue';
+import NavUser from '@/components/app/NavUser.vue';
+import AppLogo from '@/components/AppLogo.vue';
 import {
     Sidebar,
     SidebarContent,
@@ -17,7 +18,6 @@ import goals from '@/routes/goals';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { Crosshair, Folder, LayoutDashboard } from 'lucide-vue-next';
-import AppLogo from './AppLogo.vue';
 
 const page = usePage();
 

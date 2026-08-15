@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'meta' => [
+        'tagline' => 'Goal tracking that sticks',
+        'description' => 'Track any goal (simple, measurable, recurring or multi-step) with visual progress, milestones and streaks that keep you going. Source available and self-hostable.',
+    ],
     'trust' => [
         'source_available' => 'Source available',
         'self_hostable' => 'Self-hostable',

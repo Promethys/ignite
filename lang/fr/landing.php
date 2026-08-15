@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'meta' => [
+        'tagline' => 'Le suivi d\'objectifs qui tient dans la durée',
+        'description' => 'Suivez n\'importe quel objectif (simple, mesurable, récurrent ou à étapes) avec une progression visuelle, des jalons et des séries qui vous font avancer. Auto-hébergeable.',
+    ],
     'trust' => [
         'source_available' => 'Code source ouvert',
         'self_hostable' => 'Auto-hébergeable',

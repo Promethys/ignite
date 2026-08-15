@@ -1,4 +1,4 @@
-import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
+import GoalEntryFormModal from '@/components/goal-entries/GoalEntryFormModal.vue';
 import type { Goal, GoalEntry } from '@/types/models';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';

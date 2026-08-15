@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
+import SocialLoginButtons from '@/components/auth/SocialLoginButtons.vue';
 import InputError from '@/components/InputError.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
-import SocialLoginButtons from '@/components/SocialLoginButtons.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
