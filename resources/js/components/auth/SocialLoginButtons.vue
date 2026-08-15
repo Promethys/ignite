@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import Github from '@/components/ui/icon/Github.vue';
+import Google from '@/components/ui/icon/Google.vue';
 import { providerLabel } from '@/lib/sso';
 import { redirect } from '@/routes/sso';
 import type { SsoProvider } from '@/types';
 import { computed } from 'vue';
-import Github from './ui/icon/Github.vue';
-import Google from './ui/icon/Google.vue';
 
 const props = defineProps<{
     providers: SsoProvider[];

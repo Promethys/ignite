@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 
-import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
-import LocaleSelect from '@/components/LocaleSelect.vue';
+import AppearanceTabs from '@/components/settings/AppearanceTabs.vue';
+import LocaleSelect from '@/components/settings/LocaleSelect.vue';
 import { type BreadcrumbItem } from '@/types';
 
 import AppLayout from '@/layouts/AppLayout.vue';

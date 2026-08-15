@@ -1,4 +1,4 @@
-import UserMenuContent from '@/components/UserMenuContent.vue';
+import UserMenuContent from '@/components/app/UserMenuContent.vue';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -31,7 +31,7 @@ vi.mock('@/components/ui/dropdown-menu', () => ({
     DropdownMenuSeparator: { template: '<hr />' },
 }));
 
-vi.mock('@/components/UserInfo.vue', () => ({
+vi.mock('@/components/app/UserInfo.vue', () => ({
     default: { template: '<div>user-info</div>' },
 }));
 

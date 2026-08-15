@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import RegisteredUserController from '@/actions/App/Http/Controllers/Auth/RegisteredUserController';
+import SocialLoginButtons from '@/components/auth/SocialLoginButtons.vue';
 import InputError from '@/components/InputError.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
-import SocialLoginButtons from '@/components/SocialLoginButtons.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

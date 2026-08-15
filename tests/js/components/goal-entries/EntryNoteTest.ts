@@ -1,4 +1,4 @@
-import EntryNote from '@/components/goal_entries/EntryNote.vue';
+import EntryNote from '@/components/goal-entries/EntryNote.vue';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 

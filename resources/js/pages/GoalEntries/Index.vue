@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import EntryNote from '@/components/goal_entries/EntryNote.vue';
-import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
-import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInModal.vue';
+import EntryNote from '@/components/goal-entries/EntryNote.vue';
+import GoalEntryFormModal from '@/components/goal-entries/GoalEntryFormModal.vue';
+import RecurringCheckInModal from '@/components/goal-entries/RecurringCheckInModal.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';

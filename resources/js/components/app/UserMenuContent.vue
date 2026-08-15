@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import UserInfo from '@/components/UserInfo.vue';
+import UserInfo from '@/components/app/UserInfo.vue';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,

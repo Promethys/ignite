@@ -71,7 +71,7 @@ vi.mock('@/components/ui/select', async () => {
     };
 });
 
-import LocaleSelect from '@/components/LocaleSelect.vue';
+import LocaleSelect from '@/components/settings/LocaleSelect.vue';
 
 describe('LocaleSelect', () => {
     beforeEach(() => {

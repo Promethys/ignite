@@ -17,14 +17,14 @@ vi.mock('@inertiajs/vue3', async (importOriginal) => {
 
 // Mocked as modules rather than stubbed by name, so the assertions can tell
 // which modal the page chose without depending on how it is referenced.
-vi.mock('@/components/goal_entries/GoalEntryFormModal.vue', () => ({
+vi.mock('@/components/goal-entries/GoalEntryFormModal.vue', () => ({
     default: {
         name: 'GoalEntryFormModal',
         template: '<div class="progress-modal" />',
     },
 }));
 
-vi.mock('@/components/goal_entries/RecurringCheckInModal.vue', () => ({
+vi.mock('@/components/goal-entries/RecurringCheckInModal.vue', () => ({
     default: {
         name: 'RecurringCheckInModal',
         template: '<div class="checkin-modal" />',

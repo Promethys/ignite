@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import ProgressChart from '@/components/charts/ProgressChart.vue';
-import EntryNote from '@/components/goal_entries/EntryNote.vue';
-import GoalEntryFormModal from '@/components/goal_entries/GoalEntryFormModal.vue';
-import RecurringCheckInModal from '@/components/goal_entries/RecurringCheckInModal.vue';
+import EntryNote from '@/components/goal-entries/EntryNote.vue';
+import GoalEntryFormModal from '@/components/goal-entries/GoalEntryFormModal.vue';
+import RecurringCheckInModal from '@/components/goal-entries/RecurringCheckInModal.vue';
 import GoalBadges from '@/components/goals/GoalBadges.vue';
 import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
 import Timeline from '@/components/milestones/Timeline.vue';
