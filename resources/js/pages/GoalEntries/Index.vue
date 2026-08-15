@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DeleteEntryDialog from '@/components/goal-entries/DeleteEntryDialog.vue';
 import EntryNote from '@/components/goal-entries/EntryNote.vue';
 import GoalEntryFormModal from '@/components/goal-entries/GoalEntryFormModal.vue';
 import RecurringCheckInModal from '@/components/goal-entries/RecurringCheckInModal.vue';
@@ -6,22 +7,21 @@ import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
     Empty,
     EmptyHeader,
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
+import {
+    Item,
+    ItemActions,
+    ItemContent,
+    ItemDescription,
+    ItemFooter,
+    ItemGroup,
+    ItemTitle,
+} from '@/components/ui/item';
 import {
     Popover,
     PopoverContent,
@@ -39,7 +39,7 @@ import {
     getLocalTimeZone,
 } from '@internationalized/date';
 import { useDebounceFn } from '@vueuse/core';
-import { CalendarIcon, Pencil, Trash, XIcon } from 'lucide-vue-next';
+import { CalendarIcon, Pencil, XIcon } from 'lucide-vue-next';
 import moment from 'moment';
 import { DateValue } from 'reka-ui';
 import { computed, ref } from 'vue';
@@ -252,163 +252,91 @@ const resetFilters = () => {
                                 </div>
                             </template>
 
-                            <template v-if="entries.data.length > 0">
-                                <div
+                            <ItemGroup
+                                v-if="entries.data.length > 0"
+                                class="gap-3 py-3"
+                            >
+                                <Item
                                     v-for="entry in entries.data"
                                     :key="entry.id"
-                                    class="my-3 space-y-2 rounded-lg border p-4"
+                                    variant="outline"
                                 >
-                                    <!-- Entry Header: Date and Value -->
-                                    <div
-                                        class="flex items-start justify-between"
-                                    >
-                                        <div>
-                                            <p class="font-medium">
-                                                {{
-                                                    moment(
-                                                        entry.entry_date,
-                                                    ).format('MMM DD, YYYY')
-                                                }}
-                                            </p>
-                                            <p
-                                                class="text-sm text-muted-foreground"
-                                                v-if="!isRecurring"
-                                            >
-                                                {{
-                                                    (entry.increment_value > 0
-                                                        ? '+'
-                                                        : '') +
-                                                    entry.increment_value
-                                                }}
-                                                {{ goal.unit }}
-                                                <span class="text-xs">
-                                                    ({{
-                                                        entry.previous_value
+                                    <ItemContent>
+                                        <ItemTitle>
+                                            {{
+                                                moment(entry.entry_date).format(
+                                                    'MMM DD, YYYY',
+                                                )
+                                            }}
+                                        </ItemTitle>
+                                        <ItemDescription v-if="!isRecurring">
+                                            {{
+                                                (entry.increment_value > 0
+                                                    ? '+'
+                                                    : '') +
+                                                entry.increment_value
+                                            }}
+                                            {{ goal.unit }}
+                                            <span class="text-xs">
+                                                ({{ entry.previous_value }} →
+                                                {{ entry.value }})
+                                            </span>
+                                        </ItemDescription>
+                                    </ItemContent>
+
+                                    <ItemActions>
+                                        <RecurringCheckInModal
+                                            :goal
+                                            :today
+                                            :record="entry"
+                                            v-if="isRecurring"
+                                        >
+                                            <template #trigger>
+                                                <Button size="sm">
+                                                    <Pencil />
+                                                    {{
+                                                        $t(
+                                                            'common.actions.edit',
+                                                        )
                                                     }}
-                                                    → {{ entry.value }})
-                                                </span>
-                                            </p>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <!-- Edit button -->
-                                            <RecurringCheckInModal
-                                                :goal
-                                                :today
-                                                :record="entry"
-                                                v-if="isRecurring"
-                                            >
-                                                <template #trigger>
-                                                    <Button size="sm">
-                                                        <Pencil />
-                                                        {{
-                                                            $t(
-                                                                'common.actions.edit',
-                                                            )
-                                                        }}
-                                                    </Button>
-                                                </template>
-                                            </RecurringCheckInModal>
+                                                </Button>
+                                            </template>
+                                        </RecurringCheckInModal>
 
-                                            <GoalEntryFormModal
-                                                :goal
-                                                :record="entry"
-                                                v-else
-                                            >
-                                                <template #trigger>
-                                                    <Button size="sm">
-                                                        <Pencil />
-                                                        {{
-                                                            $t(
-                                                                'common.actions.edit',
-                                                            )
-                                                        }}
-                                                    </Button>
-                                                </template>
-                                            </GoalEntryFormModal>
+                                        <GoalEntryFormModal
+                                            :goal
+                                            :record="entry"
+                                            v-else
+                                        >
+                                            <template #trigger>
+                                                <Button size="sm">
+                                                    <Pencil />
+                                                    {{
+                                                        $t(
+                                                            'common.actions.edit',
+                                                        )
+                                                    }}
+                                                </Button>
+                                            </template>
+                                        </GoalEntryFormModal>
 
-                                            <!-- Delete button -->
-                                            <div class="max-w-md space-y-4">
-                                                <Dialog>
-                                                    <DialogTrigger as-child>
-                                                        <Button
-                                                            variant="destructive"
-                                                            size="sm"
-                                                        >
-                                                            <Trash />
-                                                            {{
-                                                                $t(
-                                                                    'common.actions.delete',
-                                                                )
-                                                            }}
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent
-                                                        class="sm:max-w-[425px]"
-                                                    >
-                                                        <DialogHeader>
-                                                            <DialogTitle>{{
-                                                                $t(
-                                                                    'goals.entries.delete_title',
-                                                                )
-                                                            }}</DialogTitle>
-                                                            <DialogDescription>
-                                                                {{
-                                                                    $t(
-                                                                        'goals.entries.delete_description',
-                                                                    )
-                                                                }}
-                                                            </DialogDescription>
-                                                        </DialogHeader>
+                                        <DeleteEntryDialog
+                                            :goal
+                                            :record="entry"
+                                        />
+                                    </ItemActions>
 
-                                                        <DialogFooter>
-                                                            <DialogClose
-                                                                as-child
-                                                            >
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="secondary"
-                                                                >
-                                                                    {{
-                                                                        $t(
-                                                                            'common.actions.cancel',
-                                                                        )
-                                                                    }}
-                                                                </Button>
-                                                            </DialogClose>
-                                                            <Button
-                                                                variant="destructive"
-                                                                @click="
-                                                                    router.delete(
-                                                                        goals.entries.destroy(
-                                                                            {
-                                                                                goal,
-                                                                                goalEntry:
-                                                                                    entry.id,
-                                                                            },
-                                                                        ),
-                                                                    )
-                                                                "
-                                                            >
-                                                                {{
-                                                                    $t(
-                                                                        'common.actions.delete',
-                                                                    )
-                                                                }}
-                                                            </Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Entry Note (if exists) -->
-                                    <EntryNote
+                                    <ItemFooter
                                         v-if="entry.note"
-                                        :note="entry.note"
-                                    />
-                                </div>
-                            </template>
+                                        class="items-start"
+                                    >
+                                        <EntryNote
+                                            :note="entry.note"
+                                            class="w-full"
+                                        />
+                                    </ItemFooter>
+                                </Item>
+                            </ItemGroup>
 
                             <Empty v-else>
                                 <EmptyHeader>
