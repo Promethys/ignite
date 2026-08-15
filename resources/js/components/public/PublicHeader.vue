@@ -12,7 +12,7 @@ import Button from '../ui/button/Button.vue';
             class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6"
         >
             <div class="flex items-center gap-2">
-                <AppLogo />
+                <AppLogo hide-label-on-mobile />
             </div>
             <nav class="flex items-center gap-2">
                 <LanguageSwitcher />
