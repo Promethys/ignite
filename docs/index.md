@@ -18,7 +18,7 @@ features:
       details: Track simple, quantifiable, recurring, and multi-step goals with entries, milestones, and visual dashboards that make progress tangible.
       link: /features/goal-types
     - title: MCP Server
-      details: Manage your goals from any MCP client. Seventeen tools over scoped API tokens, on both the hosted HTTP transport and a local stdio one.
+      details: Manage your goals from any MCP client. Twenty-one tools over scoped API tokens, on both the hosted HTTP transport and a local stdio one.
       link: /features/mcp-server
     - title: Self-Hosting
       details: Source-available under FSL-1.1-MIT and self-hostable. Run it on your own infrastructure with Laravel, Vue, Inertia, and PostgreSQL.
