@@ -139,7 +139,7 @@ class UpdateGoalTool extends IgniteTool
                 ->format('date')
                 ->nullable(),
             'completed_at' => $schema->string()
-                ->description('An optional completion timestamp. Must be after the goal\'s start date.')
+                ->description('An optional completion timestamp. Must be on or after the goal\'s start date.')
                 ->format('date')
                 ->nullable(),
             'order' => $schema->integer()

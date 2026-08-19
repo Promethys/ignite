@@ -341,6 +341,32 @@ class GoalControllerTest extends TestCase
             ->assertSessionHasErrors('deadline');
     }
 
+    public function test_completed_at_can_equal_the_start_date()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'status' => 'completed',
+                'start_date' => '2026-07-12',
+                'completed_at' => '2026-07-12',
+            ]))
+            ->assertRedirect(route('goals.index'));
+
+        $goal = Goal::where('user_id', $this->user->id)->firstOrFail();
+
+        $this->assertSame('2026-07-12', $goal->completed_at->format('Y-m-d'));
+    }
+
+    public function test_completed_at_before_start_date_fails_validation()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'status' => 'completed',
+                'start_date' => '2026-07-12',
+                'completed_at' => '2026-07-11',
+            ]))
+            ->assertSessionHasErrors('completed_at');
+    }
+
     public function test_polarity_must_be_valid()
     {
         $this->actingAs($this->user)

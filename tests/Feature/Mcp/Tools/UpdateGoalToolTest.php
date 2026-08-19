@@ -82,6 +82,47 @@ class UpdateGoalToolTest extends TestCase
         $this->assertNull($goal->fresh()->deadline);
     }
 
+    public function test_a_completion_date_equal_to_the_existing_start_date_is_accepted_with_only_completed_at_sent(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'in_progress',
+            'start_date' => '2026-01-01',
+            'completed_at' => null,
+        ]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'completed_at' => '2026-01-01',
+        ])->assertOk();
+
+        $this->assertSame('2026-01-01', $goal->fresh()->completed_at->format('Y-m-d'));
+    }
+
+    public function test_a_completion_date_before_the_existing_start_date_is_rejected_even_when_start_date_is_omitted(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'in_progress',
+            'start_date' => '2026-06-01',
+            'completed_at' => null,
+        ]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'completed_at' => '2026-01-01',
+        ])->assertHasErrors();
+
+        // The rejected value must not have been written.
+        $this->assertNull($goal->fresh()->completed_at);
+    }
+
     public function test_an_empty_payload_is_rejected(): void
     {
         $user = User::factory()->create();

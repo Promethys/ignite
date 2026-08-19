@@ -37,7 +37,7 @@ class GoalRules
             'recurrence' => 'nullable|in:daily,weekly,monthly,annually',
             'start_date' => 'nullable|date',
             'deadline' => 'nullable|date|after_or_equal:start_date',
-            'completed_at' => 'nullable|date|after:start_date',
+            'completed_at' => 'nullable|date|after_or_equal:start_date',
             'status' => 'required|in:not_started,in_progress,completed,paused,abandoned',
             'priority' => 'required|in:low,medium,high',
             'polarity' => 'nullable|in:positive,negative',
