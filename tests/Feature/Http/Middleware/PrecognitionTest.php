@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Http\Middleware;
 
+use App\Models\Category;
 use App\Models\Goal;
 use App\Models\GoalEntry;
 use App\Models\User;
@@ -172,6 +173,38 @@ class PrecognitionTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('entry_date');
         $this->assertSame(0, GoalEntry::count());
+    }
+
+    public function test_category_store_validates_a_complete_payload_without_creating_a_category()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->withPrecognition()
+            ->postJson(route('categories.store'), [
+                'name' => 'Woodworking',
+                'description' => 'Projects in the garage',
+                'color' => '#6366f1',
+            ]);
+
+        $response->assertSuccessfulPrecognition();
+        $this->assertSame(0, Category::where('user_id', $user->id)->count());
+    }
+
+    public function test_category_store_reports_a_name_over_the_length_limit()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->withPrecognition()
+            ->withHeader('Precognition-Validate-Only', 'name')
+            ->postJson(route('categories.store'), [
+                'name' => str_repeat('a', 101),
+            ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('name');
+        $this->assertSame(0, Category::where('user_id', $user->id)->count());
     }
 
     public function test_login_validates_the_email_without_authenticating()
