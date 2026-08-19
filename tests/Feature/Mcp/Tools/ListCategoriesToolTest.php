@@ -83,6 +83,33 @@ class ListCategoriesToolTest extends TestCase
                 ->etc());
     }
 
+    public function test_the_goal_count_is_broken_down_by_status(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id]);
+
+        Goal::factory()->count(2)->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'status' => 'in_progress',
+        ]);
+        Goal::factory()->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'status' => 'completed',
+        ]);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListCategoriesTool::class)
+            ->assertOk()
+            ->assertStructuredContent(fn (AssertableJson $json) => $json
+                ->where('categories.0.goals_count', 3)
+                ->where('categories.0.active_goals_count', 2)
+                ->where('categories.0.completed_goals_count', 1)
+                ->etc());
+    }
+
     public function test_the_slug_is_never_exposed(): void
     {
         $user = User::factory()->create();

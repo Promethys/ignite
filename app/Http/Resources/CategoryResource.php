@@ -30,6 +30,8 @@ class CategoryResource extends JsonResource
             'icon' => $this->icon,
             'order' => $this->order,
             'goals_count' => $this->whenCounted('goals'),
+            'active_goals_count' => $this->whenCounted('active_goals'),
+            'completed_goals_count' => $this->whenCounted('completed_goals'),
         ];
     }
 }

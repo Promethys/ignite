@@ -15,8 +15,23 @@ use Illuminate\Support\Facades\Gate;
 class CategoryService
 {
     /**
+     * The goal counts every category is returned with, so a category has the
+     * same shape whichever method produced it.
+     *
+     * @return array<int|string, mixed>
+     */
+    private function goalCounts(): array
+    {
+        return [
+            'goals',
+            'goals as active_goals_count' => fn ($query) => $query->where('status', 'in_progress'),
+            'goals as completed_goals_count' => fn ($query) => $query->where('status', 'completed'),
+        ];
+    }
+
+    /**
      * Return the actor's categories in display order, each with the number
-     * of goals filed under it.
+     * of goals filed under it and how many of those are active or completed.
      *
      * @return Collection<int, Category>
      */
@@ -25,7 +40,7 @@ class CategoryService
         Gate::forUser($actor)->authorize('viewAny', Category::class);
 
         return $actor->categories()
-            ->withCount('goals')
+            ->withCount($this->goalCounts())
             ->orderBy('order')
             ->orderBy('id')
             ->get();
@@ -47,7 +62,7 @@ class CategoryService
 
         Gate::forUser($actor)->authorize('view', $category);
 
-        return $category->loadCount('goals');
+        return $category->loadCount($this->goalCounts());
     }
 
     /**
@@ -65,7 +80,7 @@ class CategoryService
             'user_id' => $actor->id,
         ]);
 
-        return $category->loadCount('goals');
+        return $category->loadCount($this->goalCounts());
     }
 
     /**
@@ -79,7 +94,7 @@ class CategoryService
 
         $category->update($attributes);
 
-        return $category->loadCount('goals');
+        return $category->loadCount($this->goalCounts());
     }
 
     /**

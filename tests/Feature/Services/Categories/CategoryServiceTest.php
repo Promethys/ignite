@@ -51,6 +51,57 @@ class CategoryServiceTest extends TestCase
         $this->assertSame(3, $categories->first()->goals_count);
     }
 
+    public function test_list_for_user_breaks_the_goal_count_down_by_status(): void
+    {
+        $owner = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $owner->id]);
+
+        Goal::factory()->count(2)->create([
+            'user_id' => $owner->id,
+            'category_id' => $category->id,
+            'status' => 'in_progress',
+        ]);
+        Goal::factory()->create([
+            'user_id' => $owner->id,
+            'category_id' => $category->id,
+            'status' => 'completed',
+        ]);
+        Goal::factory()->create([
+            'user_id' => $owner->id,
+            'category_id' => $category->id,
+            'status' => 'paused',
+        ]);
+
+        $found = $this->service->listForUser($owner)->first();
+
+        $this->assertSame(4, $found->goals_count);
+        $this->assertSame(2, $found->active_goals_count);
+        $this->assertSame(1, $found->completed_goals_count);
+    }
+
+    public function test_find_carries_the_same_counts_as_the_list(): void
+    {
+        $owner = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $owner->id]);
+
+        Goal::factory()->create([
+            'user_id' => $owner->id,
+            'category_id' => $category->id,
+            'status' => 'in_progress',
+        ]);
+        Goal::factory()->create([
+            'user_id' => $owner->id,
+            'category_id' => $category->id,
+            'status' => 'completed',
+        ]);
+
+        $found = $this->service->find($owner, $category->id);
+
+        $this->assertSame(2, $found->goals_count);
+        $this->assertSame(1, $found->active_goals_count);
+        $this->assertSame(1, $found->completed_goals_count);
+    }
+
     public function test_list_for_user_orders_by_display_order(): void
     {
         $owner = User::factory()->create();

@@ -6,7 +6,7 @@ Ignite ships a [Model Context Protocol](https://modelcontextprotocol.io) server,
 
 It is built on the first-party `laravel/mcp` package. The server class is `App\Mcp\Servers\IgniteServer`, tools live in `app/Mcp/Tools/`, and registration happens in `routes/ai.php`.
 
-Every tool is a thin wrapper over the same service layer the web UI uses (`App\Services\Goals\*`), so an action taken through MCP behaves identically to the same action taken in the browser: same validation, same policies, same business rules.
+Every tool is a thin wrapper over the same service layer the web UI uses (`App\Services\Goals\*` and `App\Services\Categories\*`), so an action taken through MCP behaves identically to the same action taken in the browser: same validation, same policies, same business rules.
 
 ## Endpoint and transports
 
@@ -64,13 +64,13 @@ Twenty-one tools, grouped by the ability they require.
 
 ### `read`
 
-| Tool           | What it does                                                                                                                                                                                           |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `list_goals`   | The user's goals with status, type, progress, streak, and category. Accepts `status`, `type`, `category_id`, `search` (title and description), and `limit` (max 100), and reports the matching `total` |
-| `get_goal`     | One goal, including its recent entries, ordered milestones, and streak                                                                                                                                 |
-| `list_entries` | A goal's progress entries, newest first. Accepts `search` (note text), `from`, `to`, and `limit` (default 50, max 200), and reports the matching `total`                                               |
-| `get_user`     | The acting user's id, name, timezone, and locale                                                                                                                                                       |
-| `list_categories` | The user's categories in display order, each with the number of goals filed under it                                                                                                                |
+| Tool              | What it does                                                                                                                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `list_goals`      | The user's goals with status, type, progress, streak, and category. Accepts `status`, `type`, `category_id`, `search` (title and description), and `limit` (max 100), and reports the matching `total` |
+| `get_goal`        | One goal, including its recent entries, ordered milestones, and streak                                                                                                                                 |
+| `list_entries`    | A goal's progress entries, newest first. Accepts `search` (note text), `from`, `to`, and `limit` (default 50, max 200), and reports the matching `total`                                               |
+| `get_user`        | The acting user's id, name, timezone, and locale                                                                                                                                                       |
+| `list_categories` | The user's categories in display order, each with the number of goals filed under it and how many of those are active or completed                                                                     |
 
 ### `write`
 
@@ -100,11 +100,11 @@ Both accept a date no later than today in the owner's timezone, and both allow a
 
 ### `delete`
 
-| Tool           | What it does                                                                                      |
-| -------------- | ------------------------------------------------------------------------------------------------- |
-| `delete_goal`  | Permanently delete a goal and, by database cascade, all of its entries and milestones             |
-| `delete_entry` | Permanently delete one progress entry, rewinding the goal's current value for non-recurring goals |
-| `delete_category` | Permanently delete a category. The goals filed under it are kept and become uncategorised      |
+| Tool              | What it does                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| `delete_goal`     | Permanently delete a goal and, by database cascade, all of its entries and milestones             |
+| `delete_entry`    | Permanently delete one progress entry, rewinding the goal's current value for non-recurring goals |
+| `delete_category` | Permanently delete a category. The goals filed under it are kept and become uncategorised         |
 
 ## Destructive operations require confirmation
 
