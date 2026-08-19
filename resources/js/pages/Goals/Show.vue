@@ -140,7 +140,7 @@ const summaryTiles = computed<SummaryTile[]>(() => {
             },
             deadline,
             {
-                n: `${props.chartEntries.length}`,
+                n: `${allEntriesCount.value}`,
                 l: 'goals.summary.entries_logged',
             },
         ];
@@ -185,6 +185,7 @@ const summaryTiles = computed<SummaryTile[]>(() => {
 });
 
 const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
+const allEntriesCount = computed((): number => props.chartEntries.length);
 </script>
 
 <template>
@@ -709,9 +710,9 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                     {{
                                         $tChoice(
                                             'goals.show.view_all',
-                                            chartEntries.length,
+                                            allEntriesCount,
                                             {
-                                                count: chartEntries.length.toString(),
+                                                count: allEntriesCount.toString(),
                                             },
                                         )
                                     }}
@@ -803,9 +804,9 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                     {{
                                         $tChoice(
                                             'goals.show.view_all',
-                                            recentEntries.length,
+                                            allEntriesCount,
                                             {
-                                                count: recentEntries.length.toString(),
+                                                count: allEntriesCount.toString(),
                                             },
                                         )
                                     }}

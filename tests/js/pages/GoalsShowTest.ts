@@ -138,6 +138,52 @@ describe('Goals/Show', () => {
         expect(one.text()).toContain('1');
     });
 
+    const sixEntries = () =>
+        Array.from({ length: 6 }, (_, i) => makeEntry(i + 1, 1));
+
+    const sevenChartEntries = () =>
+        Array.from({ length: 7 }, (_, i) => ({
+            entry_date: '2026-03-01',
+            value: i + 1,
+        }));
+
+    it('counts every entry on the "view all" link of a recurring goal', () => {
+        const wrapper = mountShow(
+            makeGoal({
+                type: 'recurring',
+                recurrence: 'daily',
+                entries: sixEntries(),
+            }),
+            sevenChartEntries(),
+        );
+
+        // The visible list is capped at five, so the link must not report five.
+        expect(wrapper.text()).toContain('goals.show.view_all 7');
+        expect(wrapper.text()).not.toContain('goals.show.view_all 5');
+    });
+
+    it('counts every entry on the "view all" link of a quantifiable goal', () => {
+        const wrapper = mountShow(
+            makeGoal({ entries: sixEntries() }),
+            sevenChartEntries(),
+        );
+
+        expect(wrapper.text()).toContain('goals.show.view_all 7');
+        expect(wrapper.text()).not.toContain('goals.show.view_all 5');
+    });
+
+    it('shows the entry total on the "entries logged" tile', () => {
+        const wrapper = mountShow(makeGoal({}), sevenChartEntries());
+
+        const tile = wrapper
+            .findAll('div.rounded-lg.bg-muted')
+            .find((candidate) =>
+                candidate.text().includes('goals.summary.entries_logged'),
+            );
+
+        expect(tile?.text()).toContain('7');
+    });
+
     it('labels the deadline tile as overdue when the deadline has passed', () => {
         const wrapper = mountShow(makeGoal({ deadline: '2020-01-01' }));
         expect(wrapper.text()).toContain('goals.summary.overdue');
