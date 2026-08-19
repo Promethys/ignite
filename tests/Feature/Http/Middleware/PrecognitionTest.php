@@ -207,6 +207,56 @@ class PrecognitionTest extends TestCase
         $this->assertSame(0, Category::where('user_id', $user->id)->count());
     }
 
+    public function test_category_update_validates_a_single_field_without_persisting()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id, 'name' => 'Fitness']);
+
+        $response = $this->actingAs($user)
+            ->withPrecognition()
+            ->withHeader('Precognition-Validate-Only', 'name')
+            ->putJson(route('categories.update', $category), [
+                'name' => str_repeat('a', 101),
+            ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('name');
+        $this->assertSame('Fitness', $category->fresh()->name);
+    }
+
+    public function test_category_update_accepts_a_valid_name_without_persisting()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id, 'name' => 'Fitness']);
+
+        $response = $this->actingAs($user)
+            ->withPrecognition()
+            ->withHeader('Precognition-Validate-Only', 'name')
+            ->putJson(route('categories.update', $category), [
+                'name' => 'Health',
+            ]);
+
+        $response->assertSuccessfulPrecognition();
+        $this->assertSame('Fitness', $category->fresh()->name);
+    }
+
+    public function test_category_update_is_denied_on_another_users_category()
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $owner->id, 'name' => 'Fitness']);
+
+        $response = $this->actingAs($intruder)
+            ->withPrecognition()
+            ->withHeader('Precognition-Validate-Only', 'name')
+            ->putJson(route('categories.update', $category), [
+                'name' => 'Hijacked',
+            ]);
+
+        $response->assertForbidden();
+        $this->assertSame('Fitness', $category->fresh()->name);
+    }
+
     public function test_login_validates_the_email_without_authenticating()
     {
         $response = $this->withPrecognition()
