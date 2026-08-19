@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Services\Categories\CategoryService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
+    public function __construct(private readonly CategoryService $categoryService) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -19,11 +21,7 @@ class CategoryController extends Controller
         $hasValidQueryParam = $request->boolean('create');
 
         return Inertia::render('Categories/Index', [
-            'items' => auth()->user()->categories()->withCount([
-                'goals',
-                'goals as active_goals_count' => fn ($query) => $query->where('status', 'in_progress'),
-                'goals as completed_goals_count' => fn ($query) => $query->where('status', 'completed'),
-            ])->get(),
+            'items' => $this->categoryService->listForUser($request->user()),
             'openCreate' => $hasValidQueryParam,
         ]);
     }
@@ -31,9 +29,9 @@ class CategoryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        $user = auth()->user()->load('categories');
+        $user = $request->user()->load('categories');
 
         return Inertia::render('Categories/Create', [
             'user' => [
@@ -48,11 +46,7 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request)
     {
-        $validated = $request->validated();
-
-        $validated['user_id'] = auth()->id();
-
-        Category::create($validated);
+        $this->categoryService->create($request->user(), $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.category.created')]);
 
@@ -62,23 +56,21 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Category $category)
+    public function show(Request $request, Category $category)
     {
-        Gate::authorize('view', $category);
-
         return Inertia::render('Categories/Show', [
-            'category' => $category,
+            'category' => $this->categoryService->find($request->user(), $category),
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Category $category)
+    public function edit(Request $request, Category $category)
     {
-        Gate::authorize('view', $category);
+        $category = $this->categoryService->find($request->user(), $category);
 
-        $user = auth()->user()->load('categories');
+        $user = $request->user()->load('categories');
 
         return Inertia::render('Categories/Edit', [
             'category' => $category,
@@ -94,7 +86,7 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
-        $category->update($request->validated());
+        $this->categoryService->update($request->user(), $category, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.category.updated')]);
 
@@ -104,11 +96,9 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function destroy(Request $request, Category $category)
     {
-        Gate::authorize('delete', $category);
-
-        $category->delete();
+        $this->categoryService->delete($request->user(), $category);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.category.deleted')]);
 

@@ -6,7 +6,7 @@ Ignite ships a [Model Context Protocol](https://modelcontextprotocol.io) server,
 
 It is built on the first-party `laravel/mcp` package. The server class is `App\Mcp\Servers\IgniteServer`, tools live in `app/Mcp/Tools/`, and registration happens in `routes/ai.php`.
 
-Every tool is a thin wrapper over the same service layer the web UI uses (`App\Services\Goals\*`), so an action taken through MCP behaves identically to the same action taken in the browser: same validation, same policies, same business rules.
+Every tool is a thin wrapper over the same service layer the web UI uses (`App\Services\Goals\*` and `App\Services\Categories\*`), so an action taken through MCP behaves identically to the same action taken in the browser: same validation, same policies, same business rules.
 
 ## Endpoint and transports
 
@@ -60,16 +60,17 @@ Scopes are enforced at **registration** time, not at call time: a tool whose req
 
 ## The tool set
 
-Seventeen tools, grouped by the ability they require.
+Twenty-one tools, grouped by the ability they require.
 
 ### `read`
 
-| Tool           | What it does                                                                                                                                                                                           |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `list_goals`   | The user's goals with status, type, progress, streak, and category. Accepts `status`, `type`, `category_id`, `search` (title and description), and `limit` (max 100), and reports the matching `total` |
-| `get_goal`     | One goal, including its recent entries, ordered milestones, and streak                                                                                                                                 |
-| `list_entries` | A goal's progress entries, newest first. Accepts `search` (note text), `from`, `to`, and `limit` (default 50, max 200), and reports the matching `total`                                               |
-| `get_user`     | The acting user's id, name, timezone, and locale                                                                                                                                                       |
+| Tool              | What it does                                                                                                                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `list_goals`      | The user's goals with status, type, progress, streak, and category. Accepts `status`, `type`, `category_id`, `search` (title and description), and `limit` (max 100), and reports the matching `total` |
+| `get_goal`        | One goal, including its recent entries, ordered milestones, and streak                                                                                                                                 |
+| `list_entries`    | A goal's progress entries, newest first. Accepts `search` (note text), `from`, `to`, and `limit` (default 50, max 200), and reports the matching `total`                                               |
+| `get_user`        | The acting user's id, name, timezone, and locale                                                                                                                                                       |
+| `list_categories` | The user's categories in display order, each with the number of goals filed under it and how many of those are active or completed                                                                     |
 
 ### `write`
 
@@ -86,6 +87,8 @@ Seventeen tools, grouped by the ability they require.
 | `add_milestone`      | Append a milestone to a goal                                                                                                                                                |
 | `complete_milestone` | Check off a milestone                                                                                                                                                       |
 | `set_user`           | Partial update of the acting user's own `name`, `timezone`, or `locale`                                                                                                     |
+| `create_category`    | Create a category. Only `name` is required; colour, icon, and position default server side                                                                                  |
+| `update_category`    | Partial update. Supply `category_id` plus only the fields to change                                                                                                         |
 
 `get_user` and `set_user` exist mainly for **timezone correctness**. Entry dates are validated against "today" in the user's timezone, so a client that does not know the timezone can log entries on the wrong day. Neither tool exposes or accepts the account email, password, or two-factor data: the mutable set is deliberately limited to fields whose worst-case misuse is cosmetic. See [Security model](#security-model).
 
@@ -93,12 +96,15 @@ Seventeen tools, grouped by the ability they require.
 
 Both accept a date no later than today in the owner's timezone, and both allow a date earlier than the goal's own start date, so a goal created today can carry the history that led to it. Entries store running totals rather than deltas, so an entry landing before existing ones shifts the later totals to keep the progress chart rising in date order.
 
+**Category ids are per account, so they cannot be guessed.** Every user gets their own ten categories at registration, and the ids differ between accounts. Call `list_categories` to find a real id before setting a goal's `category_id` or filtering `list_goals` by one. The category tools never expose or accept the stored slug: it is an internal field, it is not unique in a way a client can rely on, and `id` is the only stable handle.
+
 ### `delete`
 
-| Tool           | What it does                                                                                      |
-| -------------- | ------------------------------------------------------------------------------------------------- |
-| `delete_goal`  | Permanently delete a goal and, by database cascade, all of its entries and milestones             |
-| `delete_entry` | Permanently delete one progress entry, rewinding the goal's current value for non-recurring goals |
+| Tool              | What it does                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| `delete_goal`     | Permanently delete a goal and, by database cascade, all of its entries and milestones             |
+| `delete_entry`    | Permanently delete one progress entry, rewinding the goal's current value for non-recurring goals |
+| `delete_category` | Permanently delete a category. The goals filed under it are kept and become uncategorised         |
 
 ## Destructive operations require confirmation
 
