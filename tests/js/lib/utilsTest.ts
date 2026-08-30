@@ -4,6 +4,7 @@ import {
     getDateDiffFromNow,
     nullToEmpty,
     nullToUndefined,
+    toDateInputFormat,
     toUrl,
     urlIsActive,
 } from '@/lib/utils';
@@ -142,6 +143,53 @@ describe('nullToUndefined', () => {
 
     it('returns zero when zero is provided', () => {
         expect(nullToUndefined(0)).toBe(0);
+    });
+});
+
+// =========================================================================
+// toDateInputFormat
+// =========================================================================
+
+describe('toDateInputFormat', () => {
+    const withTimeZone = (timeZone: string, assertion: () => void) => {
+        const original = process.env.TZ;
+        process.env.TZ = timeZone;
+
+        try {
+            assertion();
+        } finally {
+            process.env.TZ = original;
+        }
+    };
+
+    it('formats the local calendar date east of UTC, where it runs ahead', () => {
+        withTimeZone('Pacific/Kiritimati', () => {
+            expect(toDateInputFormat('2026-08-29T23:30:00.000Z')).toBe(
+                '2026-08-30',
+            );
+        });
+    });
+
+    it('formats the local calendar date west of UTC, where it lags', () => {
+        withTimeZone('Pacific/Midway', () => {
+            expect(toDateInputFormat('2026-08-29T00:30:00.000Z')).toBe(
+                '2026-08-28',
+            );
+        });
+    });
+
+    it('agrees with the UTC date when the runner is at UTC', () => {
+        withTimeZone('UTC', () => {
+            expect(toDateInputFormat('2026-08-29T23:30:00.000Z')).toBe(
+                '2026-08-29',
+            );
+        });
+    });
+
+    it('returns a YYYY-MM-DD string', () => {
+        expect(toDateInputFormat('2026-08-29T12:00:00.000Z')).toMatch(
+            /^\d{4}-\d{2}-\d{2}$/,
+        );
     });
 });
 

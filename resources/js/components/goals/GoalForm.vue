@@ -20,7 +20,7 @@ import {
     getGoalStatusOptions,
     getGoalTypeOptions,
 } from '@/lib/form-options';
-import { nullToEmpty, nullToUndefined } from '@/lib/utils';
+import { nullToEmpty, nullToUndefined, toDateInputFormat } from '@/lib/utils';
 import categories from '@/routes/categories';
 import goals from '@/routes/goals';
 import InputRequiredIndicator from '../InputRequiredIndicator.vue';
@@ -73,7 +73,7 @@ const formData = {
         ? new Date(props.record?.deadline).toISOString().split('T')[0]
         : undefined,
     completed_at: props.record?.completed_at
-        ? new Date(props.record?.completed_at).toISOString().split('T')[0]
+        ? toDateInputFormat(props.record.completed_at)
         : undefined,
     status: props.record?.status ?? 'not_started',
     priority: props.record?.priority ?? 'medium',

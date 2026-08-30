@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -121,6 +122,155 @@ class UpdateGoalToolTest extends TestCase
 
         // The rejected value must not have been written.
         $this->assertNull($goal->fresh()->completed_at);
+    }
+
+    public function test_a_completion_date_in_the_future_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'in_progress',
+            'start_date' => now()->subYear()->toDateString(),
+            'completed_at' => null,
+        ]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'completed_at' => now()->addDay()->toDateString(),
+        ])->assertHasErrors();
+
+        $this->assertNull($goal->fresh()->completed_at);
+    }
+
+    public function test_a_completion_date_today_is_accepted(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'in_progress',
+            'start_date' => now()->subYear()->toDateString(),
+            'completed_at' => null,
+        ]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'completed_at' => now()->toDateString(),
+        ])->assertOk();
+
+        $this->assertSame(
+            now()->toDateString(),
+            $goal->fresh()->completed_at->toDateString(),
+        );
+    }
+
+    public function test_a_stored_completion_timestamp_from_earlier_today_survives_a_partial_update(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'completed_at' => now()->startOfDay()->addHours(12),
+        ]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'title' => 'Renamed today',
+        ])->assertOk();
+
+        $this->assertSame('Renamed today', $goal->fresh()->title);
+    }
+
+    public function test_a_stored_completion_timestamp_survives_a_partial_update_west_of_the_app_timezone(): void
+    {
+        Carbon::setTestNow('2026-08-30 10:00:00');
+
+        $user = User::factory()->create(['timezone' => 'Pacific/Midway']);
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'start_date' => '2026-01-01',
+            'completed_at' => Carbon::parse('2026-08-30 10:00:00'),
+        ]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'title' => 'Renamed from Midway',
+        ])->assertOk();
+
+        $this->assertSame('Renamed from Midway', $goal->fresh()->title);
+
+        Carbon::setTestNow();
+    }
+
+    public function test_a_stored_completion_timestamp_survives_a_partial_update_east_of_the_app_timezone(): void
+    {
+        Carbon::setTestNow('2026-08-30 10:00:00');
+
+        $user = User::factory()->create(['timezone' => 'Pacific/Kiritimati']);
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'completed',
+            'start_date' => '2026-01-01',
+            'completed_at' => Carbon::parse('2026-08-30 10:00:00'),
+        ]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'title' => 'Renamed from Kiritimati',
+        ])->assertOk();
+
+        $this->assertSame('Renamed from Kiritimati', $goal->fresh()->title);
+
+        Carbon::setTestNow();
+    }
+
+    public function test_the_completion_date_bound_resolves_in_the_owners_timezone(): void
+    {
+        Carbon::setTestNow('2026-08-30 10:00:00');
+
+        $east = User::factory()->create(['timezone' => 'Pacific/Kiritimati']);
+        $eastGoal = Goal::factory()->create([
+            'user_id' => $east->id,
+            'status' => 'in_progress',
+            'start_date' => '2026-01-01',
+            'completed_at' => null,
+        ]);
+
+        Sanctum::actingAs($east, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $eastGoal->id,
+            'completed_at' => '2026-08-31',
+        ])->assertOk();
+
+        $west = User::factory()->create(['timezone' => 'Pacific/Midway']);
+        $westGoal = Goal::factory()->create([
+            'user_id' => $west->id,
+            'status' => 'in_progress',
+            'start_date' => '2026-01-01',
+            'completed_at' => null,
+        ]);
+
+        Sanctum::actingAs($west, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $westGoal->id,
+            'completed_at' => '2026-08-30',
+        ])->assertHasErrors();
+
+        $this->assertNull($westGoal->fresh()->completed_at);
+
+        Carbon::setTestNow();
     }
 
     public function test_an_empty_payload_is_rejected(): void

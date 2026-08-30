@@ -2,13 +2,15 @@
 
 namespace App\Rules;
 
+use App\Models\User;
 use App\Traits\Rules\HandlesPartialRules;
 use Illuminate\Validation\Rule;
 
 /**
  * Goal validation rules shared by the web controller and the MCP tools.
  *
- * Pass the acting user's id so `category_id` only accepts categories they own.
+ * Pass the acting user so `category_id` only accepts categories they own and
+ * the completion date bound resolves in their timezone.
  */
 class GoalRules
 {
@@ -17,14 +19,14 @@ class GoalRules
     /**
      * @return array<string, mixed>
      */
-    public static function rules(?int $userId = null): array
+    public static function rules(?User $user = null): array
     {
         return [
             'category_id' => [
                 'nullable',
-                $userId === null
+                $user === null
                     ? Rule::exists('categories', 'id')
-                    : Rule::exists('categories', 'id')->where('user_id', $userId),
+                    : Rule::exists('categories', 'id')->where('user_id', $user->id),
             ],
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -37,7 +39,7 @@ class GoalRules
             'recurrence' => 'nullable|in:daily,weekly,monthly,annually',
             'start_date' => 'nullable|date',
             'deadline' => 'nullable|date|after_or_equal:start_date',
-            'completed_at' => 'nullable|date|after_or_equal:start_date',
+            'completed_at' => 'nullable|date|after_or_equal:start_date|before_or_equal:'.self::todayForUser($user),
             'status' => 'required|in:not_started,in_progress,completed,paused,abandoned',
             'priority' => 'required|in:low,medium,high',
             'polarity' => 'nullable|in:positive,negative',
@@ -45,5 +47,10 @@ class GoalRules
             'is_public' => 'required|boolean',
             'order' => 'nullable|integer',
         ];
+    }
+
+    protected static function todayForUser(?User $user): string
+    {
+        return GoalEntryRules::todayForTimezone($user?->timezone);
     }
 }

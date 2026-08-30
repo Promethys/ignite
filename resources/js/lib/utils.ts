@@ -34,6 +34,10 @@ export function formatDate(date: string) {
     });
 }
 
+export function toDateInputFormat(date: string) {
+    return new Date(date).toLocaleDateString('en-CA');
+}
+
 export function nullToEmpty(value: string | null | undefined): string {
     return value ?? '';
 }

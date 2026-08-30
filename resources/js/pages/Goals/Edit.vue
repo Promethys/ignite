@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader.vue';
 import Table from '@/components/ui/table/Table.vue';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { toDateInputFormat } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal, Milestone, User } from '@/types/models';
@@ -66,9 +67,7 @@ const columns = [
         header: trans('milestones.table.completed_at'),
         cell: (props) => {
             const completedAt = props.getValue();
-            return completedAt
-                ? new Date(completedAt).toISOString().split('T')[0]
-                : '-';
+            return completedAt ? toDateInputFormat(completedAt) : '-';
         },
     }),
     columnHelper.display({
