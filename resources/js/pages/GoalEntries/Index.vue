@@ -96,17 +96,30 @@ const dateTo = computed({
 
 const defaultPlaceholder = currentDateInTimeZone(getLocalTimeZone());
 
-const appliedFilters = computed(() =>
-    Object.fromEntries(
-        Object.entries(filters).filter(([, value]) => value !== ''),
-    ),
-);
+const filteredUrl = computed(() => {
+    const params = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+        if (value !== '') {
+            params.set(key, value);
+        }
+    });
+
+    const query = params.toString();
+
+    return query
+        ? `${window.location.pathname}?${query}`
+        : window.location.pathname;
+});
 
 const debouncedSearch = useDebounceFn(() => {
-    router.reload({
+    router.visit(filteredUrl.value, {
         only: ['entries'],
         reset: ['entries'],
-        data: appliedFilters.value,
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+        async: true,
         onStart: () => (isSearchLoading.value = true),
         onFinish: () => (isSearchLoading.value = false),
     });

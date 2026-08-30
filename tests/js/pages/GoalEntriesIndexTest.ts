@@ -1,7 +1,9 @@
 import GoalEntriesIndex from '@/pages/GoalEntries/Index.vue';
 import type { Goal } from '@/types/models';
+import { router } from '@inertiajs/vue3';
 import { mount } from '@vue/test-utils';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 
 // <Head> needs the app head manager, absent in unit tests; stub only that
 // export plus the router and the scroll wrapper, and keep the rest real.
@@ -10,7 +12,7 @@ vi.mock('@inertiajs/vue3', async (importOriginal) => {
     return {
         ...actual,
         Head: { name: 'Head', render: () => null },
-        router: { reload: vi.fn() },
+        router: { visit: vi.fn() },
         InfiniteScroll: { template: '<div><slot /></div>' },
     };
 });
@@ -164,5 +166,58 @@ describe('GoalEntries/Index filter read-back', () => {
         const wrapper = mountPage('quantifiable');
 
         expect(wrapper.text()).toContain('goals.entries.pick_date');
+    });
+});
+
+describe('GoalEntries/Index filter requests', () => {
+    const setUrl = (url: string) => window.history.replaceState({}, '', url);
+
+    const visitedUrl = async () => {
+        vi.advanceTimersByTime(400);
+        await nextTick();
+
+        return vi.mocked(router.visit).mock.calls.at(-1)?.[0];
+    };
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.mocked(router.visit).mockClear();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+        setUrl('/');
+    });
+
+    it('drops a filter from the url when it is cleared', async () => {
+        setUrl('/goals/1/entries?search=foo&from=2026-07-01');
+
+        const wrapper = mountPage('quantifiable');
+        await wrapper.find('input[type="search"]').setValue('');
+
+        expect(await visitedUrl()).toBe('/goals/1/entries?from=2026-07-01');
+    });
+
+    it('visits a bare url once every filter is cleared', async () => {
+        setUrl('/goals/1/entries?search=foo');
+
+        const wrapper = mountPage('quantifiable');
+        const clearFilters = wrapper
+            .findAll('button')
+            .find((button) => button.text() === 'goals.entries.clear_filters');
+        await clearFilters!.trigger('click');
+
+        expect(await visitedUrl()).toBe('/goals/1/entries');
+    });
+
+    it('carries every active filter in the url', async () => {
+        setUrl('/goals/1/entries?from=2026-07-01');
+
+        const wrapper = mountPage('quantifiable');
+        await wrapper.find('input[type="search"]').setValue('run');
+
+        expect(await visitedUrl()).toBe(
+            '/goals/1/entries?search=run&from=2026-07-01',
+        );
     });
 });
