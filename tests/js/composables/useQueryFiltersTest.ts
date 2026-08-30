@@ -1,6 +1,6 @@
 import { useQueryFilters } from '@/composables/useQueryFilters';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { effectScope, nextTick } from 'vue';
 
 const setUrl = (url: string, state: Record<string, unknown> = {}) =>
     window.history.replaceState(state, '', url);
@@ -153,6 +153,28 @@ describe('useQueryFilters', () => {
         expect(window.location.search).toBe('?search=boo');
 
         replaceState.mockRestore();
+    });
+
+    it('abandons a pending write once the page has navigated away', async () => {
+        const scope = effectScope();
+        let filters!: { status: string };
+
+        scope.run(() => {
+            filters = useQueryFilters(
+                { status: 'all' },
+                { writeUrl: true },
+            ).filters;
+        });
+
+        filters.status = 'completed';
+        await nextTick();
+
+        setUrl('/goals/5');
+        scope.stop();
+        await flushUrlWrite();
+
+        expect(window.location.pathname).toBe('/goals/5');
+        expect(window.location.search).toBe('');
     });
 
     it('reports whether any value differs from its default', () => {

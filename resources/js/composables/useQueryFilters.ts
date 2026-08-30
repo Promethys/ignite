@@ -38,7 +38,13 @@ export function useQueryFilters<Filters extends FilterValues>(
     };
 
     if (options.writeUrl) {
+        const ownPathname = window.location.pathname;
+
         const writeUrl = useDebounceFn(() => {
+            if (window.location.pathname !== ownPathname) {
+                return;
+            }
+
             const params = new URLSearchParams();
 
             filterKeys.forEach((key) => {

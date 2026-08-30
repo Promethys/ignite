@@ -135,6 +135,8 @@ describe('Goals/Index filtering', () => {
 });
 
 describe('Goals/Index new goal link', () => {
+    afterEach(() => window.history.replaceState({}, '', '/'));
+
     it('carries the selected category into the create link', () => {
         window.history.replaceState({}, '', '/goals?category=1');
 
@@ -143,8 +145,6 @@ describe('Goals/Index new goal link', () => {
         const createLink = findCreateLink(wrapper);
         expect(createLink).toBeTruthy();
         expect(createLink!.attributes('href')).toContain('?category=1');
-
-        window.history.replaceState({}, '', '/');
     });
 
     it('has no category query when the filter is set to all', () => {
