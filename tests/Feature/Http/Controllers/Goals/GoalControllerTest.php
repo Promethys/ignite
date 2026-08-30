@@ -164,6 +164,32 @@ class GoalControllerTest extends TestCase
             );
     }
 
+    public function test_goals_index_omits_the_category_id_prop()
+    {
+        $this->actingAs($this->user)
+            ->get(route('goals.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Goals/Index')
+                ->has('items')
+                ->has('categories')
+                ->missing('category_id')
+            );
+    }
+
+    public function test_goals_index_renders_an_unknown_category_filter_hint()
+    {
+        $this->actingAs($this->user)
+            ->get(route('goals.index', ['category' => '999999']))
+            ->assertOk();
+    }
+
+    public function test_goals_index_renders_a_non_numeric_category_filter_hint()
+    {
+        $this->actingAs($this->user)
+            ->get(route('goals.index', ['category' => 'abc']))
+            ->assertOk();
+    }
+
     // =========================================================================
     // SHOW
     // =========================================================================
