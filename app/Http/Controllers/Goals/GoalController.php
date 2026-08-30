@@ -20,16 +20,11 @@ class GoalController extends Controller
 
     public function index(Request $request)
     {
-        $validated = $request->validate([
-            'category' => 'nullable|integer|min:1|exists:categories,id',
-        ]);
-
         $actor = $request->user();
 
         return Inertia::render('Goals/Index', [
             'items' => $this->goalService->listForUser($actor)['goals'],
             'categories' => $actor->categories,
-            'category_id' => $validated['category'] ?? null,
         ]);
     }
 
