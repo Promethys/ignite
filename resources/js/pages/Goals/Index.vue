@@ -19,18 +19,18 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import Separator from '@/components/ui/separator/Separator.vue';
+import { useQueryFilters } from '@/composables/useQueryFilters';
 import AppLayout from '@/layouts/AppLayout.vue';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Category, Goal } from '@/types/models';
 import { Head, Link } from '@inertiajs/vue3';
 import { Plus, Search, Target } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 interface Props {
     items: Goal[];
     categories: Category[];
-    category_id?: string | null;
 }
 
 const props = defineProps<Props>();
@@ -50,11 +50,10 @@ const statusFilters = [
     { value: 'abandoned', label: 'goals.statuses.abandoned' },
 ];
 
-const selectedCategoryId = ref(
-    props.category_id ? parseInt(props.category_id) : 'all',
+const { filters } = useQueryFilters(
+    { category: 'all', status: 'all', search: '' },
+    { writeUrl: true },
 );
-const selectedStatus = ref('all');
-const searchQuery = ref('');
 
 const activeCount = computed(
     () => props.items.filter((item) => item.status === 'in_progress').length,
@@ -63,16 +62,16 @@ const activeCount = computed(
 const createHref = computed(() => {
     const base = goals.create().url;
 
-    return typeof selectedCategoryId.value === 'number'
-        ? `${base}?category=${selectedCategoryId.value}`
+    return filters.category !== 'all' && filters.category !== 'none'
+        ? `${base}?category=${filters.category}`
         : base;
 });
 
 const filteredItems = computed(() => {
     let items = props.items;
 
-    if (searchQuery.value !== null && searchQuery.value !== '') {
-        const query = searchQuery.value.toLowerCase();
+    if (filters.search !== '') {
+        const query = filters.search.toLowerCase();
         items = items.filter(
             (item) =>
                 item.title.toLowerCase().includes(query) ||
@@ -80,14 +79,16 @@ const filteredItems = computed(() => {
         );
     }
 
-    if (selectedCategoryId.value !== 'all') {
+    if (filters.category === 'none') {
+        items = items.filter((item) => item.category_id === null);
+    } else if (filters.category !== 'all') {
         items = items.filter(
-            (item) => item.category_id === selectedCategoryId.value,
+            (item) => String(item.category_id) === filters.category,
         );
     }
 
-    if (selectedStatus.value !== 'all') {
-        items = items.filter((item) => item.status === selectedStatus.value);
+    if (filters.status !== 'all') {
+        items = items.filter((item) => item.status === filters.status);
     }
 
     return items;
@@ -129,14 +130,14 @@ const filteredItems = computed(() => {
                             class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                         />
                         <Input
-                            v-model="searchQuery"
+                            v-model="filters.search"
                             :placeholder="
                                 $t('goals.filters.search_placeholder')
                             "
                             class="pl-9"
                         />
                     </div>
-                    <Select v-model="selectedCategoryId">
+                    <Select v-model="filters.category">
                         <SelectTrigger class="sm:w-48">
                             <SelectValue
                                 :placeholder="$t('goals.filters.category')"
@@ -146,7 +147,7 @@ const filteredItems = computed(() => {
                             <SelectItem value="all">{{
                                 $t('goals.filters.all_categories')
                             }}</SelectItem>
-                            <SelectItem :value="null">{{
+                            <SelectItem value="none">{{
                                 $t('goals.filters.no_category')
                             }}</SelectItem>
                             <template v-if="categories.length > 0">
@@ -155,7 +156,7 @@ const filteredItems = computed(() => {
                             <SelectItem
                                 v-for="category in categories"
                                 :key="category.id"
-                                :value="category.id"
+                                :value="String(category.id)"
                             >
                                 {{ category.name }}
                             </SelectItem>
@@ -173,11 +174,11 @@ const filteredItems = computed(() => {
                         size="sm"
                         class="rounded-full text-xs sm:text-sm"
                         :variant="
-                            selectedStatus === filter.value
+                            filters.status === filter.value
                                 ? 'default'
                                 : 'outline'
                         "
-                        @click="selectedStatus = filter.value"
+                        @click="filters.status = filter.value"
                     >
                         {{ $t(filter.label) }}
                     </Button>

@@ -1,7 +1,8 @@
 import GoalsIndex from '@/pages/Goals/Index.vue';
 import type { Category, Goal } from '@/types/models';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 
 // The Inertia <Head> component needs the app's head manager, which isn't set
 // up in unit tests; stub only that export and keep the rest of the module real.
@@ -61,10 +62,14 @@ const stubs = {
     AppLayout: { template: '<div><slot /></div>' },
     PageHeader: { template: '<div><slot name="actions" /></div>' },
     Link: { props: ['href'], template: '<a :href="href"><slot /></a>' },
-    Button: { template: '<button><slot /></button>' },
+    Button: {
+        props: ['variant'],
+        template: '<button :data-variant="variant"><slot /></button>',
+    },
     Input: {
+        props: ['modelValue'],
         template:
-            '<input class="search" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+            '<input class="search" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     },
     Select: { template: '<div><slot /></div>' },
     SelectTrigger: { template: '<div><slot /></div>' },
@@ -84,9 +89,9 @@ const stubs = {
     },
 };
 
-const mountIndex = () =>
+const mountIndex = (items: Goal[] = goalsData) =>
     mount(GoalsIndex, {
-        props: { items: goalsData, categories },
+        props: { items, categories },
         global: { stubs },
     });
 
@@ -131,14 +136,15 @@ describe('Goals/Index filtering', () => {
 
 describe('Goals/Index new goal link', () => {
     it('carries the selected category into the create link', () => {
-        const wrapper = mount(GoalsIndex, {
-            props: { items: goalsData, categories, category_id: '1' },
-            global: { stubs },
-        });
+        window.history.replaceState({}, '', '/goals?category=1');
+
+        const wrapper = mountIndex();
 
         const createLink = findCreateLink(wrapper);
         expect(createLink).toBeTruthy();
         expect(createLink!.attributes('href')).toContain('?category=1');
+
+        window.history.replaceState({}, '', '/');
     });
 
     it('has no category query when the filter is set to all', () => {
@@ -147,5 +153,86 @@ describe('Goals/Index new goal link', () => {
         const createLink = findCreateLink(wrapper);
         expect(createLink).toBeTruthy();
         expect(createLink!.attributes('href')).not.toContain('category=');
+    });
+});
+
+describe('Goals/Index url filters', () => {
+    const setUrl = (url: string) => window.history.replaceState({}, '', url);
+
+    const flushUrlWrite = async () => {
+        await nextTick();
+        vi.advanceTimersByTime(300);
+        await nextTick();
+    };
+
+    afterEach(() => {
+        vi.useRealTimers();
+        setUrl('/');
+    });
+
+    it('seeds the status and search from the query string', () => {
+        setUrl('/goals?status=paused&search=save');
+
+        const wrapper = mountIndex();
+
+        const cards = wrapper.findAll('.goal-card');
+        expect(cards).toHaveLength(1);
+        expect(cards[0].text()).toBe('Save money');
+        expect(wrapper.find('input.search').element.value).toBe('save');
+
+        expect(wrapper.find('[data-variant="default"]').text()).toBe(
+            'goals.statuses.paused',
+        );
+        expect(wrapper.findAll('[data-variant="outline"]')).toHaveLength(4);
+    });
+
+    it('seeds the category from the query string', () => {
+        setUrl('/goals?category=1');
+
+        const wrapper = mountIndex();
+
+        const cards = wrapper.findAll('.goal-card');
+        expect(cards.map((card) => card.text())).toEqual([
+            'Run a marathon',
+            'Save money',
+        ]);
+    });
+
+    it('treats the none sentinel as the uncategorised filter', () => {
+        setUrl('/goals?category=none');
+
+        const uncategorised = makeGoal({
+            title: 'Walk the dog',
+            category_id: null,
+        });
+        const wrapper = mountIndex([...goalsData, uncategorised]);
+
+        const cards = wrapper.findAll('.goal-card');
+        expect(cards).toHaveLength(1);
+        expect(cards[0].text()).toBe('Walk the dog');
+    });
+
+    it('writes a changed filter to the url', async () => {
+        vi.useFakeTimers();
+        setUrl('/goals');
+
+        const wrapper = mountIndex();
+        const completed = wrapper
+            .findAll('button')
+            .find((b) => b.text() === 'goals.statuses.completed');
+        await completed!.trigger('click');
+        await flushUrlWrite();
+
+        expect(window.location.search).toBe('?status=completed');
+    });
+
+    it('keeps the url clean on an untouched page', async () => {
+        vi.useFakeTimers();
+        setUrl('/goals');
+
+        mountIndex();
+        await flushUrlWrite();
+
+        expect(window.location.search).toBe('');
     });
 });
