@@ -28,6 +28,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { Spinner } from '@/components/ui/spinner';
+import { useQueryFilters } from '@/composables/useQueryFilters';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
 import goals from '@/routes/goals';
@@ -37,11 +38,11 @@ import { Head, InfiniteScroll, router } from '@inertiajs/vue3';
 import {
     today as currentDateInTimeZone,
     getLocalTimeZone,
+    parseDate,
 } from '@internationalized/date';
 import { useDebounceFn } from '@vueuse/core';
 import { CalendarIcon, Pencil, XIcon } from 'lucide-vue-next';
 import moment from 'moment';
-import { DateValue } from 'reka-ui';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{
@@ -67,33 +68,45 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const isRecurring = computed(() => props.goal.type === 'recurring');
 
-const searchInput = ref();
-const dateFrom = ref<DateValue>();
-const dateTo = ref<DateValue>();
 const dateFromCalendarOpen = ref<boolean>(false);
 const dateToCalendarOpen = ref<boolean>(false);
 const isSearchLoading = ref(false);
-
-const hasActiveFilters = computed(() => {
-    return !!searchInput.value || !!dateFrom.value || !!dateTo.value;
+const { filters, hasActiveFilters, reset } = useQueryFilters({
+    search: '',
+    from: '',
+    to: '',
 });
 
 const scrollKey = computed(
-    () =>
-        `${searchInput.value ?? ''}-${dateFrom.value?.toString() ?? ''}-${dateTo.value?.toString() ?? ''}`,
+    () => `${filters.search}-${filters.from}-${filters.to}`,
 );
 
+const dateFrom = computed({
+    get: () => toDateValue(filters.from),
+    set: (value) => {
+        filters.from = value?.toString() ?? '';
+    },
+});
+const dateTo = computed({
+    get: () => toDateValue(filters.to),
+    set: (value) => {
+        filters.to = value?.toString() ?? '';
+    },
+});
+
 const defaultPlaceholder = currentDateInTimeZone(getLocalTimeZone());
+
+const appliedFilters = computed(() =>
+    Object.fromEntries(
+        Object.entries(filters).filter(([, value]) => value !== ''),
+    ),
+);
 
 const debouncedSearch = useDebounceFn(() => {
     router.reload({
         only: ['entries'],
         reset: ['entries'],
-        data: {
-            search: searchInput.value,
-            from: dateFrom.value?.toString(),
-            to: dateTo.value?.toString(),
-        },
+        data: appliedFilters.value,
         onStart: () => (isSearchLoading.value = true),
         onFinish: () => (isSearchLoading.value = false),
     });
@@ -110,11 +123,21 @@ const handleCalendarFilterUpdate = (ref: string) => {
 };
 
 const resetFilters = () => {
-    searchInput.value = undefined;
-    dateFrom.value = undefined;
-    dateTo.value = undefined;
+    reset();
 
     debouncedSearch();
+};
+
+const toDateValue = (date: string | null | undefined) => {
+    if (!date) {
+        return undefined;
+    }
+
+    try {
+        return parseDate(date);
+    } catch {
+        return undefined;
+    }
 };
 </script>
 
@@ -139,7 +162,7 @@ const resetFilters = () => {
                                 :placeholder="
                                     $t('goals.entries.search_placeholder')
                                 "
-                                v-model="searchInput"
+                                v-model="filters.search"
                                 class="w-full sm:flex-1"
                                 @input="debouncedSearch"
                             />

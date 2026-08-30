@@ -1,7 +1,7 @@
 import GoalEntriesIndex from '@/pages/GoalEntries/Index.vue';
 import type { Goal } from '@/types/models';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 // <Head> needs the app head manager, absent in unit tests; stub only that
 // export plus the router and the scroll wrapper, and keep the rest real.
@@ -120,5 +120,49 @@ describe('GoalEntries/Index', () => {
         const wrapper = mountPage('simple');
 
         expect(wrapper.findAll('.delete-dialog')).toHaveLength(1);
+    });
+});
+
+describe('GoalEntries/Index filter read-back', () => {
+    const setUrl = (url: string) => window.history.replaceState({}, '', url);
+
+    afterEach(() => setUrl('/'));
+
+    it('fills the controls from the query string', () => {
+        setUrl('/goals/1/entries?search=foo&from=2026-07-01&to=2026-07-31');
+
+        const wrapper = mountPage('quantifiable');
+
+        expect(wrapper.find('input[type="search"]').element.value).toBe('foo');
+        expect(wrapper.text()).toContain('2026-07-01');
+        expect(wrapper.text()).toContain('2026-07-31');
+        expect(wrapper.text()).toContain('goals.entries.clear_filters');
+    });
+
+    it('leaves the controls empty without a query string', () => {
+        setUrl('/goals/1/entries');
+
+        const wrapper = mountPage('quantifiable');
+
+        expect(wrapper.find('input[type="search"]').element.value).toBe('');
+        expect(wrapper.text()).toContain('goals.entries.pick_date');
+        expect(wrapper.text()).not.toContain('goals.entries.clear_filters');
+    });
+
+    it('fills the search from a url carrying empty date params', () => {
+        setUrl('/goals/1/entries?search=foo&from=&to=');
+
+        const wrapper = mountPage('quantifiable');
+
+        expect(wrapper.find('input[type="search"]').element.value).toBe('foo');
+        expect(wrapper.text()).toContain('goals.entries.pick_date');
+    });
+
+    it('survives an unparseable date in the query string', () => {
+        setUrl('/goals/1/entries?from=not-a-date');
+
+        const wrapper = mountPage('quantifiable');
+
+        expect(wrapper.text()).toContain('goals.entries.pick_date');
     });
 });
