@@ -1,5 +1,5 @@
 import GoalForm from '@/components/goals/GoalForm.vue';
-import type { User } from '@/types/models';
+import type { Goal, User } from '@/types/models';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -41,7 +41,10 @@ const stubs = {
     CardContent: { template: '<div><slot /></div>' },
     CardFooter: { template: '<div><slot /></div>' },
     Button: { template: '<button><slot /></button>' },
-    Input: { template: '<input />', props: ['modelValue'] },
+    Input: {
+        template: '<input :value="modelValue" />',
+        props: ['modelValue'],
+    },
     Label: { template: '<label><slot /></label>' },
     Textarea: { template: '<textarea />', props: ['modelValue'] },
     InputError: { template: '<span />', props: ['message'] },
@@ -85,5 +88,29 @@ describe('GoalForm', () => {
         expect(
             wrapper.find('.select#category_id').attributes('data-value'),
         ).toBeUndefined();
+    });
+
+    // The zone is pinned rather than inherited: at UTC, which is what CI
+    // runs, the local calendar date equals the UTC date and the seeding this
+    // replaced would satisfy the assertion. At UTC+14 the stored instant
+    // falls on the following day, which is the shift being guarded against.
+    it('seeds the completion date input from the local calendar date', () => {
+        const original = process.env.TZ;
+        process.env.TZ = 'Pacific/Kiritimati';
+
+        try {
+            const user = { id: 1, categories: {} } as unknown as User;
+            const record = {
+                completed_at: '2026-08-29T23:30:00.000000Z',
+            } as unknown as Goal;
+
+            const wrapper = mountForm({ record, user });
+
+            expect(wrapper.find('input#completed_at').element.value).toBe(
+                '2026-08-30',
+            );
+        } finally {
+            process.env.TZ = original;
+        }
     });
 });
