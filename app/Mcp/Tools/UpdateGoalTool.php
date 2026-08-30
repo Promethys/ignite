@@ -3,6 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\GoalResource;
+use App\Models\Goal;
+use App\Rules\GoalEntryRules;
 use App\Rules\GoalRules;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -46,9 +48,9 @@ class UpdateGoalTool extends IgniteTool
             return Response::error('No fields were provided to update.');
         }
 
-        $rules = GoalRules::partialRules($user->id);
+        $rules = GoalRules::partialRules($user);
 
-        $merged = array_merge($goal->only(array_keys($rules)), $provided);
+        $merged = array_merge($this->storedAttributes($goal, $rules), $provided);
 
         $validated = Validator::validate($merged, $rules);
 
@@ -62,6 +64,24 @@ class UpdateGoalTool extends IgniteTool
         )
             ->withStructuredContent((new GoalResource($updated))
                 ->resolve());
+    }
+
+    /**
+     * @param  array<string, mixed>  $rules
+     * @return array<string, mixed>
+     */
+    protected function storedAttributes(Goal $goal, array $rules): array
+    {
+        $stored = $goal->only(array_keys($rules));
+
+        if (! empty($stored['completed_at'])) {
+            $stored['completed_at'] = GoalEntryRules::dateForTimezone(
+                $stored['completed_at'],
+                $goal->user?->timezone,
+            );
+        }
+
+        return $stored;
     }
 
     /**
@@ -139,7 +159,7 @@ class UpdateGoalTool extends IgniteTool
                 ->format('date')
                 ->nullable(),
             'completed_at' => $schema->string()
-                ->description('An optional completion timestamp. Must be on or after the goal\'s start date.')
+                ->description('An optional completion timestamp. Must be on or after the goal\'s start date and no later than today in the owner\'s timezone.')
                 ->format('date')
                 ->nullable(),
             'order' => $schema->integer()

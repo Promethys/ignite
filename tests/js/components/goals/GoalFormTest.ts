@@ -90,10 +90,6 @@ describe('GoalForm', () => {
         ).toBeUndefined();
     });
 
-    // The zone is pinned rather than inherited: at UTC, which is what CI
-    // runs, the local calendar date equals the UTC date and the seeding this
-    // replaced would satisfy the assertion. At UTC+14 the stored instant
-    // falls on the following day, which is the shift being guarded against.
     it('seeds the completion date input from the local calendar date', () => {
         const original = process.env.TZ;
         process.env.TZ = 'Pacific/Kiritimati';

@@ -393,6 +393,31 @@ class GoalControllerTest extends TestCase
             ->assertSessionHasErrors('completed_at');
     }
 
+    public function test_completed_at_in_the_future_fails_validation()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'status' => 'completed',
+                'completed_at' => now()->addDay()->toDateString(),
+            ]))
+            ->assertSessionHasErrors('completed_at');
+    }
+
+    public function test_completed_at_can_be_today()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'status' => 'completed',
+                'start_date' => now()->toDateString(),
+                'completed_at' => now()->toDateString(),
+            ]))
+            ->assertRedirect(route('goals.index'));
+
+        $goal = Goal::where('user_id', $this->user->id)->firstOrFail();
+
+        $this->assertSame(now()->toDateString(), $goal->completed_at->toDateString());
+    }
+
     public function test_polarity_must_be_valid()
     {
         $this->actingAs($this->user)

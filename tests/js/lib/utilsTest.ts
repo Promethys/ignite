@@ -151,11 +151,6 @@ describe('nullToUndefined', () => {
 // =========================================================================
 
 describe('toDateInputFormat', () => {
-    // The runner's own zone cannot be trusted to prove anything: CI runs at
-    // UTC, where the local calendar date and the UTC date are the same value,
-    // so an assertion derived from the input instant is satisfied by the
-    // UTC-truncating implementation this replaced. Each case pins a zone and
-    // states the expected date as a literal instead.
     const withTimeZone = (timeZone: string, assertion: () => void) => {
         const original = process.env.TZ;
         process.env.TZ = timeZone;
@@ -168,7 +163,6 @@ describe('toDateInputFormat', () => {
     };
 
     it('formats the local calendar date east of UTC, where it runs ahead', () => {
-        // 23:30Z on the 29th is already 13:30 on the 30th at UTC+14.
         withTimeZone('Pacific/Kiritimati', () => {
             expect(toDateInputFormat('2026-08-29T23:30:00.000Z')).toBe(
                 '2026-08-30',
@@ -177,7 +171,6 @@ describe('toDateInputFormat', () => {
     });
 
     it('formats the local calendar date west of UTC, where it lags', () => {
-        // 00:30Z on the 29th is still 13:30 on the 28th at UTC-11.
         withTimeZone('Pacific/Midway', () => {
             expect(toDateInputFormat('2026-08-29T00:30:00.000Z')).toBe(
                 '2026-08-28',

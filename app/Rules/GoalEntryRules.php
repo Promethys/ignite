@@ -3,6 +3,7 @@
 namespace App\Rules;
 
 use App\Models\Goal;
+use DateTimeInterface;
 use Illuminate\Support\Carbon;
 
 /**
@@ -39,8 +40,18 @@ class GoalEntryRules
 
     protected static function todayFor(Goal $goal): string
     {
-        $timezone = $goal->user?->timezone ?? config('app.timezone');
+        return self::todayForTimezone($goal->user?->timezone);
+    }
 
-        return Carbon::now()->timezone($timezone)->toDateString();
+    public static function todayForTimezone(?string $timezone): string
+    {
+        return self::dateForTimezone(Carbon::now(), $timezone);
+    }
+
+    public static function dateForTimezone(DateTimeInterface|string $moment, ?string $timezone): string
+    {
+        return Carbon::parse($moment)
+            ->timezone($timezone ?? config('app.timezone'))
+            ->toDateString();
     }
 }
