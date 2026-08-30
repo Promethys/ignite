@@ -87,6 +87,8 @@ docker compose -f compose.dev.yaml down              # stop, keeping the databas
 
 Editing a `.vue`, `.ts` or `.css` file reloads the browser. Editing PHP takes effect on the next request. Both come from the same bind mount, so neither needs a rebuild. Rebuild the images only when the `Dockerfile` itself changes, with `up -d --build`.
 
+`compose.dev.yaml` declares the Compose project name `ignite-dev`, so this stack keeps its own images, containers and volumes and never shares them with the self-hosting stack in `compose.yaml`. Both can be built in the same working copy, and `docker compose ls` lists them separately. Stopping one leaves the other running.
+
 ### How hot reload works in a container
 
 `vite.config.ts` carries four settings that exist purely for this setup:

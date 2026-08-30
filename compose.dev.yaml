@@ -1,3 +1,5 @@
+name: ignite-dev
+
 services:
   web:
     build:
