@@ -61,6 +61,25 @@ Negative polarity flips the meaning: an entry represents a lapse (e.g. a relapse
 
 In other words: an avoidance goal that reached its deadline with no logged lapses is eligible to be auto-completed. `GoalController::show` checks this on every view and, if eligible, calls `markAsCompleted()` immediately (with an undo action surfaced in the success toast).
 
+## Activity heatmap
+
+The goal page renders a grid beneath the streak card showing which periods of the recent past hold an entry. It appears for `recurring` goals only; `GoalHeatmapService::for(Goal $goal)` returns `null` for every other type, and the page omits the section when it does.
+
+**One cell is one recurrence period**, not one day. Because the server allows at most one entry per period (see `guardPeriodIsFree`), the cell and the period are the same unit, and a fully logged goal fills the grid at every cadence.
+
+| `recurrence` | one cell is | cell anchor | window                                   |
+| ------------ | ----------- | ----------- | ---------------------------------------- |
+| `daily`      | a day       | the day     | the last 53 week-columns, ending today   |
+| `weekly`     | an ISO week | the Monday  | the last 52 weeks, ending this week      |
+| `monthly`    | a month     | the 1st     | the last 12 months, ending this month    |
+| `annually`   | a year      | 1 January   | the first entry's year through this year |
+
+The annual cadence is the exception to the rolling window: twelve months is one year, which would leave a single cell, so it shows the goal's whole history instead. It falls back to `start_date`, then `created_at`, when there are no entries yet.
+
+Cells are anchored on Mondays, matching `Carbon::startOfWeek()` and the `o-W` bucket above, so a daily grid's columns line up with the weeks the streak counts.
+
+A cell is filled when an entry exists for its period and muted when none does, **whatever the goal's polarity**. On a positive goal that reads as periods you showed up; on a negative one, periods you lapsed. Both are recorded the same way, so both are drawn the same way. The window is fixed and the grid is read-only: there is no year navigation, and clicking a cell does nothing. Hovering one names its period and whether it holds an entry.
+
 ## How to use it
 
 - Set a goal's `type` to `recurring` and pick a `recurrence` (`daily`, `weekly`, `monthly`, or `annually`) to get a streak.

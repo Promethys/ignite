@@ -211,6 +211,40 @@ class GoalControllerTest extends TestCase
             );
     }
 
+    public function test_a_recurring_goal_carries_a_heatmap_payload()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'recurring',
+            'recurrence' => 'monthly',
+        ]);
+
+        $this->actingAs($this->user)
+            ->get(route('goals.show', $goal))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Goals/Show')
+                ->where('heatmap.cadence', 'monthly')
+                ->count('heatmap.cells', 12)
+                ->has('heatmap.total')
+            );
+    }
+
+    public function test_a_non_recurring_goal_carries_no_heatmap()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'quantifiable',
+            'recurrence' => null,
+        ]);
+
+        $this->actingAs($this->user)
+            ->get(route('goals.show', $goal))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Goals/Show')
+                ->where('heatmap', null)
+            );
+    }
+
     // =========================================================================
     // CREATE / STORE
     // =========================================================================

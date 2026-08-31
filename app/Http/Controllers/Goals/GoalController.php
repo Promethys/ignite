@@ -7,6 +7,7 @@ use App\Http\Requests\Goals\StoreGoalRequest;
 use App\Http\Requests\Goals\UpdateGoalRequest;
 use App\Models\Goal;
 use App\Rules\GoalRules;
+use App\Services\Goals\GoalHeatmapService;
 use App\Services\Goals\GoalService;
 use App\Services\StreakService;
 use Illuminate\Http\Request;
@@ -84,7 +85,9 @@ class GoalController extends Controller
 
         $today = Carbon::now()->timezone($goal->user?->timezone ?? config('app.timezone'))->toDateString();
 
-        return Inertia::render('Goals/Show', compact('goal', 'chartEntries', 'today'));
+        $heatmap = GoalHeatmapService::for($goal);
+
+        return Inertia::render('Goals/Show', compact('goal', 'chartEntries', 'today', 'heatmap'));
     }
 
     public function edit(Goal $goal)

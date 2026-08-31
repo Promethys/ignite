@@ -196,6 +196,32 @@ return [
         'deadline_progress' => 'Jour :elapsed sur :total avant l\'échéance',
     ],
 
+    'heatmap' => [
+        'title' => 'Activité',
+        'legend_less' => 'Moins',
+        'legend_more' => 'Plus',
+        'summary' => [
+            'day' => '{1}:done / :total jour enregistré|[2,*]:done / :total jours enregistrés',
+            'week' => '{1}:done / :total semaine enregistrée|[2,*]:done / :total semaines enregistrées',
+            'month' => '{1}:done / :total mois enregistré|[2,*]:done / :total mois enregistrés',
+            'year' => '{1}:done / :total an enregistré|[2,*]:done / :total ans enregistrés',
+        ],
+        'tooltip' => [
+            'logged' => [
+                'day' => 'Entrée le :date',
+                'week' => 'Entrée dans la semaine du :date',
+                'month' => 'Entrée en :date',
+                'year' => 'Entrée en :date',
+            ],
+            'empty' => [
+                'day' => 'Aucune entrée le :date',
+                'week' => 'Aucune entrée dans la semaine du :date',
+                'month' => 'Aucune entrée en :date',
+                'year' => 'Aucune entrée en :date',
+            ],
+        ],
+    ],
+
     'checkin' => [
         'title_positive' => 'Enregistrer votre progression',
         'title_negative' => 'Enregistrer une rechute',

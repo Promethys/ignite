@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import EntryHeatmap from '@/components/charts/EntryHeatmap.vue';
 import ProgressChart from '@/components/charts/ProgressChart.vue';
 import EntryNote from '@/components/goal-entries/EntryNote.vue';
 import GoalEntryFormModal from '@/components/goal-entries/GoalEntryFormModal.vue';
@@ -29,6 +30,7 @@ import {
 import HelpTooltip from '@/components/ui/HelpTooltip.vue';
 import { Progress } from '@/components/ui/progress';
 import AppLayout from '@/layouts/AppLayout.vue';
+import type { HeatmapPayload } from '@/lib/heatmap';
 import { streakUnit as streakUnitHelper } from '@/lib/streak';
 import { getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
@@ -53,6 +55,7 @@ const props = defineProps<{
     goal: Goal;
     chartEntries: { entry_date: string; value: number }[];
     today: string;
+    heatmap: HeatmapPayload | null;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -542,6 +545,21 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                                 }}</span>
                             </p>
                         </template>
+                    </section>
+
+                    <!-- Entry heatmap (recurring) -->
+                    <section
+                        v-if="heatmap"
+                        class="rounded-xl border bg-card p-4"
+                    >
+                        <h4 class="mb-3 font-display text-base font-semibold">
+                            {{ $t('goals.heatmap.title') }}
+                        </h4>
+                        <EntryHeatmap
+                            :cadence="heatmap.cadence"
+                            :cells="heatmap.cells"
+                            :total="heatmap.total"
+                        />
                     </section>
 
                     <!-- Milestones -->
