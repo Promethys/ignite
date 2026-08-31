@@ -269,4 +269,19 @@ describe('Goals/Show', () => {
         expect(wrapper.text()).not.toContain('goals.heatmap.title');
         expect(wrapper.find('[data-slot="heatmap-cell"]').exists()).toBe(false);
     });
+
+    // Grid items default to `min-width: auto`, so the heatmap's `w-max` row
+    // would set a ~740px floor on the column and push the page past the
+    // viewport, where the layout's `overflow-x-hidden` clips it with no
+    // scrollbar. jsdom does no layout, so guard the class that prevents it.
+    it('lets both body columns shrink below their content width', () => {
+        const wrapper = mountShow(makeGoal({}));
+
+        const columns = wrapper.findAll('.grid.gap-6 > div');
+
+        expect(columns).toHaveLength(2);
+        expect(
+            columns.every((column) => column.classes().includes('min-w-0')),
+        ).toBe(true);
+    });
 });

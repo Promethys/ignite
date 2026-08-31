@@ -390,7 +390,7 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
             <!-- Two-column body -->
             <div class="grid gap-6 lg:grid-cols-3">
                 <!-- Left (2fr) -->
-                <div class="space-y-6 lg:col-span-2">
+                <div class="min-w-0 space-y-6 lg:col-span-2">
                     <!-- Simple: prominent done / active state -->
                     <section
                         v-if="goal.type === 'simple'"
@@ -626,7 +626,7 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                 </div>
 
                 <!-- Right (1fr) -->
-                <div class="space-y-6">
+                <div class="min-w-0 space-y-6">
                     <!-- About -->
                     <section class="rounded-xl border bg-card p-4">
                         <h4 class="mb-3 font-display text-base font-semibold">
