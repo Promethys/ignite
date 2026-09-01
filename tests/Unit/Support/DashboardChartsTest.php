@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\DashboardCharts;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class DashboardChartsTest extends TestCase
@@ -50,6 +51,37 @@ class DashboardChartsTest extends TestCase
         $this->assertSame('2025-08', $result[0]['month']);
         $this->assertSame('2026-07', $result[11]['month']);
         $this->assertSame(0, $result[0]['count']);
+    }
+
+    /**
+     * Subtracting months from a day-31 date overflows when the target month is
+     * shorter, which silently dropped the oldest bucket. The window has to be
+     * twelve months whatever day it is read on.
+     *
+     * @return array<string, array{string, string}>
+     */
+    public static function monthEndDates(): array
+    {
+        return [
+            'august 31st, september has 30 days' => ['2026-08-31 12:00:00', '2025-09'],
+            'may 31st, june has 30 days' => ['2026-05-31 12:00:00', '2025-06'],
+            'march 31st, april has 30 days' => ['2026-03-31 12:00:00', '2025-04'],
+            'march 30th, february is shorter still' => ['2026-03-30 12:00:00', '2025-04'],
+            'leap day' => ['2028-02-29 12:00:00', '2027-03'],
+        ];
+    }
+
+    #[DataProvider('monthEndDates')]
+    public function test_monthly_completions_spans_twelve_months_at_a_month_end(string $now, string $expectedFirstMonth): void
+    {
+        Carbon::setTestNow($now);
+        $user = User::factory()->create(['timezone' => 'UTC']);
+
+        $result = DashboardCharts::monthlyCompletions($user);
+
+        $this->assertCount(12, $result);
+        $this->assertSame($expectedFirstMonth, $result[0]['month']);
+        $this->assertSame(Carbon::parse($now)->format('Y-m'), $result[11]['month']);
     }
 
     public function test_monthly_completions_counts_per_month_and_ignores_out_of_window(): void

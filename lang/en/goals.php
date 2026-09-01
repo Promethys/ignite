@@ -196,6 +196,32 @@ return [
         'deadline_progress' => 'Day :elapsed of :total to deadline',
     ],
 
+    'heatmap' => [
+        'title' => 'Activity',
+        'legend_less' => 'Less',
+        'legend_more' => 'More',
+        'summary' => [
+            'day' => '{1}:done / :total day logged|[2,*]:done / :total days logged',
+            'week' => '{1}:done / :total week logged|[2,*]:done / :total weeks logged',
+            'month' => '{1}:done / :total month logged|[2,*]:done / :total months logged',
+            'year' => '{1}:done / :total year logged|[2,*]:done / :total years logged',
+        ],
+        'tooltip' => [
+            'logged' => [
+                'day' => 'Entry on :date',
+                'week' => 'Entry in the week of :date',
+                'month' => 'Entry in :date',
+                'year' => 'Entry in :date',
+            ],
+            'empty' => [
+                'day' => 'No entry on :date',
+                'week' => 'No entry in the week of :date',
+                'month' => 'No entry in :date',
+                'year' => 'No entry in :date',
+            ],
+        ],
+    ],
+
     'checkin' => [
         'title_positive' => 'Log your progress',
         'title_negative' => 'Record a relapse',

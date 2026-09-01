@@ -1,3 +1,4 @@
+import type { HeatmapPayload } from '@/lib/heatmap';
 import GoalsShow from '@/pages/Goals/Show.vue';
 import type { Goal, GoalEntry } from '@/types/models';
 import { mount } from '@vue/test-utils';
@@ -109,7 +110,12 @@ const makeGoal = (overrides: Partial<Goal>): Goal =>
 const mountShow = (
     goal: Goal,
     chartEntries: { entry_date: string; value: number }[] = [],
-) => mount(GoalsShow, { props: { goal, chartEntries }, global: { stubs } });
+    heatmap: HeatmapPayload | null = null,
+) =>
+    mount(GoalsShow, {
+        props: { goal, chartEntries, heatmap },
+        global: { stubs },
+    });
 
 describe('Goals/Show', () => {
     it('renders quantifiable summary tiles', () => {
@@ -237,5 +243,45 @@ describe('Goals/Show', () => {
         );
 
         expect(wrapper.text()).toContain('goals.streak.none');
+    });
+
+    it('renders the heatmap section when the server sent a payload', () => {
+        const wrapper = mountShow(
+            makeGoal({ type: 'recurring', recurrence: 'daily' }),
+            [],
+            {
+                cadence: 'daily',
+                cells: [
+                    { date: '2026-08-30', value: 0 },
+                    { date: '2026-08-31', value: 1 },
+                ],
+                total: 1,
+            },
+        );
+
+        expect(wrapper.text()).toContain('goals.heatmap.title');
+        expect(wrapper.findAll('[data-slot="heatmap-cell"]').length).toBe(2);
+    });
+
+    it('hides the heatmap section when the goal is not recurring', () => {
+        const wrapper = mountShow(makeGoal({ type: 'quantifiable' }));
+
+        expect(wrapper.text()).not.toContain('goals.heatmap.title');
+        expect(wrapper.find('[data-slot="heatmap-cell"]').exists()).toBe(false);
+    });
+
+    // Grid items default to `min-width: auto`, so the heatmap's `w-max` row
+    // would set a ~740px floor on the column and push the page past the
+    // viewport, where the layout's `overflow-x-hidden` clips it with no
+    // scrollbar. jsdom does no layout, so guard the class that prevents it.
+    it('lets both body columns shrink below their content width', () => {
+        const wrapper = mountShow(makeGoal({}));
+
+        const columns = wrapper.findAll('.grid.gap-6 > div');
+
+        expect(columns).toHaveLength(2);
+        expect(
+            columns.every((column) => column.classes().includes('min-w-0')),
+        ).toBe(true);
     });
 });
