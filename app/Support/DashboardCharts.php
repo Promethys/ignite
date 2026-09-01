@@ -13,7 +13,7 @@ class DashboardCharts
     public static function monthlyCompletions(User $user): array
     {
         $timezone = $user->timezone ?? config('app.timezone');
-        $startDate = now()->subMonths(11)->startOfMonth();
+        $startDate = now()->startOfMonth()->subMonths(11);
         $endDate = now();
         $period = CarbonPeriod::create($startDate, '1 month', $endDate);
 
