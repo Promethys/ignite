@@ -50,25 +50,42 @@ class GoalHeatmapService
     /**
      * The anchor date of every period in the window, oldest first.
      *
-     * Daily and weekly windows start on a Monday so the frontend can flow a
-     * contiguous run of cells down seven-row columns without index arithmetic.
+     * The window opens at the goal's earliest activity, so a young goal is not
+     * padded with a year of empty cells, and slides to a rolling year once the
+     * history is longer than that. Daily and weekly windows open on a Monday so
+     * the frontend can flow a contiguous run of cells down seven-row columns
+     * without index arithmetic.
+     *
+     * An annual goal has no rolling bound: twelve months is one cell, so it
+     * always shows its whole history.
      *
      * @return Collection<int, Carbon>
      */
     private static function windowAnchors(Goal $goal, string $recurrence, Carbon $now): Collection
     {
-        [$start, $unit] = match ($recurrence) {
-            'daily' => [$now->copy()->startOfWeek()->subWeeks(52), 'day'],
-            'weekly' => [$now->copy()->startOfWeek()->subWeeks(51), 'week'],
-            'monthly' => [$now->copy()->startOfMonth()->subMonths(11), 'month'],
-            'annually' => [self::annualWindowStart($goal, $now), 'year'],
-        };
+        $earliest = self::earliestActivity($goal, $now);
 
-        $end = match ($recurrence) {
-            'daily' => $now->copy()->startOfDay(),
-            'weekly' => $now->copy()->startOfWeek(),
-            'monthly' => $now->copy()->startOfMonth(),
-            'annually' => $now->copy()->startOfYear(),
+        [$unit, $start, $end] = match ($recurrence) {
+            'daily' => [
+                'day',
+                $earliest->copy()->startOfWeek()->max($now->copy()->startOfWeek()->subWeeks(52)),
+                $now->copy()->startOfDay(),
+            ],
+            'weekly' => [
+                'week',
+                $earliest->copy()->startOfWeek()->max($now->copy()->startOfWeek()->subWeeks(51)),
+                $now->copy()->startOfWeek(),
+            ],
+            'monthly' => [
+                'month',
+                $earliest->copy()->startOfMonth()->max($now->copy()->startOfMonth()->subMonths(11)),
+                $now->copy()->startOfMonth(),
+            ],
+            'annually' => [
+                'year',
+                $earliest->copy()->startOfYear(),
+                $now->copy()->startOfYear(),
+            ],
         };
 
         $anchors = collect();
@@ -83,18 +100,23 @@ class GoalHeatmapService
     }
 
     /**
-     * A rolling twelve months is exactly one year, so an annual goal would get a
-     * single cell. It shows its whole history instead, back to the first entry.
+     * The date the goal's history opens on.
+     *
+     * Reads the earliest entry_date rather than the earliest created_at, since
+     * an entry can be backdated and the grid answers "when does this count
+     * for", not "when was the row written". Falls back to the goal's own dates
+     * so a goal with no entries still has a window, and is clamped to today so
+     * a future start_date cannot produce a window that ends before it begins.
      */
-    private static function annualWindowStart(Goal $goal, Carbon $now): Carbon
+    private static function earliestActivity(Goal $goal, Carbon $now): Carbon
     {
-        $firstEntryDate = $goal->entries()->min('entry_date');
+        $earliest = Carbon::parse(
+            $goal->entries()->min('entry_date')
+                ?? $goal->start_date
+                ?? $goal->created_at
+        );
 
-        $earliest = $firstEntryDate ?? $goal->start_date ?? $goal->created_at;
-
-        $start = Carbon::parse($earliest)->startOfYear();
-
-        return $start->greaterThan($now) ? $now->copy()->startOfYear() : $start;
+        return $earliest->greaterThan($now) ? $now->copy() : $earliest;
     }
 
     /**

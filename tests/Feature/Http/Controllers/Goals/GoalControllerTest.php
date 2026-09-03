@@ -213,10 +213,15 @@ class GoalControllerTest extends TestCase
 
     public function test_a_recurring_goal_carries_a_heatmap_payload()
     {
+        Carbon::setTestNow('2026-08-31 10:00:00');
+
+        // The window opens at the goal's earliest activity, so the start date
+        // is pinned rather than left to the factory.
         $goal = Goal::factory()->create([
             'user_id' => $this->user->id,
             'type' => 'recurring',
             'recurrence' => 'monthly',
+            'start_date' => '2026-06-01',
         ]);
 
         $this->actingAs($this->user)
@@ -224,8 +229,9 @@ class GoalControllerTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Goals/Show')
                 ->where('heatmap.cadence', 'monthly')
-                ->count('heatmap.cells', 12)
-                ->has('heatmap.total')
+                ->count('heatmap.cells', 3)
+                ->where('heatmap.cells.0.date', '2026-06-01')
+                ->where('heatmap.total', 0)
             );
     }
 

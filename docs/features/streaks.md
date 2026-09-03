@@ -67,18 +67,20 @@ The goal page renders a grid beneath the streak card showing which periods of th
 
 **One cell is one recurrence period**, not one day. Because the server allows at most one entry per period (see `guardPeriodIsFree`), the cell and the period are the same unit, and a fully logged goal fills the grid at every cadence.
 
-| `recurrence` | one cell is | cell anchor | window                                   |
-| ------------ | ----------- | ----------- | ---------------------------------------- |
-| `daily`      | a day       | the day     | the last 53 week-columns, ending today   |
-| `weekly`     | an ISO week | the Monday  | the last 52 weeks, ending this week      |
-| `monthly`    | a month     | the 1st     | the last 12 months, ending this month    |
-| `annually`   | a year      | 1 January   | the first entry's year through this year |
+| `recurrence` | one cell is | cell anchor | longest window           |
+| ------------ | ----------- | ----------- | ------------------------ |
+| `daily`      | a day       | the day     | 53 week-columns          |
+| `weekly`     | an ISO week | the Monday  | 52 weeks                 |
+| `monthly`    | a month     | the 1st     | 12 months                |
+| `annually`   | a year      | 1 January   | unbounded, whole history |
 
-The annual cadence is the exception to the rolling window: twelve months is one year, which would leave a single cell, so it shows the goal's whole history instead. It falls back to `start_date`, then `created_at`, when there are no entries yet.
+**The window opens at the goal's earliest activity and slides once its history is longer than a year.** A goal whose first entry is a month old shows a month of cells rather than a year of empty ones; once there is more than a year of history the start moves forward so the grid stays a rolling year ending today. The annual cadence has no rolling bound, since twelve months there is a single cell.
+
+Earliest activity means the earliest `entry_date`, not the earliest `created_at`: an entry can be backdated, and the grid answers "when does this count for" rather than "when was the row written". A goal with no entries falls back to `start_date`, then `created_at`, and a `start_date` in the future is clamped to today so the window cannot end before it begins.
 
 Cells are anchored on Mondays, matching `Carbon::startOfWeek()` and the `o-W` bucket above, so a daily grid's columns line up with the weeks the streak counts.
 
-A cell is filled when an entry exists for its period and muted when none does, **whatever the goal's polarity**. On a positive goal that reads as periods you showed up; on a negative one, periods you lapsed. Both are recorded the same way, so both are drawn the same way. The window is fixed and the grid is read-only: there is no year navigation, and clicking a cell does nothing. Hovering one names its period and whether it holds an entry.
+A cell is filled when an entry exists for its period and muted when none does, **whatever the goal's polarity**. On a positive goal that reads as periods you showed up; on a negative one, periods you lapsed. Both are recorded the same way, so both are drawn the same way. The grid is read-only: there is no year navigation, and clicking a cell does nothing. Hovering one names its period and whether it holds an entry. When the grid is wider than the space it has, it opens scrolled to its right edge so the most recent periods are the ones on screen.
 
 ## How to use it
 
