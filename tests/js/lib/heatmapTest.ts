@@ -6,6 +6,7 @@ import {
     monthLabels,
     parseCellDate,
     rowCount,
+    scrollToLatest,
     tooltipDate,
     weekdayLabels,
     type HeatmapCell,
@@ -156,6 +157,29 @@ describe('tooltipDate', () => {
     it('drops the day for the sparse cadences', () => {
         expect(tooltipDate(cell('2026-08-01'), 'monthly')).toBe('August 2026');
         expect(tooltipDate(cell('2026-01-01'), 'annually')).toBe('2026');
+    });
+});
+
+describe('scrollToLatest', () => {
+    it('parks the container at its right edge', () => {
+        const element = { scrollWidth: 742, scrollLeft: 0 };
+
+        scrollToLatest(element);
+
+        // Browsers clamp to the maximum offset, so the full width is the end.
+        expect(element.scrollLeft).toBe(742);
+    });
+
+    it('does nothing when the container is not mounted yet', () => {
+        expect(() => scrollToLatest(null)).not.toThrow();
+    });
+
+    it('moves a container that was already scrolled', () => {
+        const element = { scrollWidth: 742, scrollLeft: 120 };
+
+        scrollToLatest(element);
+
+        expect(element.scrollLeft).toBe(742);
     });
 });
 

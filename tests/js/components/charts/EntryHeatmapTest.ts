@@ -1,8 +1,24 @@
 import EntryHeatmap from '@/components/charts/EntryHeatmap.vue';
-import type { HeatmapCadence, HeatmapCell } from '@/lib/heatmap';
+import {
+    scrollToLatest,
+    type HeatmapCadence,
+    type HeatmapCell,
+} from '@/lib/heatmap';
 import { mount } from '@vue/test-utils';
 import moment from 'moment';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+// jsdom has no layout, so `scrollWidth` is always 0 and asserting on a real
+// element proves nothing. The behaviour is covered in the lib test; here we
+// only prove the component calls it, and with the scroll container.
+vi.mock('@/lib/heatmap', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@/lib/heatmap')>()),
+    scrollToLatest: vi.fn(),
+}));
+
+beforeEach(() => {
+    vi.mocked(scrollToLatest).mockClear();
+});
 
 const daysFrom = (
     start: string,
@@ -149,5 +165,24 @@ describe('EntryHeatmap', () => {
                 .findAll('[data-slot="tooltip-trigger"]')
                 .every((trigger) => trigger.attributes('tabindex') === '-1'),
         ).toBe(true);
+    });
+
+    it('opens scrolled to the most recent periods', () => {
+        const wrapper = render('daily', daysFrom('2026-08-31', 21));
+
+        expect(scrollToLatest).toHaveBeenCalledTimes(1);
+        expect(scrollToLatest).toHaveBeenCalledWith(
+            wrapper.find('[data-slot="heatmap-scroller"]').element,
+        );
+    });
+
+    it('scrolls back to the end when the cells change', async () => {
+        const wrapper = render('daily', daysFrom('2026-08-31', 7));
+
+        vi.mocked(scrollToLatest).mockClear();
+
+        await wrapper.setProps({ cells: daysFrom('2026-08-31', 21), total: 0 });
+
+        expect(scrollToLatest).toHaveBeenCalledTimes(1);
     });
 });

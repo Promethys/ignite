@@ -129,3 +129,26 @@ export const weekdayLabels = (): string[] =>
     Array.from({ length: 7 }, (_, index) =>
         moment().startOf('isoWeek').add(index, 'days').format('ddd'),
     );
+
+/**
+ * The part of a scroll container this module needs, so the behaviour can be
+ * exercised without a layout engine.
+ */
+export interface HorizontalScroller {
+    scrollWidth: number;
+    scrollLeft: number;
+}
+
+/**
+ * Park a scroll container at its right edge.
+ *
+ * The grid runs oldest to newest, so a narrow column opens on a year-old month
+ * and the periods worth seeing are off screen. Browsers clamp `scrollLeft` to
+ * the maximum offset, so assigning the full width lands on the last cell
+ * without needing to measure the visible area.
+ */
+export const scrollToLatest = (element: HorizontalScroller | null): void => {
+    if (element) {
+        element.scrollLeft = element.scrollWidth;
+    }
+};

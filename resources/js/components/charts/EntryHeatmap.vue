@@ -12,13 +12,14 @@ import {
     isDenseCadence,
     monthLabels,
     rowCount,
+    scrollToLatest,
     tooltipDate,
     weekdayLabels,
     type HeatmapCell,
     type HeatmapPayload,
 } from '@/lib/heatmap';
 import { unitByRecurrence } from '@/lib/streak';
-import { computed } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const props = defineProps<HeatmapPayload>();
 
@@ -76,6 +77,18 @@ const tooltipKey = (cell: HeatmapCell) =>
 const tooltipArgs = (cell: HeatmapCell) => ({
     date: tooltipDate(cell, props.cadence),
 });
+
+const scroller = ref<HTMLElement | null>(null);
+
+const parkAtLatest = () => scrollToLatest(scroller.value);
+
+onMounted(parkAtLatest);
+
+/**
+ * `flush: 'post'` so the grid has been re-rendered at its new width before the
+ * scroll offset is set; a default pre-flush watcher would measure the old one.
+ */
+watch(() => props.cells, parkAtLatest, { flush: 'post' });
 </script>
 
 <template>
@@ -86,6 +99,8 @@ const tooltipArgs = (cell: HeatmapCell) => ({
 
         <TooltipProvider :delay-duration="100">
             <div
+                ref="scroller"
+                data-slot="heatmap-scroller"
                 role="img"
                 :aria-label="$tChoice(summaryKey, cells.length, summaryArgs)"
                 class="overflow-x-auto pb-1"
