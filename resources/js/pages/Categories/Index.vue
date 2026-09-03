@@ -94,7 +94,7 @@ const completion = (category: Category) => {
                     class="block h-full"
                 >
                     <div
-                        class="flex h-full flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm transition-colors hover:border-primary/40"
+                        class="flex h-full flex-col gap-3 rounded-lg border bg-card p-4 transition-colors hover:border-primary/40"
                     >
                         <!-- Head: name + controls -->
                         <div class="flex items-center justify-between gap-2">
@@ -195,10 +195,10 @@ const completion = (category: Category) => {
                                 </span>
                             </div>
                             <div
-                                class="h-1.5 overflow-hidden rounded-full bg-muted"
+                                class="h-1.5 overflow-hidden rounded-sm bg-muted"
                             >
                                 <div
-                                    class="h-full rounded-full transition-all"
+                                    class="h-full rounded-sm transition-all"
                                     :style="{
                                         width: `${completion(category)}%`,
                                         backgroundColor: category.color,

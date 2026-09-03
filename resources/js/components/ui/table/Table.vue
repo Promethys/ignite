@@ -40,7 +40,7 @@ const isTableEmpty = computed(() => {
 </script>
 
 <template>
-    <div class="relative overflow-x-auto bg-card shadow-xs rounded-lg border border-border">
+    <div class="relative overflow-x-auto bg-card rounded-lg border border-border">
         <!-- <div class="p-4 flex items-center justify-between space-x-4">
             <label for="input-group" class="sr-only">Search</label>
             <div class="relative">

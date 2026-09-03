@@ -146,7 +146,7 @@ watch(() => props.cells, parkAtLatest, { flush: 'post' });
                                     <span
                                         data-slot="heatmap-cell"
                                         aria-hidden="true"
-                                        class="block size-full rounded-[2px]"
+                                        class="block size-full rounded-sm"
                                         :class="cellClass(cell)"
                                     />
                                 </TooltipTrigger>
@@ -192,8 +192,8 @@ watch(() => props.cells, parkAtLatest, { flush: 'post' });
             class="flex items-center justify-end gap-1.5 text-[10px] text-muted-foreground"
         >
             <span>{{ $t('goals.heatmap.legend_less') }}</span>
-            <span class="size-[11px] rounded-[2px] bg-muted" />
-            <span class="size-[11px] rounded-[2px] bg-primary" />
+            <span class="size-[11px] rounded-sm bg-muted" />
+            <span class="size-[11px] rounded-sm bg-primary" />
             <span>{{ $t('goals.heatmap.legend_more') }}</span>
         </div>
     </div>

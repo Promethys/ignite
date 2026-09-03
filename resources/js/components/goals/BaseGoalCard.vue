@@ -48,7 +48,7 @@ const deadlineState = computed(() => {
 <template>
     <Link :href="goals.show(item.id).url" class="block h-full">
         <Card
-            class="h-full gap-3 rounded-xl border px-5 py-5 text-sm shadow-sm transition-colors hover:bg-accent/40"
+            class="h-full gap-3 rounded-lg border px-5 py-5 text-sm transition-colors hover:bg-accent/40"
             :class="
                 isCompleted
                     ? 'border-success-subtle-border bg-success-subtle hover:bg-success-subtle'

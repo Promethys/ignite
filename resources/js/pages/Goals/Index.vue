@@ -172,7 +172,7 @@ const filteredItems = computed(() => {
                         v-for="filter in statusFilters"
                         :key="filter.value"
                         size="sm"
-                        class="rounded-full text-xs sm:text-sm"
+                        class="text-xs sm:text-sm"
                         :variant="
                             filters.status === filter.value
                                 ? 'default'
