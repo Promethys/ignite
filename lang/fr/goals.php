@@ -247,6 +247,9 @@ return [
         'note_show_more' => 'Voir plus',
         'note_show_less' => 'Voir moins',
         'no_result' => 'Aucun résultat.',
+        'no_result_description' => 'Aucune entrée ne correspond aux filtres actuels. Effacez-les pour voir tout l\'historique.',
+        'no_entries_title' => 'Aucune entrée',
+        'no_entries_description' => 'Enregistrez votre première entrée et elle apparaîtra ici.',
         'form' => [
             'create_title' => 'Enregistrer une progression',
             'create_description' => 'Ajoutez une entrée pour suivre votre progression sur cet objectif.',

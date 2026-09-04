@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import CategoryFormModal from '@/components/categories/CategoryFormModal.vue';
+import DeleteCategoryDialog from '@/components/categories/DeleteCategoryDialog.vue';
 import PageHeader from '@/components/PageHeader.vue';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
     Empty,
     EmptyContent,
@@ -26,8 +23,8 @@ import categories from '@/routes/categories';
 import goals from '@/routes/goals';
 import { BreadcrumbItem } from '@/types';
 import { Category } from '@/types/models';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus, Tags, Trash } from 'lucide-vue-next';
+import { Head, Link } from '@inertiajs/vue3';
+import { Edit, Ellipsis, Plus, Tags, Trash } from 'lucide-vue-next';
 
 interface Props {
     items: Category[];
@@ -113,51 +110,59 @@ const completion = (category: Category) => {
                                 class="flex shrink-0 items-center"
                                 @click.stop.prevent
                             >
-                                <CategoryFormModal :record="category" />
-                                <AlertDialog>
-                                    <AlertDialogTrigger as-child>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger as-child>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            class="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                                            class="size-8"
                                         >
-                                            <Trash class="h-4 w-4" />
+                                            <Ellipsis />
+                                            <span class="sr-only">{{
+                                                $t('common.actions.more')
+                                            }}</span>
                                         </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>{{
-                                                $t('common.confirm.title')
-                                            }}</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                {{
-                                                    $t(
-                                                        'categories.delete.description',
-                                                    )
-                                                }}
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>{{
-                                                $t('common.actions.cancel')
-                                            }}</AlertDialogCancel>
-                                            <AlertDialogAction
-                                                variant="destructive"
-                                                @click="
-                                                    router.delete(
-                                                        categories.destroy(
-                                                            category,
-                                                        ),
-                                                    )
-                                                "
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuGroup>
+                                            <CategoryFormModal
+                                                :record="category"
                                             >
-                                                {{
-                                                    $t('common.actions.delete')
-                                                }}
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                                                <template #trigger>
+                                                    <DropdownMenuItem
+                                                        class="cursor-pointer"
+                                                        @select.prevent
+                                                    >
+                                                        <Edit />
+                                                        {{
+                                                            $t(
+                                                                'common.actions.edit',
+                                                            )
+                                                        }}
+                                                    </DropdownMenuItem>
+                                                </template>
+                                            </CategoryFormModal>
+                                            <DeleteCategoryDialog
+                                                :record="category"
+                                            >
+                                                <template #trigger>
+                                                    <DropdownMenuItem
+                                                        variant="destructive"
+                                                        class="cursor-pointer"
+                                                        @select.prevent
+                                                    >
+                                                        <Trash />
+                                                        {{
+                                                            $t(
+                                                                'common.actions.delete',
+                                                            )
+                                                        }}
+                                                    </DropdownMenuItem>
+                                                </template>
+                                            </DeleteCategoryDialog>
+                                        </DropdownMenuGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
                         </div>
 

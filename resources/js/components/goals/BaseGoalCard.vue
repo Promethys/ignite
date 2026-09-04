@@ -1,15 +1,4 @@
 <script setup lang="ts">
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -22,10 +11,11 @@ import {
 import { getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { Goal } from '@/types/models';
-import { Link, router } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import { Ellipsis } from 'lucide-vue-next';
 import moment from 'moment';
 import { computed } from 'vue';
+import DeleteGoalDialog from './DeleteGoalDialog.vue';
 import GoalBadges from './GoalBadges.vue';
 
 const props = defineProps<{ item: Goal }>();
@@ -62,6 +52,9 @@ const deadlineState = computed(() => {
                     <DropdownMenuTrigger as-child @click.stop.prevent>
                         <Button variant="ghost" size="icon" class="size-8">
                             <Ellipsis />
+                            <span class="sr-only">{{
+                                $t('common.actions.more')
+                            }}</span>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent @click.stop>
@@ -101,8 +94,8 @@ const deadlineState = computed(() => {
                                     >{{ $t('common.actions.edit') }}</Link
                                 >
                             </DropdownMenuItem>
-                            <AlertDialog>
-                                <AlertDialogTrigger as-child>
+                            <DeleteGoalDialog :record="item">
+                                <template #trigger>
                                     <DropdownMenuItem
                                         variant="destructive"
                                         class="cursor-pointer"
@@ -111,34 +104,8 @@ const deadlineState = computed(() => {
                                             $t('common.actions.delete')
                                         }}</DropdownMenuItem
                                     >
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>{{
-                                            $t('common.confirm.title')
-                                        }}</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            {{ $t('goals.delete.description') }}
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>{{
-                                            $t('common.actions.cancel')
-                                        }}</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            variant="destructive"
-                                            @click="
-                                                router.delete(
-                                                    goals.destroy(item),
-                                                )
-                                            "
-                                            >{{
-                                                $t('common.actions.delete')
-                                            }}</AlertDialogAction
-                                        >
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+                                </template>
+                            </DeleteGoalDialog>
                         </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>

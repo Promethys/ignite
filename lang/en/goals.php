@@ -247,6 +247,9 @@ return [
         'note_show_more' => 'Show more',
         'note_show_less' => 'Show less',
         'no_result' => 'No result found.',
+        'no_result_description' => 'No entry matches the current filters. Clear them to see the full history.',
+        'no_entries_title' => 'No entries yet',
+        'no_entries_description' => 'Log your first entry and it will show up here.',
         'form' => [
             'create_title' => 'Log progress',
             'create_description' => 'Add an entry to track your progress on this goal.',

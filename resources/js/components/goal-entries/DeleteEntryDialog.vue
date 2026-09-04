@@ -34,7 +34,7 @@ const deleteEntry = () => {
     <Dialog v-model:open="open">
         <DialogTrigger as-child>
             <slot name="trigger">
-                <Button variant="destructive" size="sm">
+                <Button variant="ghost" size="sm" class="text-destructive">
                     <Trash />
                     {{ $t('common.actions.delete') }}
                 </Button>
