@@ -2,23 +2,14 @@
 import EntryHeatmap from '@/components/charts/EntryHeatmap.vue';
 import ProgressChart from '@/components/charts/ProgressChart.vue';
 import EntryNote from '@/components/goal-entries/EntryNote.vue';
+import EntryRowActions from '@/components/goal-entries/EntryRowActions.vue';
 import GoalEntryFormModal from '@/components/goal-entries/GoalEntryFormModal.vue';
 import RecurringCheckInModal from '@/components/goal-entries/RecurringCheckInModal.vue';
+import DeleteGoalDialog from '@/components/goals/DeleteGoalDialog.vue';
 import GoalBadges from '@/components/goals/GoalBadges.vue';
 import MilestoneFormModal from '@/components/milestones/MilestoneFormModal.vue';
 import Timeline from '@/components/milestones/Timeline.vue';
 import PageHeader from '@/components/PageHeader.vue';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -36,7 +27,7 @@ import { getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import {
     ArrowRight,
     CheckCircle2,
@@ -46,7 +37,6 @@ import {
     ListChecks,
     Pencil,
     Plus,
-    Trash,
 } from 'lucide-vue-next';
 import moment from 'moment';
 import { computed } from 'vue';
@@ -241,6 +231,9 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                                 <DropdownMenuTrigger as-child>
                                     <Button variant="outline" size="icon">
                                         <Ellipsis />
+                                        <span class="sr-only">{{
+                                            $t('common.actions.more')
+                                        }}</span>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
@@ -305,8 +298,8 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                                                 }}</Link
                                             >
                                         </DropdownMenuItem>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger as-child>
+                                        <DeleteGoalDialog :record="goal">
+                                            <template #trigger>
                                                 <DropdownMenuItem
                                                     variant="destructive"
                                                     class="cursor-pointer"
@@ -317,46 +310,8 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                                                         )
                                                     }}</DropdownMenuItem
                                                 >
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>{{
-                                                        $t(
-                                                            'common.confirm.title',
-                                                        )
-                                                    }}</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        {{
-                                                            $t(
-                                                                'goals.delete.description',
-                                                            )
-                                                        }}
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>{{
-                                                        $t(
-                                                            'common.actions.cancel',
-                                                        )
-                                                    }}</AlertDialogCancel>
-                                                    <AlertDialogAction
-                                                        variant="destructive"
-                                                        @click="
-                                                            router.delete(
-                                                                goals.destroy(
-                                                                    goal,
-                                                                ),
-                                                            )
-                                                        "
-                                                        >{{
-                                                            $t(
-                                                                'common.actions.delete',
-                                                            )
-                                                        }}</AlertDialogAction
-                                                    >
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                            </template>
+                                        </DeleteGoalDialog>
                                     </DropdownMenuGroup>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -716,6 +671,11 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                                                 : ''
                                         }}{{ entry.increment_value }}
                                     </span>
+                                    <EntryRowActions
+                                        :goal
+                                        :record="entry"
+                                        :today
+                                    />
                                 </span>
                             </div>
                             <Button
@@ -767,50 +727,7 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                                         text-class="text-foreground"
                                     />
                                 </div>
-                                <AlertDialog>
-                                    <AlertDialogTrigger as-child>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            class="size-7 text-muted-foreground"
-                                        >
-                                            <Trash class="size-4" />
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>{{
-                                                $t('common.confirm.title')
-                                            }}</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                {{
-                                                    $t(
-                                                        'goals.entries.delete_description',
-                                                    )
-                                                }}
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>{{
-                                                $t('common.actions.cancel')
-                                            }}</AlertDialogCancel>
-                                            <AlertDialogAction
-                                                variant="destructive"
-                                                @click="
-                                                    router.delete(
-                                                        goals.entries.destroy({
-                                                            goal,
-                                                            goalEntry: entry.id,
-                                                        }),
-                                                    )
-                                                "
-                                                >{{
-                                                    $t('common.actions.delete')
-                                                }}</AlertDialogAction
-                                            >
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                                <EntryRowActions :goal :record="entry" :today />
                             </div>
                             <Button
                                 variant="outline"

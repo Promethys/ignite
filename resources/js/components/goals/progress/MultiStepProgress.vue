@@ -16,7 +16,7 @@ const done = computed(
             <span
                 v-for="(m, i) in item.milestones"
                 :key="m.id ?? i"
-                class="h-1.5 flex-1 rounded-full"
+                class="h-1.5 flex-1 rounded-sm"
                 :class="m.is_completed ? 'bg-primary' : 'bg-muted'"
             />
         </div>

@@ -1,0 +1,82 @@
+import DeleteCategoryDialog from '@/components/categories/DeleteCategoryDialog.vue';
+import type { Category } from '@/types/models';
+import { mount } from '@vue/test-utils';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const routerDelete = vi.fn();
+
+vi.mock('@inertiajs/vue3', () => ({
+    router: {
+        delete: (...args: unknown[]) => routerDelete(...args),
+    },
+}));
+
+// Returned verbatim so the assertions can check which category the dialog
+// targeted rather than trusting a generated URL string.
+vi.mock('@/routes/categories', () => ({
+    default: {
+        destroy: (args: unknown) => ({ method: 'delete', args }),
+    },
+}));
+
+const stubs = {
+    AlertDialog: { template: '<div><slot /></div>' },
+    AlertDialogAction: { template: '<button><slot /></button>' },
+    AlertDialogCancel: { template: '<button><slot /></button>' },
+    AlertDialogContent: { template: '<div><slot /></div>' },
+    AlertDialogDescription: { template: '<p><slot /></p>' },
+    AlertDialogFooter: { template: '<div><slot /></div>' },
+    AlertDialogHeader: { template: '<div><slot /></div>' },
+    AlertDialogTitle: { template: '<h2><slot /></h2>' },
+    AlertDialogTrigger: { template: '<div><slot /></div>' },
+    Button: { template: '<button><slot /></button>' },
+};
+
+const record = { id: 5, name: 'Learning' } as unknown as Category;
+
+const mountDialog = () =>
+    mount(DeleteCategoryDialog, { props: { record }, global: { stubs } });
+
+describe('DeleteCategoryDialog', () => {
+    beforeEach(() => routerDelete.mockClear());
+
+    it('does not delete anything on render', () => {
+        mountDialog();
+
+        expect(routerDelete).not.toHaveBeenCalled();
+    });
+
+    it('does not delete from the trigger or the cancel button', async () => {
+        const wrapper = mountDialog();
+        const buttons = wrapper.findAll('button');
+
+        expect(buttons).toHaveLength(3);
+
+        await buttons[0].trigger('click');
+        await buttons[1].trigger('click');
+
+        expect(routerDelete).not.toHaveBeenCalled();
+    });
+
+    it('deletes the category it was given when confirmed', async () => {
+        const wrapper = mountDialog();
+
+        await wrapper.findAll('button')[2].trigger('click');
+
+        expect(routerDelete).toHaveBeenCalledTimes(1);
+        expect(routerDelete.mock.calls[0][0]).toEqual({
+            method: 'delete',
+            args: record,
+        });
+    });
+
+    it('renders a trigger override when one is given', () => {
+        const wrapper = mount(DeleteCategoryDialog, {
+            props: { record },
+            slots: { trigger: '<button class="custom">Remove</button>' },
+            global: { stubs },
+        });
+
+        expect(wrapper.find('.custom').exists()).toBe(true);
+    });
+});

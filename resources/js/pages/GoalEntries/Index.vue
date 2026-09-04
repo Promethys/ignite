@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
     Empty,
+    EmptyContent,
+    EmptyDescription,
     EmptyHeader,
     EmptyMedia,
     EmptyTitle,
@@ -41,7 +43,7 @@ import {
     parseDate,
 } from '@internationalized/date';
 import { useDebounceFn } from '@vueuse/core';
-import { CalendarIcon, Pencil, XIcon } from 'lucide-vue-next';
+import { CalendarIcon, ListChecks, Pencil, XIcon } from 'lucide-vue-next';
 import moment from 'moment';
 import { computed, ref } from 'vue';
 
@@ -328,7 +330,10 @@ const toDateValue = (date: string | null | undefined) => {
                                             v-if="isRecurring"
                                         >
                                             <template #trigger>
-                                                <Button size="sm">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                >
                                                     <Pencil />
                                                     {{
                                                         $t(
@@ -345,7 +350,10 @@ const toDateValue = (date: string | null | undefined) => {
                                             v-else
                                         >
                                             <template #trigger>
-                                                <Button size="sm">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                >
                                                     <Pencil />
                                                     {{
                                                         $t(
@@ -377,12 +385,39 @@ const toDateValue = (date: string | null | undefined) => {
                             <Empty v-else>
                                 <EmptyHeader>
                                     <EmptyMedia variant="icon">
-                                        <XIcon />
+                                        <XIcon v-if="hasActiveFilters" />
+                                        <ListChecks v-else />
                                     </EmptyMedia>
                                     <EmptyTitle>
-                                        {{ $t('goals.entries.no_result') }}
+                                        {{
+                                            hasActiveFilters
+                                                ? $t('goals.entries.no_result')
+                                                : $t(
+                                                      'goals.entries.no_entries_title',
+                                                  )
+                                        }}
                                     </EmptyTitle>
+                                    <EmptyDescription>
+                                        {{
+                                            hasActiveFilters
+                                                ? $t(
+                                                      'goals.entries.no_result_description',
+                                                  )
+                                                : $t(
+                                                      'goals.entries.no_entries_description',
+                                                  )
+                                        }}
+                                    </EmptyDescription>
                                 </EmptyHeader>
+                                <EmptyContent v-if="hasActiveFilters">
+                                    <Button
+                                        variant="outline"
+                                        @click="resetFilters"
+                                    >
+                                        <XIcon />
+                                        {{ $t('goals.entries.clear_filters') }}
+                                    </Button>
+                                </EmptyContent>
                             </Empty>
 
                             <template #next="{ loading, fetch, hasMore }">

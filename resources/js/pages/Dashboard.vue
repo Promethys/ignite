@@ -9,6 +9,7 @@ import {
     Empty,
     EmptyContent,
     EmptyDescription,
+    EmptyHeader,
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
@@ -100,15 +101,17 @@ const stats = [
                         />
                     </div>
                     <Empty v-else>
-                        <EmptyTitle>
-                            <EmptyMedia class="mx-auto" variant="icon">
+                        <EmptyHeader>
+                            <EmptyMedia variant="icon">
                                 <GoalIcon />
                             </EmptyMedia>
-                            {{ $t('dashboard.empty.title') }}
-                        </EmptyTitle>
-                        <EmptyDescription>{{
-                            $t('dashboard.empty.description')
-                        }}</EmptyDescription>
+                            <EmptyTitle>
+                                {{ $t('dashboard.empty.title') }}
+                            </EmptyTitle>
+                            <EmptyDescription>{{
+                                $t('dashboard.empty.description')
+                            }}</EmptyDescription>
+                        </EmptyHeader>
                         <EmptyContent>
                             <Button as-child>
                                 <Link :href="goals.create().url">

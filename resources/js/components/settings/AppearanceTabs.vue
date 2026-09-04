@@ -20,7 +20,7 @@ const tabs = [
             :class="[
                 'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
                 appearance === value
-                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-background hover:text-foreground',
             ]"
         >
