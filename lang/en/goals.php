@@ -206,7 +206,7 @@ return [
             'month' => '{1}:done / :total month logged|[2,*]:done / :total months logged',
             'year' => '{1}:done / :total year logged|[2,*]:done / :total years logged',
         ],
-        'tooltip' => [
+        'caption' => [
             'logged' => [
                 'day' => 'Entry on :date',
                 'week' => 'Entry in the week of :date',

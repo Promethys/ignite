@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
+    captionDate,
     cellLabel,
     cellLevel,
     columnStarts,
@@ -13,7 +8,6 @@ import {
     monthLabels,
     rowCount,
     scrollToLatest,
-    tooltipDate,
     weekdayLabels,
     type HeatmapCell,
     type HeatmapPayload,
@@ -68,15 +62,52 @@ const weekdayStyle = computed(() => ({
     gap: CELL_GAP,
 }));
 
-const cellClass = (cell: HeatmapCell) =>
-    cellLevel(cell.value) > 0 ? 'bg-primary' : 'bg-muted';
+const selectedDate = ref<string | null>(null);
 
-const tooltipKey = (cell: HeatmapCell) =>
-    `goals.heatmap.tooltip.${cellLevel(cell.value) > 0 ? 'logged' : 'empty'}.${unit.value}`;
+const captionCell = computed(
+    () =>
+        props.cells.find((cell) => cell.date === selectedDate.value) ??
+        props.cells.at(-1) ??
+        null,
+);
 
-const tooltipArgs = (cell: HeatmapCell) => ({
-    date: tooltipDate(cell, props.cadence),
-});
+const captionKey = computed(() =>
+    captionCell.value
+        ? `goals.heatmap.caption.${cellLevel(captionCell.value.value) > 0 ? 'logged' : 'empty'}.${unit.value}`
+        : '',
+);
+
+const captionArgs = computed(() => ({
+    date: captionCell.value
+        ? captionDate(captionCell.value, props.cadence)
+        : '',
+}));
+
+const selectCell = (cell: HeatmapCell) => {
+    selectedDate.value = cell.date;
+};
+
+/**
+ * A mouse selects on hover and lets go when it leaves the grid. Touch has no
+ * hover, and fires `pointerleave` on every lift, so it selects on release and
+ * keeps the selection until the next tap.
+ */
+const onCellPointerEnter = (event: PointerEvent, cell: HeatmapCell) => {
+    if (event.pointerType === 'mouse') {
+        selectCell(cell);
+    }
+};
+
+const onGridPointerLeave = (event: PointerEvent) => {
+    if (event.pointerType === 'mouse') {
+        selectedDate.value = null;
+    }
+};
+
+const cellClass = (cell: HeatmapCell) => [
+    cellLevel(cell.value) > 0 ? 'bg-primary' : 'bg-muted',
+    { 'ring-1 ring-foreground': cell.date === selectedDate.value },
+];
 
 const scroller = ref<HTMLElement | null>(null);
 
@@ -97,96 +128,91 @@ watch(() => props.cells, parkAtLatest, { flush: 'post' });
             {{ $tChoice(summaryKey, cells.length, summaryArgs) }}
         </p>
 
-        <TooltipProvider :delay-duration="100">
-            <div
-                ref="scroller"
-                data-slot="heatmap-scroller"
-                role="img"
-                :aria-label="$tChoice(summaryKey, cells.length, summaryArgs)"
-                class="overflow-x-auto pb-1"
-                :class="isDense ? '' : 'flex'"
-            >
-                <!-- Dense cadences: a calendar grid under a month strip -->
-                <div v-if="isDense" class="flex w-max gap-1.5">
+        <div
+            ref="scroller"
+            data-slot="heatmap-scroller"
+            role="img"
+            :aria-label="$tChoice(summaryKey, cells.length, summaryArgs)"
+            class="overflow-x-auto pb-1"
+            :class="isDense ? '' : 'flex'"
+            @pointerleave="onGridPointerLeave"
+        >
+            <!-- Dense cadences: a calendar grid under a month strip -->
+            <div v-if="isDense" class="flex w-max gap-1.5">
+                <div
+                    v-if="cadence === 'daily'"
+                    data-slot="heatmap-weekdays"
+                    class="grid pt-[15px] text-[9px] leading-none text-muted-foreground"
+                    :style="weekdayStyle"
+                >
+                    <span
+                        v-for="(day, index) in weekdays"
+                        :key="index"
+                        class="flex items-center"
+                        >{{ day }}</span
+                    >
+                </div>
+
+                <div class="space-y-1">
                     <div
-                        v-if="cadence === 'daily'"
-                        data-slot="heatmap-weekdays"
-                        class="grid pt-[15px] text-[9px] leading-none text-muted-foreground"
-                        :style="weekdayStyle"
+                        data-slot="heatmap-month-strip"
+                        class="grid text-[9px] leading-none text-muted-foreground"
+                        :style="stripStyle"
                     >
                         <span
-                            v-for="(day, index) in weekdays"
+                            v-for="(label, index) in labels"
                             :key="index"
-                            class="flex items-center"
-                            >{{ day }}</span
+                            class="overflow-visible whitespace-nowrap"
+                            >{{ label }}</span
                         >
                     </div>
 
-                    <div class="space-y-1">
-                        <div
-                            data-slot="heatmap-month-strip"
-                            class="grid text-[9px] leading-none text-muted-foreground"
-                            :style="stripStyle"
-                        >
-                            <span
-                                v-for="(label, index) in labels"
-                                :key="index"
-                                class="overflow-visible whitespace-nowrap"
-                                >{{ label }}</span
-                            >
-                        </div>
-
-                        <div :style="gridStyle" class="grid">
-                            <Tooltip
-                                v-for="cell in cells"
-                                :key="cell.date"
-                                :delay-duration="100"
-                            >
-                                <TooltipTrigger as="div" tabindex="-1">
-                                    <span
-                                        data-slot="heatmap-cell"
-                                        aria-hidden="true"
-                                        class="block size-full rounded-sm"
-                                        :class="cellClass(cell)"
-                                    />
-                                </TooltipTrigger>
-                                <TooltipContent>{{
-                                    $t(tooltipKey(cell), tooltipArgs(cell))
-                                }}</TooltipContent>
-                            </Tooltip>
-                        </div>
+                    <div :style="gridStyle" class="grid">
+                        <span
+                            v-for="cell in cells"
+                            :key="cell.date"
+                            data-slot="heatmap-cell"
+                            aria-hidden="true"
+                            class="block size-full rounded-sm"
+                            :class="cellClass(cell)"
+                            @pointerenter="onCellPointerEnter($event, cell)"
+                            @pointerup="selectCell(cell)"
+                        />
                     </div>
-                </div>
-
-                <!-- Sparse cadences: wide cells that each carry their label -->
-                <div v-else class="flex w-max gap-2">
-                    <Tooltip
-                        v-for="cell in cells"
-                        :key="cell.date"
-                        :delay-duration="100"
-                    >
-                        <TooltipTrigger as="div" tabindex="-1">
-                            <div class="flex flex-col items-center gap-1">
-                                <span
-                                    data-slot="heatmap-cell"
-                                    aria-hidden="true"
-                                    class="block size-9 rounded-md"
-                                    :class="cellClass(cell)"
-                                />
-                                <span
-                                    data-slot="heatmap-cell-label"
-                                    class="text-[10px] leading-none text-muted-foreground"
-                                    >{{ cellLabel(cell, cadence) }}</span
-                                >
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>{{
-                            $t(tooltipKey(cell), tooltipArgs(cell))
-                        }}</TooltipContent>
-                    </Tooltip>
                 </div>
             </div>
-        </TooltipProvider>
+
+            <!-- Sparse cadences: wide cells that each carry their label -->
+            <div v-else class="flex w-max gap-2">
+                <div
+                    v-for="cell in cells"
+                    :key="cell.date"
+                    class="flex flex-col items-center gap-1"
+                    @pointerenter="onCellPointerEnter($event, cell)"
+                    @pointerup="selectCell(cell)"
+                >
+                    <span
+                        data-slot="heatmap-cell"
+                        aria-hidden="true"
+                        class="block size-9 rounded-md"
+                        :class="cellClass(cell)"
+                    />
+                    <span
+                        data-slot="heatmap-cell-label"
+                        class="text-[10px] leading-none text-muted-foreground"
+                        >{{ cellLabel(cell, cadence) }}</span
+                    >
+                </div>
+            </div>
+        </div>
+
+        <p
+            v-if="captionCell"
+            data-slot="heatmap-caption"
+            class="text-xs text-muted-foreground"
+        >
+            {{ $t(captionKey, captionArgs) }}
+        </p>
 
         <div
             class="flex items-center justify-end gap-1.5 text-[10px] text-muted-foreground"

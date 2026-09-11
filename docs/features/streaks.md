@@ -82,7 +82,7 @@ Both ends of the window are calendar dates in the goal owner's timezone, the sam
 
 Cells are anchored on Mondays, matching `Carbon::startOfWeek()` and the `o-W` bucket above, so a daily grid's columns line up with the weeks the streak counts.
 
-A cell is filled when an entry exists for its period and muted when none does, **whatever the goal's polarity**. On a positive goal that reads as periods you showed up; on a negative one, periods you lapsed. Both are recorded the same way, so both are drawn the same way. The grid is read-only: there is no year navigation, and clicking a cell does nothing. Hovering one names its period and whether it holds an entry. When the grid is wider than the space it has, it opens scrolled to its right edge so the most recent periods are the ones on screen.
+A cell is filled when an entry exists for its period and muted when none does, **whatever the goal's polarity**. On a positive goal that reads as periods you showed up; on a negative one, periods you lapsed. Both are recorded the same way, so both are drawn the same way. The grid is read-only: there is no year navigation, and no cell leads anywhere. A caption under the grid names one period and whether it holds an entry. By default that is the most recent period; hovering a cell, or tapping it on a touch screen, switches the caption to that cell and outlines it. A mouse leaving the grid returns the caption to the most recent period, while a tapped cell stays selected until the next tap. When the grid is wider than the space it has, it opens scrolled to its right edge so the most recent periods are the ones on screen.
 
 ## How to use it
 

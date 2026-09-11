@@ -100,9 +100,9 @@ export const cellLabel = (cell: HeatmapCell, cadence: HeatmapCadence): string =>
     parseCellDate(cell.date).format(cadence === 'monthly' ? 'MMM' : 'YYYY');
 
 /**
- * The date a tooltip names, formatted for the period the cell covers.
+ * The date the caption names, formatted for the period the cell covers.
  */
-export const tooltipDate = (
+export const captionDate = (
     cell: HeatmapCell,
     cadence: HeatmapCadence,
 ): string => {

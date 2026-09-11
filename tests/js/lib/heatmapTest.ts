@@ -1,4 +1,5 @@
 import {
+    captionDate,
     cellLabel,
     cellLevel,
     columnStarts,
@@ -7,7 +8,6 @@ import {
     parseCellDate,
     rowCount,
     scrollToLatest,
-    tooltipDate,
     weekdayLabels,
     type HeatmapCell,
 } from '@/lib/heatmap';
@@ -144,19 +144,19 @@ describe('cellLabel', () => {
     });
 });
 
-describe('tooltipDate', () => {
+describe('captionDate', () => {
     it('names the full date for a daily or weekly cell', () => {
-        expect(tooltipDate(cell('2026-08-31'), 'daily')).toBe(
+        expect(captionDate(cell('2026-08-31'), 'daily')).toBe(
             moment([2026, 7, 31]).format('LL'),
         );
-        expect(tooltipDate(cell('2026-08-31'), 'weekly')).toBe(
+        expect(captionDate(cell('2026-08-31'), 'weekly')).toBe(
             moment([2026, 7, 31]).format('LL'),
         );
     });
 
     it('drops the day for the sparse cadences', () => {
-        expect(tooltipDate(cell('2026-08-01'), 'monthly')).toBe('August 2026');
-        expect(tooltipDate(cell('2026-01-01'), 'annually')).toBe('2026');
+        expect(captionDate(cell('2026-08-01'), 'monthly')).toBe('August 2026');
+        expect(captionDate(cell('2026-01-01'), 'annually')).toBe('2026');
     });
 });
 

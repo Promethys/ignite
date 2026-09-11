@@ -206,7 +206,7 @@ return [
             'month' => '{1}:done / :total mois enregistré|[2,*]:done / :total mois enregistrés',
             'year' => '{1}:done / :total an enregistré|[2,*]:done / :total ans enregistrés',
         ],
-        'tooltip' => [
+        'caption' => [
             'logged' => [
                 'day' => 'Entrée le :date',
                 'week' => 'Entrée dans la semaine du :date',
