@@ -107,14 +107,19 @@ class GoalHeatmapService
      * for", not "when was the row written". Falls back to the goal's own dates
      * so a goal with no entries still has a window, and is clamped to today so
      * a future start_date cannot produce a window that ends before it begins.
+     *
+     * The calendar date is anchored in the owner's timezone, the same one the
+     * window's end is built in, so both bounds compare as the same midnight.
      */
     private static function earliestActivity(Goal $goal, Carbon $now): Carbon
     {
-        $earliest = Carbon::parse(
+        $earliestDate = Carbon::parse(
             $goal->entries()->min('entry_date')
                 ?? $goal->start_date
                 ?? $goal->created_at
-        );
+        )->toDateString();
+
+        $earliest = Carbon::parse($earliestDate, $now->getTimezone());
 
         return $earliest->greaterThan($now) ? $now->copy() : $earliest;
     }

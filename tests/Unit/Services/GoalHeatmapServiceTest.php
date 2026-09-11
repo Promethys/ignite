@@ -334,6 +334,76 @@ class GoalHeatmapServiceTest extends TestCase
     }
 
     // =========================================================================
+    // Owners east of UTC, whose day starts before the app's
+    // =========================================================================
+
+    public function test_a_daily_window_ends_on_the_owners_today_east_of_utc(): void
+    {
+        Carbon::setTestNow('2026-08-31 22:30:00');
+
+        $goal = $this->recurringGoal('daily', [
+            'user' => ['timezone' => 'Europe/Paris'],
+            'goal' => ['start_date' => '2026-08-10'],
+        ]);
+        $this->entriesOn($goal, '2026-08-10', '2026-09-01');
+
+        $heatmap = GoalHeatmapService::for($goal);
+
+        $this->assertSame('2026-08-10', $heatmap['cells'][0]['date']);
+        $this->assertSame('2026-09-01', end($heatmap['cells'])['date']);
+        $this->assertCount(23, $heatmap['cells']);
+        $this->assertSame(['2026-08-10', '2026-09-01'], $this->litDates($heatmap));
+    }
+
+    public function test_a_weekly_window_includes_the_current_week_east_of_utc(): void
+    {
+        Carbon::setTestNow(self::NOW);
+
+        $goal = $this->recurringGoal('weekly', [
+            'user' => ['timezone' => 'Europe/Paris'],
+            'goal' => ['start_date' => '2026-08-01'],
+        ]);
+        $this->entriesOn($goal, '2026-08-31');
+
+        $heatmap = GoalHeatmapService::for($goal);
+
+        $this->assertSame('2026-08-31', end($heatmap['cells'])['date']);
+        $this->assertSame(['2026-08-31'], $this->litDates($heatmap));
+    }
+
+    public function test_a_monthly_goal_started_this_month_has_a_cell_east_of_utc(): void
+    {
+        Carbon::setTestNow('2026-09-11 10:00:00');
+
+        $goal = $this->recurringGoal('monthly', [
+            'user' => ['timezone' => 'Europe/Paris'],
+            'goal' => ['start_date' => '2026-09-01'],
+        ]);
+        $this->entriesOn($goal, '2026-09-03');
+
+        $heatmap = GoalHeatmapService::for($goal);
+
+        $this->assertSame(['2026-09-01'], $this->dates($heatmap));
+        $this->assertSame(1, $heatmap['total']);
+    }
+
+    public function test_an_annual_goal_with_only_this_years_entries_has_a_cell_east_of_utc(): void
+    {
+        Carbon::setTestNow(self::NOW);
+
+        $goal = $this->recurringGoal('annually', [
+            'user' => ['timezone' => 'Europe/Paris'],
+            'goal' => ['start_date' => '2026-02-01'],
+        ]);
+        $this->entriesOn($goal, '2026-03-01');
+
+        $heatmap = GoalHeatmapService::for($goal);
+
+        $this->assertSame(['2026-01-01'], $this->dates($heatmap));
+        $this->assertSame(1, $heatmap['total']);
+    }
+
+    // =========================================================================
     // Annual, which has no rolling bound
     // =========================================================================
 

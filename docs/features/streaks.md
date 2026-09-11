@@ -78,6 +78,8 @@ The goal page renders a grid beneath the streak card showing which periods of th
 
 Earliest activity means the earliest `entry_date`, not the earliest `created_at`: an entry can be backdated, and the grid answers "when does this count for" rather than "when was the row written". A goal with no entries falls back to `start_date`, then `created_at`, and a `start_date` in the future is clamped to today so the window cannot end before it begins.
 
+Both ends of the window are calendar dates in the goal owner's timezone, the same one the streak uses. "Today" is the owner's today, so the current period always has a cell, whichever side of UTC the owner lives on.
+
 Cells are anchored on Mondays, matching `Carbon::startOfWeek()` and the `o-W` bucket above, so a daily grid's columns line up with the weeks the streak counts.
 
 A cell is filled when an entry exists for its period and muted when none does, **whatever the goal's polarity**. On a positive goal that reads as periods you showed up; on a negative one, periods you lapsed. Both are recorded the same way, so both are drawn the same way. The grid is read-only: there is no year navigation, and clicking a cell does nothing. Hovering one names its period and whether it holds an entry. When the grid is wider than the space it has, it opens scrolled to its right edge so the most recent periods are the ones on screen.
