@@ -27,6 +27,7 @@ return [
         'confirm' => 'Confirmer',
         'new_goal' => 'Nouvel objectif',
         'more' => 'Plus d\'actions',
+        'help' => 'Aide',
     ],
     'confirm' => [
         'title' => 'Êtes-vous absolument sûr ?',

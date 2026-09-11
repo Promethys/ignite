@@ -27,6 +27,7 @@ return [
         'confirm' => 'Confirm',
         'new_goal' => 'New goal',
         'more' => 'More actions',
+        'help' => 'Help',
     ],
     'confirm' => [
         'title' => 'Are you absolutely sure?',

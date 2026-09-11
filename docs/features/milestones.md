@@ -38,7 +38,7 @@ Milestones for a goal are loaded ordered by `order` (`GoalController::show` eage
 - A milestone tied to a `target_value` displays that value and the goal's `unit`.
 - A milestone with `completed_at` set shows the date it was completed, struck through.
 - For a milestone with a `target_value`, the completed visual state is driven by either signal (`is_completed` or `is_reached`): it gets the checkmark, strikethrough, and success styling as soon as the goal's progress reaches that value, independently of whether `completed_at` is set. A step has no target, so its completed state comes solely from explicit completion.
-- New milestones can be added inline from the end of the timeline. On a `multi_step` goal, a help tooltip next to the "Steps" heading explains that clicking a step toggles it.
+- New milestones can be added inline from the end of the timeline. On a `multi_step` goal, a help icon next to the "Steps" heading opens a short note, on click or tap, explaining that clicking a step toggles it.
 
 ## How to use it
 
