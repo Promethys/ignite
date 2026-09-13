@@ -69,4 +69,20 @@ class UpdateEntryToolTest extends TestCase
             'increment' => 25,
         ])->assertHasErrors();
     }
+
+    public function test_another_users_entry_is_denied_before_its_rules_are_evaluated(): void
+    {
+        $owner = User::factory()->create(['timezone' => 'Pacific/Kiritimati']);
+        $intruder = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $entry = GoalEntry::factory()->create(['goal_id' => $goal->id]);
+
+        Sanctum::actingAs($intruder, ['read', 'write']);
+
+        IgniteServer::tool(UpdateEntryTool::class, [
+            'entry_id' => $entry->id,
+            'increment' => 25,
+            'entry_date' => '2999-01-01',
+        ])->assertHasErrors(['This action is unauthorized.']);
+    }
 }

@@ -76,7 +76,7 @@ class GoalServiceTest extends TestCase
         $this->assertArrayHasKey('streak', $goals->first()->toArray());
     }
 
-    public function test_find_returns_the_goal_with_relations_and_streak_for_the_owner(): void
+    public function test_find_returns_the_goal_without_loading_entries_milestones_or_streak(): void
     {
         $owner = User::factory()->create();
 
@@ -88,12 +88,44 @@ class GoalServiceTest extends TestCase
         GoalEntry::factory()->count(3)->create(['goal_id' => $goal->id]);
         Milestone::factory()->create(['goal_id' => $goal->id]);
 
-        $loaded = $this->service->find($owner, $goal->id);
+        $found = $this->service->find($owner, $goal->id);
+
+        $this->assertTrue($found->is($goal));
+        $this->assertFalse($found->relationLoaded('entries'));
+        $this->assertFalse($found->relationLoaded('milestones'));
+        $this->assertArrayNotHasKey('streak', $found->toArray());
+    }
+
+    public function test_find_and_load_relationships_returns_relations_and_streak_for_the_owner(): void
+    {
+        $owner = User::factory()->create();
+
+        $goal = Goal::factory()->create([
+            'user_id' => $owner->id,
+            'type' => 'recurring',
+        ]);
+
+        GoalEntry::factory()->count(3)->create(['goal_id' => $goal->id]);
+        Milestone::factory()->create(['goal_id' => $goal->id]);
+
+        $loaded = $this->service->findAndLoadRelationships($owner, $goal->id);
 
         $this->assertTrue($loaded->is($goal));
         $this->assertTrue($loaded->relationLoaded('entries'));
         $this->assertTrue($loaded->relationLoaded('milestones'));
         $this->assertArrayHasKey('streak', $loaded->toArray());
+    }
+
+    public function test_find_and_load_relationships_throws_for_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->findAndLoadRelationships($intruder, $goal->id);
     }
 
     public function test_find_throws_for_a_non_owner(): void
@@ -108,7 +140,7 @@ class GoalServiceTest extends TestCase
         $this->service->find($intruder, $goal->id);
     }
 
-    public function test_find_caps_entries_at_twenty_and_orders_by_date_desc(): void
+    public function test_find_and_load_relationships_caps_entries_at_twenty_and_orders_by_date_desc(): void
     {
         $owner = User::factory()->create();
 
@@ -116,7 +148,7 @@ class GoalServiceTest extends TestCase
 
         GoalEntry::factory()->count(25)->create(['goal_id' => $goal->id]);
 
-        $loaded = $this->service->find($owner, $goal);
+        $loaded = $this->service->findAndLoadRelationships($owner, $goal);
 
         $entries = $loaded->entries;
 
@@ -134,7 +166,7 @@ class GoalServiceTest extends TestCase
         }
     }
 
-    public function test_find_orders_milestones_by_order_ascending(): void
+    public function test_find_and_load_relationships_orders_milestones_by_order_ascending(): void
     {
         $owner = User::factory()->create();
 
@@ -144,7 +176,7 @@ class GoalServiceTest extends TestCase
         Milestone::factory()->create(['goal_id' => $goal->id, 'order' => 10]);
         Milestone::factory()->create(['goal_id' => $goal->id, 'order' => 20]);
 
-        $loaded = $this->service->find($owner, $goal);
+        $loaded = $this->service->findAndLoadRelationships($owner, $goal);
 
         $this->assertSame([10, 20, 30], $loaded->milestones->pluck('order')->all());
     }

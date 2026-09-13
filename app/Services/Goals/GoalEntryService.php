@@ -14,6 +14,18 @@ use Illuminate\Validation\ValidationException;
 class GoalEntryService
 {
     /**
+     * Resolve an entry and authorize `view` for the actor.
+     */
+    public function find(User $actor, GoalEntry|int $goalEntry): GoalEntry
+    {
+        $goalEntry = $goalEntry instanceof GoalEntry ? $goalEntry : GoalEntry::findOrFail($goalEntry);
+
+        Gate::forUser($actor)->authorize('view', $goalEntry);
+
+        return $goalEntry;
+    }
+
+    /**
      * List a goal's entries with optional filters, newest first.
      *
      * Never silently truncates: returns the total matching the filters

@@ -4,8 +4,10 @@ namespace Tests\Feature\Mcp;
 
 use App\Mcp\Servers\IgniteServer;
 use App\Mcp\Tools\DeleteGoalTool;
+use App\Mcp\Tools\ListEntriesTool;
 use App\Mcp\Tools\ListGoalsTool;
 use App\Models\Goal;
+use App\Models\GoalEntry;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -46,6 +48,19 @@ class LocalActorTest extends TestCase
         IgniteServer::tool(DeleteGoalTool::class, ['goal_id' => $goal->id])
             ->assertOk()
             ->assertSee('This action needs a confirmation');
+    }
+
+    public function test_the_local_user_may_list_entries_without_a_token(): void
+    {
+        $user = User::factory()->create(['email' => 'owner@example.com']);
+        $goal = Goal::factory()->create(['user_id' => $user->id]);
+        GoalEntry::factory()->count(2)->create(['goal_id' => $goal->id]);
+
+        config(['mcp.local_user' => 'owner@example.com']);
+
+        IgniteServer::tool(ListEntriesTool::class, ['goal_id' => $goal->id])
+            ->assertOk()
+            ->assertSee('Retrieved 2 of 2 progress entries.');
     }
 
     public function test_tools_stay_hidden_when_no_local_user_is_configured(): void

@@ -3,7 +3,6 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\GoalEntryResource;
-use App\Models\GoalEntry;
 use App\Rules\GoalEntryRules;
 use App\Services\Goals\GoalEntryService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -37,7 +36,7 @@ class UpdateEntryTool extends IgniteTool
         ]);
 
         $user = $this->actor($request);
-        $goalEntry = GoalEntry::findOrFail($entryValidated['entry_id']);
+        $goalEntry = $this->goalEntryService->find($this->actor($request), $entryValidated['entry_id']);
 
         $validated = $this->validateTrimmed($request, GoalEntryRules::progressRules($goalEntry->goal));
 

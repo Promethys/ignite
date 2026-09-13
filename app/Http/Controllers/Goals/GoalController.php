@@ -58,7 +58,7 @@ class GoalController extends Controller
 
     public function show(Request $request, Goal $goal)
     {
-        $goal = $this->goalService->find($request->user(), $goal);
+        $goal = $this->goalService->findAndLoadRelationships($request->user(), $goal);
 
         if (StreakService::isDeadlineCompletionEligible($goal)) {
             $previousStatus = $goal->status;

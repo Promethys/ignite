@@ -3,7 +3,6 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\MilestoneResource;
-use App\Models\Milestone;
 use App\Services\Goals\MilestoneService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
@@ -37,7 +36,7 @@ class CompleteMilestoneTool extends IgniteTool
         ]);
 
         $user = $this->actor($request);
-        $milestone = Milestone::findOrFail($validated['milestone_id']);
+        $milestone = $this->milestoneService->find($user, $validated['milestone_id']);
 
         $milestone = $this->milestoneService->complete(
             $user,

@@ -5,7 +5,6 @@ namespace App\Services\Goals;
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
@@ -77,16 +76,7 @@ class GoalService
     }
 
     /**
-     * Load a single goal for the actor, eager-loading its recent entries,
-     * ordered milestones, and appended `streak`.
-     *
-     * Authorizes `view` via `Gate::forUser($actor)`. A missing id throws a
-     * `ModelNotFoundException` (404); a foreign id the actor may not view
-     * throws an `AuthorizationException` (403).
-     *
-     * Accepts either a primary key (used by MCP tools, which receive a
-     * `goal_id`) or an already-resolved model (used by route-model-bound
-     * controllers, avoiding a redundant lookup).
+     * Resolve a goal and authorize `view` for the actor, without loading relations.
      */
     public function find(User $actor, Goal|int $goal): Goal
     {
@@ -94,7 +84,15 @@ class GoalService
 
         Gate::forUser($actor)->authorize('view', $goal);
 
-        return $goal->load([
+        return $goal;
+    }
+
+    /**
+     * Find a goal with its 20 newest entries, ordered milestones, and streak.
+     */
+    public function findAndLoadRelationships(User $actor, Goal|int $goal): Goal
+    {
+        return $this->find($actor, $goal)->load([
             'entries' => fn ($query) => $query->orderBy('entry_date', 'desc')->take(20),
             'milestones' => fn ($query) => $query->orderBy('order', 'asc'),
         ])->append('streak');

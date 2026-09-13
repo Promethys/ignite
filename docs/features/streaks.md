@@ -6,7 +6,7 @@ A streak measures consistency on a `recurring` goal: how many consecutive period
 
 ## Computed on read, not stored
 
-There is no `streak` column anywhere. `StreakService::for(Goal $goal)` recomputes the streak every time it's called, from the goal's `GoalEntry` rows (`entry_date`, ordered and de-duplicated). Controllers opt into this with `->append('streak')` (used by `GoalController::index` and `GoalController::show`), which invokes the accessor and serializes the result. Nothing about a streak is cached or persisted; it's always derived fresh from the entry history at request time.
+There is no `streak` column anywhere. `StreakService::for(Goal $goal)` recomputes the streak every time it's called, from the goal's `GoalEntry` rows (`entry_date`, ordered and de-duplicated). Controllers opt into this with `->append('streak')` (used by `GoalController::index`, and by `GoalService::findAndLoadRelationships` for the goal page and the MCP `get_goal` tool), which invokes the accessor and serializes the result. Nothing about a streak is cached or persisted; it's always derived fresh from the entry history at request time.
 
 ## Cadence buckets
 

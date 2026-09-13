@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Gate;
 
 class MilestoneService
 {
+    public function find(User $actor, Milestone|int $milestone): Milestone
+    {
+        $milestone = $milestone instanceof Milestone ? $milestone : Milestone::findOrFail($milestone);
+
+        Gate::forUser($actor)->authorize('view', $milestone);
+
+        return $milestone;
+    }
+
     public function add(User $actor, Goal $goal, array $attributes): Milestone
     {
         Gate::forUser($actor)->authorize('create', [Milestone::class, $goal]);

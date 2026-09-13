@@ -7,6 +7,7 @@ use App\Models\GoalEntry;
 use App\Models\User;
 use App\Services\Goals\GoalEntryService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
@@ -23,6 +24,49 @@ class GoalEntryServiceTest extends TestCase
         parent::setUp();
 
         $this->service = app(GoalEntryService::class);
+    }
+
+    public function test_find_returns_the_entry_for_the_goal_owner(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $entry = GoalEntry::factory()->create(['goal_id' => $goal->id]);
+
+        $found = $this->service->find($owner, $entry->id);
+
+        $this->assertTrue($found->is($entry));
+    }
+
+    public function test_find_throws_for_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $entry = GoalEntry::factory()->create(['goal_id' => $goal->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->find($intruder, $entry->id);
+    }
+
+    public function test_find_throws_model_not_found_for_a_missing_id(): void
+    {
+        $owner = User::factory()->create();
+
+        $this->expectException(ModelNotFoundException::class);
+
+        $this->service->find($owner, 999999);
+    }
+
+    public function test_find_returns_the_same_instance_when_given_a_resolved_model(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $entry = GoalEntry::factory()->create(['goal_id' => $goal->id]);
+
+        $found = $this->service->find($owner, $entry);
+
+        $this->assertSame(spl_object_id($entry), spl_object_id($found));
     }
 
     public function test_log_progress_increments_the_goal_and_records_the_previous_value(): void
