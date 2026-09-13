@@ -36,7 +36,7 @@ class UpdateEntryTool extends IgniteTool
         ]);
 
         $user = $this->actor($request);
-        $goalEntry = $this->goalEntryService->find($this->actor($request), $entryValidated['entry_id']);
+        $goalEntry = $this->goalEntryService->find($user, $entryValidated['entry_id']);
 
         $validated = $this->validateTrimmed($request, GoalEntryRules::progressRules($goalEntry->goal));
 
