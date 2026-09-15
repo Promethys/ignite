@@ -2,14 +2,11 @@
 
 namespace App\Mcp\Tools;
 
-use App\Http\Resources\GoalEntryResource;
-use App\Models\GoalEntry;
 use App\Rules\GoalEntryRules;
 use App\Services\Goals\GoalEntryService;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
-use Illuminate\Validation\Rule;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -36,23 +33,18 @@ class LogProgressBatchTool extends IgniteTool
     public function handle(Request $request): Response|ResponseFactory
     {
         $goalValidated = $request->validate([
-            'goal_id' => ['required', 'integer', 'exists:goals,id']
+            'goal_id' => ['required', 'integer', 'exists:goals,id'],
         ]);
 
         $user = $this->actor($request);
         $goal = $this->goalService->find($user, $goalValidated['goal_id']);
 
         $entriesRules = [
-            'entries' => [
-                'required', 
-                'array', 
-                'min:1',
-                'max:200',
-            ],
-            'entries.*' => ['array:increment,entry_date,note']
+            'entries' => ['required', 'array', 'min:1', 'max:200'],
+            'entries.*' => ['array:increment,entry_date,note'],
         ];
 
-        foreach(GoalEntryRules::progressRules($goal) as $key => $rules) {
+        foreach (GoalEntryRules::progressRules($goal) as $key => $rules) {
             $entriesRules["entries.*.$key"] = $rules;
         }
 

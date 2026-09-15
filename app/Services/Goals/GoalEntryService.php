@@ -5,7 +5,6 @@ namespace App\Services\Goals;
 use App\Models\Goal;
 use App\Models\GoalEntry;
 use App\Models\User;
-use App\Services\Goals\GoalService;
 use App\Services\StreakService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,10 +14,6 @@ use Illuminate\Validation\ValidationException;
 
 class GoalEntryService
 {
-    public function __construct(
-        private readonly GoalService $goalService
-    ) {}
-
     /**
      * Resolve an entry and authorize `view` for the actor.
      */
@@ -116,6 +111,13 @@ class GoalEntryService
         });
     }
 
+    /**
+     * Log many progress entries on a non-recurring goal in one transaction,
+     * applied in date order, saving the goal once with the final value.
+     *
+     * @param  array<int, array{increment: int|float, entry_date?: string|null, note?: string|null}>  $entries
+     * @return array{count: int, first_date: string, last_date: string, goal_current_value: string, goal_status: string}
+     */
     public function logProgressBatch(User $actor, Goal $goal, array $entries): array
     {
         Gate::forUser($actor)->authorize('update', $goal);
@@ -126,19 +128,13 @@ class GoalEntryService
             ]);
         }
 
-        $entries = array_map(function($entry) {
+        $entries = array_map(function (array $entry): array {
             $entry['entry_date'] = Carbon::parse($entry['entry_date'] ?? null)->toDateString();
+
+            return $entry;
         }, $entries);
 
-        usort($entries, function ($a, $b) {
-            if ($a['entry_date'] === $b['entry_date']) {
-                return 0;
-            } else if ($a['entry_date'] < $b['entry_date']) {
-                return -1;
-            } else {
-                return 1;
-            }
-        });
+        usort($entries, fn (array $a, array $b): int => $a['entry_date'] <=> $b['entry_date']);
 
         return DB::transaction(function () use ($goal, $entries) {
             $newValue = (float) $goal->current_value;
@@ -170,14 +166,12 @@ class GoalEntryService
                 }
             }
 
-            if ($goal->current_value !== $newValue) {
-                $goal->update(['current_value' => $newValue]);
-            }
+            $goal->update(['current_value' => $newValue]);
 
             return [
                 'count' => count($entries),
-                'first_date' => $entries[0]['entry_date'] ?? null,
-                'last_date' => $entries[count($entries) - 1]['entry_date'] ?? null,
+                'first_date' => $entries[0]['entry_date'],
+                'last_date' => $entries[array_key_last($entries)]['entry_date'],
                 'goal_current_value' => $goal->current_value,
                 'goal_status' => $goal->status,
             ];
