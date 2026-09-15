@@ -60,7 +60,7 @@ Scopes are enforced at **registration** time, not at call time: a tool whose req
 
 ## The tool set
 
-Twenty-one tools, grouped by the ability they require.
+Twenty-two tools, grouped by the ability they require.
 
 ### `read`
 
@@ -82,6 +82,7 @@ Twenty-one tools, grouped by the ability they require.
 | `uncomplete_goal`    | Revert a completed goal to an active status and clear its completion time. A goal that was never completed is rejected; use `set_goal_status` for an ordinary status change |
 | `set_goal_status`    | Change a goal's status                                                                                                                                                      |
 | `log_progress`       | Shift a non-recurring goal's current value by an increment and record an entry. Takes an optional `entry_date` so past progress can be filled in                            |
+| `log_progress_batch` | Log up to 200 progress entries on a non-recurring goal in one call, all or nothing                                                                                          |
 | `check_in`           | Record a dated check-in on a recurring goal, one per period, without touching the current value                                                                             |
 | `update_entry`       | Edit an entry's increment; the goal's current value shifts by the difference                                                                                                |
 | `add_milestone`      | Append a milestone to a goal                                                                                                                                                |
@@ -93,6 +94,8 @@ Twenty-one tools, grouped by the ability they require.
 `get_user` and `set_user` exist mainly for **timezone correctness**. Entry dates are validated against "today" in the user's timezone, so a client that does not know the timezone can log entries on the wrong day. Neither tool exposes or accepts the account email, password, or two-factor data: the mutable set is deliberately limited to fields whose worst-case misuse is cosmetic. See [Security model](#security-model).
 
 `log_progress` and `check_in` are not interchangeable. Logging progress on a recurring goal, or checking in on a non-recurring one, is rejected with an explanatory message. See [Goal Types](/features/goal-types).
+
+`log_progress_batch` logs up to 200 entries on a non-recurring goal in one call, for backfilling history from an export. Every entry is validated before anything is written, and the batch is saved in a single transaction: one invalid entry saves none, and the error names it by index. Entries are applied in date order whatever order they are sent in, and the goal is saved once at the end, so a goal only completes if its final value reaches the target. It returns a summary (`count`, `first_date`, `last_date`, `goal_current_value`, `goal_status`) rather than the entries themselves. There is no duplicate detection, so a client whose call failed or timed out should check `list_entries` before retrying.
 
 Both accept a date no later than today in the owner's timezone, and both allow a date earlier than the goal's own start date, so a goal created today can carry the history that led to it. Entries store running totals rather than deltas, so an entry landing before existing ones shifts the later totals to keep the progress chart rising in date order.
 
