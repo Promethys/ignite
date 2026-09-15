@@ -16,6 +16,7 @@ use App\Mcp\Tools\GetUserTool;
 use App\Mcp\Tools\ListCategoriesTool;
 use App\Mcp\Tools\ListEntriesTool;
 use App\Mcp\Tools\ListGoalsTool;
+use App\Mcp\Tools\LogProgressBatchTool;
 use App\Mcp\Tools\LogProgressTool;
 use App\Mcp\Tools\SetGoalStatusTool;
 use App\Mcp\Tools\SetUserTool;
@@ -56,6 +57,7 @@ class IgniteServer extends Server
         ListCategoriesTool::class,
         ListEntriesTool::class,
         ListGoalsTool::class,
+        LogProgressBatchTool::class,
         LogProgressTool::class,
         SetGoalStatusTool::class,
         SetUserTool::class,

@@ -5,14 +5,20 @@ namespace App\Services\Goals;
 use App\Models\Goal;
 use App\Models\GoalEntry;
 use App\Models\User;
+use App\Services\Goals\GoalService;
 use App\Services\StreakService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 class GoalEntryService
 {
+    public function __construct(
+        private readonly GoalService $goalService
+    ) {}
+
     /**
      * Resolve an entry and authorize `view` for the actor.
      */
@@ -107,6 +113,74 @@ class GoalEntryService
             $goal->update(['current_value' => $newValue]);
 
             return $entry->fresh();
+        });
+    }
+
+    public function logProgressBatch(User $actor, Goal $goal, array $entries): array
+    {
+        Gate::forUser($actor)->authorize('update', $goal);
+
+        if ($goal->type === 'recurring') {
+            throw ValidationException::withMessages([
+                'goal' => __('validation.custom.goal.log_progress_on_recurring'),
+            ]);
+        }
+
+        $entries = array_map(function($entry) {
+            $entry['entry_date'] = Carbon::parse($entry['entry_date'] ?? null)->toDateString();
+        }, $entries);
+
+        usort($entries, function ($a, $b) {
+            if ($a['entry_date'] === $b['entry_date']) {
+                return 0;
+            } else if ($a['entry_date'] < $b['entry_date']) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+
+        return DB::transaction(function () use ($goal, $entries) {
+            $newValue = (float) $goal->current_value;
+
+            foreach ($entries as $entryData) {
+                $entryDate = $entryData['entry_date'];
+                $laterEntries = $goal->entries()
+                    ->whereDate('entry_date', '>', $entryDate)
+                    ->get();
+
+                $previousValue = $laterEntries->isEmpty()
+                    ? $newValue
+                    : $this->cumulativeValueOn($goal, $entryDate);
+
+                $newValue += $entryData['increment'];
+
+                $goal->entries()->create([
+                    'value' => $previousValue + $entryData['increment'],
+                    'previous_value' => $previousValue,
+                    'note' => $entryData['note'] ?? null,
+                    'entry_date' => $entryDate,
+                ]);
+
+                foreach ($laterEntries as $later) {
+                    $later->update([
+                        'previous_value' => $later->previous_value + $entryData['increment'],
+                        'value' => $later->value + $entryData['increment'],
+                    ]);
+                }
+            }
+
+            if ($goal->current_value !== $newValue) {
+                $goal->update(['current_value' => $newValue]);
+            }
+
+            return [
+                'count' => count($entries),
+                'first_date' => $entries[0]['entry_date'] ?? null,
+                'last_date' => $entries[count($entries) - 1]['entry_date'] ?? null,
+                'goal_current_value' => $goal->current_value,
+                'goal_status' => $goal->status,
+            ];
         });
     }
 
