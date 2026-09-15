@@ -54,14 +54,29 @@ abstract class IgniteTool extends Tool
      *
      * A blank string is dropped rather than nulled, so it reads as "the field
      * was not supplied" and a partial update leaves the stored value alone.
+     * Nested arrays are normalized the same way; a blank item in a list is
+     * kept so the list's indexes, and the validation errors naming them, hold.
      *
      * @return array<string, mixed>
      */
     protected function normalizedArguments(Request $request): array
     {
-        return collect($request->all())
-            ->map(fn (mixed $value): mixed => is_string($value) ? trim($value) : $value)
-            ->reject(fn (mixed $value): bool => $value === '')
+        return $this->normalizeValues($request->all());
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $values
+     * @return array<array-key, mixed>
+     */
+    protected function normalizeValues(array $values): array
+    {
+        return collect($values)
+            ->map(fn (mixed $value): mixed => match (true) {
+                is_array($value) => $this->normalizeValues($value),
+                is_string($value) => trim($value),
+                default => $value,
+            })
+            ->reject(fn (mixed $value, int|string $key): bool => $value === '' && is_string($key))
             ->all();
     }
 

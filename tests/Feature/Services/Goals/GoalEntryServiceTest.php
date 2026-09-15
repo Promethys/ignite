@@ -7,6 +7,7 @@ use App\Models\GoalEntry;
 use App\Models\User;
 use App\Services\Goals\GoalEntryService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
@@ -23,6 +24,49 @@ class GoalEntryServiceTest extends TestCase
         parent::setUp();
 
         $this->service = app(GoalEntryService::class);
+    }
+
+    public function test_find_returns_the_entry_for_the_goal_owner(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $entry = GoalEntry::factory()->create(['goal_id' => $goal->id]);
+
+        $found = $this->service->find($owner, $entry->id);
+
+        $this->assertTrue($found->is($entry));
+    }
+
+    public function test_find_throws_for_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $entry = GoalEntry::factory()->create(['goal_id' => $goal->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->find($intruder, $entry->id);
+    }
+
+    public function test_find_throws_model_not_found_for_a_missing_id(): void
+    {
+        $owner = User::factory()->create();
+
+        $this->expectException(ModelNotFoundException::class);
+
+        $this->service->find($owner, 999999);
+    }
+
+    public function test_find_returns_the_same_instance_when_given_a_resolved_model(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $entry = GoalEntry::factory()->create(['goal_id' => $goal->id]);
+
+        $found = $this->service->find($owner, $entry);
+
+        $this->assertSame(spl_object_id($entry), spl_object_id($found));
     }
 
     public function test_log_progress_increments_the_goal_and_records_the_previous_value(): void
@@ -204,5 +248,133 @@ class GoalEntryServiceTest extends TestCase
         $this->expectException(AuthorizationException::class);
 
         $this->service->updateEntry($intruder, $entry, 25);
+    }
+
+    public function test_log_progress_batch_applies_entries_in_date_order_with_running_values(): void
+    {
+        Carbon::setTestNow('2026-09-15 12:00:00');
+        $owner = User::factory()->create();
+        $goal = $this->quantifiableGoal($owner);
+
+        $result = $this->service->logProgressBatch($owner, $goal, [
+            ['increment' => 20, 'entry_date' => '2026-09-02'],
+            ['increment' => 10, 'entry_date' => '2026/09/01', 'note' => 'first'],
+            ['increment' => 5],
+        ]);
+
+        $this->assertSame([
+            ['2026-09-01', 100.0, 110.0, 'first'],
+            ['2026-09-02', 110.0, 130.0, null],
+            ['2026-09-15', 130.0, 135.0, null],
+        ], $this->entryRows($goal, withNote: true));
+        $this->assertSame(135.0, (float) $goal->fresh()->current_value);
+        $this->assertSame(3, $result['count']);
+        $this->assertSame('2026-09-01', $result['first_date']);
+        $this->assertSame('2026-09-15', $result['last_date']);
+    }
+
+    public function test_log_progress_batch_shifts_existing_later_entries(): void
+    {
+        Carbon::setTestNow('2026-09-15 12:00:00');
+        $owner = User::factory()->create();
+        $goal = $this->quantifiableGoal($owner);
+        $this->service->logProgress($owner, $goal, 50, null, '2026-09-10');
+
+        $this->service->logProgressBatch($owner, $goal->fresh(), [
+            ['increment' => 10, 'entry_date' => '2026-09-01'],
+            ['increment' => 20, 'entry_date' => '2026-09-05'],
+        ]);
+
+        $this->assertSame([
+            ['2026-09-01', 100.0, 110.0],
+            ['2026-09-05', 110.0, 130.0],
+            ['2026-09-10', 130.0, 180.0],
+        ], $this->entryRows($goal));
+        $this->assertSame(180.0, (float) $goal->fresh()->current_value);
+    }
+
+    public function test_log_progress_batch_does_not_complete_a_goal_that_only_crosses_its_target_midway(): void
+    {
+        Carbon::setTestNow('2026-09-15 12:00:00');
+        $owner = User::factory()->create();
+        $goal = $this->quantifiableGoal($owner, ['target_value' => 150]);
+
+        $result = $this->service->logProgressBatch($owner, $goal, [
+            ['increment' => 100, 'entry_date' => '2026-09-01'],
+            ['increment' => -80, 'entry_date' => '2026-09-02'],
+        ]);
+
+        $this->assertSame('in_progress', $result['goal_status']);
+        $this->assertSame('in_progress', $goal->fresh()->status);
+    }
+
+    public function test_log_progress_batch_completes_a_goal_whose_final_value_reaches_its_target(): void
+    {
+        Carbon::setTestNow('2026-09-15 12:00:00');
+        $owner = User::factory()->create();
+        $goal = $this->quantifiableGoal($owner, ['target_value' => 150]);
+
+        $result = $this->service->logProgressBatch($owner, $goal, [
+            ['increment' => 30, 'entry_date' => '2026-09-01'],
+            ['increment' => 30, 'entry_date' => '2026-09-02'],
+        ]);
+
+        $this->assertSame('completed', $result['goal_status']);
+        $this->assertNotNull($goal->fresh()->completed_at);
+    }
+
+    public function test_log_progress_batch_denies_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $goal = $this->quantifiableGoal($owner);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->logProgressBatch($intruder, $goal, [['increment' => 5]]);
+    }
+
+    public function test_log_progress_batch_rejects_a_recurring_goal(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $owner->id,
+            'type' => 'recurring',
+            'recurrence' => 'daily',
+        ]);
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->logProgressBatch($owner, $goal, [['increment' => 5]]);
+    }
+
+    private function quantifiableGoal(User $owner, array $attributes = []): Goal
+    {
+        return Goal::factory()->create([
+            'user_id' => $owner->id,
+            'type' => 'quantifiable',
+            'direction' => 'ascending',
+            'status' => 'in_progress',
+            'completed_at' => null,
+            'current_value' => 100,
+            'target_value' => 1000,
+            'start_date' => '2026-01-01',
+            ...$attributes,
+        ]);
+    }
+
+    /**
+     * @return array<int, array<int, mixed>>
+     */
+    private function entryRows(Goal $goal, bool $withNote = false): array
+    {
+        return $goal->entries()->orderBy('entry_date')->get()
+            ->map(fn (GoalEntry $entry): array => [
+                Carbon::parse($entry->entry_date)->toDateString(),
+                (float) $entry->previous_value,
+                (float) $entry->value,
+                ...($withNote ? [$entry->note] : []),
+            ])
+            ->all();
     }
 }

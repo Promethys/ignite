@@ -8,11 +8,24 @@ use App\Models\User;
 use App\Services\StreakService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 class GoalEntryService
 {
+    /**
+     * Resolve an entry and authorize `view` for the actor.
+     */
+    public function find(User $actor, GoalEntry|int $goalEntry): GoalEntry
+    {
+        $goalEntry = $goalEntry instanceof GoalEntry ? $goalEntry : GoalEntry::findOrFail($goalEntry);
+
+        Gate::forUser($actor)->authorize('view', $goalEntry);
+
+        return $goalEntry;
+    }
+
     /**
      * List a goal's entries with optional filters, newest first.
      *
@@ -95,6 +108,73 @@ class GoalEntryService
             $goal->update(['current_value' => $newValue]);
 
             return $entry->fresh();
+        });
+    }
+
+    /**
+     * Log many progress entries on a non-recurring goal in one transaction,
+     * applied in date order, saving the goal once with the final value.
+     *
+     * @param  array<int, array{increment: int|float, entry_date?: string|null, note?: string|null}>  $entries
+     * @return array{count: int, first_date: string, last_date: string, goal_current_value: string, goal_status: string}
+     */
+    public function logProgressBatch(User $actor, Goal $goal, array $entries): array
+    {
+        Gate::forUser($actor)->authorize('update', $goal);
+
+        if ($goal->type === 'recurring') {
+            throw ValidationException::withMessages([
+                'goal' => __('validation.custom.goal.log_progress_on_recurring'),
+            ]);
+        }
+
+        $entries = array_map(function (array $entry): array {
+            $entry['entry_date'] = Carbon::parse($entry['entry_date'] ?? null)->toDateString();
+
+            return $entry;
+        }, $entries);
+
+        usort($entries, fn (array $a, array $b): int => $a['entry_date'] <=> $b['entry_date']);
+
+        return DB::transaction(function () use ($goal, $entries) {
+            $newValue = (float) $goal->current_value;
+
+            foreach ($entries as $entryData) {
+                $entryDate = $entryData['entry_date'];
+                $laterEntries = $goal->entries()
+                    ->whereDate('entry_date', '>', $entryDate)
+                    ->get();
+
+                $previousValue = $laterEntries->isEmpty()
+                    ? $newValue
+                    : $this->cumulativeValueOn($goal, $entryDate);
+
+                $newValue += $entryData['increment'];
+
+                $goal->entries()->create([
+                    'value' => $previousValue + $entryData['increment'],
+                    'previous_value' => $previousValue,
+                    'note' => $entryData['note'] ?? null,
+                    'entry_date' => $entryDate,
+                ]);
+
+                foreach ($laterEntries as $later) {
+                    $later->update([
+                        'previous_value' => $later->previous_value + $entryData['increment'],
+                        'value' => $later->value + $entryData['increment'],
+                    ]);
+                }
+            }
+
+            $goal->update(['current_value' => $newValue]);
+
+            return [
+                'count' => count($entries),
+                'first_date' => $entries[0]['entry_date'],
+                'last_date' => $entries[array_key_last($entries)]['entry_date'],
+                'goal_current_value' => $goal->current_value,
+                'goal_status' => $goal->status,
+            ];
         });
     }
 

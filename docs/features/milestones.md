@@ -30,7 +30,7 @@ In short: `is_reached` describes whether the goal's numbers currently satisfy th
 
 ## Timeline display
 
-Milestones for a goal are loaded ordered by `order` (`GoalController::show` eager-loads `milestones` with `orderBy('order', 'asc')`) and rendered as a vertical timeline (`Timeline.vue`) on the goal's page. The indicator depends on whether the milestone has a `target_value`:
+Milestones for a goal are loaded ordered by `order` (`GoalService::findAndLoadRelationships` eager-loads `milestones` with `orderBy('order', 'asc')`) and rendered as a vertical timeline (`Timeline.vue`) on the goal's page. The indicator depends on whether the milestone has a `target_value`:
 
 - A milestone **with** a `target_value` shows a non-interactive circular indicator: a checkmark once reached or completed, otherwise a partial ring showing live progress toward that value. It completes on its own once progress reaches the target, so it is not clickable.
 - A **step** (a milestone with no `target_value`, used by `multi_step` goals) shows an interactive checkbox: empty at rest, previewing a check on hover; click it to mark the step complete. A completed step shows a check and, on hover, an undo icon; clicking it again marks it incomplete.

@@ -7,6 +7,7 @@ use App\Models\Milestone;
 use App\Models\User;
 use App\Services\Goals\MilestoneService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -21,6 +22,49 @@ class MilestoneServiceTest extends TestCase
         parent::setUp();
 
         $this->service = app(MilestoneService::class);
+    }
+
+    public function test_find_returns_the_milestone_for_the_goal_owner(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $milestone = Milestone::factory()->create(['goal_id' => $goal->id]);
+
+        $found = $this->service->find($owner, $milestone->id);
+
+        $this->assertTrue($found->is($milestone));
+    }
+
+    public function test_find_throws_for_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $intruder = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $milestone = Milestone::factory()->create(['goal_id' => $goal->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->find($intruder, $milestone->id);
+    }
+
+    public function test_find_throws_model_not_found_for_a_missing_id(): void
+    {
+        $owner = User::factory()->create();
+
+        $this->expectException(ModelNotFoundException::class);
+
+        $this->service->find($owner, 999999);
+    }
+
+    public function test_find_returns_the_same_instance_when_given_a_resolved_model(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $milestone = Milestone::factory()->create(['goal_id' => $goal->id]);
+
+        $found = $this->service->find($owner, $milestone);
+
+        $this->assertSame(spl_object_id($milestone), spl_object_id($found));
     }
 
     public function test_add_creates_a_milestone_appended_after_the_existing_ones(): void

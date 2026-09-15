@@ -3,8 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\GoalEntryResource;
-use App\Models\Goal;
 use App\Services\Goals\GoalEntryService;
+use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
@@ -20,6 +20,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 class ListEntriesTool extends IgniteTool
 {
     public function __construct(
+        private readonly GoalService $goalService,
         private readonly GoalEntryService $goalEntryService
     ) {}
 
@@ -41,9 +42,10 @@ class ListEntriesTool extends IgniteTool
             'limit' => 'nullable|integer|min:1|max:200',
         ]);
 
-        $goal = Goal::findOrFail($validated['goal_id']);
+        $actor = $this->actor($request);
+        $goal = $this->goalService->find($actor, $validated['goal_id']);
 
-        $result = $this->goalEntryService->listEntries($this->actor($request), $goal, [
+        $result = $this->goalEntryService->listEntries($actor, $goal, [
             'search' => $validated['search'] ?? null,
             'from' => $validated['from'] ?? null,
             'to' => $validated['to'] ?? null,

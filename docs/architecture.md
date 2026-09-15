@@ -53,7 +53,7 @@ Forms validate as they are filled, using [Laravel Precognition](https://laravel.
 
 The core data graph, all under `app/Models/`:
 
-- `Goal`: the central model. `$with` eager-loads `category` and `milestones` by default (entries are excluded from the default load for performance; `GoalController::show` loads a capped set of entries plus a lightweight `chartEntries` set separately). Carries accessors such as `getProgressPercentageAttribute()` and methods like `markAsCompleted()`. `status` is one of `not_started`, `in_progress`, `completed`, `paused`, `abandoned`; `priority` is one of `low`, `medium`, `high`. See [Goal Types](/features/goal-types) for `type` and `direction`.
+- `Goal`: the central model. `$with` eager-loads only `category` by default. Opening a single goal goes through `GoalService::findAndLoadRelationships`, shared by the goal page and the MCP `get_goal` tool, which adds the 20 newest entries, ordered milestones, and the streak; `GoalController::show` also loads a lightweight `chartEntries` set separately. Callers that only need to resolve and authorize a record use the lean `find` method on `GoalService`, `GoalEntryService`, `MilestoneService`, or `CategoryService`, never `findOrFail` directly. Carries accessors such as `getProgressPercentageAttribute()` and methods like `markAsCompleted()`. `status` is one of `not_started`, `in_progress`, `completed`, `paused`, `abandoned`; `priority` is one of `low`, `medium`, `high`. See [Goal Types](/features/goal-types) for `type` and `direction`.
 - `GoalEntry`: incremental progress records tied to a goal, with a timestamp.
 - `Category`: user-defined grouping for goals.
 - `Milestone`: checkpoints that break a goal into steps.

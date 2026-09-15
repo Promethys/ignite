@@ -38,7 +38,7 @@ class GetGoalTool extends IgniteTool
 
         $user = $this->actor($request);
 
-        $goal = $this->goalService->find($user, $validated['goal_id']);
+        $goal = $this->goalService->findAndLoadRelationships($user, $validated['goal_id']);
 
         return Response::make(
             Response::text("Retrieved goal '{$goal->title}'.")
