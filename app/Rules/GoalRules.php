@@ -5,6 +5,7 @@ namespace App\Rules;
 use App\Models\User;
 use App\Traits\Rules\HandlesPartialRules;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 
 /**
  * Goal validation rules shared by the web controller and the MCP tools.
@@ -47,6 +48,11 @@ class GoalRules
             'is_public' => 'required|boolean',
             'order' => 'nullable|integer',
         ];
+    }
+
+    public static function ownerIdRule(User $user): Exists
+    {
+        return Rule::exists('goals', 'id')->where('user_id', $user->id);
     }
 
     protected static function todayForUser(?User $user): string

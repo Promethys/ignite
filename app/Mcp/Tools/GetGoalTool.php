@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\GoalResource;
+use App\Rules\GoalRules;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
@@ -32,11 +33,11 @@ class GetGoalTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
-        $validated = $request->validate([
-            'goal_id' => 'integer|required|exists:goals,id',
-        ]);
-
         $user = $this->actor($request);
+
+        $validated = $request->validate([
+            'goal_id' => ['required', 'integer', GoalRules::ownerIdRule($user)],
+        ]);
 
         $goal = $this->goalService->findAndLoadRelationships($user, $validated['goal_id']);
 

@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Rules\CategoryRules;
 use App\Services\Categories\CategoryService;
 use App\Services\Mcp\DestructiveConfirmations;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -31,14 +32,15 @@ class DeleteCategoryTool extends IgniteTool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
+        $user = $this->actor($request);
+
         $validated = $request->validate([
-            'category_id' => 'required|integer|exists:categories,id',
+            'category_id' => ['required', 'integer', CategoryRules::ownerIdRule($user)],
             'confirmation_token' => 'nullable|string',
         ]);
 
         $token = $validated['confirmation_token'] ?? null;
 
-        $user = $this->actor($request);
         $category = $this->categoryService->find($user, $validated['category_id']);
         $goalsCount = $category->goals_count;
         $previewText = "This will permanently delete the category '{$category->name}'. Goals filed under it are kept and become uncategorised ({$goalsCount} affected). This cannot be undone.";

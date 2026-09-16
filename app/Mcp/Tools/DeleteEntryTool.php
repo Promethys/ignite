@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Rules\GoalEntryRules;
 use App\Services\Goals\GoalEntryService;
 use App\Services\Mcp\DestructiveConfirmations;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -32,12 +33,13 @@ class DeleteEntryTool extends IgniteTool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
+        $user = $this->actor($request);
+
         $validated = $request->validate([
-            'entry_id' => 'required|integer|exists:goal_entries,id',
+            'entry_id' => ['required', 'integer', GoalEntryRules::ownerIdRule($user)],
             'confirmation_token' => 'nullable|string',
         ]);
 
-        $user = $this->actor($request);
         $token = $validated['confirmation_token'] ?? null;
         $entry = $this->goalEntryService->find($user, $validated['entry_id']);
 

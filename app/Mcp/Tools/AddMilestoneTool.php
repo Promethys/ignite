@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\MilestoneResource;
+use App\Rules\GoalRules;
 use App\Rules\MilestoneRules;
 use App\Services\Goals\GoalService;
 use App\Services\Goals\MilestoneService;
@@ -33,12 +34,13 @@ class AddMilestoneTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
+        $user = $this->actor($request);
+
         $validated = $this->validateTrimmed($request, [
             ...MilestoneRules::rules(),
-            'goal_id' => 'required|integer|exists:goals,id',
+            'goal_id' => ['required', 'integer', GoalRules::ownerIdRule($user)],
         ]);
 
-        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $validated['goal_id']);
 
         unset($validated['goal_id']);

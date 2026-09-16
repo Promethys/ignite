@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Rules\GoalRules;
 use App\Services\Goals\GoalService;
 use App\Services\Mcp\DestructiveConfirmations;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -31,15 +32,16 @@ class DeleteGoalTool extends IgniteTool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
+        $user = $this->actor($request);
+
         $validated = $request->validate([
-            'goal_id' => 'required|integer|exists:goals,id',
+            'goal_id' => ['required', 'integer', GoalRules::ownerIdRule($user)],
             'confirmation_token' => 'nullable|string',
         ]);
 
         $token = $validated['confirmation_token'] ?? null;
         $goalId = $validated['goal_id'];
 
-        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $goalId);
         $milestoneCount = $goal->milestones()->count();
         $entriesCount = $goal->entries()->count();

@@ -34,11 +34,12 @@ class UpdateGoalTool extends IgniteTool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
+        $user = $this->actor($request);
+
         $goalId = $request->validate([
-            'goal_id' => 'required|integer|exists:goals,id',
+            'goal_id' => ['required', 'integer', GoalRules::ownerIdRule($user)],
         ])['goal_id'];
 
-        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $goalId);
 
         $provided = $this->normalizedArguments($request);

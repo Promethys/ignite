@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\GoalResource;
+use App\Rules\GoalRules;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
@@ -30,12 +31,13 @@ class SetGoalStatusTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
+        $user = $this->actor($request);
+
         $validated = $request->validate([
-            'goal_id' => 'required|integer|exists:goals,id',
+            'goal_id' => ['required', 'integer', GoalRules::ownerIdRule($user)],
             'status' => 'required|in:not_started,in_progress,completed,paused,abandoned',
         ]);
 
-        $user = $this->actor($request);
         $goal = $this->goalService->find($user, $validated['goal_id']);
 
         $this->goalService->setStatus($user, $goal, $validated['status']);

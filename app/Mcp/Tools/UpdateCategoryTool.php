@@ -32,11 +32,12 @@ class UpdateCategoryTool extends IgniteTool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
+        $user = $this->actor($request);
+
         $categoryId = $request->validate([
-            'category_id' => 'required|integer|exists:categories,id',
+            'category_id' => ['required', 'integer', CategoryRules::ownerIdRule($user)],
         ])['category_id'];
 
-        $user = $this->actor($request);
         $category = $this->categoryService->find($user, $categoryId);
 
         $provided = $this->normalizedArguments($request);

@@ -83,6 +83,6 @@ class UpdateEntryToolTest extends TestCase
             'entry_id' => $entry->id,
             'increment' => 25,
             'entry_date' => '2999-01-01',
-        ])->assertHasErrors(['This action is unauthorized.']);
+        ])->assertHasErrors(['The selected entry id is invalid.']);
     }
 }

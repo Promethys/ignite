@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\GoalEntryResource;
+use App\Rules\GoalRules;
 use App\Services\Goals\GoalEntryService;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -34,15 +35,16 @@ class ListEntriesTool extends IgniteTool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
+        $actor = $this->actor($request);
+
         $validated = $request->validate([
-            'goal_id' => 'required|integer|exists:goals,id',
+            'goal_id' => ['required', 'integer', GoalRules::ownerIdRule($actor)],
             'search' => 'nullable|string|max:191',
             'from' => 'nullable|date',
             'to' => 'nullable|date|after_or_equal:from',
             'limit' => 'nullable|integer|min:1|max:200',
         ]);
 
-        $actor = $this->actor($request);
         $goal = $this->goalService->find($actor, $validated['goal_id']);
 
         $result = $this->goalEntryService->listEntries($actor, $goal, [

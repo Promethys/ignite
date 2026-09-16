@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools;
 
 use App\Http\Resources\MilestoneResource;
+use App\Rules\MilestoneRules;
 use App\Services\Goals\MilestoneService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
@@ -31,11 +32,12 @@ class CompleteMilestoneTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
+        $user = $this->actor($request);
+
         $validated = $request->validate([
-            'milestone_id' => 'required|integer|exists:milestones,id',
+            'milestone_id' => ['required', 'integer', MilestoneRules::ownerIdRule($user)],
         ]);
 
-        $user = $this->actor($request);
         $milestone = $this->milestoneService->find($user, $validated['milestone_id']);
 
         $milestone = $this->milestoneService->complete(

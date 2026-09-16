@@ -194,11 +194,11 @@ It starts a browser UI against `/mcp`. The app itself must be running and reacha
 
 ## Security model
 
-- **Per-user isolation.** Every operation resolves through the acting user and is authorized by the existing policies. A goal id belonging to someone else is rejected, so a hallucinated or tampered id cannot reach another user's data.
+- **Per-user isolation.** Every operation resolves through the acting user and is authorized by the existing policies. A goal id belonging to someone else is rejected, so a hallucinated or tampered id cannot reach another user's data. Every id argument is validated against the acting user's own records, so an id owned by someone else and an id that does not exist are rejected with the same message, and a caller cannot learn which ids exist.
 - **The acting user is never client supplied.** `create_goal` assigns ownership from the token holder and ignores any user id in the payload.
 - **Scoped tokens**, with `delete` opt-in, plus the two-step confirmation on destructive tools.
 - **Whitelisted output**, as described above.
-- **Normalized input.** A web request is trimmed by middleware before it is validated; an MCP request has no middleware stack, so tools trim incoming strings themselves and treat a whitespace-only value as a field that was not supplied. Without this, a blank title or name would pass validation untouched and be stored, since Laravel skips non-implicit rules for any value that trims to empty.
+- **Normalized input.** A web request is trimmed by middleware before it is validated; an MCP request has no middleware stack, so tools trim incoming strings themselves and treat a whitespace-only value as a field that was not supplied, at every level of a nested argument. Without this, a blank title or name would pass validation untouched and be stored, since Laravel skips non-implicit rules for any value that trims to empty.
 - **Untrusted content.** Goal titles and notes are user-authored text that reaches the model as data. The server instructions tell the model to treat them as data rather than instructions, and no tool can change account credentials, so a prompt-injection attempt cannot escalate into account takeover. This is why `set_user` cannot touch the email address: email is the account-recovery vector, and changing it would also unverify the account and lock the user out of the web app.
 - **Run production with `APP_DEBUG=false`.** Unhandled exceptions are logged server side and returned to the client as a generic message. With debug enabled, raw exception text is returned instead, which would expose internals to the AI client.
 
