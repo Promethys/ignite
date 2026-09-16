@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class GoalEntryControllerTest extends TestCase
@@ -591,6 +592,34 @@ class GoalEntryControllerTest extends TestCase
             'value' => 10,
             'previous_value' => 0,
         ]);
+    }
+
+    /**
+     * @return array<string, array{string, string, string}>
+     */
+    public static function ownerTodayProvider(): array
+    {
+        return [
+            'east of UTC, already tomorrow' => ['Pacific/Auckland', '2026-09-15 23:30:00', '2026-09-16'],
+            'west of UTC, still yesterday' => ['Pacific/Honolulu', '2026-09-16 02:00:00', '2026-09-15'],
+        ];
+    }
+
+    #[DataProvider('ownerTodayProvider')]
+    public function test_an_entry_without_a_date_is_dated_the_owners_today(string $timezone, string $utcNow, string $ownerToday)
+    {
+        Carbon::setTestNow($utcNow);
+        $this->user->update(['timezone' => $timezone]);
+
+        $this->actingAs($this->user)
+            ->post(route('goals.entries.store', $this->goal), [
+                'increment' => 10,
+            ])
+            ->assertSessionHasNoErrors();
+
+        $entry = GoalEntry::where('goal_id', $this->goal->id)->sole();
+
+        $this->assertSame($ownerToday, $entry->entry_date->toDateString());
     }
 
     public function test_entry_value_is_required()

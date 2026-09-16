@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class GoalEntryServiceTest extends TestCase
@@ -85,6 +86,42 @@ class GoalEntryServiceTest extends TestCase
         $this->assertSame(25.0, (float) $entry->value);
         $this->assertSame(20.0, (float) $entry->previous_value);
         $this->assertSame(now()->toDateString(), Carbon::parse($entry->entry_date)->toDateString());
+    }
+
+    /**
+     * @return array<string, array{string, string, string}>
+     */
+    public static function ownerTodayProvider(): array
+    {
+        return [
+            'east of UTC, already tomorrow' => ['Pacific/Auckland', '2026-09-15 23:30:00', '2026-09-16'],
+            'west of UTC, still yesterday' => ['Pacific/Honolulu', '2026-09-16 02:00:00', '2026-09-15'],
+        ];
+    }
+
+    #[DataProvider('ownerTodayProvider')]
+    public function test_log_progress_without_a_date_uses_the_owners_today(string $timezone, string $utcNow, string $ownerToday): void
+    {
+        Carbon::setTestNow($utcNow);
+        $owner = User::factory()->create(['timezone' => $timezone]);
+        $goal = $this->quantifiableGoal($owner);
+
+        $entry = $this->service->logProgress($owner, $goal, 5);
+
+        $this->assertSame($ownerToday, Carbon::parse($entry->entry_date)->toDateString());
+    }
+
+    #[DataProvider('ownerTodayProvider')]
+    public function test_log_progress_batch_without_a_date_uses_the_owners_today(string $timezone, string $utcNow, string $ownerToday): void
+    {
+        Carbon::setTestNow($utcNow);
+        $owner = User::factory()->create(['timezone' => $timezone]);
+        $goal = $this->quantifiableGoal($owner);
+
+        $result = $this->service->logProgressBatch($owner, $goal, [['increment' => 5]]);
+
+        $this->assertSame($ownerToday, $result['first_date']);
+        $this->assertSame([[$ownerToday, 100.0, 105.0]], $this->entryRows($goal));
     }
 
     public function test_log_progress_denies_a_non_owner(): void

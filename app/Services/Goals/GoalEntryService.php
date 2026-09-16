@@ -5,6 +5,7 @@ namespace App\Services\Goals;
 use App\Models\Goal;
 use App\Models\GoalEntry;
 use App\Models\User;
+use App\Rules\GoalEntryRules;
 use App\Services\StreakService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -79,7 +80,7 @@ class GoalEntryService
             ]);
         }
 
-        $entryDate ??= now()->toDateString();
+        $entryDate ??= GoalEntryRules::todayForTimezone($actor->timezone);
         $newValue = $goal->current_value + $increment;
 
         return \DB::transaction(function () use ($goal, $increment, $newValue, $note, $entryDate): GoalEntry {
@@ -128,8 +129,8 @@ class GoalEntryService
             ]);
         }
 
-        $entries = array_map(function (array $entry): array {
-            $entry['entry_date'] = Carbon::parse($entry['entry_date'] ?? null)->toDateString();
+        $entries = array_map(function (array $entry) use ($actor): array {
+            $entry['entry_date'] = Carbon::parse($entry['entry_date'] ?? null, $actor->timezone)->toDateString();
 
             return $entry;
         }, $entries);
