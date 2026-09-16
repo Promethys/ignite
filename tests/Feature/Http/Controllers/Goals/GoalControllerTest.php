@@ -38,7 +38,6 @@ class GoalControllerTest extends TestCase
     private function validGoalData(array $overrides = []): array
     {
         return array_merge([
-            'user_id' => $this->user->id,
             'title' => 'Test Goal',
             'type' => 'simple',
             'direction' => 'ascending',
@@ -296,6 +295,28 @@ class GoalControllerTest extends TestCase
             ->assertSessionHasErrors('category_id');
 
         $this->assertNull($goal->fresh()->category_id);
+    }
+
+    public function test_a_goal_cannot_be_moved_into_another_users_account()
+    {
+        $goal = Goal::factory()->create(['user_id' => $this->user->id]);
+
+        $this->actingAs($this->user)
+            ->put(route('goals.update', $goal), $this->validGoalData(['user_id' => $this->otherUser->id]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame($this->user->id, $goal->fresh()->user_id);
+        $this->assertSame(0, $this->otherUser->goals()->count());
+    }
+
+    public function test_a_goal_cannot_be_created_in_another_users_account()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData(['user_id' => $this->otherUser->id]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(1, $this->user->goals()->count());
+        $this->assertSame(0, $this->otherUser->goals()->count());
     }
 
     public function test_a_goal_can_be_created_in_a_category_the_user_owns()

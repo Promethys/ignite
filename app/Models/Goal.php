@@ -34,7 +34,6 @@ class Goal extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_id',
         'category_id',
         'title',
         'description',

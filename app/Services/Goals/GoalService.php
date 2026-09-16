@@ -117,9 +117,8 @@ class GoalService
 
         $order = $actor->goals()->count() + 1;
 
-        $goal = Goal::create([
+        $goal = $actor->goals()->create([
             ...$attributes,
-            'user_id' => $actor->id,
             'order' => $order,
         ]);
 

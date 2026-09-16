@@ -17,9 +17,6 @@ class UpdateGoalRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'user_id' => 'required|exists:users,id',
-            ...GoalRules::rules($this->user()),
-        ];
+        return GoalRules::rules($this->user());
     }
 }

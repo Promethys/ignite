@@ -18,10 +18,7 @@ class StoreGoalRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'user_id' => 'required|exists:users,id',
-            ...GoalRules::rules($this->user()),
-        ];
+        $rules = GoalRules::rules($this->user());
 
         if ($this->input('type') === 'quantifiable') {
             $rules['target_value'] = 'required|numeric';

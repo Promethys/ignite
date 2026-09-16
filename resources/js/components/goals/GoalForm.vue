@@ -91,7 +91,6 @@ const form = (
 
 form.transform((data) => ({
     ...data,
-    user_id: props.user.id,
     // Convert empty strings back to null for nullable fields
     description: data.description || null,
     icon: data.icon || null,
