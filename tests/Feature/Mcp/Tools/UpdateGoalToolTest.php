@@ -324,6 +324,40 @@ class UpdateGoalToolTest extends TestCase
         $this->assertSame($user->id, $fresh->user_id);
     }
 
+    public function test_a_null_title_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id, 'title' => 'Untouched']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'title' => null,
+        ])
+            ->assertHasErrors()
+            ->assertSee('The title field is required.');
+
+        $this->assertSame('Untouched', $goal->fresh()->title);
+    }
+
+    public function test_a_null_status_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id, 'status' => 'in_progress']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'status' => null,
+        ])
+            ->assertHasErrors()
+            ->assertSee('The status field is required.');
+
+        $this->assertSame('in_progress', $goal->fresh()->status);
+    }
+
     public function test_a_token_without_the_write_ability_cannot_update_a_goal(): void
     {
         $user = User::factory()->create();

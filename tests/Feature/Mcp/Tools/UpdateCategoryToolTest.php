@@ -83,6 +83,23 @@ class UpdateCategoryToolTest extends TestCase
         $this->assertSame('#ab12cd', $category->fresh()->color);
     }
 
+    public function test_a_null_name_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id, 'name' => 'Fitness']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateCategoryTool::class, [
+            'category_id' => $category->id,
+            'name' => null,
+        ])
+            ->assertHasErrors()
+            ->assertSee('The name field is required.');
+
+        $this->assertSame('Fitness', $category->fresh()->name);
+    }
+
     public function test_a_null_colour_is_rejected(): void
     {
         $user = User::factory()->create();
@@ -93,7 +110,9 @@ class UpdateCategoryToolTest extends TestCase
         IgniteServer::tool(UpdateCategoryTool::class, [
             'category_id' => $category->id,
             'color' => null,
-        ])->assertHasErrors();
+        ])
+            ->assertHasErrors()
+            ->assertSee('The color field must be a string.');
 
         $this->assertSame('#22c55e', $category->fresh()->color);
     }
