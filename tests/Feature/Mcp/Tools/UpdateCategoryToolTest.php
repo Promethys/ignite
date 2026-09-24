@@ -68,6 +68,36 @@ class UpdateCategoryToolTest extends TestCase
             ->assertHasErrors();
     }
 
+    public function test_an_uppercase_colour_is_stored_in_lowercase(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id, 'color' => '#22c55e']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateCategoryTool::class, [
+            'category_id' => $category->id,
+            'color' => '#AB12CD',
+        ])->assertOk();
+
+        $this->assertSame('#ab12cd', $category->fresh()->color);
+    }
+
+    public function test_a_null_colour_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id, 'color' => '#22c55e']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateCategoryTool::class, [
+            'category_id' => $category->id,
+            'color' => null,
+        ])->assertHasErrors();
+
+        $this->assertSame('#22c55e', $category->fresh()->color);
+    }
+
     public function test_a_colour_that_is_not_a_six_digit_hex_is_rejected(): void
     {
         $user = User::factory()->create();
