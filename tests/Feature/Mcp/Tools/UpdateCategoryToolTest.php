@@ -68,6 +68,55 @@ class UpdateCategoryToolTest extends TestCase
             ->assertHasErrors();
     }
 
+    public function test_an_uppercase_colour_is_stored_in_lowercase(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id, 'color' => '#22c55e']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateCategoryTool::class, [
+            'category_id' => $category->id,
+            'color' => '#AB12CD',
+        ])->assertOk();
+
+        $this->assertSame('#ab12cd', $category->fresh()->color);
+    }
+
+    public function test_a_null_name_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id, 'name' => 'Fitness']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateCategoryTool::class, [
+            'category_id' => $category->id,
+            'name' => null,
+        ])
+            ->assertHasErrors()
+            ->assertSee('The name field is required.');
+
+        $this->assertSame('Fitness', $category->fresh()->name);
+    }
+
+    public function test_a_null_colour_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create(['user_id' => $user->id, 'color' => '#22c55e']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateCategoryTool::class, [
+            'category_id' => $category->id,
+            'color' => null,
+        ])
+            ->assertHasErrors()
+            ->assertSee('The color field must be a string.');
+
+        $this->assertSame('#22c55e', $category->fresh()->color);
+    }
+
     public function test_a_colour_that_is_not_a_six_digit_hex_is_rejected(): void
     {
         $user = User::factory()->create();
@@ -134,7 +183,7 @@ class UpdateCategoryToolTest extends TestCase
         $this->assertDatabaseMissing('categories', ['slug' => 'hijacked']);
     }
 
-    public function test_supplying_only_unknown_fields_changes_nothing(): void
+    public function test_supplying_only_unknown_fields_is_an_error_that_lists_the_allowed_fields(): void
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['user_id' => $user->id, 'name' => 'Fitness']);
@@ -144,7 +193,9 @@ class UpdateCategoryToolTest extends TestCase
         IgniteServer::tool(UpdateCategoryTool::class, [
             'category_id' => $category->id,
             'slug' => 'hijacked',
-        ])->assertOk();
+        ])
+            ->assertHasErrors()
+            ->assertSee('Allowed fields: name, description, color, icon, order');
 
         $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Fitness']);
         $this->assertDatabaseMissing('categories', ['slug' => 'hijacked']);

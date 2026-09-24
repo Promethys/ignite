@@ -122,7 +122,7 @@ class CreateCategoryToolTest extends TestCase
     }
 
     #[DataProvider('validColourProvider')]
-    public function test_a_six_digit_hex_colour_is_accepted(string $color): void
+    public function test_a_six_digit_hex_colour_is_accepted_and_stored_in_lowercase(string $color): void
     {
         $user = User::factory()->create();
 
@@ -135,7 +135,7 @@ class CreateCategoryToolTest extends TestCase
 
         $this->assertDatabaseHas('categories', [
             'name' => 'Woodworking',
-            'color' => $color,
+            'color' => strtolower($color),
         ]);
     }
 

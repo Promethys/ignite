@@ -5,7 +5,7 @@ namespace App\Traits\Rules;
 trait HandlesPartialRules
 {
     /**
-     * Same as `rules()`, but nothing is required. For partial updates.
+     * Same as `rules()`, but required fields may be omitted. When sent, they still cannot be null.
      *
      * @return array<string, mixed>
      */
@@ -13,7 +13,7 @@ trait HandlesPartialRules
     {
         return array_map(
             static fn (mixed $rule) => is_string($rule)
-                ? str_replace('required|', 'nullable|', $rule)
+                ? str_replace('required|', 'sometimes|required|', $rule)
                 : $rule,
             static::rules(...$arguments),
         );

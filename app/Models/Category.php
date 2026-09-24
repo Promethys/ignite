@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Observers\CategoryObserver;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -70,5 +71,15 @@ class Category extends Model
     public function goals(): HasMany
     {
         return $this->hasMany(Goal::class);
+    }
+
+    /**
+     * Store the colour in lowercase.
+     */
+    public function color(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => strtolower($value),
+        );
     }
 }

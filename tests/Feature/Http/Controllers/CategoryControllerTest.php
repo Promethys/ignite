@@ -197,6 +197,34 @@ class CategoryControllerTest extends TestCase
         $this->assertEquals('Updated Name', $category->fresh()->name);
     }
 
+    public function test_an_uppercase_colour_is_stored_in_lowercase()
+    {
+        $category = Category::factory()->create(['user_id' => $this->user->id]);
+
+        $this->actingAs($this->user)
+            ->put(route('categories.update', $category), [
+                'name' => $category->name,
+                'color' => '#AB12CD',
+            ])
+            ->assertRedirect(route('categories.index'));
+
+        $this->assertSame('#ab12cd', $category->fresh()->color);
+    }
+
+    public function test_an_empty_colour_is_rejected()
+    {
+        $category = Category::factory()->create(['user_id' => $this->user->id, 'color' => '#22c55e']);
+
+        $this->actingAs($this->user)
+            ->put(route('categories.update', $category), [
+                'name' => $category->name,
+                'color' => '',
+            ])
+            ->assertSessionHasErrors('color');
+
+        $this->assertSame('#22c55e', $category->fresh()->color);
+    }
+
     public function test_user_cannot_update_other_users_category()
     {
         $category = Category::factory()->create(['user_id' => $this->otherUser->id]);
