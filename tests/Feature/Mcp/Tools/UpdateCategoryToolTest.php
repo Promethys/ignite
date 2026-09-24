@@ -134,7 +134,7 @@ class UpdateCategoryToolTest extends TestCase
         $this->assertDatabaseMissing('categories', ['slug' => 'hijacked']);
     }
 
-    public function test_supplying_only_unknown_fields_changes_nothing(): void
+    public function test_supplying_only_unknown_fields_is_an_error_that_lists_the_allowed_fields(): void
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['user_id' => $user->id, 'name' => 'Fitness']);
@@ -144,7 +144,9 @@ class UpdateCategoryToolTest extends TestCase
         IgniteServer::tool(UpdateCategoryTool::class, [
             'category_id' => $category->id,
             'slug' => 'hijacked',
-        ])->assertOk();
+        ])
+            ->assertHasErrors()
+            ->assertSee('Allowed fields: name, description, color, icon, order');
 
         $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Fitness']);
         $this->assertDatabaseMissing('categories', ['slug' => 'hijacked']);

@@ -287,6 +287,43 @@ class UpdateGoalToolTest extends TestCase
         $this->assertSame('Untouched', $goal->fresh()->title);
     }
 
+    public function test_supplying_only_unknown_fields_is_an_error_that_lists_the_allowed_fields(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id, 'title' => 'Untouched']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'user_id' => User::factory()->create()->id,
+        ])
+            ->assertHasErrors()
+            ->assertSee('Allowed fields:');
+
+        $fresh = $goal->fresh();
+        $this->assertSame('Untouched', $fresh->title);
+        $this->assertSame($user->id, $fresh->user_id);
+    }
+
+    public function test_a_known_field_is_updated_when_sent_alongside_an_unknown_one(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id, 'title' => 'Old']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(UpdateGoalTool::class, [
+            'goal_id' => $goal->id,
+            'title' => 'New',
+            'user_id' => User::factory()->create()->id,
+        ])->assertOk();
+
+        $fresh = $goal->fresh();
+        $this->assertSame('New', $fresh->title);
+        $this->assertSame($user->id, $fresh->user_id);
+    }
+
     public function test_a_token_without_the_write_ability_cannot_update_a_goal(): void
     {
         $user = User::factory()->create();

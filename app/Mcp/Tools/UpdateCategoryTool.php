@@ -43,13 +43,14 @@ class UpdateCategoryTool extends IgniteTool
         $provided = $this->normalizedArguments($request);
         unset($provided['category_id']);
 
-        if ($provided === []) {
-            return Response::error('No fields were provided to update.');
+        $rules = CategoryRules::partialRules();
+        $ruleKeys = array_keys($rules);
+
+        if (array_intersect(array_keys($provided), $ruleKeys) === []) {
+            return Response::error('No updatable fields were provided. Allowed fields: '.implode(', ', $ruleKeys));
         }
 
-        $rules = CategoryRules::partialRules();
-
-        $merged = array_merge($category->only(array_keys($rules)), $provided);
+        $merged = array_merge($category->only($ruleKeys), $provided);
 
         $validated = Validator::validate($merged, $rules);
 

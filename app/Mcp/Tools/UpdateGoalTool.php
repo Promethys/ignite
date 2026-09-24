@@ -45,11 +45,12 @@ class UpdateGoalTool extends IgniteTool
         $provided = $this->normalizedArguments($request);
         unset($provided['goal_id']);
 
-        if ($provided === []) {
-            return Response::error('No fields were provided to update.');
-        }
-
         $rules = GoalRules::partialRules($user);
+        $ruleKeys = array_keys($rules);
+
+        if (array_intersect(array_keys($provided), $ruleKeys) === []) {
+            return Response::error('No updatable fields were provided. Allowed fields: '.implode(', ', $ruleKeys));
+        }
 
         $merged = array_merge($this->storedAttributes($goal, $rules), $provided);
 
