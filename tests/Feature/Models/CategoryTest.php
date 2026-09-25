@@ -38,35 +38,4 @@ class CategoryTest extends TestCase
         $this->assertTrue($category->goals->contains($goal));
         $this->assertInstanceOf(Goal::class, $category->goals->first());
     }
-
-    // =========================================================================
-    // SLUGGABLE TESTS
-    // =========================================================================
-
-    public function test_slug_is_generated_from_name_on_creation()
-    {
-        $category = Category::create([
-            'user_id' => User::factory()->create()->id,
-            'name' => 'Health & Fitness',
-        ]);
-
-        $this->assertEquals('health-fitness', $category->slug);
-    }
-
-    public function test_slug_is_unique()
-    {
-        $user = User::factory()->create();
-
-        $category1 = Category::create([
-            'user_id' => $user->id,
-            'name' => 'Fitness',
-        ]);
-
-        $category2 = Category::create([
-            'user_id' => $user->id,
-            'name' => 'Fitness',
-        ]);
-
-        $this->assertNotEquals($category1->slug, $category2->slug);
-    }
 }

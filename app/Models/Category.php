@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Observers\CategoryObserver;
-use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Category extends Model
 {
     use HasFactory;
-    use Sluggable;
 
     /**
      * The attributes that are mass assignable.
@@ -25,7 +23,6 @@ class Category extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'slug',
         'description',
         'color',
         'icon',
@@ -40,18 +37,6 @@ class Category extends Model
     protected $casts = [
         'order' => 'integer',
     ];
-
-    /**
-     * Return the sluggable configuration array for this model.
-     */
-    public function sluggable(): array
-    {
-        return [
-            'slug' => [
-                'source' => 'name',
-            ],
-        ];
-    }
 
     /**
      * Get the user that owns the category.

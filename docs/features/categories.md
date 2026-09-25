@@ -12,11 +12,9 @@ Health & Fitness, Career & Work, Finance & Money, Learning & Education, Personal
 
 These are just a starting point: the user can rename, delete, or add their own categories afterward like any other category they own.
 
-## Slug and order (CategoryObserver)
+## Order (CategoryObserver)
 
-`Category` uses the `Sluggable` trait (`cviebrock/laravel-sluggable`), configured to derive the slug from `name`. Sluggable hooks into the model's `saving` event, which fires before `creating`, so by the time `CategoryObserver::creating()` runs, a slug is normally already set. The observer still guards for the case where one isn't: if `slug` is empty, it generates one from `name` via `Str::slug()`.
-
-The observer also assigns display order on creation: if no `order` is given and the category has a `user_id`, `order` is set to `(the user's current highest category order) + 1`. This keeps newly created categories appended at the end of the user's list rather than defaulting to `0`.
+`CategoryObserver` assigns display order on creation: if no `order` is given and the category has a `user_id`, `order` is set to `(the user's current highest category order) + 1`. This keeps newly created categories appended at the end of the user's list rather than defaulting to `0`.
 
 ## Colors and icons
 

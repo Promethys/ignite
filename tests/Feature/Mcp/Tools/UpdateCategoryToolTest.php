@@ -166,7 +166,7 @@ class UpdateCategoryToolTest extends TestCase
         $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Fitness']);
     }
 
-    public function test_a_supplied_slug_is_ignored(): void
+    public function test_a_supplied_owner_is_ignored_while_known_fields_are_applied(): void
     {
         $user = User::factory()->create();
         $category = Category::factory()->create(['user_id' => $user->id, 'name' => 'Fitness']);
@@ -176,11 +176,10 @@ class UpdateCategoryToolTest extends TestCase
         IgniteServer::tool(UpdateCategoryTool::class, [
             'category_id' => $category->id,
             'name' => 'Health',
-            'slug' => 'hijacked',
+            'user_id' => User::factory()->create()->id,
         ])->assertOk();
 
-        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Health']);
-        $this->assertDatabaseMissing('categories', ['slug' => 'hijacked']);
+        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Health', 'user_id' => $user->id]);
     }
 
     public function test_supplying_only_unknown_fields_is_an_error_that_lists_the_allowed_fields(): void
@@ -192,12 +191,11 @@ class UpdateCategoryToolTest extends TestCase
 
         IgniteServer::tool(UpdateCategoryTool::class, [
             'category_id' => $category->id,
-            'slug' => 'hijacked',
+            'user_id' => User::factory()->create()->id,
         ])
             ->assertHasErrors()
             ->assertSee('Allowed fields: name, description, color, icon, order');
 
-        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Fitness']);
-        $this->assertDatabaseMissing('categories', ['slug' => 'hijacked']);
+        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Fitness', 'user_id' => $user->id]);
     }
 }

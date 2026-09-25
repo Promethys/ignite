@@ -99,7 +99,7 @@ Twenty-two tools, grouped by the ability they require.
 
 Both accept a date no later than today in the owner's timezone, and both allow a date earlier than the goal's own start date, so a goal created today can carry the history that led to it. Entries store running totals rather than deltas, so an entry landing before existing ones shifts the later totals to keep the progress chart rising in date order.
 
-**Category ids are per account, so they cannot be guessed.** Every user gets their own ten categories at registration, and the ids differ between accounts. Call `list_categories` to find a real id before setting a goal's `category_id` or filtering `list_goals` by one. The category tools never expose or accept the stored slug: it is an internal field, it is not unique in a way a client can rely on, and `id` is the only stable handle.
+**Category ids are per account, so they cannot be guessed.** Every user gets their own ten categories at registration, and the ids differ between accounts. Call `list_categories` to find a real id before setting a goal's `category_id` or filtering `list_goals` by one. `id` is the only stable handle for a category.
 
 ### `delete`
 

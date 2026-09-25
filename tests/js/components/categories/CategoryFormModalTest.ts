@@ -70,7 +70,6 @@ describe('CategoryFormModal', () => {
         const record: Category = {
             id: 1,
             name: 'Fitness',
-            slug: 'fitness',
             description: 'All fitness goals',
             color: '#ff0000',
             icon: '💪',

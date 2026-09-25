@@ -11,16 +11,6 @@ class CategoryObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_slug_is_generated_on_creation()
-    {
-        $category = Category::create([
-            'user_id' => User::factory()->create()->id,
-            'name' => 'Health & Fitness',
-        ]);
-
-        $this->assertEquals('health-fitness', $category->slug);
-    }
-
     public function test_order_is_set_on_creation()
     {
         $user = User::factory()->create();

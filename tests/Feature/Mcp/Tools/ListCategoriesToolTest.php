@@ -110,20 +110,6 @@ class ListCategoriesToolTest extends TestCase
                 ->etc());
     }
 
-    public function test_the_slug_is_never_exposed(): void
-    {
-        $user = User::factory()->create();
-        Category::factory()->create(['user_id' => $user->id]);
-
-        Sanctum::actingAs($user, ['read']);
-
-        IgniteServer::tool(ListCategoriesTool::class)
-            ->assertOk()
-            ->assertStructuredContent(fn (AssertableJson $json) => $json
-                ->missing('categories.0.slug')
-                ->etc());
-    }
-
     public function test_categories_come_back_in_display_order(): void
     {
         $user = User::factory()->create();

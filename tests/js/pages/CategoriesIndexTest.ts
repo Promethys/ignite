@@ -47,7 +47,6 @@ const makeCategory = (overrides: Partial<Category>): Category =>
     ({
         id: 1,
         name: 'Category',
-        slug: 'category',
         description: null,
         color: '#7c3aed',
         icon: null,

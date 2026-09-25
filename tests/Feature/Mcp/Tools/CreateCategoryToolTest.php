@@ -6,7 +6,6 @@ use App\Mcp\Servers\IgniteServer;
 use App\Mcp\Tools\CreateCategoryTool;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -154,31 +153,19 @@ class CreateCategoryToolTest extends TestCase
         ]);
     }
 
-    public function test_a_supplied_slug_is_ignored(): void
+    public function test_a_supplied_owner_is_ignored(): void
     {
         $user = User::factory()->create();
+        $otherUser = User::factory()->create();
 
         Sanctum::actingAs($user, ['read', 'write']);
 
         IgniteServer::tool(CreateCategoryTool::class, [
             'name' => 'Woodworking',
-            'slug' => 'hijacked',
+            'user_id' => $otherUser->id,
         ])->assertOk();
 
-        $this->assertDatabaseHas('categories', ['name' => 'Woodworking']);
-        $this->assertDatabaseMissing('categories', ['slug' => 'hijacked']);
-    }
-
-    public function test_the_response_never_exposes_the_slug(): void
-    {
-        $user = User::factory()->create();
-
-        Sanctum::actingAs($user, ['read', 'write']);
-
-        IgniteServer::tool(CreateCategoryTool::class, ['name' => 'Woodworking'])
-            ->assertOk()
-            ->assertStructuredContent(fn (AssertableJson $json) => $json
-                ->missing('category.slug')
-                ->etc());
+        $this->assertDatabaseHas('categories', ['name' => 'Woodworking', 'user_id' => $user->id]);
+        $this->assertDatabaseMissing('categories', ['user_id' => $otherUser->id]);
     }
 }
