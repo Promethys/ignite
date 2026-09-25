@@ -12,11 +12,17 @@ Every tool is a thin wrapper over the same service layer the web UI uses (`App\S
 
 ```php
 // routes/ai.php
-Mcp::web('/mcp', IgniteServer::class)->middleware(['auth:sanctum']);
-Mcp::local('/ignite', IgniteServer::class);
+Mcp::web('/mcp', IgniteServer::class)
+    ->middleware(['auth:sanctum', 'throttle:mcp']);
+
+Mcp::local('ignite', IgniteServer::class);
 ```
 
 **Remote (HTTP)** is the transport hosted users connect to, at `/mcp` on your instance (for the hosted app: `https://ignite.promethys.dev/mcp`). It is protected by `auth:sanctum`, so every request must carry a personal access token, and by a rate limiter (see [Rate limiting](#rate-limiting)).
+
+**Protocol revisions.** The server speaks MCP `2026-07-28`, where a client opens with `server/discover` and every request carries its protocol version in `params._meta` and in the `MCP-Protocol-Version`, `Mcp-Method` and (for `tools/call`) `Mcp-Name` HTTP headers. Clients that still open with the older `initialize` handshake are served too: they are answered with `2025-11-25` or `2025-06-18`, whichever they asked for.
+
+Every `tools/list` result carries the caching hints `ttlMs: 0` and `cacheScope: private`, which ask a `2026-07-28` client to treat the list as stale immediately. Whether a client acts on them is up to the client; some keep the list they fetched when they connected until they reconnect.
 
 **Local (stdio)** runs the server as a subprocess, for self-hosted setups where the client and the app share a machine. There is no HTTP request and therefore no token, so the acting user comes from configuration instead:
 
@@ -208,7 +214,7 @@ It starts a browser UI against `/mcp`. The app itself must be running and reacha
 Almost always a scope mismatch. Because scopes are enforced at registration, a token without an ability makes the corresponding tools _invisible_ rather than returning a permission error. A client with a `read`-only token that is asked to delete something will answer that it has no such tool. Check the token's abilities under **Settings > API tokens**, and if they are wrong, revoke it and create a new one with the abilities you need.
 
 **I changed my token's abilities, or upgraded Ignite, and nothing changed.**
-Clients fetch the tool list once, when they connect, and cache it. Restarting Ignite itself changes nothing on the client side. Reconnect the MCP server so the client requests the list again; if the tools still do not appear, remove the server from your client's configuration and add it back, which forces a fresh handshake rather than reusing held connection state.
+Most clients fetch the tool list when they connect and keep it; restarting Ignite changes nothing on the client's side. Reconnect the MCP server so the client requests the list again (in Claude Code: `/mcp`, select the server, **Reconnect**); if the tools still do not appear, remove the server from your client's configuration and add it back, which forces a fresh handshake rather than reusing held connection state. Over stdio the server process itself runs the old code until the client restarts it.
 
 To check whether the problem is the client or the server, ask the server directly:
 
