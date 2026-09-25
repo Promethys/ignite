@@ -8,11 +8,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\SendsMcpRequests;
 use Tests\TestCase;
 
 class RateLimitTest extends TestCase
 {
     use RefreshDatabase;
+    use SendsMcpRequests;
 
     private function requestActingAs(User $user): Request
     {
@@ -31,7 +33,7 @@ class RateLimitTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create(), ['read']);
 
-        $this->postJson('/mcp')->assertSuccessful();
+        $this->postMcp('server/discover')->assertSuccessful();
     }
 
     public function test_requests_are_rejected_once_the_limit_is_exceeded(): void
@@ -40,9 +42,9 @@ class RateLimitTest extends TestCase
 
         Sanctum::actingAs(User::factory()->create(), ['read']);
 
-        $this->postJson('/mcp')->assertSuccessful();
-        $this->postJson('/mcp')->assertSuccessful();
-        $this->postJson('/mcp')->assertStatus(429);
+        $this->postMcp('server/discover')->assertSuccessful();
+        $this->postMcp('server/discover')->assertSuccessful();
+        $this->postMcp('server/discover')->assertStatus(429);
     }
 
     public function test_two_tokens_of_the_same_user_get_separate_budgets(): void
