@@ -10,7 +10,7 @@ Each entry carries a date and an optional note. The date defaults to today, and 
 
 Entries can be edited or deleted afterwards. Correcting an old entry adjusts your total correctly rather than double-counting, so fix mistakes freely.
 
-The goal page shows your recent entries and a chart of progress over time. The chart is often the thing that keeps people going: a flat stretch is much more obvious as a line than as a number.
+The goal page shows your recent entries and a chart of progress over time. The chart is often the thing that keeps people going: a flat stretch is much more obvious as a line than as a number. It opens on the last three months of entries; the **1M**, **3M**, **1Y** and **All** buttons above it change the period, and the vertical scale follows what is on screen. A dashed line marks your target, labelled with its value, and the scale always stretches to keep it in view.
 
 ## Recurring goals: check in
 

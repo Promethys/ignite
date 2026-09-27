@@ -179,8 +179,15 @@ return [
 
     'chart' => [
         'values' => 'Valeurs',
-        'target' => 'Valeur cible',
+        'target' => 'Cible : :value',
         'entry_date' => 'Date de saisie',
+        'range' => [
+            'label' => 'Période',
+            '1m' => '1M',
+            '3m' => '3M',
+            '1y' => '1A',
+            'all' => 'Tout',
+        ],
     ],
 
     'streak' => [
