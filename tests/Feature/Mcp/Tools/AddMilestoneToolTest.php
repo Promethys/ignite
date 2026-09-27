@@ -97,4 +97,35 @@ class AddMilestoneToolTest extends TestCase
 
         $this->assertDatabaseMissing('milestones', ['title' => 'Sneaky']);
     }
+
+    public function test_a_deadline_is_recorded_when_it_falls_within_the_goal_dates(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create([
+            'user_id' => $user->id,
+            'type' => 'multi_step',
+            'start_date' => '2026-10-01',
+            'deadline' => '2026-10-31',
+        ]);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(AddMilestoneTool::class, [
+            'goal_id' => $goal->id,
+            'title' => 'Too late',
+            'deadline' => '2026-11-01',
+        ])->assertHasErrors();
+
+        IgniteServer::tool(AddMilestoneTool::class, [
+            'goal_id' => $goal->id,
+            'title' => 'On time',
+            'deadline' => '2026-10-15',
+        ])
+            ->assertOk()
+            ->assertStructuredContent(fn (AssertableJson $json) => $json
+                ->where('deadline', '2026-10-15')
+                ->etc());
+
+        $this->assertDatabaseMissing('milestones', ['title' => 'Too late']);
+    }
 }

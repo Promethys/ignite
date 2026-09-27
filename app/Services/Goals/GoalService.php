@@ -5,6 +5,7 @@ namespace App\Services\Goals;
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
@@ -99,11 +100,12 @@ class GoalService
     }
 
     /**
-     * Create a goal owned by the actor. Operational fields default server-side.
+     * Create a goal owned by the actor, with its steps in the given order. Operational fields default server-side.
      *
      * @param  array<string, mixed>  $attributes
+     * @param  array<int, array{title: string, deadline?: string|null}>  $steps
      */
-    public function create(User $actor, array $attributes): Goal
+    public function create(User $actor, array $attributes, array $steps = []): Goal
     {
         Gate::forUser($actor)->authorize('create', Goal::class);
 
@@ -117,10 +119,22 @@ class GoalService
 
         $order = $actor->goals()->count() + 1;
 
-        $goal = $actor->goals()->create([
-            ...$attributes,
-            'order' => $order,
-        ]);
+        $goal = DB::transaction(function () use ($actor, $attributes, $order, $steps) {
+            $goal = $actor->goals()->create([
+                ...$attributes,
+                'order' => $order,
+            ]);
+
+            $goal->milestones()->createMany(
+                collect($steps)->values()->map(fn (array $step, int $index) => [
+                    'title' => $step['title'],
+                    'deadline' => $step['deadline'] ?? null,
+                    'order' => $index + 1,
+                ])->all(),
+            );
+
+            return $goal;
+        });
 
         return $goal->load('category');
     }

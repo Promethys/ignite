@@ -85,7 +85,7 @@ Twenty-two tools, grouped by the ability they require.
 | `log_progress_batch` | Log up to 200 progress entries on a non-recurring goal in one call, all or nothing                                                                                          |
 | `check_in`           | Record a dated check-in on a recurring goal, one per period, without touching the current value                                                                             |
 | `update_entry`       | Edit an entry's increment; the goal's current value shifts by the difference                                                                                                |
-| `add_milestone`      | Append a milestone to a goal                                                                                                                                                |
+| `add_milestone`      | Add a milestone to a goal, with an optional `deadline` within the goal's dates. Steps are appended; a quantifiable goal's milestones stay in target value order             |
 | `complete_milestone` | Check off a milestone                                                                                                                                                       |
 | `set_user`           | Partial update of the acting user's own `name`, `timezone`, or `locale`                                                                                                     |
 | `create_category`    | Create a category. Only `name` is required; colour, icon, and position default server side                                                                                  |

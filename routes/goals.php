@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->middleware([HandlePrecognitiveRequests::class]);
             Route::put('/{goal}/milestones/{milestone}', 'update')->name('milestones.update')
                 ->middleware([HandlePrecognitiveRequests::class]);
+            Route::patch('/{goal}/milestones/reorder', 'reorder')->name('milestones.reorder');
             Route::delete('/{goal}/milestones/{milestone}', 'destroy')->name('milestones.destroy');
             Route::patch('/{goal}/milestones/{milestone}/complete', 'complete')->name('milestones.complete');
             Route::patch('/{goal}/milestones/{milestone}/uncomplete', 'uncomplete')->name('milestones.uncomplete');

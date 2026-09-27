@@ -18,6 +18,9 @@ class StoreMilestoneRequest extends FormRequest
      */
     public function rules(): array
     {
-        return MilestoneRules::rules();
+        return [
+            ...MilestoneRules::rules($this->route('goal')),
+            'position' => 'nullable|integer|min:1',
+        ];
     }
 }

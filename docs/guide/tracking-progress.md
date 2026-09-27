@@ -24,7 +24,11 @@ Remember that the current period is still open. A daily streak does not break be
 
 Break the goal into milestones and tick each one off as you finish it. Progress is how many are done out of how many exist, so adding a milestone partway through will move the percentage down. That is correct behaviour: the goal genuinely got bigger.
 
-Milestones can be added to any goal type, not just multi-step ones. They are useful on a long quantifiable goal as markers alongside the number.
+You can list the steps while creating the goal, and put them in order there, or add them later from the goal page. To change the order, drag a step by its handle, or focus the handle and use the up and down arrow keys. If you forgot a step, the **+** next to any step inserts a new one right after it.
+
+A step can have its own deadline, which must fall between the goal's start date and deadline when those are set. The date turns amber on the day it is due and red once it has passed, until you tick the step off.
+
+Milestones can be added to any goal type, not just multi-step ones. They are useful on a long quantifiable goal as markers alongside the number. Those stay sorted by their target value, so they cannot be reordered by hand.
 
 ## Simple goals: mark it done
 

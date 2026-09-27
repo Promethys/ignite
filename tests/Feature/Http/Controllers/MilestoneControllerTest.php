@@ -177,6 +177,7 @@ class MilestoneControllerTest extends TestCase
 
     public function test_new_milestone_order_is_max_plus_one()
     {
+        $this->goal->update(['type' => 'multi_step']);
         Milestone::factory()->create(['goal_id' => $this->goal->id, 'order' => 5]);
 
         $this->actingAs($this->user)
@@ -191,6 +192,7 @@ class MilestoneControllerTest extends TestCase
 
     public function test_client_supplied_order_is_ignored_on_create()
     {
+        $this->goal->update(['type' => 'multi_step']);
         Milestone::factory()->create(['goal_id' => $this->goal->id, 'order' => 3]);
 
         $this->actingAs($this->user)
@@ -351,5 +353,153 @@ class MilestoneControllerTest extends TestCase
             ->assertInertiaFlash('toast.message', 'Step marked incomplete.');
 
         $this->assertNull($step->fresh()->completed_at);
+    }
+
+    private function multiStepGoalWithSteps(int $count): array
+    {
+        $this->goal->update(['type' => 'multi_step']);
+
+        return collect(range(1, $count))
+            ->map(fn (int $order) => Milestone::factory()->create([
+                'goal_id' => $this->goal->id,
+                'title' => "Step {$order}",
+                'target_value' => null,
+                'order' => $order,
+            ]))
+            ->all();
+    }
+
+    private function stepTitlesInOrder(): array
+    {
+        return $this->goal->milestones()->pluck('title')->all();
+    }
+
+    public function test_user_can_reorder_the_steps_of_their_goal()
+    {
+        [$first, $second, $third] = $this->multiStepGoalWithSteps(3);
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.reorder', $this->goal), [
+                'milestones' => [$third->id, $first->id, $second->id],
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $this->assertSame(['Step 3', 'Step 1', 'Step 2'], $this->stepTitlesInOrder());
+    }
+
+    public function test_user_cannot_reorder_steps_of_other_users_goal()
+    {
+        $foreignGoal = Goal::factory()->create(['user_id' => $this->otherUser->id, 'type' => 'multi_step']);
+        $step = Milestone::factory()->create(['goal_id' => $foreignGoal->id]);
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.reorder', $foreignGoal), ['milestones' => [$step->id]])
+            ->assertForbidden();
+    }
+
+    public function test_reorder_must_list_every_step_of_the_goal_exactly_once()
+    {
+        [$first, $second] = $this->multiStepGoalWithSteps(2);
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.reorder', $this->goal), ['milestones' => [$second->id]])
+            ->assertSessionHasErrors('milestones');
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.reorder', $this->goal), ['milestones' => [$second->id, $second->id]])
+            ->assertSessionHasErrors('milestones.0');
+
+        $this->assertSame(['Step 1', 'Step 2'], $this->stepTitlesInOrder());
+    }
+
+    public function test_reorder_rejects_a_milestone_from_another_goal()
+    {
+        [$first] = $this->multiStepGoalWithSteps(2);
+        $foreignStep = Milestone::factory()->create();
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.reorder', $this->goal), ['milestones' => [$foreignStep->id, $first->id]])
+            ->assertSessionHasErrors('milestones.0');
+    }
+
+    public function test_quantifiable_milestones_cannot_be_reordered()
+    {
+        $low = Milestone::factory()->create(['goal_id' => $this->goal->id, 'target_value' => 10, 'order' => 1]);
+        $high = Milestone::factory()->create(['goal_id' => $this->goal->id, 'target_value' => 50, 'order' => 2]);
+
+        $this->actingAs($this->user)
+            ->patch(route('milestones.reorder', $this->goal), ['milestones' => [$high->id, $low->id]])
+            ->assertSessionHasErrors('milestones');
+
+        $this->assertSame(1, $low->fresh()->order);
+    }
+
+    public function test_a_step_can_be_inserted_at_a_position()
+    {
+        $this->multiStepGoalWithSteps(3);
+
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), ['title' => 'Forgotten', 'position' => 2])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(['Step 1', 'Forgotten', 'Step 2', 'Step 3'], $this->stepTitlesInOrder());
+        $this->assertSame([1, 2, 3, 4], $this->goal->milestones()->pluck('order')->all());
+    }
+
+    public function test_a_position_past_the_end_appends_the_step()
+    {
+        $this->multiStepGoalWithSteps(2);
+
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), ['title' => 'Last', 'position' => 99])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(['Step 1', 'Step 2', 'Last'], $this->stepTitlesInOrder());
+    }
+
+    public function test_a_position_must_be_a_positive_integer()
+    {
+        $this->multiStepGoalWithSteps(1);
+
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), ['title' => 'Nowhere', 'position' => 0])
+            ->assertSessionHasErrors('position');
+    }
+
+    public function test_milestone_deadline_must_fall_within_the_goal_dates()
+    {
+        $this->goal->update(['start_date' => '2026-10-01', 'deadline' => '2026-10-31']);
+
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), ['title' => 'Early', 'deadline' => '2026-09-30'])
+            ->assertSessionHasErrors('deadline');
+
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), ['title' => 'Late', 'deadline' => '2026-11-01'])
+            ->assertSessionHasErrors('deadline');
+
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), ['title' => 'On time', 'deadline' => '2026-10-31'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('milestones', ['title' => 'On time']);
+    }
+
+    public function test_milestone_deadline_can_be_updated_and_cleared()
+    {
+        $milestone = Milestone::factory()->create(['goal_id' => $this->goal->id]);
+
+        $this->actingAs($this->user)
+            ->put(route('milestones.update', [$this->goal, $milestone]), ['title' => 'Dated', 'deadline' => '2026-12-01'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('2026-12-01', $milestone->fresh()->deadline->toDateString());
+
+        $this->actingAs($this->user)
+            ->put(route('milestones.update', [$this->goal, $milestone]), ['title' => 'Dated', 'deadline' => null])
+            ->assertSessionHasNoErrors();
+
+        $this->assertNull($milestone->fresh()->deadline);
     }
 }

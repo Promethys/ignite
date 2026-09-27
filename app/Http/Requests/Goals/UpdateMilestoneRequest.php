@@ -28,6 +28,6 @@ class UpdateMilestoneRequest extends FormRequest
      */
     public function rules(): array
     {
-        return MilestoneRules::rules();
+        return MilestoneRules::rules($this->route('goal'));
     }
 }

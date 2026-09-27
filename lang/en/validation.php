@@ -190,6 +190,9 @@ return [
             'check_in_on_non_recurring' => 'Check-ins are for recurring goals. Use the progress logging action for a quantifiable or simple goal.',
             'uncomplete_not_completed' => 'This goal is not completed, so there is nothing to revert. Use the status action to change its status.',
         ],
+        'milestones' => [
+            'reorder_multi_step_only' => 'Only the steps of a multi-step goal can be reordered.',
+        ],
     ],
 
     /*
@@ -232,6 +235,9 @@ return [
         'password' => 'password',
         'current_password' => 'current password',
         'timezone' => 'timezone',
+        'steps.*.title' => 'step title',
+        'steps.*.deadline' => 'step deadline',
+        'position' => 'position',
     ],
 
 ];

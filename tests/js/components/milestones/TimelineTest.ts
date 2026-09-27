@@ -1,10 +1,14 @@
 import Timeline from '@/components/milestones/Timeline.vue';
 import type { Goal, Milestone } from '@/types/models';
+import { router } from '@inertiajs/vue3';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const daysUntilDeadline = vi.hoisted(() => ({ value: 5 }));
 
 vi.mock('@/lib/utils', () => ({
     formatDate: (date: string) => `formatted:${date}`,
+    getDateDiffFromNow: () => daysUntilDeadline.value,
 }));
 
 vi.mock('lucide-vue-next', () => ({
@@ -13,13 +17,15 @@ vi.mock('lucide-vue-next', () => ({
     Target: { template: '<span class="icon-target" />' },
     Calendar: { template: '<span class="icon-calendar" />' },
     RotateCcw: { template: '<span class="icon-rotate" />' },
+    GripVertical: { template: '<span class="icon-grip" />' },
 }));
 
 const stubs = {
     Badge: { template: '<span class="badge"><slot /></span>' },
     MilestoneFormModal: {
+        props: ['position'],
         template:
-            '<div class="milestone-form-modal"><slot /><slot name="trigger" /></div>',
+            '<div class="milestone-form-modal" :data-position="position"><slot /><slot name="trigger" /></div>',
     },
 };
 
@@ -29,6 +35,7 @@ const makeMilestone = (overrides: Partial<Milestone> = {}): Milestone => ({
     title: 'Milestone 1',
     description: null,
     target_value: null,
+    deadline: null,
     order: 1,
     is_completed: false,
     is_reached: false,
@@ -403,5 +410,161 @@ describe('Timeline', () => {
         const button = wrapper.find('button');
         expect(button.classes()).toContain('cursor-pointer');
         expect(button.attributes('disabled')).toBeUndefined();
+    });
+
+    // =========================================================================
+    // REORDERING STEPS
+    // =========================================================================
+
+    describe('reordering', () => {
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+
+        const threeSteps = () => [
+            makeMilestone({ id: 1, title: 'One', order: 1 }),
+            makeMilestone({ id: 2, title: 'Two', order: 2 }),
+            makeMilestone({ id: 3, title: 'Three', order: 3 }),
+        ];
+
+        const mountSteps = () =>
+            mount(Timeline, {
+                props: {
+                    record: makeGoal({
+                        type: 'multi_step',
+                        milestones: threeSteps(),
+                    }),
+                },
+                global: { stubs },
+                attachTo: document.body,
+            });
+
+        it('offers no reorder controls on a quantifiable goal', () => {
+            const wrapper = mount(Timeline, {
+                props: { record: makeGoal({ milestones: threeSteps() }) },
+                global: { stubs },
+            });
+
+            expect(wrapper.findAll('[data-drag-handle]')).toHaveLength(0);
+        });
+
+        it('gives each step a drag handle', () => {
+            const wrapper = mountSteps();
+
+            expect(wrapper.findAll('[data-drag-handle]')).toHaveLength(3);
+            wrapper.unmount();
+        });
+
+        it('moves a step down with the arrow key and saves the new order', async () => {
+            const patch = vi
+                .spyOn(router, 'patch')
+                .mockImplementation(() => {});
+            const wrapper = mountSteps();
+
+            await wrapper.find('[data-drag-handle="1"]').trigger('keydown', {
+                key: 'ArrowDown',
+            });
+
+            expect(patch).toHaveBeenCalledOnce();
+            const [url, data] = patch.mock.calls[0];
+            expect(String(typeof url === 'string' ? url : url.url)).toContain(
+                '/milestones/reorder',
+            );
+            expect(data).toEqual({ milestones: [2, 1, 3] });
+            expect(
+                wrapper
+                    .findAll('[data-drag-handle]')
+                    .map((handle) => handle.attributes('data-drag-handle')),
+            ).toEqual(['2', '1', '3']);
+            wrapper.unmount();
+        });
+
+        it('ignores an arrow key that would move past either end', async () => {
+            const patch = vi
+                .spyOn(router, 'patch')
+                .mockImplementation(() => {});
+            const wrapper = mountSteps();
+
+            await wrapper.find('[data-drag-handle="1"]').trigger('keydown', {
+                key: 'ArrowUp',
+            });
+            await wrapper.find('[data-drag-handle="3"]').trigger('keydown', {
+                key: 'ArrowDown',
+            });
+
+            expect(patch).not.toHaveBeenCalled();
+            wrapper.unmount();
+        });
+
+        it('inserts a new step right after the one it was opened from', () => {
+            const wrapper = mountSteps();
+
+            const positions = wrapper
+                .findAll('.milestone-form-modal[data-position]')
+                .map((modal) => modal.attributes('data-position'));
+
+            expect(positions).toEqual(['2', '3', '4']);
+            wrapper.unmount();
+        });
+    });
+
+    // =========================================================================
+    // DEADLINES
+    // =========================================================================
+
+    describe('deadlines', () => {
+        afterEach(() => {
+            daysUntilDeadline.value = 5;
+        });
+
+        const deadlineOf = (milestone: Milestone) => {
+            const wrapper = mount(Timeline, {
+                props: { record: makeGoal({ milestones: [milestone] }) },
+                global: { stubs },
+            });
+            return wrapper.find('.icon-calendar').element.parentElement!;
+        };
+
+        it('shows the due date of a step that has one', () => {
+            const wrapper = mount(Timeline, {
+                props: {
+                    record: makeGoal({
+                        milestones: [makeMilestone({ deadline: '2026-10-15' })],
+                    }),
+                },
+                global: { stubs },
+            });
+
+            expect(wrapper.text()).toContain('milestones.due_on');
+        });
+
+        it('shows nothing for a step without a deadline', () => {
+            const wrapper = mount(Timeline, {
+                props: { record: makeGoal({ milestones: [makeMilestone()] }) },
+                global: { stubs },
+            });
+
+            expect(wrapper.find('.icon-calendar').exists()).toBe(false);
+        });
+
+        it('flags an overdue step that is not done', () => {
+            daysUntilDeadline.value = -1;
+
+            const element = deadlineOf(
+                makeMilestone({ deadline: '2026-01-01' }),
+            );
+
+            expect(element.className).toContain('text-destructive');
+        });
+
+        it('does not flag an overdue step that is already done', () => {
+            daysUntilDeadline.value = -1;
+
+            const element = deadlineOf(
+                makeMilestone({ deadline: '2026-01-01', is_completed: true }),
+            );
+
+            expect(element.className).not.toContain('text-destructive');
+        });
     });
 });

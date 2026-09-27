@@ -21,6 +21,10 @@ class MilestonesRelationManager extends RelationManager
                 TextColumn::make('title')
                     ->searchable(),
                 TextColumn::make('target_value'),
+                TextColumn::make('deadline')
+                    ->date()
+                    ->placeholder('-')
+                    ->sortable(),
                 TextColumn::make('order')
                     ->sortable(),
                 TextColumn::make('points_reward')

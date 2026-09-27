@@ -6,6 +6,7 @@ return [
     'next_up' => 'Next up',
     'auto_completes' => 'Auto-completes at :value :unit (:percent% there)',
     'completed_on' => 'Completed :date',
+    'due_on' => 'Due :date',
     'mark_complete' => 'Mark complete',
     'mark_incomplete' => 'Mark incomplete',
     'help_toggle' => 'Click a step to mark it complete, or click again to undo.',
@@ -20,6 +21,7 @@ return [
     'table' => [
         'title' => 'Title',
         'target_value' => 'Target Value',
+        'deadline' => 'Deadline',
         'completed_at' => 'Completed At',
     ],
 
@@ -39,6 +41,7 @@ return [
         'description' => 'Description',
         'description_placeholder' => 'Milestone description here...',
         'target_value' => 'Target Value',
+        'deadline' => 'Deadline',
         'submit_create' => 'Create',
         'submit_edit' => 'Edit',
     ],

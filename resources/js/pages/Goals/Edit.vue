@@ -63,6 +63,10 @@ const columns = [
     columnHelper.accessor('target_value', {
         header: trans('milestones.table.target_value'),
     }),
+    columnHelper.accessor('deadline', {
+        header: trans('milestones.table.deadline'),
+        cell: (props) => props.getValue() ?? '-',
+    }),
     columnHelper.accessor('completed_at', {
         header: trans('milestones.table.completed_at'),
         cell: (props) => {

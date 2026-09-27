@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Goals\ReorderMilestonesRequest;
 use App\Http\Requests\Goals\StoreMilestoneRequest;
 use App\Http\Requests\Goals\UpdateMilestoneRequest;
 use App\Models\Goal;
@@ -22,11 +23,11 @@ class MilestoneController extends Controller
      */
     public function store(StoreMilestoneRequest $request, Goal $goal)
     {
-        $this->milestoneService->add(
-            $request->user(),
-            $goal,
-            $request->validated()
-        );
+        $validated = $request->validated();
+        $position = $validated['position'] ?? null;
+        unset($validated['position']);
+
+        $this->milestoneService->add($request->user(), $goal, $validated, $position);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.added')]);
 
@@ -38,7 +39,7 @@ class MilestoneController extends Controller
      */
     public function update(UpdateMilestoneRequest $request, Goal $goal, Milestone $milestone)
     {
-        $milestone->update($request->validated());
+        $this->milestoneService->update($request->user(), $milestone, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.updated')]);
 
@@ -59,6 +60,16 @@ class MilestoneController extends Controller
         $milestone->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.'.$this->toastNoun($goal).'.deleted')]);
+
+        return redirect()->back();
+    }
+
+    /**
+     * Put the goal's steps in the submitted order.
+     */
+    public function reorder(ReorderMilestonesRequest $request, Goal $goal)
+    {
+        $this->milestoneService->reorder($request->user(), $goal, $request->validated('milestones'));
 
         return redirect()->back();
     }

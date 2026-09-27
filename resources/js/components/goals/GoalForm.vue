@@ -6,12 +6,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Goal, User } from '@/types/models';
 import { Link, useForm } from '@inertiajs/vue3';
+import { GripVertical, Plus, X } from 'lucide-vue-next';
+import { computed, useTemplateRef } from 'vue';
 import InputError from '../InputError.vue';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 // import { Switch } from '../ui/switch';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { useReorderableList } from '@/composables/useReorderableList';
 import {
     getGoalDirectionOptions,
     getGoalPolarityOptions,
@@ -39,6 +42,8 @@ const props = defineProps<{
     user: User;
     selectedCategory?: string;
 }>();
+
+type StagedStep = { key: number; title: string; deadline: string };
 
 const formState = props.record
     ? {
@@ -81,6 +86,7 @@ const formData = {
     points: props.record?.points ?? 0,
     is_public: props.record?.is_public ?? false,
     order: props.record?.order ?? 0,
+    steps: [] as StagedStep[],
 };
 
 const form = (
@@ -101,7 +107,44 @@ form.transform((data) => ({
     category_id: data.category_id || null,
     target_value: data.type === 'quantifiable' ? data.target_value : null,
     recurrence: data.type === 'recurring' ? data.recurrence : null,
+    steps:
+        !props.record && data.type === 'multi_step'
+            ? data.steps.map((step) => ({
+                  title: step.title,
+                  deadline: step.deadline || null,
+              }))
+            : undefined,
 }));
+
+const addStep = () =>
+    form.steps.push({
+        key: Math.max(0, ...form.steps.map((step) => step.key)) + 1,
+        title: '',
+        deadline: '',
+    });
+
+const removeStep = (index: number) => form.steps.splice(index, 1);
+
+const clearStepErrors = () =>
+    form.clearErrors(
+        ...(Object.keys(form.errors).filter((field) =>
+            field.startsWith('steps.'),
+        ) as (keyof typeof formData)[]),
+    );
+
+const { move: moveStep } = useReorderableList(
+    useTemplateRef<HTMLElement>('stepList'),
+    computed({
+        get: () => form.steps,
+        set: (steps) => (form.steps = steps),
+    }),
+    { keyOf: (step) => step.key, onReorder: clearStepErrors },
+);
+
+const stepError = (index: number, field: 'title' | 'deadline') =>
+    (form.errors as Record<string, string | undefined>)[
+        `steps.${index}.${field}`
+    ];
 </script>
 
 <template>
@@ -546,14 +589,127 @@ form.transform((data) => ({
                         </Select>
                         <InputError :message="form.errors.recurrence" />
                     </div>
+
+                    <!-- Steps (multi-step, create only) -->
+                    <div
+                        v-if="!record && form.type === 'multi_step'"
+                        class="col-span-full grid gap-2"
+                    >
+                        <Label>
+                            {{ $t('goals.form.steps') }}
+                            <HelpTooltip>
+                                {{ $t('goals.form.steps_help') }}
+                            </HelpTooltip>
+                        </Label>
+                        <ol
+                            v-if="form.steps.length"
+                            ref="stepList"
+                            class="grid gap-2"
+                        >
+                            <li
+                                v-for="(step, index) in form.steps"
+                                :key="step.key"
+                                class="grid gap-1"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        :data-drag-handle="step.key"
+                                        class="flex size-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground active:cursor-grabbing"
+                                        :aria-label="
+                                            $t('goals.form.move_step', {
+                                                number: (index + 1).toString(),
+                                            })
+                                        "
+                                        :title="$t('steps.move_handle_hint')"
+                                        :tabindex="17"
+                                        @keydown.up.prevent="
+                                            moveStep(index, index - 1)
+                                        "
+                                        @keydown.down.prevent="
+                                            moveStep(index, index + 1)
+                                        "
+                                    >
+                                        <GripVertical class="size-4" />
+                                    </button>
+                                    <span
+                                        class="w-6 shrink-0 text-right text-sm text-muted-foreground tabular-nums"
+                                    >
+                                        {{ index + 1 }}.
+                                    </span>
+                                    <Input
+                                        v-model="step.title"
+                                        type="text"
+                                        :name="`steps[${index}][title]`"
+                                        :aria-label="
+                                            $t('goals.form.step_title', {
+                                                number: (index + 1).toString(),
+                                            })
+                                        "
+                                        :placeholder="
+                                            $t('steps.form.title_placeholder')
+                                        "
+                                        :tabindex="17"
+                                    />
+                                    <Input
+                                        v-model="step.deadline"
+                                        type="date"
+                                        class="w-auto shrink-0"
+                                        :name="`steps[${index}][deadline]`"
+                                        :aria-label="
+                                            $t('goals.form.step_deadline', {
+                                                number: (index + 1).toString(),
+                                            })
+                                        "
+                                        :tabindex="17"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        class="shrink-0"
+                                        :aria-label="
+                                            $t('goals.form.remove_step', {
+                                                number: (index + 1).toString(),
+                                            })
+                                        "
+                                        :tabindex="17"
+                                        @click="removeStep(index)"
+                                    >
+                                        <X class="size-4" />
+                                    </Button>
+                                </div>
+                                <InputError
+                                    class="ml-18"
+                                    :message="
+                                        stepError(index, 'title') ??
+                                        stepError(index, 'deadline')
+                                    "
+                                />
+                            </li>
+                        </ol>
+                        <div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                :tabindex="17"
+                                @click="addStep"
+                            >
+                                <Plus class="size-4" />
+                                {{ $t('steps.add') }}
+                            </Button>
+                        </div>
+                        <InputError :message="form.errors.steps" />
+                    </div>
                 </div>
             </CardContent>
             <CardFooter class="flex justify-between px-6">
-                <TextLink :href="goals.index().url" :tabindex="17">
+                <TextLink :href="goals.index().url" :tabindex="18">
                     {{ $t('common.actions.cancel') }}
                 </TextLink>
                 <Button
-                    :tabindex="18"
+                    :tabindex="19"
                     type="submit"
                     :disabled="form.processing"
                 >
