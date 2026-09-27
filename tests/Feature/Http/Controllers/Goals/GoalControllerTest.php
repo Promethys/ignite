@@ -206,8 +206,29 @@ class GoalControllerTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Goals/Show')
                 ->has('goal')
-                ->has('chartEntries')
                 ->where('goal.id', $goal->id)
+            );
+    }
+
+    public function test_chart_entries_are_deferred_while_the_entry_count_ships_with_the_page()
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $this->user->id,
+            'type' => 'quantifiable',
+            'current_value' => 0,
+        ]);
+        GoalEntry::factory()->count(3)->create(['goal_id' => $goal->id]);
+
+        $this->actingAs($this->user)
+            ->get(route('goals.show', $goal))
+            ->assertInertia(fn (Assert $page) => $page
+                ->missing('chartEntries')
+                ->where('entriesCount', 3)
+                ->loadDeferredProps(fn (Assert $reload) => $reload
+                    ->has('chartEntries', 3, fn (Assert $entry) => $entry
+                        ->hasAll(['entry_date', 'value'])
+                    )
+                )
             );
     }
 

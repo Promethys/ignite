@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import HelpTooltip from '@/components/ui/HelpTooltip.vue';
 import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { HeatmapPayload } from '@/lib/heatmap';
 import { streakUnit as streakUnitHelper } from '@/lib/streak';
@@ -27,7 +28,7 @@ import { getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
-import { Head, Link } from '@inertiajs/vue3';
+import { Deferred, Head, Link } from '@inertiajs/vue3';
 import {
     ArrowRight,
     CheckCircle2,
@@ -43,7 +44,8 @@ import { computed } from 'vue';
 
 const props = defineProps<{
     goal: Goal;
-    chartEntries: { entry_date: string; value: number }[];
+    chartEntries?: { entry_date: string; value: number }[];
+    entriesCount: number;
     today: string;
     heatmap: HeatmapPayload | null;
 }>();
@@ -133,7 +135,7 @@ const summaryTiles = computed<SummaryTile[]>(() => {
             },
             deadline,
             {
-                n: `${allEntriesCount.value}`,
+                n: `${props.entriesCount}`,
                 l: 'goals.summary.entries_logged',
             },
         ];
@@ -178,7 +180,6 @@ const summaryTiles = computed<SummaryTile[]>(() => {
 });
 
 const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
-const allEntriesCount = computed((): number => props.chartEntries.length);
 </script>
 
 <template>
@@ -391,13 +392,16 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                         <h4 class="mb-3 font-display text-base font-semibold">
                             {{ $t('goals.show.progress_over_time') }}
                         </h4>
-                        <div v-if="chartEntries && chartEntries.length > 0">
+                        <Deferred v-if="entriesCount > 0" data="chartEntries">
+                            <template #fallback>
+                                <Skeleton class="h-[360px] w-full" />
+                            </template>
                             <ProgressChart
-                                :entries="chartEntries"
+                                :entries="chartEntries ?? []"
                                 :target-value="goal.target_value"
                                 :unit="goal.unit"
                             />
-                        </div>
+                        </Deferred>
                         <p v-else class="text-sm text-muted-foreground">
                             {{ $t('goals.show.no_chart_data') }}
                         </p>
@@ -688,9 +692,9 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                                     {{
                                         $tChoice(
                                             'goals.show.view_all',
-                                            allEntriesCount,
+                                            entriesCount,
                                             {
-                                                count: allEntriesCount.toString(),
+                                                count: entriesCount.toString(),
                                             },
                                         )
                                     }}
@@ -739,9 +743,9 @@ const allEntriesCount = computed((): number => props.chartEntries.length);
                                     {{
                                         $tChoice(
                                             'goals.show.view_all',
-                                            allEntriesCount,
+                                            entriesCount,
                                             {
-                                                count: allEntriesCount.toString(),
+                                                count: entriesCount.toString(),
                                             },
                                         )
                                     }}

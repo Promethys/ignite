@@ -80,18 +80,20 @@ class GoalController extends Controller
             ]]);
         }
 
-        $chartEntries = $goal->entries()
-            ->get()
+        $chartEntries = Inertia::defer(fn () => $goal->entries()
+            ->get(['entry_date', 'value'])
             ->map(fn ($entry) => [
                 'entry_date' => $entry->entry_date,
                 'value' => $entry->value,
-            ]);
+            ]));
+
+        $entriesCount = $goal->entries()->count();
 
         $today = Carbon::now()->timezone($goal->user?->timezone ?? config('app.timezone'))->toDateString();
 
         $heatmap = GoalHeatmapService::for($goal);
 
-        return Inertia::render('Goals/Show', compact('goal', 'chartEntries', 'today', 'heatmap'));
+        return Inertia::render('Goals/Show', compact('goal', 'chartEntries', 'entriesCount', 'today', 'heatmap'));
     }
 
     public function edit(Goal $goal)

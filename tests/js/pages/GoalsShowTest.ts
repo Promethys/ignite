@@ -111,9 +111,10 @@ const mountShow = (
     goal: Goal,
     chartEntries: { entry_date: string; value: number }[] = [],
     heatmap: HeatmapPayload | null = null,
+    entriesCount: number = chartEntries.length,
 ) =>
     mount(GoalsShow, {
-        props: { goal, chartEntries, heatmap },
+        props: { goal, chartEntries, entriesCount, heatmap },
         global: { stubs },
     });
 
@@ -283,5 +284,11 @@ describe('Goals/Show', () => {
         expect(
             columns.every((column) => column.classes().includes('min-w-0')),
         ).toBe(true);
+    });
+
+    it('counts entries from the page before the chart data has loaded', () => {
+        const wrapper = mountShow(makeGoal({}), [], null, 12);
+
+        expect(wrapper.text()).toContain('12goals.summary.entries_logged');
     });
 });
