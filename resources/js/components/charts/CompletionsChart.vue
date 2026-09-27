@@ -12,6 +12,7 @@ import { MonthlyCompletionItem } from '@/types/charts';
 import { wTrans } from 'laravel-vue-i18n';
 import { TrendingUp } from 'lucide-vue-next';
 import { computed } from 'vue';
+import VueApexCharts from 'vue3-apexcharts';
 
 const props = defineProps<{
     data: MonthlyCompletionItem[];
@@ -38,14 +39,14 @@ const chartOptions = useChartTheme(() => ({
 </script>
 
 <template>
-    <apexchart
+    <VueApexCharts
         v-if="!isEmpty"
         type="bar"
         width="100%"
         height="300"
         :options="chartOptions"
         :series="chartSeries"
-    ></apexchart>
+    />
     <Empty v-else class="py-10">
         <EmptyTitle>
             <EmptyMedia class="mx-auto" variant="icon">

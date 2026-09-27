@@ -8,7 +8,6 @@ import moment from 'moment';
 import 'moment/locale/fr';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
-import VueApexCharts from 'vue3-apexcharts';
 import { initializeTheme } from './composables/useAppearance';
 import { initializeFlashToast } from './lib/flashToast';
 import { formbricksEnabled } from './lib/formbricks';
@@ -83,7 +82,6 @@ createInertiaApp({
                 lang: sharedLocale,
                 resolve: resolveLang,
             })
-            .use(VueApexCharts)
             .mount(el);
     },
     progress: {

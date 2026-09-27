@@ -5,6 +5,7 @@ import { readCssVar } from '@/lib/chart-utils';
 import { GoalEntry } from '@/types/models';
 import { wTrans } from 'laravel-vue-i18n';
 import { computed } from 'vue';
+import VueApexCharts from 'vue3-apexcharts';
 
 const props = defineProps<{
     entries: Pick<GoalEntry, 'entry_date' | 'value'>[];
@@ -69,11 +70,11 @@ const chartOptions = useChartTheme(() => ({
 </script>
 
 <template>
-    <apexchart
+    <VueApexCharts
         type="line"
         width="100%"
         height="320"
         :options="chartOptions"
         :series="chartSeries"
-    ></apexchart>
+    />
 </template>

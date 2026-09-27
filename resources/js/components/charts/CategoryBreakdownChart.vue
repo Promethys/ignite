@@ -11,6 +11,7 @@ import { CategoryBreakdownItem } from '@/types/charts';
 import { wTrans } from 'laravel-vue-i18n';
 import { PieChart } from 'lucide-vue-next';
 import { computed } from 'vue';
+import VueApexCharts from 'vue3-apexcharts';
 
 const props = defineProps<{
     data: CategoryBreakdownItem[];
@@ -50,14 +51,14 @@ const chartOptions = useChartTheme(() => {
 </script>
 
 <template>
-    <apexchart
+    <VueApexCharts
         v-if="!isEmpty"
         type="donut"
         width="100%"
         height="300"
         :options="chartOptions"
         :series="chartSeries"
-    ></apexchart>
+    />
     <Empty v-else class="py-10">
         <EmptyTitle>
             <EmptyMedia class="mx-auto" variant="icon">
