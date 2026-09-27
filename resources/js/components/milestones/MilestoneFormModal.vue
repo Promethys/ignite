@@ -30,6 +30,7 @@ const props = defineProps<{
     goal_type?: string;
     record?: Milestone;
     open?: boolean;
+    position?: number;
 }>();
 
 const labelNamespace =
@@ -56,6 +57,7 @@ const formData = {
     title: props.record?.title ?? '',
     description: props.record?.description ?? '',
     target_value: props.record?.target_value ?? undefined,
+    deadline: props.record?.deadline ?? '',
     // points_reward: 0,
 };
 
@@ -65,6 +67,8 @@ form.transform((data) => ({
     ...data,
     // Convert empty strings back to null for nullable fields
     description: data.description || null,
+    deadline: data.deadline || null,
+    ...(props.position ? { position: props.position } : {}),
 }));
 
 const open = ref<boolean>(props.open ?? false);
@@ -146,6 +150,22 @@ const open = ref<boolean>(props.open ?? false);
                         <InputError
                             v-if="form.errors.description"
                             :message="form.errors.description"
+                        />
+                    </div>
+                    <div class="grid gap-3">
+                        <Label for="deadline">{{
+                            $t('milestones.form.deadline')
+                        }}</Label>
+                        <Input
+                            id="deadline"
+                            name="deadline"
+                            type="date"
+                            v-model="form.deadline"
+                            @change="form.validate('deadline')"
+                        />
+                        <InputError
+                            v-if="form.errors.deadline"
+                            :message="form.errors.deadline"
                         />
                     </div>
                     <div class="grid gap-3">

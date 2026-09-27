@@ -4,6 +4,7 @@ namespace App\Http\Requests\Goals;
 
 use App\Models\Goal;
 use App\Rules\GoalRules;
+use App\Rules\MilestoneRules;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreGoalRequest extends FormRequest
@@ -24,6 +25,17 @@ class StoreGoalRequest extends FormRequest
             $rules['target_value'] = 'required|numeric';
         }
 
-        return $rules;
+        return [
+            ...$rules,
+            'steps' => 'exclude_unless:type,multi_step|nullable|array|max:50',
+            'steps.*.title' => 'exclude_unless:type,multi_step|required|string|max:255',
+            'steps.*.deadline' => [
+                'exclude_unless:type,multi_step',
+                ...MilestoneRules::deadlineRules(
+                    $this->filled('start_date') ? 'start_date' : null,
+                    $this->filled('deadline') ? 'deadline' : null,
+                ),
+            ],
+        ];
     }
 }

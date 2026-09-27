@@ -6,6 +6,7 @@ return [
     'next_up' => 'À suivre',
     'auto_completes' => 'Se termine automatiquement à :value :unit (:percent% atteint)',
     'completed_on' => 'Terminé le :date',
+    'due_on' => 'Échéance le :date',
     'mark_complete' => 'Marquer comme terminé',
     'mark_incomplete' => 'Marquer comme non terminé',
     'help_toggle' => 'Cliquez sur une étape pour la marquer comme terminée, ou cliquez à nouveau pour annuler.',
@@ -20,6 +21,7 @@ return [
     'table' => [
         'title' => 'Titre',
         'target_value' => 'Valeur cible',
+        'deadline' => 'Échéance',
         'completed_at' => 'Terminé le',
     ],
 
@@ -39,6 +41,7 @@ return [
         'description' => 'Description',
         'description_placeholder' => 'Description du jalon ici...',
         'target_value' => 'Valeur cible',
+        'deadline' => 'Échéance',
         'submit_create' => 'Créer',
         'submit_edit' => 'Modifier',
     ],

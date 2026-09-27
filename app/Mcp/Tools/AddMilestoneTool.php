@@ -16,7 +16,7 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 
 #[Name('add_milestone')]
-#[Description('Add a milestone to one of the user\'s goals. A milestone is a named checkpoint on the way to the goal; on a multi_step goal each milestone is one step, and completing steps is what advances that goal. The milestone is appended after the goal\'s existing milestones.')]
+#[Description('Add a milestone to one of the user\'s goals. A milestone is a named checkpoint on the way to the goal; on a multi_step goal each milestone is one step, and completing steps is what advances that goal. A step is appended after the goal\'s existing steps; milestones on a quantifiable goal are kept in target value order.')]
 class AddMilestoneTool extends IgniteTool
 {
     public function __construct(
@@ -36,14 +36,13 @@ class AddMilestoneTool extends IgniteTool
     {
         $user = $this->actor($request);
 
-        $validated = $this->validateTrimmed($request, [
-            ...MilestoneRules::rules(),
+        $goalId = $this->validateTrimmed($request, [
             'goal_id' => ['required', 'integer', GoalRules::ownerIdRule($user)],
-        ]);
+        ])['goal_id'];
 
-        $goal = $this->goalService->find($user, $validated['goal_id']);
+        $goal = $this->goalService->find($user, $goalId);
 
-        unset($validated['goal_id']);
+        $validated = $this->validateTrimmed($request, MilestoneRules::rules($goal));
 
         $milestone = $this->milestoneService->add(
             $user,
@@ -76,6 +75,9 @@ class AddMilestoneTool extends IgniteTool
                 ->nullable(),
             'description' => $schema->string()
                 ->description('An optional longer description of the milestone.')
+                ->nullable(),
+            'deadline' => $schema->string()
+                ->description('An optional due date (YYYY-MM-DD), within the goal\'s start date and deadline when those are set.')
                 ->nullable(),
             'points_reward' => $schema->number()
                 ->description('Optional gamification points awarded when the milestone is completed.')

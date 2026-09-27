@@ -2,26 +2,51 @@ import GoalForm from '@/components/goals/GoalForm.vue';
 import type { Goal, User } from '@/types/models';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 
-vi.mock('@inertiajs/vue3', () => ({
-    Link: { template: '<a><slot /></a>' },
-    useForm: (...args: unknown[]) => {
-        const data = args[args.length - 1] as Record<string, unknown>;
-        return {
-            ...data,
-            errors: {} as Record<string, string>,
-            processing: false,
-            submit: vi.fn(),
-            reset: vi.fn(),
-            clearErrors: vi.fn(),
-            transform: vi.fn(function (this: Record<string, unknown>) {
-                return this;
-            }),
-            validate: vi.fn(),
-            withPrecognition: vi.fn().mockReturnThis(),
-        };
-    },
+type CapturedForm = Record<string, unknown> & {
+    type: string;
+    steps: { key: number; title: string; deadline: string }[];
+};
+
+const captured = vi.hoisted(() => ({
+    form: null as unknown as CapturedForm,
+    transform: null as unknown as (
+        data: Record<string, unknown>,
+    ) => Record<string, unknown>,
 }));
+
+vi.mock('@inertiajs/vue3', async () => {
+    const { reactive } = await import('vue');
+
+    return {
+        Link: { template: '<a><slot /></a>' },
+        useForm: (...args: unknown[]) => {
+            const data = args[args.length - 1] as Record<string, unknown>;
+            const form = reactive({
+                ...data,
+                errors: {} as Record<string, string>,
+                processing: false,
+                submit: vi.fn(),
+                reset: vi.fn(),
+                clearErrors: vi.fn(),
+                transform: vi.fn(
+                    (
+                        callback: (
+                            data: Record<string, unknown>,
+                        ) => Record<string, unknown>,
+                    ) => {
+                        captured.transform = callback;
+                    },
+                ),
+                validate: vi.fn(),
+                withPrecognition: vi.fn(() => form),
+            });
+            captured.form = form as unknown as CapturedForm;
+            return form;
+        },
+    };
+});
 
 vi.mock('@/actions/App/Http/Controllers/Goals/GoalController', () => ({
     store: () => ({ method: 'POST', url: '/goals' }),
@@ -108,5 +133,97 @@ describe('GoalForm', () => {
         } finally {
             process.env.TZ = original;
         }
+    });
+
+    describe('staged steps', () => {
+        const user = { id: 1, categories: {} } as unknown as User;
+
+        it('hides the steps section unless the goal is multi-step', () => {
+            const wrapper = mountForm({ user });
+
+            expect(wrapper.text()).not.toContain('goals.form.steps');
+        });
+
+        it('lets steps be added and removed on a new multi-step goal', async () => {
+            const wrapper = mountForm({ user });
+            captured.form.type = 'multi_step';
+            await nextTick();
+
+            const addButton = wrapper
+                .findAll('button')
+                .find((button) => button.text() === 'steps.add')!;
+            await addButton.trigger('click');
+            await addButton.trigger('click');
+
+            expect(captured.form.steps).toHaveLength(2);
+            expect(wrapper.findAll('li')).toHaveLength(2);
+
+            await wrapper
+                .find('li button[aria-label^="goals.form.remove_step"]')
+                .trigger('click');
+
+            expect(captured.form.steps).toHaveLength(1);
+        });
+
+        it('hides the steps section when editing a goal', async () => {
+            const record = { type: 'multi_step' } as unknown as Goal;
+            const wrapper = mountForm({ user, record });
+            await nextTick();
+
+            expect(wrapper.text()).not.toContain('goals.form.steps');
+        });
+
+        it('submits steps only for a new multi-step goal', () => {
+            mountForm({ user });
+            const steps = [{ title: 'Outline', deadline: '' }];
+
+            expect(
+                captured.transform({ type: 'multi_step', steps }).steps,
+            ).toEqual([{ title: 'Outline', deadline: null }]);
+            expect(
+                captured.transform({ type: 'simple', steps }).steps,
+            ).toBeUndefined();
+
+            mountForm({ user, record: { type: 'multi_step' } as Goal });
+
+            expect(
+                captured.transform({ type: 'multi_step', steps }).steps,
+            ).toBeUndefined();
+        });
+        it('reorders staged steps with the arrow keys', async () => {
+            const wrapper = mountForm({ user });
+            captured.form.type = 'multi_step';
+            captured.form.steps = [
+                { key: 1, title: 'Outline', deadline: '' },
+                { key: 2, title: 'Draft', deadline: '' },
+            ];
+            await nextTick();
+
+            await wrapper
+                .find('[data-drag-handle="1"]')
+                .trigger('keydown', { key: 'ArrowDown' });
+
+            expect(captured.form.steps.map((step) => step.title)).toEqual([
+                'Draft',
+                'Outline',
+            ]);
+
+            await wrapper
+                .find('[data-drag-handle="1"]')
+                .trigger('keydown', { key: 'ArrowDown' });
+
+            expect(captured.form.steps[1].title).toBe('Outline');
+        });
+
+        it('does not submit the client-side step key', () => {
+            mountForm({ user });
+
+            expect(
+                captured.transform({
+                    type: 'multi_step',
+                    steps: [{ key: 7, title: 'Outline', deadline: '' }],
+                }).steps,
+            ).toEqual([{ title: 'Outline', deadline: null }]);
+        });
     });
 });

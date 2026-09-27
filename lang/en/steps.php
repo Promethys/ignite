@@ -3,6 +3,9 @@
 return [
     'trigger' => 'Step',
     'add' => 'Add step',
+    'insert_after' => 'Insert a step after this one',
+    'move_handle' => 'Move ":title" with the arrow keys',
+    'move_handle_hint' => 'Drag to reorder',
 
     'manage' => [
         'title' => 'Steps',

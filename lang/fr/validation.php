@@ -168,6 +168,9 @@ return [
             'check_in_on_non_recurring' => 'Les pointages concernent les objectifs récurrents. Utilisez l\'enregistrement de progression pour un objectif quantifiable ou simple.',
             'uncomplete_not_completed' => 'Cet objectif n\'est pas terminé, il n\'y a donc rien à annuler. Utilisez l\'action de statut pour changer son statut.',
         ],
+        'milestones' => [
+            'reorder_multi_step_only' => 'Seules les étapes d\'un objectif en plusieurs étapes peuvent être réordonnées.',
+        ],
     ],
 
     'attributes' => [
@@ -199,6 +202,9 @@ return [
         'password' => 'mot de passe',
         'current_password' => 'mot de passe actuel',
         'timezone' => 'fuseau horaire',
+        'steps.*.title' => 'titre de l\'étape',
+        'steps.*.deadline' => 'échéance de l\'étape',
+        'position' => 'position',
     ],
 
 ];

@@ -3,6 +3,9 @@
 return [
     'trigger' => 'Étape',
     'add' => 'Ajouter une étape',
+    'insert_after' => 'Insérer une étape après celle-ci',
+    'move_handle' => 'Déplacer « :title » avec les flèches du clavier',
+    'move_handle_hint' => 'Glisser pour réordonner',
 
     'manage' => [
         'title' => 'Étapes',

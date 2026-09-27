@@ -108,6 +108,7 @@ export interface Milestone {
     title: string;
     description: string | null;
     target_value: number | null;
+    deadline: string | null;
     order: number;
     is_completed: boolean;
     is_reached: boolean;

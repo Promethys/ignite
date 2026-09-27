@@ -70,7 +70,7 @@ class MilestoneServiceTest extends TestCase
     public function test_add_creates_a_milestone_appended_after_the_existing_ones(): void
     {
         $owner = User::factory()->create();
-        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $goal = Goal::factory()->create(['user_id' => $owner->id, 'type' => 'multi_step']);
         Milestone::factory()->create(['goal_id' => $goal->id, 'order' => 4]);
 
         $milestone = $this->service->add($owner, $goal, ['title' => 'Checkpoint']);
@@ -83,7 +83,7 @@ class MilestoneServiceTest extends TestCase
     public function test_add_assigns_order_one_on_a_goal_without_milestones(): void
     {
         $owner = User::factory()->create();
-        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $goal = Goal::factory()->create(['user_id' => $owner->id, 'type' => 'multi_step']);
 
         $milestone = $this->service->add($owner, $goal, ['title' => 'First']);
 
@@ -93,7 +93,7 @@ class MilestoneServiceTest extends TestCase
     public function test_add_overrides_a_client_supplied_order(): void
     {
         $owner = User::factory()->create();
-        $goal = Goal::factory()->create(['user_id' => $owner->id]);
+        $goal = Goal::factory()->create(['user_id' => $owner->id, 'type' => 'multi_step']);
 
         $milestone = $this->service->add($owner, $goal, ['title' => 'Sneaky order', 'order' => 99]);
 
@@ -132,5 +132,66 @@ class MilestoneServiceTest extends TestCase
         $this->expectException(AuthorizationException::class);
 
         $this->service->complete($intruder, $milestone);
+    }
+
+    public function test_add_keeps_quantifiable_milestones_in_ascending_target_order(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id, 'type' => 'quantifiable', 'direction' => 'ascending']);
+
+        $this->service->add($owner, $goal, ['title' => 'Fifty', 'target_value' => 50]);
+        $this->service->add($owner, $goal, ['title' => 'Ten', 'target_value' => 10]);
+        $this->service->add($owner, $goal, ['title' => 'Untargeted']);
+        $this->service->add($owner, $goal, ['title' => 'Thirty', 'target_value' => 30]);
+
+        $this->assertSame(['Ten', 'Thirty', 'Fifty', 'Untargeted'], $goal->milestones()->pluck('title')->all());
+        $this->assertSame([1, 2, 3, 4], $goal->milestones()->pluck('order')->all());
+    }
+
+    public function test_add_keeps_quantifiable_milestones_in_descending_target_order(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id, 'type' => 'quantifiable', 'direction' => 'descending']);
+
+        $this->service->add($owner, $goal, ['title' => 'Eighty', 'target_value' => 80]);
+        $this->service->add($owner, $goal, ['title' => 'Ninety', 'target_value' => 90]);
+
+        $this->assertSame(['Ninety', 'Eighty'], $goal->milestones()->pluck('title')->all());
+    }
+
+    public function test_update_moves_a_quantifiable_milestone_when_its_target_changes(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id, 'type' => 'quantifiable', 'direction' => 'ascending']);
+        $ten = $this->service->add($owner, $goal, ['title' => 'Ten', 'target_value' => 10]);
+        $this->service->add($owner, $goal, ['title' => 'Twenty', 'target_value' => 20]);
+
+        $this->service->update($owner, $ten, ['target_value' => 40]);
+
+        $this->assertSame(['Twenty', 'Ten'], $goal->milestones()->pluck('title')->all());
+    }
+
+    public function test_add_inserts_a_step_at_the_given_position(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id, 'type' => 'multi_step']);
+        $this->service->add($owner, $goal, ['title' => 'A']);
+        $this->service->add($owner, $goal, ['title' => 'C']);
+
+        $this->service->add($owner, $goal, ['title' => 'B'], position: 2);
+        $this->service->add($owner, $goal, ['title' => 'Start'], position: 1);
+
+        $this->assertSame(['Start', 'A', 'B', 'C'], $goal->milestones()->pluck('title')->all());
+    }
+
+    public function test_reorder_denies_a_non_owner(): void
+    {
+        $owner = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $owner->id, 'type' => 'multi_step']);
+        $step = Milestone::factory()->create(['goal_id' => $goal->id]);
+
+        $this->expectException(AuthorizationException::class);
+
+        $this->service->reorder(User::factory()->create(), $goal, [$step->id]);
     }
 }

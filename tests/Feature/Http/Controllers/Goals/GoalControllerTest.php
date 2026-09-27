@@ -5,6 +5,7 @@ namespace Tests\Feature\Http\Controllers\Goals;
 use App\Models\Category;
 use App\Models\Goal;
 use App\Models\GoalEntry;
+use App\Models\Milestone;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -266,6 +267,71 @@ class GoalControllerTest extends TestCase
             'title' => 'Test Goal',
             'user_id' => $this->user->id,
         ]);
+    }
+
+    public function test_a_multi_step_goal_is_created_with_its_steps_in_order()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'type' => 'multi_step',
+                'steps' => [
+                    ['title' => 'Outline', 'deadline' => null],
+                    ['title' => 'Draft', 'deadline' => '2026-10-15'],
+                ],
+            ]))
+            ->assertRedirect(route('goals.index'));
+
+        $goal = Goal::where('title', 'Test Goal')->firstOrFail();
+
+        $this->assertSame(
+            [['Outline', 1, null], ['Draft', 2, '2026-10-15']],
+            $goal->milestones->map(fn (Milestone $milestone) => [
+                $milestone->title,
+                $milestone->order,
+                $milestone->deadline?->toDateString(),
+            ])->all(),
+        );
+    }
+
+    public function test_steps_are_ignored_for_a_goal_that_is_not_multi_step()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'type' => 'simple',
+                'steps' => [['title' => 'Stray']],
+            ]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseMissing('milestones', ['title' => 'Stray']);
+    }
+
+    public function test_a_staged_step_requires_a_title()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'type' => 'multi_step',
+                'steps' => [['title' => '']],
+            ]))
+            ->assertSessionHasErrors('steps.0.title');
+
+        $this->assertDatabaseMissing('goals', ['title' => 'Test Goal']);
+    }
+
+    public function test_a_staged_step_deadline_must_fall_within_the_goal_dates()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData([
+                'type' => 'multi_step',
+                'start_date' => '2026-10-01',
+                'deadline' => '2026-10-31',
+                'steps' => [
+                    ['title' => 'Too early', 'deadline' => '2026-09-30'],
+                    ['title' => 'Too late', 'deadline' => '2026-11-01'],
+                    ['title' => 'Fine', 'deadline' => '2026-10-31'],
+                ],
+            ]))
+            ->assertSessionHasErrors(['steps.0.deadline', 'steps.1.deadline'])
+            ->assertSessionDoesntHaveErrors('steps.2.deadline');
     }
 
     public function test_a_goal_cannot_be_created_in_another_users_category()

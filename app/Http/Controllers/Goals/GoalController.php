@@ -49,7 +49,11 @@ class GoalController extends Controller
 
     public function store(StoreGoalRequest $request)
     {
-        $this->goalService->create($request->user(), $request->validated());
+        $validated = $request->validated();
+        $steps = $validated['steps'] ?? [];
+        unset($validated['steps']);
+
+        $this->goalService->create($request->user(), $validated, $steps);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.created')]);
 

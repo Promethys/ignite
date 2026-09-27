@@ -22,6 +22,7 @@ class Milestone extends Model
         'title',
         'description',
         'target_value',
+        'deadline',
         'order',
         'completed_at',
         'points_reward',
@@ -34,6 +35,7 @@ class Milestone extends Model
      */
     protected $casts = [
         'target_value' => 'decimal:2',
+        'deadline' => 'date:Y-m-d',
         'order' => 'integer',
         'completed_at' => 'datetime',
         'points_reward' => 'integer',
