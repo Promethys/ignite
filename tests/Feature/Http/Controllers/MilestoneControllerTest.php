@@ -490,6 +490,7 @@ class MilestoneControllerTest extends TestCase
 
     public function test_milestone_deadline_can_be_updated_and_cleared()
     {
+        $this->goal->update(['start_date' => '2026-10-01', 'deadline' => '2027-01-31']);
         $milestone = Milestone::factory()->create(['goal_id' => $this->goal->id]);
 
         $this->actingAs($this->user)
