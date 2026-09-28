@@ -47,7 +47,6 @@ class UserResourceTest extends TestCase
         Livewire::actingAs($this->admin())
             ->test(EditUser::class, ['record' => $user->getKey()])
             ->fillForm([
-                'name' => $user->name,
                 'email' => $user->email,
                 'locale' => 'en',
                 'timezone' => 'UTC',
@@ -70,7 +69,6 @@ class UserResourceTest extends TestCase
         Livewire::actingAs($this->admin())
             ->test(EditUser::class, ['record' => $user->getKey()])
             ->fillForm([
-                'name' => $user->name,
                 'email' => $user->email,
                 'locale' => 'en',
                 'timezone' => 'UTC',
@@ -93,7 +91,6 @@ class UserResourceTest extends TestCase
         Livewire::actingAs($this->admin())
             ->test(EditUser::class, ['record' => $user->getKey()])
             ->fillForm([
-                'name' => $user->name,
                 'email' => 'taken@example.com',
                 'locale' => 'en',
                 'timezone' => 'UTC',
@@ -109,15 +106,30 @@ class UserResourceTest extends TestCase
         Livewire::actingAs($this->admin())
             ->test(EditUser::class, ['record' => $user->getKey()])
             ->fillForm([
-                'name' => 'Renamed',
                 'email' => 'mine@example.com',
                 'locale' => 'en',
                 'timezone' => 'UTC',
             ])
             ->call('save')
             ->assertHasNoFormErrors();
+    }
 
-        $this->assertEquals('Renamed', $user->fresh()->name);
+    public function test_the_edit_form_hides_the_name_and_saving_leaves_it_untouched()
+    {
+        $user = User::factory()->create(['name' => 'Private Name']);
+
+        Livewire::actingAs($this->admin())
+            ->test(EditUser::class, ['record' => $user->getKey()])
+            ->assertSchemaComponentHidden('name')
+            ->fillForm([
+                'email' => $user->email,
+                'locale' => 'en',
+                'timezone' => 'UTC',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('Private Name', $user->fresh()->name);
     }
 
     public function test_admin_can_list_users()
@@ -128,10 +140,22 @@ class UserResourceTest extends TestCase
         $this->actingAsPanelUser($admin)
             ->get('/admin/users')
             ->assertSuccessful()
-            ->assertSee($user->name);
+            ->assertSee($user->email)
+            ->assertDontSee($user->name);
     }
 
-    public function test_it_can_search_users_by_name_and_email()
+    public function test_the_view_page_does_not_show_the_users_name()
+    {
+        $user = User::factory()->create(['name' => 'Some Tester']);
+
+        $this->actingAsPanelUser($this->admin())
+            ->get("/admin/users/{$user->getKey()}")
+            ->assertSuccessful()
+            ->assertSee($user->email)
+            ->assertDontSee($user->name);
+    }
+
+    public function test_it_can_search_users_by_email()
     {
         $admin = $this->admin();
         $jane = User::factory()->create(['name' => 'Jane Doe', 'email' => 'jane@example.com']);

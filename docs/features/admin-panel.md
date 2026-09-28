@@ -2,11 +2,12 @@
 
 ## What it is
 
-A Filament v5 panel mounted at `/admin` for operational visibility into the app. It's read-mostly:
+A Filament v5 panel mounted at `/admin` for account operations and aggregate numbers. It never shows what users write:
 
-- **Users**: full resource (list, view, edit, create) with a related-goals view.
-- **Goals**: read-only, list and view pages only, no create or edit.
-- **Stats widget**: total users, new users, goals created, entries logged, completion rate, and the abandonment rate (share of goals with `status: abandoned` out of all goals ever created). Additional widgets cover recent activity and registrations/entries per day.
+- **Users**: list, view, edit and create accounts, identified by email. The display name is set on creation and never shown afterwards. Admins can verify an email, change roles, locale and timezone, reset a password and delete an account.
+- **Stats widget**: total users, new users, goals created, entries logged, completion rate, and the abandonment rate (share of goals with `status: abandoned` out of all goals ever created). Additional widgets cover the latest registrations and registrations/entries per day.
+
+Goals, entries, milestones and categories are not reachable from the panel. The goal, entry and milestone policies grant nothing to the `admin` role: only the owner can view, update or delete their own content.
 
 ::: info
 There is no in-app link to `/admin`. You navigate to it directly by URL.
@@ -44,6 +45,6 @@ Locally (any non-`production` environment), `DatabaseSeeder` also runs `UsersTab
 
 - Run `php artisan app:make-admin you@example.com --force` and confirm it reports the role was assigned (or already present).
 - Log in as that user and visit `/admin`; the panel should load. A non-admin user hitting `/admin` should be denied.
-- Confirm the Goals resource in the panel has no create or edit action, only list and view.
+- Confirm the panel has no Goals entry and that user pages show the email, not the name.
 
 See [Configuration](/configuration) for the full environment variable reference.

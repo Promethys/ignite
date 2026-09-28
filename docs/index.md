@@ -27,7 +27,7 @@ features:
       details: Recurring goals track consistency over daily, weekly, monthly, or annual periods, in the user's own timezone.
       link: /features/streaks
     - title: Admin Panel
-      details: A Filament panel for user and goal administration, with usage stats and the abandonment rate the product exists to reduce.
+      details: A Filament panel for account administration, with usage stats and the abandonment rate the product exists to reduce. It never shows users' content.
       link: /features/admin-panel
     - title: Internationalization
       details: English and French throughout, including transactional email, with further locales addable from plain PHP language files.

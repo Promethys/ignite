@@ -31,10 +31,10 @@ class UsersTable
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('name')
-                    ->description(fn (User $record) => $record->email)
+                TextColumn::make('email')
+                    ->label('Email address')
                     ->sortable()
-                    ->searchable(['name', 'email']),
+                    ->searchable(),
                 TextColumn::make('email_verified_at')
                     ->since()
                     ->dateTimeTooltip()

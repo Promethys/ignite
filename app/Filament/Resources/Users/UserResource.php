@@ -23,7 +23,7 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'email';
 
     public static function form(Schema $schema): Schema
     {
@@ -52,13 +52,6 @@ class UserResource extends Resource
             ->icon('heroicon-o-check-badge')
             ->authorize(fn (User $record) => $record->email_verified_at === null)
             ->action(fn (User $record) => $record->markEmailAsVerified());
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            RelationManagers\GoalsRelationManager::class,
-        ];
     }
 
     public static function getPages(): array
