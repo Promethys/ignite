@@ -23,6 +23,9 @@ class EncryptExistingUserData extends Command
 
     public function handle(UserDataKeyStore $keyStore, UserDataCipher $cipher, UserDataKeyring $keyring): int
     {
+        $this->encryptedCounts = [];
+        $this->assignedKeys = 0;
+
         DB::table('users')->select(['id', 'data_key_id'])->orderBy('id')->chunkById(100, function ($users) use ($keyStore, $cipher, $keyring): void {
             foreach ($users as $user) {
                 $keyId = $user->data_key_id ?? $this->assignKey($user->id, $keyStore);
