@@ -32,6 +32,8 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="USER_DATA_MASTER_KEY" value="base64:mE3UOUSjdH9tW3tddU0tVtwTbTraIQe1seJXQnHeuAs="/>
+        <env name="USER_DATA_KEYS_DB_URL" value=""/>
         <env name="VERIFY_EMAIL" value="true"/>
     </php>
 </phpunit>
