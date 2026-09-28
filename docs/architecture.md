@@ -58,6 +58,7 @@ The core data graph, all under `app/Models/`:
 - `Category`: user-defined grouping for goals.
 - `Milestone`: checkpoints that break a goal into steps.
 - `Achievement` / `UserAchievement`: gamification records.
+- `UserDataKey`: a user's wrapped data key, on its own connection. `Goal`, `GoalEntry`, `Milestone`, `Category` and `User` use the `EncryptsUserData` trait; see [Data Encryption](/features/encryption).
 
 Relationships are declared the standard Eloquent way (`belongsTo`, `hasMany`) on each model; see `app/Models/Goal.php` for the full relationship set and accessors.
 

@@ -13,7 +13,7 @@ cp .env.example .env
 docker compose -f compose.dev.yaml up -d --build
 ```
 
-That builds the images, installs both dependency sets, generates your application key, migrates and seeds the database, and starts the app with hot reload. Visit `http://localhost:8080` and sign in with `admin@example.com` / `password`.
+That builds the images, installs both dependency sets, generates your application key and user data master key, migrates and seeds the database, and starts the app with hot reload. Visit `http://localhost:8080` and sign in with `admin@example.com` / `password`.
 
 ::: tip Why `.env` comes first
 Compose needs the file on disk to create the database service and to inject variables into the containers. Both happen before any container exists, so copying it is a genuine first step rather than something the startup script could handle. [Installation](/installation) explains what does and does not end up inside the image.
@@ -42,7 +42,10 @@ npm install
 ```bash
 cp .env.example .env
 php artisan key:generate
+php artisan key:generate --show
 ```
+
+Paste the second key into `.env` as `USER_DATA_MASTER_KEY`. It encrypts each user's goal text, so it must be set before the first migration.
 
 ### 4. Configure your database
 

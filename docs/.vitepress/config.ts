@@ -115,6 +115,10 @@ export default withMermaid(
                                 link: '/features/internationalization',
                             },
                             {
+                                text: 'Data Encryption',
+                                link: '/features/encryption',
+                            },
+                            {
                                 text: 'Admin Panel',
                                 link: '/features/admin-panel',
                             },

@@ -48,7 +48,7 @@ docker compose -f compose.dev.yaml up -d --build
 
 `--build` guarantees the containers match the current `Dockerfile` instead of reusing an image that happens to be tagged already. Later restarts do not need it; see [everyday commands](#everyday-commands) below.
 
-The first run takes a few minutes while the images build. On boot the `web` container installs the PHP dependencies if `vendor/` is missing, generates `APP_KEY` if your `.env` does not have one yet, then runs the migrations and seeders. The `vite` container installs the Node dependencies and starts the dev server.
+The first run takes a few minutes while the images build. On boot the `web` container installs the PHP dependencies if `vendor/` is missing, generates `APP_KEY` and `USER_DATA_MASTER_KEY` if your `.env` does not have them yet, then runs the migrations and seeders. The `vite` container installs the Node dependencies and starts the dev server.
 
 Both of those first two steps are skipped on later boots, so restarting is fast.
 
@@ -184,7 +184,10 @@ npm install
 ```bash
 cp .env.example .env
 php artisan key:generate
+php artisan key:generate --show
 ```
+
+Paste the second key into `.env` as `USER_DATA_MASTER_KEY`. It is the master key for [user data encryption](/features/encryption) and must be set before the first migration, because seeding creates users.
 
 `.env.example` defaults `APP_URL` to the port the Docker setup uses. For a native `php artisan serve`, change it:
 
