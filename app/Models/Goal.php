@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Exceptions\UserDataEncryptionException;
 use App\Observers\GoalObserver;
+use App\Services\Encryption\UserDataKeyring;
 use App\Services\StreakService;
+use App\Traits\Models\EncryptsUserData;
 use App\Traits\Models\HasRecentScope;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -24,6 +27,7 @@ use Illuminate\Notifications\Notifiable;
 #[ObservedBy(GoalObserver::class)]
 class Goal extends Model
 {
+    use EncryptsUserData;
     use HasFactory;
     use HasRecentScope;
     use Notifiable;
@@ -227,5 +231,17 @@ class Goal extends Model
         $this->update([
             'status' => $status,
         ]);
+    }
+
+    protected function encryptedAttributes(): array
+    {
+        return ['title', 'description', 'unit'];
+    }
+
+    protected function userDataKeyId(): string
+    {
+        $userId = $this->user_id ?? throw UserDataEncryptionException::missingOwner('goal');
+
+        return app(UserDataKeyring::class)->keyIdForUser($userId);
     }
 }

@@ -9,10 +9,12 @@ use App\Services\Categories\CategoryService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class CategoryServiceTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     private CategoryService $service;
@@ -197,7 +199,7 @@ class CategoryServiceTest extends TestCase
         $updated = $this->service->update($owner, $category, ['name' => 'Health']);
 
         $this->assertSame('Health', $updated->name);
-        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Health']);
+        $this->assertUserDataHas(Category::class, ['id' => $category->id, 'name' => 'Health']);
     }
 
     public function test_update_throws_for_a_non_owner(): void
@@ -213,7 +215,7 @@ class CategoryServiceTest extends TestCase
             //
         }
 
-        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Fitness']);
+        $this->assertUserDataHas(Category::class, ['id' => $category->id, 'name' => 'Fitness']);
     }
 
     public function test_delete_removes_the_category_for_the_owner(): void

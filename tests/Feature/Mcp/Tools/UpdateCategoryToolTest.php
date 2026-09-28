@@ -8,10 +8,12 @@ use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class UpdateCategoryToolTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     public function test_a_write_scoped_token_renames_a_category(): void
@@ -26,7 +28,7 @@ class UpdateCategoryToolTest extends TestCase
             'name' => 'Health & Fitness',
         ])->assertOk()->assertSee('Updated the category Health & Fitness.');
 
-        $this->assertDatabaseHas('categories', [
+        $this->assertUserDataHas(Category::class, [
             'id' => $category->id,
             'name' => 'Health & Fitness',
         ]);
@@ -49,7 +51,7 @@ class UpdateCategoryToolTest extends TestCase
             'name' => 'Health',
         ])->assertOk();
 
-        $this->assertDatabaseHas('categories', [
+        $this->assertUserDataHas(Category::class, [
             'id' => $category->id,
             'name' => 'Health',
             'color' => '#22c55e',
@@ -147,7 +149,7 @@ class UpdateCategoryToolTest extends TestCase
             'name' => 'Health',
         ])->assertHasErrors();
 
-        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Fitness']);
+        $this->assertUserDataHas(Category::class, ['id' => $category->id, 'name' => 'Fitness']);
     }
 
     public function test_it_denies_updating_another_users_category(): void
@@ -163,7 +165,7 @@ class UpdateCategoryToolTest extends TestCase
             'name' => 'Hijacked',
         ])->assertHasErrors();
 
-        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Fitness']);
+        $this->assertUserDataHas(Category::class, ['id' => $category->id, 'name' => 'Fitness']);
     }
 
     public function test_a_supplied_owner_is_ignored_while_known_fields_are_applied(): void
@@ -179,7 +181,7 @@ class UpdateCategoryToolTest extends TestCase
             'user_id' => User::factory()->create()->id,
         ])->assertOk();
 
-        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Health', 'user_id' => $user->id]);
+        $this->assertUserDataHas(Category::class, ['id' => $category->id, 'name' => 'Health', 'user_id' => $user->id]);
     }
 
     public function test_supplying_only_unknown_fields_is_an_error_that_lists_the_allowed_fields(): void
@@ -196,6 +198,6 @@ class UpdateCategoryToolTest extends TestCase
             ->assertHasErrors()
             ->assertSee('Allowed fields: name, description, color, icon, order');
 
-        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Fitness', 'user_id' => $user->id]);
+        $this->assertUserDataHas(Category::class, ['id' => $category->id, 'name' => 'Fitness', 'user_id' => $user->id]);
     }
 }

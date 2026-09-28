@@ -30,4 +30,14 @@ class UserDataEncryptionException extends RuntimeException
     {
         return new self("Goal {$goalId} does not exist, so its owner's key cannot be resolved.");
     }
+
+    public static function unencryptedValue(): self
+    {
+        return new self('Found an unencrypted value in an encrypted column. Run "php artisan user-data:encrypt-existing".');
+    }
+
+    public static function missingOwner(string $model): self
+    {
+        return new self("Cannot resolve the owner of this {$model}, so its data key is unknown.");
+    }
 }

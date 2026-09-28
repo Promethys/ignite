@@ -30,23 +30,7 @@ class GoalEntryController extends Controller
             'page' => 'nullable|integer|min:1',
         ]);
 
-        $query = $goal->entries();
-
-        if (isset($validated['search']) && ! empty($validated['search'])) {
-            $query->whereRaw('LOWER(note) like ?', ['%'.strtolower($validated['search']).'%']);
-        }
-
-        if (isset($validated['from']) && ! empty($validated['from'])) {
-            $query->whereDate('entry_date', '>=', $validated['from']);
-        }
-
-        if (isset($validated['to']) && ! empty($validated['to'])) {
-            $query->whereDate('entry_date', '<=', $validated['to']);
-        }
-
-        $query->orderBy('entry_date', 'desc');
-
-        $entries = Inertia::scroll(fn () => $query->paginate(20));
+        $entries = Inertia::scroll(fn () => $this->goalEntryService->paginateEntries($request->user(), $goal, $validated));
 
         $today = Carbon::now()->timezone($goal->user?->timezone ?? config('app.timezone'))->toDateString();
 

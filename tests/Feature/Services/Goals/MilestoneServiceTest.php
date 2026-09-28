@@ -144,7 +144,7 @@ class MilestoneServiceTest extends TestCase
         $this->service->add($owner, $goal, ['title' => 'Untargeted']);
         $this->service->add($owner, $goal, ['title' => 'Thirty', 'target_value' => 30]);
 
-        $this->assertSame(['Ten', 'Thirty', 'Fifty', 'Untargeted'], $goal->milestones()->pluck('title')->all());
+        $this->assertSame(['Ten', 'Thirty', 'Fifty', 'Untargeted'], $goal->milestones()->get()->pluck('title')->all());
         $this->assertSame([1, 2, 3, 4], $goal->milestones()->pluck('order')->all());
     }
 
@@ -156,7 +156,7 @@ class MilestoneServiceTest extends TestCase
         $this->service->add($owner, $goal, ['title' => 'Eighty', 'target_value' => 80]);
         $this->service->add($owner, $goal, ['title' => 'Ninety', 'target_value' => 90]);
 
-        $this->assertSame(['Ninety', 'Eighty'], $goal->milestones()->pluck('title')->all());
+        $this->assertSame(['Ninety', 'Eighty'], $goal->milestones()->get()->pluck('title')->all());
     }
 
     public function test_update_moves_a_quantifiable_milestone_when_its_target_changes(): void
@@ -168,7 +168,7 @@ class MilestoneServiceTest extends TestCase
 
         $this->service->update($owner, $ten, ['target_value' => 40]);
 
-        $this->assertSame(['Twenty', 'Ten'], $goal->milestones()->pluck('title')->all());
+        $this->assertSame(['Twenty', 'Ten'], $goal->milestones()->get()->pluck('title')->all());
     }
 
     public function test_add_inserts_a_step_at_the_given_position(): void
@@ -181,7 +181,7 @@ class MilestoneServiceTest extends TestCase
         $this->service->add($owner, $goal, ['title' => 'B'], position: 2);
         $this->service->add($owner, $goal, ['title' => 'Start'], position: 1);
 
-        $this->assertSame(['Start', 'A', 'B', 'C'], $goal->milestones()->pluck('title')->all());
+        $this->assertSame(['Start', 'A', 'B', 'C'], $goal->milestones()->get()->pluck('title')->all());
     }
 
     public function test_reorder_denies_a_non_owner(): void

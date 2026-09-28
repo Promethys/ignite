@@ -7,11 +7,13 @@ use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Concerns\AssertsUserData;
 use Tests\Concerns\WithAdminRole;
 use Tests\TestCase;
 
 class CategoryControllerTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
     use WithAdminRole;
 
@@ -135,7 +137,7 @@ class CategoryControllerTest extends TestCase
             ->assertInertiaFlash('toast.type', 'success')
             ->assertInertiaFlash('toast.message', 'Category created.');
 
-        $this->assertDatabaseHas('categories', [
+        $this->assertUserDataHas(Category::class, [
             'name' => 'My Category',
             'user_id' => $this->user->id,
         ]);
@@ -158,11 +160,11 @@ class CategoryControllerTest extends TestCase
                 'user_id' => $this->otherUser->id,
             ]);
 
-        $this->assertDatabaseHas('categories', [
+        $this->assertUserDataHas(Category::class, [
             'name' => 'Test Category',
             'user_id' => $this->user->id,
         ]);
-        $this->assertDatabaseMissing('categories', [
+        $this->assertUserDataMissing(Category::class, [
             'name' => 'Test Category',
             'user_id' => $this->otherUser->id,
         ]);
@@ -173,7 +175,7 @@ class CategoryControllerTest extends TestCase
         $this->actingAs($this->user)
             ->post(route('categories.store'), ['name' => 'First']);
 
-        $category = Category::where('name', 'First')->first();
+        $category = Category::all()->firstWhere('name', 'First');
         $this->assertNotNull($category->order);
         $this->assertGreaterThan(0, $category->order);
     }

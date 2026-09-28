@@ -5,13 +5,16 @@ namespace Tests\Feature\Mcp\Tools;
 use App\Mcp\Servers\IgniteServer;
 use App\Mcp\Tools\CreateGoalTool;
 use App\Models\Category;
+use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class CreateGoalToolTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     /** @var array<string, mixed> */
@@ -46,7 +49,7 @@ class CreateGoalToolTest extends TestCase
             'user_id' => $other->id,
         ])->assertOk();
 
-        $this->assertDatabaseHas('goals', [
+        $this->assertUserDataHas(Goal::class, [
             'title' => 'Read more books',
             'user_id' => $user->id,
         ]);
@@ -107,7 +110,7 @@ class CreateGoalToolTest extends TestCase
             'type' => 'simple',
         ])->assertOk();
 
-        $this->assertDatabaseHas('goals', [
+        $this->assertUserDataHas(Goal::class, [
             'user_id' => $user->id,
             'title' => 'Meditate daily',
             'type' => 'simple',

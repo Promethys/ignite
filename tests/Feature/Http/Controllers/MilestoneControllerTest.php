@@ -6,10 +6,12 @@ use App\Models\Goal;
 use App\Models\Milestone;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class MilestoneControllerTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     private User $user;
@@ -63,7 +65,7 @@ class MilestoneControllerTest extends TestCase
             ->post(route('milestones.store', $otherGoal), ['title' => 'Sneaky'])
             ->assertForbidden();
 
-        $this->assertDatabaseMissing('milestones', ['title' => 'Sneaky']);
+        $this->assertUserDataMissing(Milestone::class, ['title' => 'Sneaky']);
     }
 
     public function test_user_cannot_update_other_users_milestone()
@@ -156,7 +158,7 @@ class MilestoneControllerTest extends TestCase
             ->assertInertiaFlash('toast.type', 'success')
             ->assertInertiaFlash('toast.message', 'Milestone added.');
 
-        $this->assertDatabaseHas('milestones', [
+        $this->assertUserDataHas(Milestone::class, [
             'goal_id' => $this->goal->id,
             'title' => 'Reach 25%',
             'target_value' => 25,
@@ -168,7 +170,7 @@ class MilestoneControllerTest extends TestCase
         $this->actingAs($this->user)
             ->post(route('milestones.store', $this->goal), ['title' => 'First']);
 
-        $this->assertDatabaseHas('milestones', [
+        $this->assertUserDataHas(Milestone::class, [
             'goal_id' => $this->goal->id,
             'title' => 'First',
             'order' => 1,
@@ -183,7 +185,7 @@ class MilestoneControllerTest extends TestCase
         $this->actingAs($this->user)
             ->post(route('milestones.store', $this->goal), ['title' => 'Next']);
 
-        $this->assertDatabaseHas('milestones', [
+        $this->assertUserDataHas(Milestone::class, [
             'goal_id' => $this->goal->id,
             'title' => 'Next',
             'order' => 6,
@@ -201,7 +203,7 @@ class MilestoneControllerTest extends TestCase
                 'order' => 99,
             ]);
 
-        $this->assertDatabaseHas('milestones', [
+        $this->assertUserDataHas(Milestone::class, [
             'goal_id' => $this->goal->id,
             'title' => 'Tampered',
             'order' => 4,
@@ -371,7 +373,7 @@ class MilestoneControllerTest extends TestCase
 
     private function stepTitlesInOrder(): array
     {
-        return $this->goal->milestones()->pluck('title')->all();
+        return $this->goal->milestones()->get()->pluck('title')->all();
     }
 
     public function test_user_can_reorder_the_steps_of_their_goal()
@@ -483,7 +485,7 @@ class MilestoneControllerTest extends TestCase
             ->post(route('milestones.store', $this->goal), ['title' => 'On time', 'deadline' => '2026-10-31'])
             ->assertSessionHasNoErrors();
 
-        $this->assertDatabaseHas('milestones', ['title' => 'On time']);
+        $this->assertUserDataHas(Milestone::class, ['title' => 'On time']);
     }
 
     public function test_milestone_deadline_can_be_updated_and_cleared()

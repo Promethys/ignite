@@ -10,11 +10,13 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Concerns\AssertsUserData;
 use Tests\Concerns\WithAdminRole;
 use Tests\TestCase;
 
 class GoalControllerTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
     use WithAdminRole;
 
@@ -284,7 +286,7 @@ class GoalControllerTest extends TestCase
             ->assertInertiaFlash('toast.type', 'success')
             ->assertInertiaFlash('toast.message', 'Goal created.');
 
-        $this->assertDatabaseHas('goals', [
+        $this->assertUserDataHas(Goal::class, [
             'title' => 'Test Goal',
             'user_id' => $this->user->id,
         ]);
@@ -302,7 +304,7 @@ class GoalControllerTest extends TestCase
             ]))
             ->assertRedirect(route('goals.index'));
 
-        $goal = Goal::where('title', 'Test Goal')->firstOrFail();
+        $goal = Goal::all()->firstWhere('title', 'Test Goal');
 
         $this->assertSame(
             [['Outline', 1, null], ['Draft', 2, '2026-10-15']],
@@ -323,7 +325,7 @@ class GoalControllerTest extends TestCase
             ]))
             ->assertSessionHasNoErrors();
 
-        $this->assertDatabaseMissing('milestones', ['title' => 'Stray']);
+        $this->assertUserDataMissing(Milestone::class, ['title' => 'Stray']);
     }
 
     public function test_a_staged_step_requires_a_title()
@@ -335,7 +337,7 @@ class GoalControllerTest extends TestCase
             ]))
             ->assertSessionHasErrors('steps.0.title');
 
-        $this->assertDatabaseMissing('goals', ['title' => 'Test Goal']);
+        $this->assertUserDataMissing(Goal::class, ['title' => 'Test Goal']);
     }
 
     public function test_a_staged_step_deadline_must_fall_within_the_goal_dates()

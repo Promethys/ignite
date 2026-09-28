@@ -10,10 +10,12 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Laravel\Socialite\Two\User as SocialiteUser;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class SocialLoginServiceTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     private SocialLoginService $service;
@@ -157,7 +159,7 @@ class SocialLoginServiceTest extends TestCase
     {
         $this->service->resolveUser('google', $this->socialiteUser(['name' => null]));
 
-        $this->assertDatabaseHas('users', [
+        $this->assertUserDataHas(User::class, [
             'email' => 'jane@example.com',
             'name' => 'janedoe',
         ]);

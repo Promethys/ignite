@@ -9,10 +9,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class GoalEntryControllerTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     private User $user;
@@ -725,7 +727,7 @@ class GoalEntryControllerTest extends TestCase
             ->assertInertiaFlash('toast.type', 'success')
             ->assertInertiaFlash('toast.message', 'Entry saved.');
 
-        $this->assertDatabaseHas('goal_entries', [
+        $this->assertUserDataHas(GoalEntry::class, [
             'id' => $entry->id,
             'value' => 25,
             'previous_value' => 0,

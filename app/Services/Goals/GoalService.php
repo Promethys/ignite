@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -45,17 +46,6 @@ class GoalService
             $query->where('category_id', $filters['category_id']);
         }
 
-        if (! empty($filters['search'])) {
-            $term = '%'.strtolower($filters['search']).'%';
-
-            $query->where(function ($query) use ($term): void {
-                $query->whereRaw('LOWER(title) like ?', [$term])
-                    ->orWhereRaw('LOWER(description) like ?', [$term]);
-            });
-        }
-
-        $total = $query->count();
-
         $query->withCount([
             'milestones',
             'milestones as completed_milestones_count' => fn ($query) => $query->whereNotNull('completed_at'),
@@ -64,6 +54,21 @@ class GoalService
         $limit = isset($filters['limit'])
             ? min(max((int) $filters['limit'], 1), 100)
             : null;
+
+        if (! empty($filters['search'])) {
+            $goals = $query->get()->filter(
+                fn (Goal $goal): bool => Str::contains($goal->title, $filters['search'], ignoreCase: true)
+                    || Str::contains($goal->description ?? '', $filters['search'], ignoreCase: true)
+            )->values();
+
+            return [
+                'goals' => ($limit !== null ? $goals->take($limit) : $goals)->append('streak'),
+                'total' => $goals->count(),
+                'limit' => $limit,
+            ];
+        }
+
+        $total = $query->count();
 
         if ($limit !== null) {
             $query->limit($limit);

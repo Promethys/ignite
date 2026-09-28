@@ -15,10 +15,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Mcp\Server\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class McpGoalLifecycleTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     private function structured(TestResponse $response): array
@@ -49,7 +51,7 @@ class McpGoalLifecycleTest extends TestCase
 
         $goalId = $created['id'];
 
-        $this->assertDatabaseHas('goals', [
+        $this->assertUserDataHas(Goal::class, [
             'id' => $goalId,
             'user_id' => $user->id,
             'title' => 'Read 12 books',

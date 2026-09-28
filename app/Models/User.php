@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Exceptions\UserDataEncryptionException;
 use App\Notifications\Auth\ResetPassword;
 use App\Notifications\Auth\VerifyEmail;
+use App\Services\Encryption\UserDataKeyring;
+use App\Services\Encryption\UserDataKeyStore;
+use App\Traits\Models\EncryptsUserData;
 use App\Traits\Models\HasRecentScope;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -27,6 +31,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
  */
 class User extends Authenticatable implements FilamentUser, HasLocalePreference, MustVerifyEmail
 {
+    use EncryptsUserData;
     use HasApiTokens;
 
     /** @use HasFactory<UserFactory> */
@@ -60,6 +65,7 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
         'remember_token',
         'two_factor_secret',
         'two_factor_recovery_codes',
+        'data_key_id',
     ];
 
     /**
@@ -263,5 +269,37 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
                 'code' => $exception->getCode(),
             ]);
         }
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user): void {
+            $user->data_key_id ??= app(UserDataKeyStore::class)->create();
+        });
+
+        static::deleting(function (User $user): void {
+            if ($user->data_key_id === null) {
+                return;
+            }
+
+            app(UserDataKeyStore::class)->destroy($user->data_key_id);
+            app(UserDataKeyring::class)->forget($user->data_key_id);
+        });
+    }
+
+    protected function encryptedAttributes(): array
+    {
+        return ['name'];
+    }
+
+    protected function userDataKeyId(): string
+    {
+        if ($this->data_key_id !== null) {
+            return $this->data_key_id;
+        }
+
+        $userId = $this->getKey() ?? throw UserDataEncryptionException::missingOwner('user');
+
+        return app(UserDataKeyring::class)->keyIdForUser($userId);
     }
 }
