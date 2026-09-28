@@ -33,7 +33,7 @@ class UserDataEncryptionException extends RuntimeException
 
     public static function unencryptedValue(): self
     {
-        return new self('Found an unencrypted value in an encrypted column. Run "php artisan user-data:encrypt-existing".');
+        return new self('Found an unencrypted value in an encrypted column. Run "php artisan app:encrypt-existing-user-data".');
     }
 
     public static function missingOwner(string $model): self
