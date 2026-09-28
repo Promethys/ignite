@@ -895,4 +895,19 @@ class GoalEntryControllerTest extends TestCase
             ->delete(route('goals.entries.destroy', [$otherGoal, $entry]))
             ->assertForbidden();
     }
+
+    public function test_searched_entries_are_paginated_after_the_text_filter()
+    {
+        GoalEntry::factory()->count(25)->create(['goal_id' => $this->goal->id, 'note' => 'Morning run', 'entry_date' => now()]);
+        GoalEntry::factory()->count(5)->create(['goal_id' => $this->goal->id, 'note' => 'Rest day', 'entry_date' => now()]);
+
+        $firstPage = $this->actingAs($this->user)
+            ->get(route('goals.entries', ['goal' => $this->goal->id, 'search' => 'morning']));
+        $secondPage = $this->actingAs($this->user)
+            ->get(route('goals.entries', ['goal' => $this->goal->id, 'search' => 'morning', 'page' => 2]));
+
+        $this->assertCount(20, $firstPage->inertiaProps('entries.data'));
+        $this->assertCount(5, $secondPage->inertiaProps('entries.data'));
+        $this->assertTrue(collect($secondPage->inertiaProps('entries.data'))->every(fn (array $entry): bool => $entry['note'] === 'Morning run'));
+    }
 }

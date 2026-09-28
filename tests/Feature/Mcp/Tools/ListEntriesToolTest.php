@@ -129,4 +129,22 @@ class ListEntriesToolTest extends TestCase
             ->assertOk()
             ->assertSee('Retrieved 1 of 1 progress entries.');
     }
+
+    public function test_the_search_total_counts_every_match_beyond_the_limit(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id]);
+        GoalEntry::factory()->count(3)->create(['goal_id' => $goal->id, 'note' => 'Séance de fractionné']);
+        GoalEntry::factory()->create(['goal_id' => $goal->id, 'note' => 'Rest day']);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListEntriesTool::class, [
+            'goal_id' => $goal->id,
+            'search' => 'FRACTIONNÉ',
+            'limit' => 2,
+        ])
+            ->assertOk()
+            ->assertSee('Retrieved 2 of 3 progress entries.');
+    }
 }
