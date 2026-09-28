@@ -27,7 +27,7 @@ const formbricksReady =
 
 const appName = ENV.VITE_APP_NAME || 'Laravel';
 
-type formbricksUser = { id: number; name: string; email: string };
+type formbricksUser = { id: number; email: string };
 let identifiedUserId: string | null = null;
 
 function identifyFormbricks(user: formbricksUser | undefined) {
@@ -35,7 +35,6 @@ function identifyFormbricks(user: formbricksUser | undefined) {
         if (user && String(user.id) !== identifiedUserId) {
             await formbricks.setUserId(String(user.id));
             await formbricks.setAttributes({
-                name: user.name,
                 email: user.email,
             });
             identifiedUserId = String(user.id);
