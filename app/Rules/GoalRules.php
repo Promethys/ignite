@@ -30,7 +30,7 @@ class GoalRules
                     : Rule::exists('categories', 'id')->where('user_id', $user->id),
             ],
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:2000',
             'icon' => 'nullable|string|max:50',
             'type' => 'required|in:simple,quantifiable,recurring,multi_step',
             'direction' => 'required|in:ascending,descending',

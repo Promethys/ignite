@@ -109,7 +109,8 @@ class CreateGoalTool extends IgniteTool
                 ->description('Whether the goal is visible to others. Defaults to false.')
                 ->nullable(),
             'description' => $schema->string()
-                ->description('An optional longer description of the goal.')
+                ->description('An optional longer description of the goal, up to 2000 characters.')
+                ->max(2000)
                 ->nullable(),
             'icon' => $schema->string()
                 ->description('An optional emoji or icon.')

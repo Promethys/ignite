@@ -55,7 +55,8 @@ class CreateCategoryTool extends IgniteTool
                 ->max(100)
                 ->required(),
             'description' => $schema->string()
-                ->description('An optional note about what the category is for.')
+                ->description('An optional note about what the category is for, up to 2000 characters.')
+                ->max(2000)
                 ->nullable(),
             'color' => $schema->string()
                 ->description('A six-digit hex colour with a leading hash, for example "#6366f1". Defaults to "#6366f1".')

@@ -26,7 +26,7 @@ class MilestoneRules
         return [
             'title' => 'required|string|max:255',
             'target_value' => 'nullable|numeric',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:2000',
             'deadline' => self::deadlineRules(
                 $goal?->start_date?->toDateString(),
                 $goal?->deadline?->toDateString(),

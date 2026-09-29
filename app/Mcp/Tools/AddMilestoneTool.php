@@ -74,7 +74,8 @@ class AddMilestoneTool extends IgniteTool
                 ->description('For a quantifiable goal, the goal value at which this milestone counts as reached.')
                 ->nullable(),
             'description' => $schema->string()
-                ->description('An optional longer description of the milestone.')
+                ->description('An optional longer description of the milestone, up to 2000 characters.')
+                ->max(2000)
                 ->nullable(),
             'deadline' => $schema->string()
                 ->description('An optional due date (YYYY-MM-DD), within the goal\'s start date and deadline when those are set.')

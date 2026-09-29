@@ -505,4 +505,15 @@ class MilestoneControllerTest extends TestCase
 
         $this->assertNull($milestone->fresh()->deadline);
     }
+
+    public function test_a_milestone_description_is_capped_at_2000_characters()
+    {
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), ['title' => 'Too long', 'description' => str_repeat('a', 2001)])
+            ->assertSessionHasErrors('description');
+
+        $this->actingAs($this->user)
+            ->post(route('milestones.store', $this->goal), ['title' => 'Fits', 'description' => str_repeat('a', 2000)])
+            ->assertSessionHasNoErrors();
+    }
 }

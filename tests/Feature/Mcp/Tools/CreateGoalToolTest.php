@@ -188,4 +188,14 @@ class CreateGoalToolTest extends TestCase
                 ->has('id')
                 ->etc());
     }
+
+    public function test_a_description_over_2000_characters_is_rejected(): void
+    {
+        Sanctum::actingAs(User::factory()->create(), ['read', 'write']);
+
+        IgniteServer::tool(CreateGoalTool::class, [
+            ...$this->validGoal,
+            'description' => str_repeat('a', 2001),
+        ])->assertHasErrors();
+    }
 }

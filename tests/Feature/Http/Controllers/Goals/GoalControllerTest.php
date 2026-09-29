@@ -951,4 +951,15 @@ class GoalControllerTest extends TestCase
 
         Carbon::setTestNow();
     }
+
+    public function test_a_goal_description_is_capped_at_2000_characters()
+    {
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData(['description' => str_repeat('a', 2001)]))
+            ->assertSessionHasErrors('description');
+
+        $this->actingAs($this->user)
+            ->post(route('goals.store'), $this->validGoalData(['description' => str_repeat('a', 2000)]))
+            ->assertSessionHasNoErrors();
+    }
 }

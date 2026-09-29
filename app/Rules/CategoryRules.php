@@ -21,7 +21,7 @@ class CategoryRules
     {
         return [
             'name' => 'required|string|max:100',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:2000',
             'color' => ['string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'icon' => 'nullable|string|max:50',
             'order' => 'nullable|integer|min:0',

@@ -286,4 +286,15 @@ class CategoryControllerTest extends TestCase
             ->delete(route('categories.destroy', $category))
             ->assertForbidden();
     }
+
+    public function test_a_category_description_is_capped_at_2000_characters()
+    {
+        $this->actingAs($this->user)
+            ->post(route('categories.store'), ['name' => 'Too long', 'description' => str_repeat('a', 2001)])
+            ->assertSessionHasErrors('description');
+
+        $this->actingAs($this->user)
+            ->post(route('categories.store'), ['name' => 'Fits', 'description' => str_repeat('a', 2000)])
+            ->assertSessionHasNoErrors();
+    }
 }
