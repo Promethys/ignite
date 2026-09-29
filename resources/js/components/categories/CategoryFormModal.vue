@@ -16,10 +16,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { FIELD_LIMITS } from '@/lib/field-limits';
 import { Category } from '@/types/models';
 import { useForm } from '@inertiajs/vue3';
 import { Edit, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
+import CharacterCounter from '../CharacterCounter.vue';
 import InputError from '../InputError.vue';
 import InputRequiredIndicator from '../InputRequiredIndicator.vue';
 import { Button } from '../ui/button';
@@ -102,12 +104,18 @@ const open = ref<boolean>(props.open ?? false);
             >
                 <div class="mb-4 grid gap-4">
                     <div class="grid gap-3">
-                        <Label for="name">
-                            <span>
-                                {{ $t('categories.form.name') }}
-                                <InputRequiredIndicator />
-                            </span>
-                        </Label>
+                        <div class="flex items-center justify-between gap-2">
+                            <Label for="name">
+                                <span>
+                                    {{ $t('categories.form.name') }}
+                                    <InputRequiredIndicator />
+                                </span>
+                            </Label>
+                            <CharacterCounter
+                                :value="form.name"
+                                :max="FIELD_LIMITS.categoryName"
+                            />
+                        </div>
                         <Input
                             id="name"
                             name="name"

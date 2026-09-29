@@ -4,10 +4,12 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/Goals/GoalController';
 import { Button } from '@/components/ui/button';
+import { FIELD_LIMITS } from '@/lib/field-limits';
 import { Goal, User } from '@/types/models';
 import { Link, useForm } from '@inertiajs/vue3';
 import { GripVertical, Plus, X } from 'lucide-vue-next';
 import { computed, useTemplateRef } from 'vue';
+import CharacterCounter from '../CharacterCounter.vue';
 import InputError from '../InputError.vue';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -156,12 +158,18 @@ const stepError = (index: number, field: 'title' | 'deadline') =>
                 >
                     <!-- Title -->
                     <div class="grid gap-2">
-                        <Label for="title">
-                            <span>
-                                {{ $t('goals.form.title') }}
-                                <InputRequiredIndicator />
-                            </span>
-                        </Label>
+                        <div class="flex items-center justify-between gap-2">
+                            <Label for="title">
+                                <span>
+                                    {{ $t('goals.form.title') }}
+                                    <InputRequiredIndicator />
+                                </span>
+                            </Label>
+                            <CharacterCounter
+                                :value="form.title"
+                                :max="FIELD_LIMITS.goalTitle"
+                            />
+                        </div>
                         <Input
                             id="title"
                             v-model="form.title"
@@ -313,7 +321,15 @@ const stepError = (index: number, field: 'title' | 'deadline') =>
 
                     <!-- Unit -->
                     <div class="grid gap-2">
-                        <Label for="unit">{{ $t('goals.form.unit') }}</Label>
+                        <div class="flex items-center justify-between gap-2">
+                            <Label for="unit">{{
+                                $t('goals.form.unit')
+                            }}</Label>
+                            <CharacterCounter
+                                :value="form.unit"
+                                :max="FIELD_LIMITS.goalUnit"
+                            />
+                        </div>
                         <Input
                             id="unit"
                             v-model="form.unit"
@@ -679,13 +695,21 @@ const stepError = (index: number, field: 'title' | 'deadline') =>
                                         <X class="size-4" />
                                     </Button>
                                 </div>
-                                <InputError
-                                    class="ml-18"
-                                    :message="
-                                        stepError(index, 'title') ??
-                                        stepError(index, 'deadline')
-                                    "
-                                />
+                                <div
+                                    class="ml-18 flex items-start justify-between gap-2"
+                                >
+                                    <InputError
+                                        :message="
+                                            stepError(index, 'title') ??
+                                            stepError(index, 'deadline')
+                                        "
+                                    />
+                                    <CharacterCounter
+                                        class="ml-auto"
+                                        :value="step.title"
+                                        :max="FIELD_LIMITS.stepTitle"
+                                    />
+                                </div>
                             </li>
                         </ol>
                         <div>

@@ -226,4 +226,32 @@ describe('GoalForm', () => {
             ).toEqual([{ title: 'Outline', deadline: null }]);
         });
     });
+
+    describe('character counters', () => {
+        const user = { id: 1, categories: {} } as unknown as User;
+
+        it('counts the title and unit against their limits', async () => {
+            const wrapper = mountForm({ user });
+            captured.form.title = 'x'.repeat(250);
+            captured.form.unit = 'u'.repeat(45);
+            await nextTick();
+
+            expect(wrapper.text()).toContain('250/255');
+            expect(wrapper.text()).toContain('45/50');
+        });
+
+        it('counts each staged step title', async () => {
+            const wrapper = mountForm({ user });
+            captured.form.type = 'multi_step';
+            await nextTick();
+            await wrapper
+                .findAll('button')
+                .find((button) => button.text() === 'steps.add')!
+                .trigger('click');
+            captured.form.steps[0].title = 's'.repeat(210);
+            await nextTick();
+
+            expect(wrapper.find('li').text()).toContain('210/255');
+        });
+    });
 });

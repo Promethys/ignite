@@ -409,4 +409,16 @@ describe('MilestoneFormModal', () => {
             false,
         );
     });
+
+    it('counts the title against its limit', () => {
+        const wrapper = mount(MilestoneFormModal, {
+            props: {
+                goal_id: 1,
+                record: { id: 1, title: 'x'.repeat(260) } as never,
+            },
+            global: { stubs },
+        });
+
+        expect(wrapper.text()).toContain('260/255');
+    });
 });

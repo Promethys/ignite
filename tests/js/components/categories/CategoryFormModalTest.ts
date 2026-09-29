@@ -103,4 +103,13 @@ describe('CategoryFormModal', () => {
 
         expect(wrapper.text()).toContain('Créer une catégorie');
     });
+
+    it('counts the name against its limit', () => {
+        const wrapper = mount(CategoryFormModal, {
+            props: { record: { id: 1, name: 'x'.repeat(90) } as never },
+            global: { stubs },
+        });
+
+        expect(wrapper.text()).toContain('90/100');
+    });
 });
