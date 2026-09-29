@@ -193,4 +193,14 @@ describe('settings/ApiTokens', () => {
         );
         expect(mocks.routerDelete.mock.calls[0][0].url).toContain('42');
     });
+
+    it('counts the token name against its limit', () => {
+        mocks.createForm.name = 'x'.repeat(250);
+
+        try {
+            expect(mountPage({}).text()).toContain('250/255');
+        } finally {
+            mocks.createForm.name = '';
+        }
+    });
 });

@@ -116,4 +116,14 @@ describe('RecurringCheckInModal', () => {
 
         expect(wrapper.text()).toContain('goals.checkin.title_positive');
     });
+
+    it('counts the note against its limit', () => {
+        const record = {
+            id: 7,
+            entry_date: '2026-07-14',
+            note: 'n'.repeat(2100),
+        } as unknown as GoalEntry;
+
+        expect(mountModal({ record }).text()).toContain('2100/2000');
+    });
 });

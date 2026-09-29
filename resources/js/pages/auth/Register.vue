@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import RegisteredUserController from '@/actions/App/Http/Controllers/Auth/RegisteredUserController';
 import SocialLoginButtons from '@/components/auth/SocialLoginButtons.vue';
+import CharacterCounter from '@/components/CharacterCounter.vue';
 import InputError from '@/components/InputError.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -9,9 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import AuthBase from '@/layouts/AuthLayout.vue';
+import { FIELD_LIMITS } from '@/lib/field-limits';
 import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
+
+const name = ref('');
+const email = ref('');
 </script>
 
 <template>
@@ -29,14 +35,21 @@ import { LoaderCircle } from 'lucide-vue-next';
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="name">
-                        <span>
-                            {{ $t('auth_ui.register.name') }}
-                            <InputRequiredIndicator />
-                        </span>
-                    </Label>
+                    <div class="flex items-center justify-between gap-2">
+                        <Label for="name">
+                            <span>
+                                {{ $t('auth_ui.register.name') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
+                        <CharacterCounter
+                            :value="name"
+                            :max="FIELD_LIMITS.userName"
+                        />
+                    </div>
                     <Input
                         id="name"
+                        v-model="name"
                         type="text"
                         required
                         autofocus
@@ -50,14 +63,21 @@ import { LoaderCircle } from 'lucide-vue-next';
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">
-                        <span>
-                            {{ $t('auth_ui.register.email') }}
-                            <InputRequiredIndicator />
-                        </span>
-                    </Label>
+                    <div class="flex items-center justify-between gap-2">
+                        <Label for="email">
+                            <span>
+                                {{ $t('auth_ui.register.email') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
+                        <CharacterCounter
+                            :value="email"
+                            :max="FIELD_LIMITS.email"
+                        />
+                    </div>
                     <Input
                         id="email"
+                        v-model="email"
                         type="email"
                         required
                         :tabindex="2"

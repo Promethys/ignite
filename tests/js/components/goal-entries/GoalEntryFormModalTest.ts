@@ -80,4 +80,16 @@ describe('GoalEntryFormModal', () => {
         ).toBe('12');
         expect(wrapper.text()).toContain('goals.entries.form.edit_title');
     });
+
+    it('counts the note against its limit', () => {
+        const record = {
+            id: 7,
+            increment_value: 1,
+            note: 'n'.repeat(1700),
+        } as unknown as GoalEntry;
+
+        expect(mountModal('quantifiable', { record }).text()).toContain(
+            '1700/2000',
+        );
+    });
 });

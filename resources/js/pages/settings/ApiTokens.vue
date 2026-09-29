@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CharacterCounter from '@/components/CharacterCounter.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
@@ -20,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
+import { FIELD_LIMITS } from '@/lib/field-limits';
 import { destroy, index, store } from '@/routes/api-tokens';
 import { type BreadcrumbItem, type PersonalAccessToken } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
@@ -183,12 +185,18 @@ function abilityShortLabel(ability: string): string {
                 <!-- Create form -->
                 <form class="space-y-4" @submit.prevent="submit">
                     <div class="grid gap-2">
-                        <Label for="name">
-                            <span>
-                                {{ $t('settings.api_tokens.name') }}
-                                <InputRequiredIndicator />
-                            </span>
-                        </Label>
+                        <div class="flex items-center justify-between gap-2">
+                            <Label for="name">
+                                <span>
+                                    {{ $t('settings.api_tokens.name') }}
+                                    <InputRequiredIndicator />
+                                </span>
+                            </Label>
+                            <CharacterCounter
+                                :value="createForm.name"
+                                :max="FIELD_LIMITS.apiTokenName"
+                            />
+                        </div>
                         <Input
                             id="name"
                             v-model="createForm.name"

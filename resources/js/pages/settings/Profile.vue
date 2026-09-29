@@ -4,6 +4,7 @@ import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 
+import CharacterCounter from '@/components/CharacterCounter.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
@@ -22,7 +23,9 @@ import {
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
+import { FIELD_LIMITS } from '@/lib/field-limits';
 import { type BreadcrumbItem } from '@/types';
+import { ref } from 'vue';
 
 interface Props {
     mustVerifyEmail: boolean;
@@ -41,6 +44,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
 const page = usePage();
 const user = page.props.auth.user;
+
+const name = ref(user.name);
+const email = ref(user.email);
 </script>
 
 <template>
@@ -65,17 +71,23 @@ const user = page.props.auth.user;
                     }"
                 >
                     <div class="grid gap-2">
-                        <Label for="name">
-                            <span>
-                                {{ $t('settings.profile.name') }}
-                                <InputRequiredIndicator />
-                            </span>
-                        </Label>
+                        <div class="flex items-center justify-between gap-2">
+                            <Label for="name">
+                                <span>
+                                    {{ $t('settings.profile.name') }}
+                                    <InputRequiredIndicator />
+                                </span>
+                            </Label>
+                            <CharacterCounter
+                                :value="name"
+                                :max="FIELD_LIMITS.userName"
+                            />
+                        </div>
                         <Input
                             id="name"
                             class="mt-1 block w-full"
+                            v-model="name"
                             name="name"
-                            :default-value="user.name"
                             required
                             autocomplete="name"
                             :placeholder="
@@ -87,18 +99,24 @@ const user = page.props.auth.user;
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="email">
-                            <span>
-                                {{ $t('settings.profile.email') }}
-                                <InputRequiredIndicator />
-                            </span>
-                        </Label>
+                        <div class="flex items-center justify-between gap-2">
+                            <Label for="email">
+                                <span>
+                                    {{ $t('settings.profile.email') }}
+                                    <InputRequiredIndicator />
+                                </span>
+                            </Label>
+                            <CharacterCounter
+                                :value="email"
+                                :max="FIELD_LIMITS.email"
+                            />
+                        </div>
                         <Input
                             id="email"
                             type="email"
                             class="mt-1 block w-full"
+                            v-model="email"
                             name="email"
-                            :default-value="user.email"
                             required
                             autocomplete="username"
                             :placeholder="

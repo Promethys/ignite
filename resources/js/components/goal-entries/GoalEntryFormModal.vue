@@ -16,10 +16,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { FIELD_LIMITS } from '@/lib/field-limits';
 import { Goal, GoalEntry } from '@/types/models';
 import { useForm } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
+import CharacterCounter from '../CharacterCounter.vue';
 import InputError from '../InputError.vue';
 import InputRequiredIndicator from '../InputRequiredIndicator.vue';
 import { Button } from '../ui/button';
@@ -127,7 +129,13 @@ const open = ref<boolean>(props.open ?? false);
                     <InputError :message="form.errors.increment" />
                 </div>
                 <div class="space-y-2">
-                    <Label for="note">{{ $t('goals.show.note') }}</Label>
+                    <div class="flex items-center justify-between gap-2">
+                        <Label for="note">{{ $t('goals.show.note') }}</Label>
+                        <CharacterCounter
+                            :value="form.note"
+                            :max="FIELD_LIMITS.entryNote"
+                        />
+                    </div>
                     <Textarea
                         id="note"
                         v-model="form.note"

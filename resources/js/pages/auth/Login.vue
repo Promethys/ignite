@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
 import SocialLoginButtons from '@/components/auth/SocialLoginButtons.vue';
+import CharacterCounter from '@/components/CharacterCounter.vue';
 import InputError from '@/components/InputError.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -10,15 +11,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import AuthBase from '@/layouts/AuthLayout.vue';
+import { FIELD_LIMITS } from '@/lib/field-limits';
 import { register } from '@/routes';
 import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+const email = ref('');
 </script>
 
 <template>
@@ -43,15 +48,22 @@ defineProps<{
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="email">
-                        <span>
-                            {{ $t('auth_ui.login.email') }}
-                            <InputRequiredIndicator />
-                        </span>
-                    </Label>
+                    <div class="flex items-center justify-between gap-2">
+                        <Label for="email">
+                            <span>
+                                {{ $t('auth_ui.login.email') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
+                        <CharacterCounter
+                            :value="email"
+                            :max="FIELD_LIMITS.email"
+                        />
+                    </div>
                     <Input
                         id="email"
                         type="email"
+                        v-model="email"
                         name="email"
                         required
                         autofocus

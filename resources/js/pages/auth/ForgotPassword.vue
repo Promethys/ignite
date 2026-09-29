@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PasswordResetLinkController from '@/actions/App/Http/Controllers/Auth/PasswordResetLinkController';
+import CharacterCounter from '@/components/CharacterCounter.vue';
 import InputError from '@/components/InputError.vue';
 import InputRequiredIndicator from '@/components/InputRequiredIndicator.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -7,13 +8,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import { FIELD_LIMITS } from '@/lib/field-limits';
 import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     status?: string;
 }>();
+
+const email = ref('');
 </script>
 
 <template>
@@ -36,14 +41,21 @@ defineProps<{
                 v-slot="{ errors, processing, validate }"
             >
                 <div class="grid gap-2">
-                    <Label for="email">
-                        <span>
-                            {{ $t('auth_ui.forgot.email') }}
-                            <InputRequiredIndicator />
-                        </span>
-                    </Label>
+                    <div class="flex items-center justify-between gap-2">
+                        <Label for="email">
+                            <span>
+                                {{ $t('auth_ui.forgot.email') }}
+                                <InputRequiredIndicator />
+                            </span>
+                        </Label>
+                        <CharacterCounter
+                            :value="email"
+                            :max="FIELD_LIMITS.email"
+                        />
+                    </div>
                     <Input
                         id="email"
+                        v-model="email"
                         type="email"
                         name="email"
                         autocomplete="off"
