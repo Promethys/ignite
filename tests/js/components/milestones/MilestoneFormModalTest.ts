@@ -421,4 +421,20 @@ describe('MilestoneFormModal', () => {
 
         expect(wrapper.text()).toContain('260/255');
     });
+
+    it('counts the description against its limit', () => {
+        const wrapper = mount(MilestoneFormModal, {
+            props: {
+                goal_id: 1,
+                record: {
+                    id: 1,
+                    title: 'Fits',
+                    description: 'd'.repeat(2050),
+                } as never,
+            },
+            global: { stubs },
+        });
+
+        expect(wrapper.text()).toContain('2050/2000');
+    });
 });

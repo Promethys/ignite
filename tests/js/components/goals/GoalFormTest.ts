@@ -230,14 +230,16 @@ describe('GoalForm', () => {
     describe('character counters', () => {
         const user = { id: 1, categories: {} } as unknown as User;
 
-        it('counts the title and unit against their limits', async () => {
+        it('counts the title, unit and description against their limits', async () => {
             const wrapper = mountForm({ user });
             captured.form.title = 'x'.repeat(250);
             captured.form.unit = 'u'.repeat(45);
+            captured.form.description = 'd'.repeat(1900);
             await nextTick();
 
             expect(wrapper.text()).toContain('250/255');
             expect(wrapper.text()).toContain('45/50');
+            expect(wrapper.text()).toContain('1900/2000');
         });
 
         it('counts each staged step title', async () => {

@@ -112,4 +112,19 @@ describe('CategoryFormModal', () => {
 
         expect(wrapper.text()).toContain('90/100');
     });
+
+    it('counts the description against its limit', () => {
+        const wrapper = mount(CategoryFormModal, {
+            props: {
+                record: {
+                    id: 1,
+                    name: 'Fits',
+                    description: 'd'.repeat(2050),
+                } as never,
+            },
+            global: { stubs },
+        });
+
+        expect(wrapper.text()).toContain('2050/2000');
+    });
 });

@@ -7,5 +7,6 @@ export const FIELD_LIMITS = {
     entryNote: 2000,
     userName: 255,
     email: 255,
+    description: 2000,
     apiTokenName: 255,
 } as const;

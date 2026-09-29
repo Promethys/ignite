@@ -142,9 +142,15 @@ const open = ref<boolean>(props.open ?? false);
                         />
                     </div>
                     <div class="grid gap-3">
-                        <Label for="description">{{
-                            $t('milestones.form.description')
-                        }}</Label>
+                        <div class="flex items-center justify-between gap-2">
+                            <Label for="description">{{
+                                $t('milestones.form.description')
+                            }}</Label>
+                            <CharacterCounter
+                                :value="form.description"
+                                :max="FIELD_LIMITS.description"
+                            />
+                        </div>
                         <Textarea
                             id="description"
                             name="description"
