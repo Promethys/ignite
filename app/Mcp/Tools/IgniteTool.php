@@ -5,6 +5,8 @@ namespace App\Mcp\Tools;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 
 abstract class IgniteTool extends Tool
@@ -30,6 +32,19 @@ abstract class IgniteTool extends Tool
     public function title(): string
     {
         return Str::headline($this->name());
+    }
+
+    /**
+     * A summary line plus the data, both as JSON text and as structured content.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    protected function structuredResponse(string $summary, array $data): ResponseFactory
+    {
+        return Response::make([
+            Response::text($summary),
+            Response::json($data),
+        ])->withStructuredContent($data);
     }
 
     /**

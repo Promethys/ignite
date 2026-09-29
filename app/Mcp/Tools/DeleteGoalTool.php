@@ -54,9 +54,7 @@ class DeleteGoalTool extends IgniteTool
                 [$goal->id]
             );
 
-            return Response::make(
-                Response::text("{$previewText} This action needs a confirmation. Use the given token to confirm.")
-            )->withStructuredContent([
+            return $this->structuredResponse("{$previewText} This action needs a confirmation. Use the given token to confirm.", [
                 'requires_confirmation' => true,
                 'confirmation_token' => $token,
                 'preview' => $previewText,

@@ -8,7 +8,6 @@ use App\Services\Goals\MilestoneService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -45,9 +44,7 @@ class CompleteMilestoneTool extends IgniteTool
             $milestone
         );
 
-        return Response::make(
-            Response::text("Completed the milestone {$milestone->title}.")
-        )->withStructuredContent((new MilestoneResource($milestone->fresh()))->resolve());
+        return $this->structuredResponse("Completed the milestone {$milestone->title}.", (new MilestoneResource($milestone->fresh()))->resolve());
     }
 
     /**

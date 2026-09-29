@@ -6,7 +6,6 @@ use App\Http\Resources\UserResource;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -27,9 +26,7 @@ class GetUserTool extends IgniteTool
      */
     public function handle(Request $request): ResponseFactory
     {
-        return Response::make(
-            Response::text('Retrieved the user\'s profile.')
-        )->withStructuredContent(['user' => (new UserResource($this->actor($request)))->resolve()]);
+        return $this->structuredResponse('Retrieved the user\'s profile.', ['user' => (new UserResource($this->actor($request)))->resolve()]);
     }
 
     /**

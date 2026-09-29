@@ -8,7 +8,6 @@ use App\Services\Goals\GoalEntryService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -48,9 +47,7 @@ class UpdateEntryTool extends IgniteTool
             $validated['note'] ?? null
         );
 
-        return Response::make(
-            Response::text('Updated the progress entry.')
-        )->withStructuredContent((new GoalEntryResource($entry))->resolve());
+        return $this->structuredResponse('Updated the progress entry.', (new GoalEntryResource($entry))->resolve());
     }
 
     /**

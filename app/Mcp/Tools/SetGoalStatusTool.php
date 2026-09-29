@@ -8,7 +8,6 @@ use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -42,9 +41,7 @@ class SetGoalStatusTool extends IgniteTool
 
         $this->goalService->setStatus($user, $goal, $validated['status']);
 
-        return Response::make(
-            Response::text("Set the goal '{$goal->title}' to '{$validated['status']}'.")
-        )->withStructuredContent((new GoalResource($goal->fresh('milestones')))->resolve());
+        return $this->structuredResponse("Set the goal '{$goal->title}' to '{$validated['status']}'.", (new GoalResource($goal->fresh('milestones')))->resolve());
     }
 
     /**

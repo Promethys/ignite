@@ -61,11 +61,10 @@ class UpdateGoalTool extends IgniteTool
         $updated = $this->goalService->update($user, $goal, $updateAttributes)
             ->load('category', 'milestones');
 
-        return Response::make(
-            Response::text('Updated the goal "'.$updated->title.'".')
-        )
-            ->withStructuredContent((new GoalResource($updated))
-                ->resolve());
+        return $this->structuredResponse(
+            'Updated the goal "'.$updated->title.'".',
+            (new GoalResource($updated))->resolve(),
+        );
     }
 
     /**

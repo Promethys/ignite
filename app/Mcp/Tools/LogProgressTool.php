@@ -52,9 +52,7 @@ class LogProgressTool extends IgniteTool
             $validated['entry_date'] ?? null
         );
 
-        return Response::make(
-            Response::text('Logged progress on the goal.')
-        )->withStructuredContent((new GoalEntryResource($entry))->resolve());
+        return $this->structuredResponse('Logged progress on the goal.', (new GoalEntryResource($entry))->resolve());
     }
 
     /**

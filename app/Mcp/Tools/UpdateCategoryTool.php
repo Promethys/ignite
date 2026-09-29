@@ -58,9 +58,7 @@ class UpdateCategoryTool extends IgniteTool
 
         $updated = $this->categoryService->update($user, $category, $updateAttributes);
 
-        return Response::make(
-            Response::text("Updated the category {$updated->name}.")
-        )->withStructuredContent([
+        return $this->structuredResponse("Updated the category {$updated->name}.", [
             'category' => (new CategoryResource($updated))->resolve(),
         ]);
     }

@@ -7,7 +7,6 @@ use App\Services\Categories\CategoryService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -34,9 +33,7 @@ class ListCategoriesTool extends IgniteTool
     {
         $categories = $this->categoryService->listForUser($this->actor($request));
 
-        return Response::make(
-            Response::text('Retrieved '.$categories->count().' categories.')
-        )->withStructuredContent([
+        return $this->structuredResponse('Retrieved '.$categories->count().' categories.', [
             'categories' => CategoryResource::collection($categories)->resolve(),
             'total' => $categories->count(),
         ]);

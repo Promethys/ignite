@@ -10,7 +10,6 @@ use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -51,9 +50,7 @@ class CheckInTool extends IgniteTool
             $validated['note'] ?? null
         );
 
-        return Response::make(
-            Response::text('Recorded a check-in for the recurring goal.')
-        )->withStructuredContent((new GoalEntryResource($entry))->resolve());
+        return $this->structuredResponse('Recorded a check-in for the recurring goal.', (new GoalEntryResource($entry))->resolve());
     }
 
     /**

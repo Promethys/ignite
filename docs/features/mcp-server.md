@@ -151,6 +151,8 @@ Keying on the token rather than the user matters: two clients belonging to the s
 
 ## What the tools return
 
+Every tool that returns data answers with two text blocks, a one-line summary and the data serialized as JSON, and carries the same data as `structuredContent`. Clients that read structured content use it directly; clients that only pass text content to the model still see every id and field, including the `confirmation_token` of a destructive call. The shared helper is `IgniteTool::structuredResponse()`.
+
 Tool output is built from explicit resource whitelists (`App\Http\Resources\GoalResource`, `GoalEntryResource`, `MilestoneResource`), not from raw models. Only declared fields are ever sent.
 
 This matters because tool output is transmitted to a third-party AI provider. The whitelist means no account data (email, password hash, two-factor secrets) and no internal bookkeeping columns can reach a model, even by accident, and adding a sensitive column to a table later cannot leak it retroactively.

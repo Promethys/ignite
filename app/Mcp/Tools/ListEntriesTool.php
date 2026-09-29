@@ -58,9 +58,7 @@ class ListEntriesTool extends IgniteTool
             return Response::text('This goal does not have any matching entry.');
         }
 
-        return Response::make(
-            Response::text('Retrieved '.$result['entries']->count().' of '.$result['total'].' progress entries.')
-        )->withStructuredContent([
+        return $this->structuredResponse('Retrieved '.$result['entries']->count().' of '.$result['total'].' progress entries.', [
             'entries' => GoalEntryResource::collection($result['entries'])->resolve(),
             'total' => $result['total'],
             'limit' => $result['limit'],

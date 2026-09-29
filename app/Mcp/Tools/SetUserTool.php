@@ -44,9 +44,7 @@ class SetUserTool extends IgniteTool
 
         $user->update($provided);
 
-        return Response::make(
-            Response::text('Updated the user\'s profile.')
-        )->withStructuredContent(['user' => (new UserResource($user->fresh()))->resolve()]);
+        return $this->structuredResponse('Updated the user\'s profile.', ['user' => (new UserResource($user->fresh()))->resolve()]);
     }
 
     /**

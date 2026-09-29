@@ -53,9 +53,7 @@ class LogProgressBatchTool extends IgniteTool
         $validated = $this->validateTrimmed($request, $entriesRules);
         $responseData = $this->goalEntryService->logProgressBatch($user, $goal, $validated['entries']);
 
-        return Response::make(
-            Response::text('Logged progress batch on the goal.')
-        )->withStructuredContent($responseData);
+        return $this->structuredResponse('Logged progress batch on the goal.', $responseData);
     }
 
     /**

@@ -209,4 +209,18 @@ class ListGoalsToolTest extends TestCase
                 ->where('total', 3)
                 ->etc());
     }
+
+    public function test_the_goals_are_also_in_the_text_content_for_clients_that_ignore_structured_content(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id, 'category_id' => null, 'title' => 'Learn the cello']);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListGoalsTool::class)
+            ->assertOk()
+            ->assertSee('Retrieved 1 goals.')
+            ->assertSee('"id":'.$goal->id)
+            ->assertSee('"title":"Learn the cello"');
+    }
 }

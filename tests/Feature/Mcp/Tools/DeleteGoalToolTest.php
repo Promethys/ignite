@@ -161,4 +161,16 @@ class DeleteGoalToolTest extends TestCase
 
         $this->assertDatabaseHas('goals', ['id' => $goal->id]);
     }
+
+    public function test_the_confirmation_token_is_also_in_the_text_content(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id]);
+
+        Sanctum::actingAs($user, ['read', 'write', 'delete']);
+
+        $response = IgniteServer::tool(DeleteGoalTool::class, ['goal_id' => $goal->id]);
+
+        $response->assertSee('"confirmation_token":"'.$this->confirmationTokenFrom($response).'"');
+    }
 }

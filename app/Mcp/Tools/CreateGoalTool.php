@@ -8,7 +8,6 @@ use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
 use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -47,9 +46,7 @@ class CreateGoalTool extends IgniteTool
 
         $goal = $this->goalService->create($this->actor($request), $validated);
 
-        return Response::make(
-            Response::text("Created the goal '{$goal->title}'.")
-        )->withStructuredContent((new GoalResource($goal))->resolve());
+        return $this->structuredResponse("Created the goal '{$goal->title}'.", (new GoalResource($goal))->resolve());
     }
 
     /**
