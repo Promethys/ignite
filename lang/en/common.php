@@ -8,6 +8,8 @@ return [
         'repository' => 'Repository',
         'documentation' => 'Documentation',
         'menu' => 'Navigation Menu',
+        'admin_panel' => 'Admin panel',
+        'back_to_app' => 'Back to the app',
     ],
     'actions' => [
         'log_out' => 'Log out',

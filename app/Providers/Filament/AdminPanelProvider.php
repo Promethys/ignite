@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -10,6 +11,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -28,6 +30,13 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->spa()
+            ->spaUrlExceptions(fn (): array => [route('dashboard')])
+            ->userMenuItems([
+                Action::make('app')
+                    ->label(fn (): string => __('common.nav.back_to_app'))
+                    ->url(fn (): string => route('dashboard'))
+                    ->icon(Heroicon::OutlinedArrowUturnLeft),
+            ])
             ->colors([
                 'primary' => Color::Violet,
             ])

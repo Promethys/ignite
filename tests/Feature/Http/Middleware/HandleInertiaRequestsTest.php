@@ -5,11 +5,13 @@ namespace Tests\Feature\Http\Middleware;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
+use Tests\Concerns\WithAdminRole;
 use Tests\TestCase;
 
 class HandleInertiaRequestsTest extends TestCase
 {
     use RefreshDatabase;
+    use WithAdminRole;
 
     public function test_locale_is_shared_with_inertia()
     {
@@ -87,6 +89,28 @@ class HandleInertiaRequestsTest extends TestCase
             ->get(route('dashboard'))
             ->assertInertia(fn (AssertableJson $page) => $page
                 ->where('ssoProviders', [])
+            );
+    }
+
+    public function test_an_admin_receives_the_admin_panel_url()
+    {
+        $this->setUpAdminRole();
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $this->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertInertia(fn (AssertableJson $page) => $page
+                ->where('auth.adminPanelUrl', route('filament.admin.pages.dashboard'))
+            );
+    }
+
+    public function test_a_regular_user_receives_no_admin_panel_url()
+    {
+        $this->actingAs(User::factory()->create())
+            ->get(route('dashboard'))
+            ->assertInertia(fn (AssertableJson $page) => $page
+                ->where('auth.adminPanelUrl', null)
             );
     }
 }

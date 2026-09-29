@@ -6,6 +6,7 @@ const supportEmail = 'help@example.test';
 const githubUrl = 'https://github.com/example/repo';
 
 const mocks = vi.hoisted(() => ({
+    adminPanelUrl: null as string | null,
     flushAll: vi.fn(),
     fbLogout: vi.fn().mockResolvedValue(undefined),
     fbSetLanguage: vi.fn().mockResolvedValue(undefined),
@@ -14,7 +15,13 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@inertiajs/vue3', () => ({
     Link: { template: '<a><slot /></a>' },
     router: { flushAll: mocks.flushAll },
-    usePage: () => ({ props: { supportEmail, githubUrl } }),
+    usePage: () => ({
+        props: {
+            supportEmail,
+            githubUrl,
+            auth: { adminPanelUrl: mocks.adminPanelUrl },
+        },
+    }),
 }));
 
 vi.mock('@formbricks/js', () => ({
@@ -136,5 +143,27 @@ describe('UserMenuContent', () => {
 
         expect(mocks.fbLogout).toHaveBeenCalledTimes(1);
         expect(mocks.flushAll).toHaveBeenCalledTimes(1);
+    });
+
+    describe('admin panel link', () => {
+        afterEach(() => {
+            mocks.adminPanelUrl = null;
+        });
+
+        it('is hidden for a user who is not an admin', () => {
+            expect(
+                mountMenu().find('[data-test="admin-panel-link"]').exists(),
+            ).toBe(false);
+        });
+
+        it('links an admin to the panel with a full page load', () => {
+            mocks.adminPanelUrl = 'https://ignite.test/admin';
+
+            const link = mountMenu().find('[data-test="admin-panel-link"]');
+
+            expect(link.element.tagName).toBe('A');
+            expect(link.attributes('href')).toBe('https://ignite.test/admin');
+            expect(link.text()).toContain('common.nav.admin_panel');
+        });
     });
 });

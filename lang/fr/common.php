@@ -8,6 +8,8 @@ return [
         'repository' => 'Dépôt',
         'documentation' => 'Documentation',
         'menu' => 'Menu de navigation',
+        'admin_panel' => 'Administration',
+        'back_to_app' => 'Retour à l\'application',
     ],
     'actions' => [
         'log_out' => 'Se déconnecter',

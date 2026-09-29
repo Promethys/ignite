@@ -18,6 +18,7 @@ import {
     LogOut,
     MessageSquare,
     Settings,
+    ShieldCheck,
 } from 'lucide-vue-next';
 
 interface Props {
@@ -36,6 +37,7 @@ const handleLogout = () => {
 const props = usePage<AppPageProps>().props;
 const supportEmail = props.supportEmail;
 const appPublicRepo = props.githubUrl;
+const adminPanelUrl = props.auth?.adminPanelUrl;
 
 defineProps<Props>();
 </script>
@@ -58,6 +60,18 @@ defineProps<Props>();
                 <Settings class="mr-2 h-4 w-4" />
                 {{ $t('common.actions.settings') }}
             </Link>
+        </DropdownMenuItem>
+    </DropdownMenuGroup>
+    <DropdownMenuGroup v-if="adminPanelUrl">
+        <DropdownMenuItem :as-child="true">
+            <a
+                class="block w-full cursor-pointer"
+                :href="adminPanelUrl"
+                data-test="admin-panel-link"
+            >
+                <ShieldCheck class="mr-2 inline h-4 w-4" />
+                {{ $t('common.nav.admin_panel') }}
+            </a>
         </DropdownMenuItem>
     </DropdownMenuGroup>
     <DropdownMenuGroup>

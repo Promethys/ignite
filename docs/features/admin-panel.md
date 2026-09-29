@@ -9,9 +9,7 @@ A Filament v5 panel mounted at `/admin` for account operations and aggregate num
 
 Goals, entries, milestones and categories are not reachable from the panel. The goal, entry and milestone policies grant nothing to the `admin` role: only the owner can view, update or delete their own content.
 
-::: info
-There is no in-app link to `/admin`. You navigate to it directly by URL.
-:::
+Admins reach the panel from the app's user menu (**Admin panel**), and return with **Back to the app** in the panel's user menu. The app link only appears for users with the `admin` role: the shared Inertia prop `auth.adminPanelUrl` is `null` for everyone else. The panel runs in SPA mode, so the dashboard URL is listed in `spaUrlExceptions()` to make that link a full page load into the Inertia app.
 
 ## Prerequisites
 

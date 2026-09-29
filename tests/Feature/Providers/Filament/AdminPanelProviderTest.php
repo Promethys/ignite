@@ -74,4 +74,16 @@ class AdminPanelProviderTest extends TestCase
             ->get('/admin/goals')
             ->assertNotFound();
     }
+
+    public function test_the_panel_user_menu_links_back_to_the_app()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $this->actingAsPanelUser($admin)
+            ->get('/admin')
+            ->assertSuccessful()
+            ->assertSee('Back to the app')
+            ->assertSee(route('dashboard'), escape: false);
+    }
 }
