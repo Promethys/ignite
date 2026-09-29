@@ -26,6 +26,16 @@ Ignite is configured entirely through environment variables, read from a `.env` 
 
 PostgreSQL is the app's default database, both locally and in production. SQLite is used only by the automated test suite, not for local development.
 
+## User data encryption
+
+Goal, entry, milestone and category text and the user's name are encrypted with a key per user. See [Data Encryption](/features/encryption) for how it works.
+
+| Variable                         | What it does                                                                                                                                                              | Default / example                                                         |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `USER_DATA_MASTER_KEY`           | Master key that wraps every user's data key. Required. Generate with `php artisan key:generate --show` and keep a copy outside the server: losing it loses all user text. | empty until generated                                                     |
+| `USER_DATA_PREVIOUS_MASTER_KEYS` | Comma-separated previous master keys, kept only while `app:rotate-user-data-master-key` re-wraps the data keys.                                                           | unset by default                                                          |
+| `USER_DATA_KEYS_DB_URL`          | PostgreSQL URL of a separate database for the wrapped user keys. Unset stores them in the main database.                                                                  | unset by default (keys live in the main database, table `user_data_keys`) |
+
 ## Session, cache, and queue
 
 | Variable           | What it does                                  | Default / example |

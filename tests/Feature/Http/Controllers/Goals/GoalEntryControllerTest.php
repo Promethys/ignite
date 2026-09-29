@@ -9,10 +9,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class GoalEntryControllerTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     private User $user;
@@ -725,7 +727,7 @@ class GoalEntryControllerTest extends TestCase
             ->assertInertiaFlash('toast.type', 'success')
             ->assertInertiaFlash('toast.message', 'Entry saved.');
 
-        $this->assertDatabaseHas('goal_entries', [
+        $this->assertUserDataHas(GoalEntry::class, [
             'id' => $entry->id,
             'value' => 25,
             'previous_value' => 0,
@@ -892,5 +894,20 @@ class GoalEntryControllerTest extends TestCase
         $this->actingAs($this->user)
             ->delete(route('goals.entries.destroy', [$otherGoal, $entry]))
             ->assertForbidden();
+    }
+
+    public function test_searched_entries_are_paginated_after_the_text_filter()
+    {
+        GoalEntry::factory()->count(25)->create(['goal_id' => $this->goal->id, 'note' => 'Morning run', 'entry_date' => now()]);
+        GoalEntry::factory()->count(5)->create(['goal_id' => $this->goal->id, 'note' => 'Rest day', 'entry_date' => now()]);
+
+        $firstPage = $this->actingAs($this->user)
+            ->get(route('goals.entries', ['goal' => $this->goal->id, 'search' => 'morning']));
+        $secondPage = $this->actingAs($this->user)
+            ->get(route('goals.entries', ['goal' => $this->goal->id, 'search' => 'morning', 'page' => 2]));
+
+        $this->assertCount(20, $firstPage->inertiaProps('entries.data'));
+        $this->assertCount(5, $secondPage->inertiaProps('entries.data'));
+        $this->assertTrue(collect($secondPage->inertiaProps('entries.data'))->every(fn (array $entry): bool => $entry['note'] === 'Morning run'));
     }
 }

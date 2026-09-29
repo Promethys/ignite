@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Exceptions\UserDataEncryptionException;
+use App\Services\Encryption\UserDataKeyring;
+use App\Traits\Models\EncryptsUserData;
 use App\Traits\Models\HasRecentScope;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class GoalEntry extends Model
 {
+    use EncryptsUserData;
     use HasFactory;
     use HasRecentScope;
 
@@ -72,5 +76,18 @@ class GoalEntry extends Model
         return Attribute::make(
             get: fn () => round($this->value - $this->previous_value, 2),
         );
+    }
+
+    protected function encryptedAttributes(): array
+    {
+        return ['note'];
+    }
+
+    protected function userDataKeyId(): string
+    {
+        $goalId = $this->goal_id ?? throw UserDataEncryptionException::missingOwner('goal entry');
+        $keyring = app(UserDataKeyring::class);
+
+        return $keyring->keyIdForUser($keyring->userIdForGoal($goalId));
     }
 }

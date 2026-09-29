@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Exceptions\UserDataEncryptionException;
+use App\Services\Encryption\UserDataKeyring;
+use App\Traits\Models\EncryptsUserData;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Milestone extends Model
 {
-    use HasFactory, Notifiable;
+    use EncryptsUserData, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -109,5 +112,18 @@ class Milestone extends Model
         return Attribute::make(
             get: fn () => ! empty($this->completed_at) && $this->completed_at->isPast(),
         );
+    }
+
+    protected function encryptedAttributes(): array
+    {
+        return ['title', 'description'];
+    }
+
+    protected function userDataKeyId(): string
+    {
+        $goalId = $this->goal_id ?? throw UserDataEncryptionException::missingOwner('milestone');
+        $keyring = app(UserDataKeyring::class);
+
+        return $keyring->keyIdForUser($keyring->userIdForGoal($goalId));
     }
 }

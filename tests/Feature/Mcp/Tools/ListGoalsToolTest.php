@@ -179,4 +179,34 @@ class ListGoalsToolTest extends TestCase
                 ->where('goals.0.category', ['id' => $category->id, 'name' => 'Health'])
                 ->etc());
     }
+
+    public function test_the_search_filter_matches_descriptions_case_insensitively_with_accents(): void
+    {
+        $user = User::factory()->create();
+        Goal::factory()->create(['user_id' => $user->id, 'title' => 'Voyage', 'description' => 'Été à Lisbonne']);
+        Goal::factory()->create(['user_id' => $user->id, 'title' => 'Run a marathon', 'description' => null]);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListGoalsTool::class, ['search' => 'ÉTÉ'])
+            ->assertOk()
+            ->assertSee('Retrieved 1 goals.');
+    }
+
+    public function test_the_total_counts_every_search_match_beyond_the_limit(): void
+    {
+        $user = User::factory()->create();
+        Goal::factory()->count(3)->create(['user_id' => $user->id, 'title' => 'Learn the cello']);
+        Goal::factory()->create(['user_id' => $user->id, 'title' => 'Run a marathon']);
+
+        Sanctum::actingAs($user, ['read']);
+
+        IgniteServer::tool(ListGoalsTool::class, ['search' => 'cello', 'limit' => 2])
+            ->assertOk()
+            ->assertSee('Retrieved 2 of 3 goals.')
+            ->assertStructuredContent(fn (AssertableJson $json) => $json
+                ->has('goals', 2)
+                ->where('total', 3)
+                ->etc());
+    }
 }

@@ -9,8 +9,12 @@ use App\Rules\GoalEntryRules;
 use App\Services\StreakService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class GoalEntryService
@@ -40,11 +44,61 @@ class GoalEntryService
     {
         Gate::forUser($actor)->authorize('view', $goal);
 
-        $query = $goal->entries();
+        $query = $this->entriesInRange($goal, $filters);
+        $limit = min((int) ($filters['limit'] ?? 50), 200);
 
         if (! empty($filters['search'])) {
-            $query->whereRaw('LOWER(note) like ?', ['%'.strtolower($filters['search']).'%']);
+            $entries = $this->matchingNote($query->get(), $filters['search']);
+
+            return [
+                'entries' => $entries->take($limit),
+                'total' => $entries->count(),
+                'limit' => $limit,
+            ];
         }
+
+        return [
+            'entries' => (clone $query)->limit($limit)->get(),
+            'total' => $query->count(),
+            'limit' => $limit,
+        ];
+    }
+
+    /**
+     * Paginate a goal's entries with optional filters, newest first.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return LengthAwarePaginator<int, GoalEntry>
+     */
+    public function paginateEntries(User $actor, Goal $goal, array $filters = [], int $perPage = 20): LengthAwarePaginator
+    {
+        Gate::forUser($actor)->authorize('view', $goal);
+
+        $query = $this->entriesInRange($goal, $filters);
+
+        if (empty($filters['search'])) {
+            return $query->paginate($perPage);
+        }
+
+        $entries = $this->matchingNote($query->get(), $filters['search']);
+        $page = Paginator::resolveCurrentPage();
+
+        return new LengthAwarePaginator(
+            $entries->forPage($page, $perPage)->values(),
+            $entries->count(),
+            $perPage,
+            $page,
+            ['path' => Paginator::resolveCurrentPath()],
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return HasMany<GoalEntry, Goal>
+     */
+    private function entriesInRange(Goal $goal, array $filters): HasMany
+    {
+        $query = $goal->entries()->orderBy('entry_date', 'desc');
 
         if (! empty($filters['from'])) {
             $query->whereDate('entry_date', '>=', $filters['from']);
@@ -54,20 +108,18 @@ class GoalEntryService
             $query->whereDate('entry_date', '<=', $filters['to']);
         }
 
-        $total = $query->count();
+        return $query;
+    }
 
-        $limit = min((int) ($filters['limit'] ?? 50), 200);
-
-        $entries = (clone $query)
-            ->orderBy('entry_date', 'desc')
-            ->limit($limit)
-            ->get();
-
-        return [
-            'entries' => $entries,
-            'total' => $total,
-            'limit' => $limit,
-        ];
+    /**
+     * @param  Collection<int, GoalEntry>  $entries
+     * @return Collection<int, GoalEntry>
+     */
+    private function matchingNote(Collection $entries, string $search): Collection
+    {
+        return $entries
+            ->filter(fn (GoalEntry $entry): bool => Str::contains($entry->note ?? '', $search, ignoreCase: true))
+            ->values();
     }
 
     public function logProgress(User $actor, Goal $goal, float $increment, ?string $note = null, ?string $entryDate = null): GoalEntry

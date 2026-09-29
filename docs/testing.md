@@ -282,6 +282,16 @@ class GoalTest extends TestCase
 }
 ```
 
+#### Encrypted columns
+
+Text columns covered by [Data Encryption](/features/encryption) hold ciphertext, so `assertDatabaseHas` and `assertDatabaseMissing` cannot match their plaintext: a `Missing` assertion would pass whether or not the row exists. Use `assertUserDataHas` and `assertUserDataMissing` from `Tests\Concerns\AssertsUserData`, which compare decrypted models:
+
+```php
+$this->assertUserDataHas(Category::class, ['user_id' => $user->id, 'name' => 'Reading']);
+```
+
+For the same reason, look records up through loaded models (`Goal::all()->firstWhere('title', ...)`) rather than `where('title', ...)`.
+
 #### Relationship tests
 
 For each relationship, verify:

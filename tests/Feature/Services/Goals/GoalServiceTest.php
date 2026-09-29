@@ -11,10 +11,12 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class GoalServiceTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     private GoalService $service;
@@ -215,7 +217,7 @@ class GoalServiceTest extends TestCase
 
         $goal = $this->service->create($actor, $this->validAttributes);
 
-        $this->assertDatabaseHas('goals', [
+        $this->assertUserDataHas(Goal::class, [
             'id' => $goal->id,
             'user_id' => $actor->id,
             'title' => 'Learn Rust',

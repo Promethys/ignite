@@ -21,7 +21,6 @@ class LatestRegistrations extends TableWidget
             ->paginated(false)
             ->defaultSort('created_at', direction: 'desc')
             ->columns([
-                TextColumn::make('name'),
                 TextColumn::make('email'),
                 TextColumn::make('locale')
                     ->badge(),

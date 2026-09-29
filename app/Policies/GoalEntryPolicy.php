@@ -12,7 +12,7 @@ class GoalEntryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return false;
     }
 
     /**
@@ -52,7 +52,7 @@ class GoalEntryPolicy
      */
     public function restore(User $user, GoalEntry $goalEntry): bool
     {
-        return $user->isAdmin();
+        return false;
     }
 
     /**
@@ -60,6 +60,6 @@ class GoalEntryPolicy
      */
     public function forceDelete(User $user, GoalEntry $goalEntry): bool
     {
-        return $user->isAdmin();
+        return false;
     }
 }

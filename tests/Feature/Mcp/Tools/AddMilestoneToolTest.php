@@ -10,10 +10,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class AddMilestoneToolTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     public function test_a_write_token_adds_a_milestone_to_the_goal(): void
@@ -33,7 +35,7 @@ class AddMilestoneToolTest extends TestCase
                 ->where('order', 1)
                 ->etc());
 
-        $this->assertDatabaseHas('milestones', [
+        $this->assertUserDataHas(Milestone::class, [
             'goal_id' => $goal->id,
             'title' => 'Draft the outline',
         ]);
@@ -95,7 +97,7 @@ class AddMilestoneToolTest extends TestCase
             'title' => 'Sneaky',
         ])->assertHasErrors();
 
-        $this->assertDatabaseMissing('milestones', ['title' => 'Sneaky']);
+        $this->assertUserDataMissing(Milestone::class, ['title' => 'Sneaky']);
     }
 
     public function test_a_deadline_is_recorded_when_it_falls_within_the_goal_dates(): void
@@ -126,6 +128,6 @@ class AddMilestoneToolTest extends TestCase
                 ->where('deadline', '2026-10-15')
                 ->etc());
 
-        $this->assertDatabaseMissing('milestones', ['title' => 'Too late']);
+        $this->assertUserDataMissing(Milestone::class, ['title' => 'Too late']);
     }
 }

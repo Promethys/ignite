@@ -13,7 +13,7 @@ class MilestonePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return false;
     }
 
     /**

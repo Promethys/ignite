@@ -69,45 +69,34 @@ class GoalPolicyTest extends TestCase
     }
 
     // =========================================================================
-    // ADMIN — the grant is scoped to the admin panel only
+    // ADMIN — no access to another user's goal, in the app or the panel
     // =========================================================================
 
-    public function test_admin_cannot_view_or_delete_another_users_goal_outside_the_panel()
+    public function test_admin_cannot_view_update_or_delete_another_users_goal_outside_the_panel()
     {
         $goal = $this->ownedGoal();
 
-        // No current panel resolved: the admin grant must not leak to the app surface.
         $this->assertFalse($this->admin->can('view', $goal));
+        $this->assertFalse($this->admin->can('update', $goal));
         $this->assertFalse($this->admin->can('delete', $goal));
     }
 
-    public function test_admin_can_view_and_delete_another_users_goal_within_the_panel()
+    public function test_admin_cannot_view_update_or_delete_another_users_goal_within_the_panel()
     {
         $goal = $this->ownedGoal();
 
         $this->enterAdminPanel();
 
-        $this->assertTrue($this->admin->can('view', $goal));
-        $this->assertTrue($this->admin->can('delete', $goal));
-    }
-
-    public function test_admin_cannot_update_another_users_goal_even_within_the_panel()
-    {
-        $goal = $this->ownedGoal();
-
-        $this->enterAdminPanel();
-
-        // Editing another user's goal data is never an admin capability.
+        $this->assertFalse($this->admin->can('view', $goal));
         $this->assertFalse($this->admin->can('update', $goal));
+        $this->assertFalse($this->admin->can('delete', $goal));
     }
 
-    // =========================================================================
-    // viewAny — only admins may list every goal
-    // =========================================================================
-
-    public function test_only_admins_can_view_any_goal()
+    public function test_nobody_can_view_any_goal()
     {
-        $this->assertTrue($this->admin->can('viewAny', Goal::class));
+        $this->enterAdminPanel();
+
+        $this->assertFalse($this->admin->can('viewAny', Goal::class));
         $this->assertFalse($this->owner->can('viewAny', Goal::class));
     }
 }

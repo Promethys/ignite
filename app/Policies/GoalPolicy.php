@@ -12,7 +12,7 @@ class GoalPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return false;
     }
 
     /**
@@ -20,7 +20,7 @@ class GoalPolicy
      */
     public function view(User $user, Goal $goal): bool
     {
-        return $user->is($goal->user) || ($user->isAdmin() && filament()->getCurrentPanel()?->getId() === 'admin');
+        return $user->is($goal->user);
     }
 
     /**
@@ -44,6 +44,6 @@ class GoalPolicy
      */
     public function delete(User $user, Goal $goal): bool
     {
-        return $user->is($goal->user) || ($user->isAdmin() && filament()->getCurrentPanel()?->getId() === 'admin');
+        return $user->is($goal->user);
     }
 }

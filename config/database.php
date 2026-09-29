@@ -98,6 +98,16 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        'keys' => [
+            'driver' => 'pgsql',
+            'url' => env('USER_DATA_KEYS_DB_URL'),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),

@@ -64,4 +64,14 @@ class AdminPanelProviderTest extends TestCase
             ->get('/admin')
             ->assertSuccessful();
     }
+
+    public function test_the_panel_exposes_no_goal_content_pages()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $this->actingAsPanelUser($admin)
+            ->get('/admin/goals')
+            ->assertNotFound();
+    }
 }

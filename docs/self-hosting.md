@@ -57,7 +57,21 @@ This is the command that builds the image, so expect it to take a few minutes th
 For the same reason the startup script refuses to generate one for you. A key minted automatically on each boot would look convenient and quietly destroy data on the first container recreate. If `APP_KEY` is missing or empty, the container exits immediately with instructions; read them with `docker compose logs web`.
 :::
 
-### 4. Start the stack
+### 4. Generate the user data master key
+
+Run the same command a second time and paste the new value into `.env`:
+
+```ini
+USER_DATA_MASTER_KEY=base64:yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy=
+```
+
+It must differ from `APP_KEY`. It wraps the per-user keys that encrypt goal, entry, milestone and category text and user names; see [Data Encryption](/features/encryption).
+
+::: danger Keep a copy of this key outside the server
+Losing `USER_DATA_MASTER_KEY` makes every user's text permanently unreadable. Store it in a password manager before the first boot. The startup script refuses to start without it, for the same reason as `APP_KEY`.
+:::
+
+### 5. Start the stack
 
 ```bash
 docker compose up -d
@@ -65,7 +79,7 @@ docker compose up -d
 
 Compose waits for PostgreSQL to report healthy, runs the migrations and seeders to completion, and only then starts the web container.
 
-### 5. Visit the application
+### 6. Visit the application
 
 ```text
 http://localhost:8080
@@ -124,6 +138,10 @@ Restore into a running stack:
 docker compose exec -T postgres psql -U postgres -d ignite < ignite-backup.sql
 ```
 
+A dump is only readable with the `USER_DATA_MASTER_KEY` that was current when it was taken, so back the key up separately, never inside the same archive.
+
+By default the wrapped user keys live in the same database, in `user_data_keys`, so every dump contains them. Deleting an account destroys its key in the live database, but an older dump still holds that key, and the account's data stays readable from that dump until you discard it. To bound that window, point `USER_DATA_KEYS_DB_URL` at a second database with short backup retention; see [Data Encryption](/features/encryption#account-deletion).
+
 ### Upgrading Ignite
 
 ```bash
@@ -132,6 +150,8 @@ docker compose up -d --build
 ```
 
 The `migrate` service reruns on every `up` and must finish before `web` starts. Re-seeding is safe: in production the seeder only creates roles, through `updateOrCreate`.
+
+Upgrading from a version without user data encryption: set `USER_DATA_MASTER_KEY` first and take a backup. The first `migrate` encrypts every existing row. The backup you took before it holds plaintext; delete it once the upgrade is confirmed.
 
 ::: danger Never delete the Postgres volume to clear a startup error
 `postgres-data-production` holds all of your data, and `docker compose down -v` deletes it permanently.
@@ -197,6 +217,12 @@ set -e
 
 if [ -z "$APP_KEY" ]; then
   echo "Ignite cannot start: APP_KEY is not set." >&2
+  ...
+  exit 1
+fi
+
+if [ -z "$USER_DATA_MASTER_KEY" ]; then
+  echo "Ignite cannot start: USER_DATA_MASTER_KEY is not set." >&2
   ...
   exit 1
 fi

@@ -4,14 +4,17 @@ namespace Tests\Feature\Mcp\Tools;
 
 use App\Mcp\Servers\IgniteServer;
 use App\Mcp\Tools\CreateCategoryTool;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\Concerns\AssertsUserData;
 use Tests\TestCase;
 
 class CreateCategoryToolTest extends TestCase
 {
+    use AssertsUserData;
     use RefreshDatabase;
 
     public function test_a_write_scoped_token_creates_a_category_owned_by_the_actor(): void
@@ -24,7 +27,7 @@ class CreateCategoryToolTest extends TestCase
             ->assertOk()
             ->assertSee('Created the category Woodworking.');
 
-        $this->assertDatabaseHas('categories', [
+        $this->assertUserDataHas(Category::class, [
             'user_id' => $user->id,
             'name' => 'Woodworking',
         ]);
@@ -39,7 +42,7 @@ class CreateCategoryToolTest extends TestCase
         IgniteServer::tool(CreateCategoryTool::class, ['name' => 'Woodworking'])
             ->assertHasErrors();
 
-        $this->assertDatabaseMissing('categories', ['name' => 'Woodworking']);
+        $this->assertUserDataMissing(Category::class, ['name' => 'Woodworking']);
     }
 
     public function test_the_name_is_required(): void
@@ -132,7 +135,7 @@ class CreateCategoryToolTest extends TestCase
             'color' => $color,
         ])->assertOk();
 
-        $this->assertDatabaseHas('categories', [
+        $this->assertUserDataHas(Category::class, [
             'name' => 'Woodworking',
             'color' => strtolower($color),
         ]);
@@ -147,7 +150,7 @@ class CreateCategoryToolTest extends TestCase
         IgniteServer::tool(CreateCategoryTool::class, ['name' => 'Woodworking'])
             ->assertOk();
 
-        $this->assertDatabaseHas('categories', [
+        $this->assertUserDataHas(Category::class, [
             'name' => 'Woodworking',
             'color' => '#6366f1',
         ]);
@@ -165,7 +168,7 @@ class CreateCategoryToolTest extends TestCase
             'user_id' => $otherUser->id,
         ])->assertOk();
 
-        $this->assertDatabaseHas('categories', ['name' => 'Woodworking', 'user_id' => $user->id]);
+        $this->assertUserDataHas(Category::class, ['name' => 'Woodworking', 'user_id' => $user->id]);
         $this->assertDatabaseMissing('categories', ['user_id' => $otherUser->id]);
     }
 }
