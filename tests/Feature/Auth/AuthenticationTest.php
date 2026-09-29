@@ -180,4 +180,14 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(route('two-factor.login'));
         $this->assertSame('fr', $user->fresh()->locale);
     }
+
+    public function test_an_email_over_255_characters_is_rejected()
+    {
+        $this->post(route('login.store'), [
+            'email' => str_repeat('a', 244).'@example.com',
+            'password' => 'password',
+        ])->assertInvalid(['email' => '255']);
+
+        $this->assertGuest();
+    }
 }

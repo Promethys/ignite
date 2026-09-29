@@ -97,4 +97,24 @@ class PasswordResetTest extends TestCase
 
         $response->assertSessionHasErrors('email');
     }
+
+    public function test_a_reset_link_request_rejects_an_email_over_255_characters(): void
+    {
+        Notification::fake();
+
+        $this->post(route('password.email'), ['email' => str_repeat('a', 244).'@example.com'])
+            ->assertInvalid(['email' => '255']);
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_a_password_reset_rejects_an_email_over_255_characters(): void
+    {
+        $this->post(route('password.store'), [
+            'token' => 'any-token',
+            'email' => str_repeat('a', 244).'@example.com',
+            'password' => 'New-P@ssw0rd123',
+            'password_confirmation' => 'New-P@ssw0rd123',
+        ])->assertInvalid(['email' => '255']);
+    }
 }
