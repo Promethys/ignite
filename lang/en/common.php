@@ -45,4 +45,7 @@ return [
         'show' => 'Show password',
         'hide' => 'Hide password',
     ],
+    'form' => [
+        'character_count' => ':count of :max characters',
+    ],
 ];

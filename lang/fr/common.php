@@ -45,4 +45,7 @@ return [
         'show' => 'Afficher le mot de passe',
         'hide' => 'Masquer le mot de passe',
     ],
+    'form' => [
+        'character_count' => ':count sur :max caractères',
+    ],
 ];
