@@ -344,15 +344,39 @@ class GoalEntryService
         }
 
         \DB::transaction(function () use ($goal, $entry, $entryData, $increment) {
-            $newValue = $goal->current_value + $increment - $entry->increment_value;
+            $delta = $increment - $entry->increment_value;
 
             $entry->update($entryData);
+            $this->shiftLaterEntries($entry, $delta);
             $goal->update([
-                'current_value' => $newValue,
+                'current_value' => $goal->current_value + $delta,
             ]);
         });
 
         return $entry->fresh();
+    }
+
+    /**
+     * Move the running totals of every entry recorded after the given one.
+     */
+    protected function shiftLaterEntries(GoalEntry $entry, float $delta): void
+    {
+        if ($delta == 0) {
+            return;
+        }
+
+        $entryDate = $entry->entry_date->toDateString();
+
+        $entry->goal->entries()
+            ->where(fn ($query) => $query
+                ->whereDate('entry_date', '>', $entryDate)
+                ->orWhere(fn ($sameDay) => $sameDay
+                    ->whereDate('entry_date', $entryDate)
+                    ->where('id', '>', $entry->id)))
+            ->incrementEach([
+                'previous_value' => $delta,
+                'value' => $delta,
+            ]);
     }
 
     public function deleteEntry(User $actor, GoalEntry $entry): ?bool
@@ -368,6 +392,7 @@ class GoalEntryService
         $newValue = $goal->current_value - $entry->increment_value;
 
         return \DB::transaction(function () use ($goal, $newValue, $entry): bool {
+            $this->shiftLaterEntries($entry, -$entry->increment_value);
             $entry->delete();
             $goal->update([
                 'current_value' => $newValue,

@@ -414,4 +414,67 @@ class GoalEntryServiceTest extends TestCase
             ])
             ->all();
     }
+
+    /**
+     * @return array{Goal, GoalEntry, GoalEntry, GoalEntry, GoalEntry}
+     */
+    private function chainOfFourEntries(User $owner): array
+    {
+        $goal = Goal::factory()->create([
+            'user_id' => $owner->id,
+            'type' => 'quantifiable',
+            'initial_value' => 0,
+            'current_value' => 0,
+            'target_value' => 1000,
+        ]);
+
+        $this->service->logProgress($owner, $goal, 10, null, '2026-09-20');
+        $this->service->logProgress($owner, $goal, 15, null, '2026-09-22');
+        $this->service->logProgress($owner, $goal, 5, null, '2026-09-22');
+        $this->service->logProgress($owner, $goal, 10, null, '2026-09-30');
+
+        return [$goal->fresh(), ...$goal->entries()->orderBy('entry_date')->orderBy('id')->get()->all()];
+    }
+
+    /**
+     * @return list<array{float, float}>
+     */
+    private function chainOf(Goal $goal): array
+    {
+        return $goal->entries()->orderBy('entry_date')->orderBy('id')->get()
+            ->map(fn (GoalEntry $entry): array => [(float) $entry->previous_value, (float) $entry->value])
+            ->all();
+    }
+
+    public function test_editing_an_entry_shifts_every_later_entry_and_leaves_earlier_ones_alone(): void
+    {
+        $owner = User::factory()->create();
+        [$goal, , $edited] = $this->chainOfFourEntries($owner);
+
+        $this->service->updateEntry($owner, $edited, 20);
+
+        $this->assertSame([[0.0, 10.0], [10.0, 30.0], [30.0, 35.0], [35.0, 45.0]], $this->chainOf($goal));
+        $this->assertSame(45.0, (float) $goal->fresh()->current_value);
+    }
+
+    public function test_deleting_an_entry_shifts_every_later_entry(): void
+    {
+        $owner = User::factory()->create();
+        [$goal, , $deleted] = $this->chainOfFourEntries($owner);
+
+        $this->service->deleteEntry($owner, $deleted);
+
+        $this->assertSame([[0.0, 10.0], [10.0, 15.0], [15.0, 25.0]], $this->chainOf($goal));
+        $this->assertSame(25.0, (float) $goal->fresh()->current_value);
+    }
+
+    public function test_editing_the_last_entry_touches_no_other_entry(): void
+    {
+        $owner = User::factory()->create();
+        [$goal, , , , $last] = $this->chainOfFourEntries($owner);
+
+        $this->service->updateEntry($owner, $last, 1);
+
+        $this->assertSame([[0.0, 10.0], [10.0, 25.0], [25.0, 30.0], [30.0, 31.0]], $this->chainOf($goal));
+    }
 }
