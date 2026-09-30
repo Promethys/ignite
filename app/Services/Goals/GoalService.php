@@ -62,7 +62,7 @@ class GoalService
             )->values();
 
             return [
-                'goals' => ($limit !== null ? $goals->take($limit) : $goals)->append('streak'),
+                'goals' => ($limit !== null ? $goals->take($limit) : $goals)->each->setRelation('user', $actor)->append('streak'),
                 'total' => $goals->count(),
                 'limit' => $limit,
             ];
@@ -75,7 +75,7 @@ class GoalService
         }
 
         return [
-            'goals' => $query->get()->append('streak'),
+            'goals' => $query->get()->each->setRelation('user', $actor)->append('streak'),
             'total' => $total,
             'limit' => $limit,
         ];

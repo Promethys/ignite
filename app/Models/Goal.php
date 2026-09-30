@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Exceptions\UserDataEncryptionException;
 use App\Observers\GoalObserver;
+use App\Rules\GoalEntryRules;
 use App\Services\Encryption\UserDataKeyring;
 use App\Services\StreakService;
 use App\Traits\Models\EncryptsUserData;
@@ -83,7 +84,6 @@ class Goal extends Model
 
     protected $appends = [
         'progress_percentage',
-        'is_overdue',
         'is_completed',
     ];
 
@@ -190,8 +190,8 @@ class Goal extends Model
     {
         return Attribute::make(
             get: fn () => $this->deadline
-                && $this->deadline->isPast()
                 && $this->status !== 'completed'
+                && $this->deadline->toDateString() < GoalEntryRules::todayForTimezone($this->user?->timezone)
         );
     }
 

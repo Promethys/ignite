@@ -71,7 +71,6 @@ const makeGoal = (overrides: Partial<Goal> = {}): Goal => ({
     created_at: '2026-01-01',
     updated_at: '2026-01-01',
     progress_percentage: 0,
-    is_overdue: false,
     is_completed: false,
     milestones: [],
     ...overrides,

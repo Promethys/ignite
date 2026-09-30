@@ -912,11 +912,11 @@ class GoalControllerTest extends TestCase
         $this->actingAs($this->user)
             ->get(route('goals.show', $goal))
             ->assertInertia(fn (Assert $page) => $page
-                ->where('goal.is_overdue', true)
                 ->where('goal.status', 'in_progress')
             );
 
         $this->assertEquals('in_progress', $goal->fresh()->status);
+        $this->assertTrue($goal->fresh()->is_overdue);
 
         Carbon::setTestNow();
     }

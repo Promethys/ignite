@@ -428,4 +428,14 @@ class GoalServiceTest extends TestCase
 
         $this->service->delete($intruder, $goal);
     }
+
+    public function test_listed_goals_carry_their_owner_so_no_query_runs_per_goal(): void
+    {
+        $owner = User::factory()->create();
+        Goal::factory()->count(3)->create(['user_id' => $owner->id, 'category_id' => null]);
+
+        $goals = app(GoalService::class)->listForUser($owner)['goals'];
+
+        $this->assertTrue($goals->every(fn (Goal $goal): bool => $goal->relationLoaded('user')));
+    }
 }

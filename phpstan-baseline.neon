@@ -25,12 +25,6 @@ parameters:
 			path: app/Models/Goal.php
 
 		-
-			message: '#^Property ''is_overdue'' does not exist in model\.$#'
-			identifier: rules.modelAppends
-			count: 1
-			path: app/Models/Goal.php
-
-		-
 			message: '#^PHPDoc type array of property App\\Models\\GoalEntry\:\:\$appends is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$appends\.$#'
 			identifier: property.phpDocType
 			count: 1

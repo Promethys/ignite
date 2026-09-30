@@ -211,6 +211,31 @@ class GoalTest extends TestCase
         $this->assertTrue($goal->is_overdue);
     }
 
+    public function test_is_overdue_returns_false_on_the_deadline_day_itself()
+    {
+        Carbon::setTestNow('2026-09-30 15:00:00');
+
+        $goal = Goal::factory()->create([
+            'status' => 'in_progress',
+            'type' => 'simple',
+            'deadline' => '2026-09-30',
+        ]);
+
+        $this->assertFalse($goal->is_overdue);
+    }
+
+    public function test_is_overdue_follows_the_owners_calendar_day()
+    {
+        Carbon::setTestNow('2026-09-30 02:00:00');
+
+        $newYorker = User::factory()->create(['timezone' => 'America/New_York']);
+        $londoner = User::factory()->create(['timezone' => 'UTC']);
+        $attributes = ['status' => 'in_progress', 'type' => 'simple', 'deadline' => '2026-09-29'];
+
+        $this->assertFalse(Goal::factory()->create([...$attributes, 'user_id' => $newYorker->id])->is_overdue);
+        $this->assertTrue(Goal::factory()->create([...$attributes, 'user_id' => $londoner->id])->is_overdue);
+    }
+
     public function test_is_overdue_returns_false_when_no_deadline()
     {
         $goal = Goal::factory()->create([

@@ -75,7 +75,6 @@ export interface Goal {
 
     // Attributes
     progress_percentage: number;
-    is_overdue: boolean;
     is_completed: boolean;
     streak?: StreakData;
 
