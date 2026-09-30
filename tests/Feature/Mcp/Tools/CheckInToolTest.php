@@ -102,4 +102,18 @@ class CheckInToolTest extends TestCase
             'entry_date' => '2026-07-20',
         ])->assertHasErrors();
     }
+
+    public function test_a_check_in_may_predate_the_goals_start_date(): void
+    {
+        $user = User::factory()->create();
+        $goal = $this->recurringGoal($user);
+        $goal->update(['start_date' => '2026-07-10']);
+
+        Sanctum::actingAs($user, ['read', 'write']);
+
+        IgniteServer::tool(CheckInTool::class, [
+            'goal_id' => $goal->id,
+            'entry_date' => '2026-07-09',
+        ])->assertOk();
+    }
 }

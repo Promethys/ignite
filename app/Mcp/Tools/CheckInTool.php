@@ -65,7 +65,7 @@ class CheckInTool extends IgniteTool
                 ->description('The ID of the recurring goal to check in on.')
                 ->required(),
             'entry_date' => $schema->string()
-                ->description('The calendar date of the check-in as YYYY-MM-DD. Must be on or before today, and on or after the goal\'s start date if it has one.')
+                ->description('The calendar date of the check-in as YYYY-MM-DD. Must be on or before today, and may predate the goal\'s start date.')
                 ->format('date')
                 ->max(255)
                 ->required(),
