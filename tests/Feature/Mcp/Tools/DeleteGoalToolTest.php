@@ -173,4 +173,17 @@ class DeleteGoalToolTest extends TestCase
 
         $response->assertSee('"confirmation_token":"'.$this->confirmationTokenFrom($response).'"');
     }
+
+    public function test_the_preview_uses_singular_nouns_for_one_milestone_and_one_entry(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $user->id, 'title' => 'Write a book']);
+        Milestone::factory()->create(['goal_id' => $goal->id]);
+        GoalEntry::factory()->create(['goal_id' => $goal->id]);
+
+        Sanctum::actingAs($user, ['read', 'write', 'delete']);
+
+        IgniteServer::tool(DeleteGoalTool::class, ['goal_id' => $goal->id])
+            ->assertSee('its 1 milestone and 1 progress entry.');
+    }
 }

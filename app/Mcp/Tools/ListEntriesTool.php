@@ -8,6 +8,7 @@ use App\Services\Goals\GoalEntryService;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
+use Illuminate\Support\Str;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -58,7 +59,7 @@ class ListEntriesTool extends IgniteTool
             return Response::text('This goal does not have any matching entry.');
         }
 
-        return $this->structuredResponse('Retrieved '.$result['entries']->count().' of '.$result['total'].' progress entries.', [
+        return $this->structuredResponse('Retrieved '.$result['entries']->count().' of '.$result['total'].' '.Str::plural('progress entry', $result['total']).'.', [
             'entries' => GoalEntryResource::collection($result['entries'])->resolve(),
             'total' => $result['total'],
             'limit' => $result['limit'],

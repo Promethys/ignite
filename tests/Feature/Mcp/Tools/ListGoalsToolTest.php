@@ -102,7 +102,7 @@ class ListGoalsToolTest extends TestCase
 
         IgniteServer::tool(ListGoalsTool::class, ['status' => 'completed'])
             ->assertOk()
-            ->assertSee('Retrieved 1 goals.');
+            ->assertSee('Retrieved 1 goal.');
     }
 
     public function test_the_search_filter_matches_titles(): void
@@ -115,7 +115,7 @@ class ListGoalsToolTest extends TestCase
 
         IgniteServer::tool(ListGoalsTool::class, ['search' => 'cello'])
             ->assertOk()
-            ->assertSee('Retrieved 1 goals.');
+            ->assertSee('Retrieved 1 goal.');
     }
 
     public function test_the_limit_caps_the_number_of_goals_returned(): void
@@ -190,7 +190,7 @@ class ListGoalsToolTest extends TestCase
 
         IgniteServer::tool(ListGoalsTool::class, ['search' => 'ÉTÉ'])
             ->assertOk()
-            ->assertSee('Retrieved 1 goals.');
+            ->assertSee('Retrieved 1 goal.');
     }
 
     public function test_the_total_counts_every_search_match_beyond_the_limit(): void
@@ -219,7 +219,7 @@ class ListGoalsToolTest extends TestCase
 
         IgniteServer::tool(ListGoalsTool::class)
             ->assertOk()
-            ->assertSee('Retrieved 1 goals.')
+            ->assertSee('Retrieved 1 goal.')
             ->assertSee('"id":'.$goal->id)
             ->assertSee('"title":"Learn the cello"');
     }

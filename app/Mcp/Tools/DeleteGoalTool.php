@@ -7,6 +7,7 @@ use App\Services\Goals\GoalService;
 use App\Services\Mcp\DestructiveConfirmations;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
+use Illuminate\Support\Str;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -45,7 +46,9 @@ class DeleteGoalTool extends IgniteTool
         $goal = $this->goalService->find($user, $goalId);
         $milestoneCount = $goal->milestones()->count();
         $entriesCount = $goal->entries()->count();
-        $previewText = "This will permanently delete the goal '{$goal->title}', its {$milestoneCount} milestones and {$entriesCount} progress entries. This cannot be undone.";
+        $milestones = Str::plural('milestone', $milestoneCount);
+        $entries = Str::plural('progress entry', $entriesCount);
+        $previewText = "This will permanently delete the goal '{$goal->title}', its {$milestoneCount} {$milestones} and {$entriesCount} {$entries}. This cannot be undone.";
 
         if ($token === null) {
             $token = $this->destructiveConfirmations->issue(

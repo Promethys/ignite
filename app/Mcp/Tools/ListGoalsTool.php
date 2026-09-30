@@ -6,6 +6,7 @@ use App\Http\Resources\GoalResource;
 use App\Services\Goals\GoalService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;
+use Illuminate\Support\Str;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
@@ -48,8 +49,8 @@ class ListGoalsTool extends IgniteTool
         ]);
 
         $text = $result['goals']->count() < $result['total']
-            ? 'Retrieved '.$result['goals']->count().' of '.$result['total'].' goals.'
-            : 'Retrieved '.$result['goals']->count().' goals.';
+            ? 'Retrieved '.$result['goals']->count().' of '.$result['total'].' '.Str::plural('goal', $result['total']).'.'
+            : 'Retrieved '.$result['goals']->count().' '.Str::plural('goal', $result['goals']->count()).'.';
 
         return $this->structuredResponse($text, [
             'goals' => GoalResource::collection($result['goals'])->resolve(),

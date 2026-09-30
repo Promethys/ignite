@@ -110,7 +110,7 @@ class ListEntriesToolTest extends TestCase
             'from' => '2026-03-01',
         ])
             ->assertOk()
-            ->assertSee('Retrieved 1 of 1 progress entries.');
+            ->assertSee('Retrieved 1 of 1 progress entry.');
     }
 
     public function test_the_search_filter_matches_notes(): void
@@ -127,7 +127,7 @@ class ListEntriesToolTest extends TestCase
             'search' => 'great',
         ])
             ->assertOk()
-            ->assertSee('Retrieved 1 of 1 progress entries.');
+            ->assertSee('Retrieved 1 of 1 progress entry.');
     }
 
     public function test_the_search_total_counts_every_match_beyond_the_limit(): void
