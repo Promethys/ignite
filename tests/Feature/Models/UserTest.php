@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Models;
 
+use App\Models\AssistantKey;
 use App\Models\Category;
 use App\Models\Goal;
 use App\Models\SocialAccount;
@@ -47,6 +48,18 @@ class UserTest extends TestCase
         $this->assertCount(1, $user->socialAccounts);
         $this->assertTrue($user->socialAccounts->contains($account));
         $this->assertInstanceOf(SocialAccount::class, $user->socialAccounts->first());
+    }
+
+    public function test_user_has_one_assistant_key()
+    {
+        $user = User::factory()->create();
+
+        $this->assertNull($user->assistantKey);
+
+        $assistantKey = AssistantKey::factory()->create(['user_id' => $user->id]);
+
+        $this->assertInstanceOf(AssistantKey::class, $user->fresh()->assistantKey);
+        $this->assertTrue($user->fresh()->assistantKey->is($assistantKey));
     }
 
     // =========================================================================
