@@ -19,13 +19,14 @@ class AssistantProviderTest extends TestCase
     }
 
     #[DataProvider('providers')]
-    public function test_every_provider_is_configured_in_the_ai_sdk_and_needs_only_a_key(AssistantProvider $provider)
+    public function test_every_provider_is_configured_in_the_ai_sdk_with_a_key_and_a_base_url(AssistantProvider $provider)
     {
         $configuration = config("ai.providers.{$provider->value}");
 
         $this->assertIsArray($configuration, "The AI SDK has no provider named [{$provider->value}].");
         $this->assertSame($provider->value, $configuration['driver']);
         $this->assertArrayHasKey('key', $configuration);
+        $this->assertStringStartsWith('https://', $configuration['url']);
     }
 
     #[DataProvider('providers')]
