@@ -66,6 +66,10 @@ export default withMermaid(
                                 text: 'Tracking Progress',
                                 link: '/guide/tracking-progress',
                             },
+                            {
+                                text: 'Use the Assistant',
+                                link: '/guide/assistant',
+                            },
                         ],
                     },
                 ],

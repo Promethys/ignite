@@ -4,7 +4,9 @@
 
 The assistant works with an AI account the user or the operator brings. Ignite never pays for a model: each user saves their own API key in **Settings > AI Assistant**, or a self-hosted instance provides one configuration for everybody through `.env`.
 
-This page covers how keys are stored and chosen. Without a key and without an instance configuration, the assistant is not offered at all.
+With one of the two in place, a button in the page header opens a chat panel. The assistant answers questions about the user's goals and changes them on request, through the same tools as the [MCP server](/features/mcp-server). Without a key and without an instance configuration, the assistant is not offered at all.
+
+For how to use it, see [Use the assistant](/guide/assistant).
 
 ## Supported providers
 
@@ -75,3 +77,67 @@ Ollama's default model is very small and unlikely to handle tool calling well. S
 3. Otherwise nothing.
 
 The shared Inertia prop `assistant.available` tells the frontend whether one of the first two applies. It is computed without reading or decrypting any key, and carries neither a key nor a provider name.
+
+## The chat
+
+### The agent
+
+`App\Ai\Agents\IgniteAssistant` is built for each request with the signed-in user, the resolved configuration and, when the user is on a goal page, that goal.
+
+- **Instructions.** The MCP server's own instructions (`IgniteServer::INSTRUCTIONS`), followed by the user's language, their timezone and today's date there. The goal on screen is passed as an id only, never as text.
+- **Scope.** The agent is told to help only with goals, progress, habits, milestones, categories and planning, and to decline anything else in one sentence. This is an instruction to the model, not a filter: how well it holds depends on the model.
+- **Steps.** One message can run at most eight model steps, tool calls included.
+- **Model.** The user's model when their key sets one, otherwise the provider's cheapest text model.
+
+### Tools
+
+`App\Ai\AssistantTools` gives the agent every tool in `IgniteServer::TOOLS` that the signed-in user may use, with the same names, descriptions and schemas as over MCP. Each tool validates its own arguments and applies only to the current user's data. Arguments a tool refuses are returned to the model as text so it can correct itself.
+
+### Deletions need approval
+
+`delete_goal`, `delete_entry` and `delete_category` are wrapped in `App\Ai\Tools\ConfirmedDeletion`:
+
+1. The model calls the delete tool with the target only. The confirmation token of the [MCP flow](/features/mcp-server#destructive-operations-require-confirmation) is hidden from the tool's schema, so the model never sees or supplies one.
+2. The run pauses and the panel shows the preview of what would be deleted, with **Keep it** and **Delete**.
+3. On **Delete**, the tool gets a fresh token on the server and deletes. On **Keep it**, nothing runs and the model is told the call was refused.
+
+A token the model makes up is ignored. A target that fails validation (for example another user's goal) never asks for approval and fails when run.
+
+### Endpoints
+
+All routes sit behind `auth` and `verified`, and only ever touch the signed-in user's conversations. Another user's conversation id answers 404.
+
+| Route                                 | Purpose                                                       |
+| ------------------------------------- | ------------------------------------------------------------- |
+| `POST assistant/chat`                 | Send a message or an approval decision; the reply is streamed |
+| `GET assistant/conversations`         | The 30 most recent conversations                              |
+| `GET assistant/conversations/{id}`    | One conversation with its last 100 messages                   |
+| `PATCH assistant/conversations/{id}`  | Rename (title of at most 100 characters)                      |
+| `DELETE assistant/conversations/{id}` | Delete the conversation and its messages                      |
+
+`POST assistant/chat` takes:
+
+- `messages`: the new user message, or the assistant message carrying the approval decisions. Only text is read; attachments are dropped. A message is at most 4000 characters.
+- `conversation_id`: omitted to start a conversation. The id of the conversation in use is returned in the `X-Conversation-Id` response header.
+- `goal_id`: the goal on screen. A goal that is not the user's is ignored.
+
+It answers 404 when the user has no key and the instance has no configuration, and is limited to 20 requests per minute per user. The reply is a server-sent event stream in the [AI SDK UI message stream](https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol) format. An error raised while streaming reaches the browser as a generic error part, never as the provider's message.
+
+### Conversations
+
+Conversations are stored in the AI SDK's `agent_conversations` and `agent_conversation_messages` tables, with the user as participant. The stored history, not the browser, is what the model receives on the next message.
+
+A conversation's title is the first 50 characters of its first message. No model call is made to generate it (`ai.conversations.generate_title` is `false`), and the user can rename it.
+
+### The panel
+
+`resources/js/components/assistant/AssistantPanel.vue` is loaded on demand, only for users with `assistant.available`. `useAssistantChat` wraps `useChat` from `@ai-sdk/vue`:
+
+- It posts only the newest message, with the conversation id and the goal on screen.
+- After a write or a deletion completes, it reloads the page's props so the screen behind the panel is current.
+- Replies are rendered as Markdown with raw HTML escaped and images disabled, so a reply cannot load a remote address.
+- Tool calls appear as one short line each. Their arguments and results are not displayed.
+
+## What is sent where
+
+Each message sends the provider the agent's instructions, the conversation so far, the tool definitions and whatever the tools returned during the turn (goal titles, notes, entries, categories). It goes from the Ignite server to the provider chosen by [the configuration in use](#which-configuration-is-used), under that key. Nothing is sent until the user writes a message.

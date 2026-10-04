@@ -32,6 +32,10 @@ How you record progress depends on the type. Quantifiable goals take a number, r
 
 The habit that matters is logging soon after the thing happens. Ignite can only show you momentum you have actually recorded.
 
+## Use the built-in assistant
+
+Connect an AI account of your own in your settings and a chat panel can answer questions about your goals and update them for you. See [Use the Assistant](/guide/assistant).
+
 ## Connect your AI assistant
 
 Ignite runs an MCP server, so you can manage goals by asking Claude or any other MCP client instead of opening the app. Create a scoped API token in your settings and point your client at it. See the [MCP server page](/features/mcp-server) for setup.
