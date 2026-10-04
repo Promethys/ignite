@@ -49,6 +49,13 @@ return [
         'reset' => 'Password reset. You can now sign in.',
     ],
 
+    'assistant_key' => [
+        'connected' => ':provider key saved.',
+        'updated' => ':provider key updated.',
+        'default' => 'The assistant now uses :provider.',
+        'removed' => ':provider key removed.',
+    ],
+
     'api_token' => [
         'created' => 'API token created.',
         'revoked' => 'API token revoked.',

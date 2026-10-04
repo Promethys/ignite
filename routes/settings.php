@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\ApiTokenController;
+use App\Http\Controllers\Settings\AssistantKeyController;
 use App\Http\Controllers\Settings\ConnectedAccountController;
 use App\Http\Controllers\Settings\LocaleController;
 use App\Http\Controllers\Settings\PasswordController;
@@ -44,4 +45,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::patch('settings/locale', [LocaleController::class, 'update'])
         ->name('settings.locale.update');
+
+    Route::get('settings/assistant', [AssistantKeyController::class, 'index'])
+        ->name('assistant.index');
+    Route::post('settings/assistant', [AssistantKeyController::class, 'store'])
+        ->name('assistant.store')
+        ->middleware(['throttle:20,1', HandlePrecognitiveRequests::class]);
+    Route::put('settings/assistant/{assistantKey}', [AssistantKeyController::class, 'update'])
+        ->name('assistant.update')
+        ->middleware(['throttle:20,1', HandlePrecognitiveRequests::class]);
+    Route::patch('settings/assistant/{assistantKey}/default', [AssistantKeyController::class, 'makeDefault'])
+        ->name('assistant.make-default');
+    Route::delete('settings/assistant/{assistantKey}', [AssistantKeyController::class, 'destroy'])
+        ->name('assistant.destroy');
 });

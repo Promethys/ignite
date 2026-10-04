@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import { toUrl, urlIsActive } from '@/lib/utils';
 import { index as indexApiTokens } from '@/routes/api-tokens';
 import { edit as editAppearance } from '@/routes/appearance';
+import { index as indexAssistant } from '@/routes/assistant';
 import { index as indexConnectedAccounts } from '@/routes/connected-accounts';
 import { edit as editPassword } from '@/routes/password';
 import { edit as editProfile } from '@/routes/profile';
@@ -49,6 +50,10 @@ sidebarNavItems = [
     {
         title: 'settings.nav.api_tokens',
         href: indexApiTokens(),
+    },
+    {
+        title: 'settings.nav.assistant',
+        href: indexAssistant(),
     },
 ];
 
