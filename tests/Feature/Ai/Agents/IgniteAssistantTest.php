@@ -61,6 +61,14 @@ class IgniteAssistantTest extends TestCase
         $this->assertStringContainsString('today is 2026-10-05', $instructions);
     }
 
+    public function test_it_is_told_to_decline_anything_outside_the_users_goals()
+    {
+        $instructions = $this->assistant()->instructions();
+
+        $this->assertStringContainsString("You only help with what Ignite holds: the user's goals", $instructions);
+        $this->assertStringContainsString('Decline anything else in one sentence', $instructions);
+    }
+
     public function test_it_is_told_never_to_ask_for_a_confirmation_token()
     {
         $this->assertStringContainsString('never ask for a confirmation token', $this->assistant()->instructions());
