@@ -127,6 +127,8 @@ It answers 404 when the user has no key and the instance has no configuration, a
 
 Conversations are stored in the AI SDK's `agent_conversations` and `agent_conversation_messages` tables, with the user as participant. The stored history, not the browser, is what the model receives on the next message.
 
+Titles, message text, tool calls with their arguments and results, and provider error messages are encrypted with the user's own data key, like the rest of their text (see [Data Encryption](/features/encryption#in-the-assistant-s-conversations)). The [admin panel](/features/admin-panel) has no page over them. A user can delete a conversation from the panel, and deleting the account deletes all of them.
+
 A conversation's title is the first 50 characters of its first message. No model call is made to generate it (`ai.conversations.generate_title` is `false`), and the user can rename it.
 
 ### The panel

@@ -13,6 +13,13 @@ Every user's free text is stored encrypted under a key that belongs to that user
 | `Category`     | `name`, `description`          |
 | `AssistantKey` | `api_key`                      |
 
+The [assistant](/features/ai-assistant)'s stored conversations are encrypted the same way, although they are not Eloquent models of the app:
+
+| Table                         | Encrypted columns                         |
+| ----------------------------- | ----------------------------------------- |
+| `agent_conversations`         | `title`                                   |
+| `agent_conversation_messages` | `content`, `attachments`, `steps`, `meta` |
+
 Everything else stays in clear: email addresses (login and mail need them), numbers, dates, statuses, types, priorities, order, icons and colours. Charts, streaks, sorting and date filters therefore keep working in SQL.
 
 ## Limits
@@ -40,13 +47,23 @@ A stored value looks like `v1:eyJpdiI6...`. The `v1:` prefix marks the value as 
 
 ### In the models
 
-The five models use the `App\Traits\Models\EncryptsUserData` trait. It declares the encrypted columns and how to find the row's owner: `user_id` for goals and categories, the goal's owner for entries and milestones, the user itself for `User`.
+The six models use the `App\Traits\Models\EncryptsUserData` trait. It declares the encrypted columns and how to find the row's owner: `user_id` for goals, categories and assistant keys, the goal's owner for entries and milestones, the user itself for `User`.
 
 - **Writing.** The trait overrides `getAttributesForInsert()` and `getDirtyForUpdate()`, so only the values sent to SQL are encrypted, and only the changed ones. The model in memory, its observers and whatever it is returned to always see plaintext.
 - **Reading.** A `retrieved` listener decrypts the loaded columns, so controllers, Inertia props and MCP responses need no changes.
 - **Keys per request.** `UserDataKeyring` is a scoped container binding: each data key is unwrapped at most once per request or queued job, and nothing is cached beyond it.
 
 A row is always encrypted with its owner's key, never the signed-in user's, so admin actions, console commands and the MCP local user write correctly.
+
+### In the assistant's conversations
+
+The AI SDK writes its conversation tables with the query builder, so model hooks never run. `App\Ai\Storage\EncryptedConversationStore` extends the SDK's store and replaces the one method every one of its queries goes through, `table()`, to return an `App\Ai\Storage\EncryptingQueryBuilder`:
+
+- `insert()` and `update()` encrypt the columns above with the key of the row's participant, read from `participant_type` and `participant_id`.
+- `get()` decrypts them, which also covers `first()`, `value()` and pagination.
+- A conversation without a participant, or whose participant is not a user, is refused rather than stored in clear.
+
+`steps` holds the tool calls of a turn with their arguments and results, and `meta` can hold a provider's error message, so both are encrypted whole. Ids, roles, statuses, token counts and timestamps stay in clear. The store is bound in `App\Providers\AssistantServiceProvider`.
 
 ### What SQL can no longer do on these columns
 
@@ -59,7 +76,7 @@ Eloquent `pluck()` on an encrypted column throws rather than returning ciphertex
 `User::booted()` hooks both ends of an account's life:
 
 - **`creating`** generates the data key before the row is inserted, which is why the name can be encrypted in the same insert. This covers registration, social login, the admin panel, factories and seeders.
-- **`deleting`** destroys the key before the user row goes. If the key store throws, the deletion is aborted. The account's rows then cascade away as before.
+- **`deleting`** deletes the account's assistant conversations, which no foreign key ties to the user, then destroys the key before the user row goes. If the key store throws, the deletion is aborted. The account's other rows then cascade away as before.
 
 After deletion, anything still holding that user's text (an old database dump, a stray copy) is unreadable once no copy of the key remains. Where the key's copies live depends on `USER_DATA_KEYS_DB_URL`:
 

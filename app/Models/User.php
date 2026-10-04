@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Ai\Storage\EncryptedConversationStore;
 use App\Exceptions\UserDataEncryptionException;
 use App\Notifications\Auth\ResetPassword;
 use App\Notifications\Auth\VerifyEmail;
@@ -297,6 +298,8 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
         });
 
         static::deleting(function (User $user): void {
+            app(EncryptedConversationStore::class)->deleteConversationsOf($user);
+
             if ($user->data_key_id === null) {
                 return;
             }

@@ -39,7 +39,7 @@ The assistant cannot delete a goal, an entry or a category on its own. It shows 
 
 ## Your conversations
 
-Conversations are kept so you can come back to them. The panel reopens the latest one.
+Conversations are kept so you can come back to them, stored encrypted like the rest of your text and deleted with your account. The panel reopens the latest one.
 
 - **New chat** starts a fresh conversation.
 - **Past conversations** lists the earlier ones. Select one to reopen it.

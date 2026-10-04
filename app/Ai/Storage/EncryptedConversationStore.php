@@ -69,6 +69,16 @@ class EncryptedConversationStore extends DatabaseConversationStore
         });
     }
 
+    public function deleteConversationsOf(User $user): void
+    {
+        DB::connection($this->connection)->transaction(function () use ($user): void {
+            $this->table($this->messagesTable())
+                ->whereIn('conversation_id', $this->conversationsOf($user)->select('id'))
+                ->delete();
+            $this->conversationsOf($user)->delete();
+        });
+    }
+
     /**
      * Get a query builder that encrypts what it writes and decrypts what it reads.
      */

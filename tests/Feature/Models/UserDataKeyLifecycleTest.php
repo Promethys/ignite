@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Models;
 
+use App\Ai\Agents\IgniteAssistant;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Models\AssistantKey;
 use App\Models\User;
 use App\Models\UserDataKey;
 use App\Services\Auth\SocialLoginService;
@@ -98,6 +100,27 @@ class UserDataKeyLifecycleTest extends TestCase
         $user->delete();
 
         $this->assertNull(UserDataKey::find($keyId));
+    }
+
+    public function test_deleting_an_account_deletes_its_assistant_conversations()
+    {
+        IgniteAssistant::fake(['Fine.', 'Fine.']);
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        foreach ([$user, $other] as $participant) {
+            AssistantKey::factory()->create(['user_id' => $participant->id]);
+            $this->actingAs($participant)->postJson(route('assistant.chat'), [
+                'messages' => [['id' => 'user-1', 'role' => 'user', 'parts' => [['type' => 'text', 'text' => 'How am I doing?']]]],
+            ])->streamedContent();
+        }
+
+        $user->delete();
+
+        $this->assertDatabaseMissing('agent_conversations', ['participant_id' => $user->id]);
+        $this->assertDatabaseMissing('agent_conversation_messages', ['participant_id' => $user->id]);
+        $this->assertDatabaseCount('agent_conversations', 1);
+        $this->assertDatabaseCount('agent_conversation_messages', 2);
     }
 
     public function test_the_profile_deletion_destroys_the_key()

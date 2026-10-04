@@ -262,6 +262,23 @@ class EncryptedConversationStoreTest extends TestCase
         $this->assertDatabaseHas('agent_conversations', ['id' => $kept]);
     }
 
+    public function test_deleting_a_users_conversations_leaves_everyone_elses()
+    {
+        IgniteAssistant::fake(['Fine.', 'Fine.', 'Fine.']);
+        $this->ask('How are my books going?');
+        $this->ask('What is due this week?');
+
+        $other = User::factory()->create();
+        AssistantKey::factory()->create(['user_id' => $other->id]);
+        $this->user = $other;
+        $kept = $this->ask('A question of my own');
+
+        $this->store()->deleteConversationsOf(User::query()->oldest('id')->firstOrFail());
+
+        $this->assertSame([$kept], DB::table('agent_conversations')->pluck('id')->all());
+        $this->assertSame([$kept], DB::table('agent_conversation_messages')->distinct()->pluck('conversation_id')->all());
+    }
+
     public function test_user_messages_written_directly_through_the_store_are_encrypted_too()
     {
         $conversationId = $this->store()->storeConversation($this->user->getMorphClass(), $this->user->id, 'Direct');
