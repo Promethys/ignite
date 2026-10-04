@@ -1,9 +1,11 @@
 # Gitleaks configuration.
 #
 # Extends the full default ruleset (so the secret-scanning gate stays active) and
-# allowlists a single known non-secret: the Svix documentation example signing secret
-# used as a fixture in the Formbricks webhook tests. It is a public sample value, not a
-# real credential.
+# allowlists known non-secrets, each matched by its exact value:
+# - the Svix documentation example signing secret used as a fixture in the Formbricks
+#   webhook tests, a public sample value;
+# - the two made-up API keys the assistant key settings tests submit, which no
+#   provider ever issued.
 
 [extend]
 useDefault = true
@@ -13,4 +15,6 @@ description = "Known non-secret test fixtures"
 regexTarget = "line"
 regexes = [
     '''whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw''',
+    '''sk-test-0123456789abcd''',
+    '''sk-test-replacement-9876''',
 ]
