@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Log;
+use Laravel\Ai\Concerns\HasConversations;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -34,6 +35,7 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
 {
     use EncryptsUserData;
     use HasApiTokens;
+    use HasConversations;
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;

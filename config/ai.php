@@ -23,6 +23,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Conversations
+    |--------------------------------------------------------------------------
+    |
+    | A new conversation is titled with the start of its first message. Title
+    | generation would spend an extra model call on the user's own API key.
+    |
+    */
+
+    'conversations' => [
+        'generate_title' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Caching
     |--------------------------------------------------------------------------
     |
