@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Ai\Storage\EncryptedConversationStore;
 use App\Http\Requests\RenameAssistantConversationRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
-use Laravel\Ai\Vercel\Vercel;
 
 class AssistantConversationController extends Controller
 {
@@ -15,17 +14,16 @@ class AssistantConversationController extends Controller
 
     public const LOADED_MESSAGES = 100;
 
+    public function __construct(private readonly EncryptedConversationStore $conversations) {}
+
     /**
      * List the user's most recent conversations.
      */
     public function index(Request $request): JsonResponse
     {
-        $conversations = $request->user()->conversations()
-            ->latest('updated_at')
-            ->limit(self::LISTED_CONVERSATIONS)
-            ->get(['id', 'title', 'updated_at']);
-
-        return response()->json(['conversations' => $conversations]);
+        return response()->json([
+            'conversations' => $this->conversations->latestConversationsOf($request->user(), self::LISTED_CONVERSATIONS),
+        ]);
     }
 
     /**
@@ -33,17 +31,12 @@ class AssistantConversationController extends Controller
      */
     public function show(Request $request, string $conversation): JsonResponse
     {
-        $conversation = $request->user()->conversations()->findOrFail($conversation);
-
-        $messages = $conversation->messages()
-            ->latest('id')
-            ->limit(self::LOADED_MESSAGES)
-            ->get()
-            ->reverse();
+        $found = $this->conversations->conversationOf($request->user(), $conversation) ?? abort(404);
 
         return response()->json([
-            ...$conversation->only(['id', 'title']),
-            'messages' => Vercel::toUiMessages($messages),
+            'id' => $found->id,
+            'title' => $found->title,
+            'messages' => $this->conversations->uiMessagesOf($found->id, self::LOADED_MESSAGES),
         ]);
     }
 
@@ -52,12 +45,11 @@ class AssistantConversationController extends Controller
      */
     public function update(RenameAssistantConversationRequest $request, string $conversation): JsonResponse
     {
-        $conversation = $request->user()->conversations()->findOrFail($conversation);
+        $found = $this->conversations->conversationOf($request->user(), $conversation) ?? abort(404);
 
-        $conversation->timestamps = false;
-        $conversation->update(['title' => $request->validated('title')]);
+        $this->conversations->renameConversation($found->id, $request->validated('title'));
 
-        return response()->json($conversation->only(['id', 'title']));
+        return response()->json(['id' => $found->id, 'title' => $request->validated('title')]);
     }
 
     /**
@@ -65,12 +57,9 @@ class AssistantConversationController extends Controller
      */
     public function destroy(Request $request, string $conversation): Response
     {
-        $conversation = $request->user()->conversations()->findOrFail($conversation);
+        $found = $this->conversations->conversationOf($request->user(), $conversation) ?? abort(404);
 
-        DB::connection($conversation->getConnectionName())->transaction(function () use ($conversation) {
-            $conversation->messages()->delete();
-            $conversation->delete();
-        });
+        $this->conversations->deleteConversation($found->id);
 
         return response()->noContent();
     }

@@ -1,21 +1,13 @@
 <?php
 
-use App\Providers\AppServiceProvider;
-use App\Providers\DatabaseMonitoringServiceProvider;
-use App\Providers\Filament\AdminPanelProvider;
-use App\Providers\FortifyServiceProvider;
-use App\Providers\MailServiceProvider;
-use App\Providers\McpServiceProvider;
-use App\Providers\PasswordServiceProvider;
-use App\Providers\RequestsServiceProvider;
-
 return [
-    AppServiceProvider::class,
-    DatabaseMonitoringServiceProvider::class,
-    AdminPanelProvider::class,
-    FortifyServiceProvider::class,
-    McpServiceProvider::class,
-    PasswordServiceProvider::class,
-    MailServiceProvider::class,
-    RequestsServiceProvider::class,
+    App\Providers\AppServiceProvider::class,
+    App\Providers\AssistantServiceProvider::class,
+    App\Providers\DatabaseMonitoringServiceProvider::class,
+    App\Providers\Filament\AdminPanelProvider::class,
+    App\Providers\FortifyServiceProvider::class,
+    App\Providers\MailServiceProvider::class,
+    App\Providers\McpServiceProvider::class,
+    App\Providers\PasswordServiceProvider::class,
+    App\Providers\RequestsServiceProvider::class,
 ];

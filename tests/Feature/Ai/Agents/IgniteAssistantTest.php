@@ -3,6 +3,7 @@
 namespace Tests\Feature\Ai\Agents;
 
 use App\Ai\Agents\IgniteAssistant;
+use App\Ai\Storage\EncryptedConversationStore;
 use App\Mcp\Servers\IgniteServer;
 use App\Models\Goal;
 use App\Models\User;
@@ -143,7 +144,7 @@ class IgniteAssistantTest extends TestCase
 
         $this->assistant()->forUser($this->user)->prompt($prompt);
 
-        $title = $this->user->conversations()->sole()->title;
+        $title = app(EncryptedConversationStore::class)->latestConversationsOf($this->user, 1)->sole()->title;
 
         $this->assertStringStartsWith('Please log five kilometres on my marathon', $title);
         $this->assertLessThanOrEqual(53, mb_strlen($title));

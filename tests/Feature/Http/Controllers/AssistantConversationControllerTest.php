@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers;
 
 use App\Ai\Agents\IgniteAssistant;
+use App\Ai\Storage\EncryptedConversationStore;
 use App\Http\Requests\RenameAssistantConversationRequest;
 use App\Models\AssistantKey;
 use App\Models\User;
@@ -34,6 +35,11 @@ class AssistantConversationControllerTest extends TestCase
         $response->streamedContent();
 
         return $response->headers->get('X-Conversation-Id');
+    }
+
+    private function storedTitle(string $conversationId, ?User $owner = null): string
+    {
+        return app(EncryptedConversationStore::class)->conversationOf($owner ?? $this->user, $conversationId)->title;
     }
 
     // =========================================================================
@@ -122,11 +128,9 @@ class AssistantConversationControllerTest extends TestCase
             ->assertOk()
             ->assertJsonPath('title', 'Weekly review');
 
-        $this->assertDatabaseHas('agent_conversations', [
-            'id' => $conversationId,
-            'title' => 'Weekly review',
-            'updated_at' => '2026-10-01 10:00:00',
-        ]);
+        $this->assertSame('Weekly review', $this->storedTitle($conversationId));
+        $this->assertDatabaseHas('agent_conversations', ['id' => $conversationId, 'updated_at' => '2026-10-01 10:00:00']);
+        $this->assertDatabaseMissing('agent_conversations', ['title' => 'Weekly review']);
     }
 
     public function test_a_title_is_required_and_limited()
@@ -139,7 +143,7 @@ class AssistantConversationControllerTest extends TestCase
             ->patchJson($route, ['title' => str_repeat('a', RenameAssistantConversationRequest::MAX_TITLE_LENGTH + 1)])
             ->assertJsonValidationErrors('title');
 
-        $this->assertDatabaseHas('agent_conversations', ['id' => $conversationId, 'title' => 'How am I doing?']);
+        $this->assertSame('How am I doing?', $this->storedTitle($conversationId));
     }
 
     public function test_it_cannot_rename_another_users_conversation()
@@ -152,7 +156,7 @@ class AssistantConversationControllerTest extends TestCase
             ->patchJson(route('assistant.conversations.update', $conversationId), ['title' => 'Mine now'])
             ->assertNotFound();
 
-        $this->assertDatabaseHas('agent_conversations', ['id' => $conversationId, 'title' => 'A private question']);
+        $this->assertSame('A private question', $this->storedTitle($conversationId, $other));
     }
 
     // =========================================================================

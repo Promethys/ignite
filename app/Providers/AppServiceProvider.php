@@ -3,9 +3,6 @@
 namespace App\Providers;
 
 use App\Services\Encryption\UserDataKeyring;
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        RateLimiter::for('assistant', fn (Request $request) => Limit::perMinute(20)->by($request->user()->id));
+        //
     }
 }
