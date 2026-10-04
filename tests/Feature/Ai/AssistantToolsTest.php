@@ -28,7 +28,7 @@ class AssistantToolsTest extends TestCase
 
         $serverToolNames = collect(IgniteServer::TOOLS)->map(fn (string $tool) => app($tool)->name())->sort()->values()->all();
 
-        $this->assertCount(22, $this->toolNames());
+        $this->assertCount(23, $this->toolNames());
         $this->assertSame($serverToolNames, $this->toolNames());
     }
 

@@ -66,7 +66,7 @@ Scopes are enforced at **registration** time, not at call time: a tool whose req
 
 ## The tool set
 
-Twenty-two tools, grouped by the ability they require.
+Twenty-three tools, grouped by the ability they require.
 
 ### `read`
 
@@ -77,6 +77,7 @@ Twenty-two tools, grouped by the ability they require.
 | `list_entries`    | A goal's progress entries, newest first. Accepts `search` (note text), `from`, `to`, and `limit` (default 50, max 200), and reports the matching `total`                                               |
 | `get_user`        | The acting user's id, name, timezone, and locale                                                                                                                                                       |
 | `list_categories` | The user's categories in display order, each with the number of goals filed under it and how many of those are active or completed                                                                     |
+| `get_help`        | One page of the user guide as Markdown, chosen by `topic` (`getting-started`, `goal-types`, `tracking-progress`, `assistant`). Lets a client explain how Ignite works from the guide itself            |
 
 ### `write`
 
@@ -114,6 +115,19 @@ Both accept a date no later than today in the owner's timezone, and both allow a
 | `delete_goal`     | Permanently delete a goal and, by database cascade, all of its entries and milestones             |
 | `delete_entry`    | Permanently delete one progress entry, rewinding the goal's current value for non-recurring goals |
 | `delete_category` | Permanently delete a category. The goals filed under it are kept and become uncategorised         |
+
+## Resources
+
+The pages of the user guide are also exposed as MCP resources, for clients that let a user attach them:
+
+| Resource URI                       | Page              |
+| ---------------------------------- | ----------------- |
+| `ignite://guide/getting-started`   | Getting Started   |
+| `ignite://guide/goal-types`        | Goal Types        |
+| `ignite://guide/tracking-progress` | Tracking Progress |
+| `ignite://guide/assistant`         | Use the Assistant |
+
+Both the tool and the resources read the Markdown files in `docs/guide` through `App\Services\Help\UserGuide`, so a page added there appears in both without a code change. Where that folder is absent, the tool is not offered and no resource is listed.
 
 ## Destructive operations require confirmation
 

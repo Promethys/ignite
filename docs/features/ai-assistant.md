@@ -85,13 +85,15 @@ The shared Inertia prop `assistant.available` tells the frontend whether one of 
 `App\Ai\Agents\IgniteAssistant` is built for each request with the signed-in user, the resolved configuration and, when the user is on a goal page, that goal.
 
 - **Instructions.** The MCP server's own instructions (`IgniteServer::INSTRUCTIONS`), followed by the user's language, their timezone and today's date there. The goal on screen is passed as an id only, never as text.
-- **Scope.** The agent is told to help only with goals, progress, habits, milestones, categories and planning, and to decline anything else in one sentence. This is an instruction to the model, not a filter: how well it holds depends on the model.
+- **Scope.** The agent is told to help only with goals, progress, habits, milestones, categories, planning and how Ignite itself works, and to decline anything else in one sentence. This is an instruction to the model, not a filter: how well it holds depends on the model.
 - **Steps.** One message can run at most eight model steps, tool calls included.
 - **Model.** The user's model when their key sets one, otherwise the provider's cheapest text model.
 
 ### Tools
 
 `App\Ai\AssistantTools` gives the agent every tool in `IgniteServer::TOOLS` that the signed-in user may use, with the same names, descriptions and schemas as over MCP. Each tool validates its own arguments and applies only to the current user's data. Arguments a tool refuses are returned to the model as text so it can correct itself.
+
+One of them, `get_help`, returns a page of the [user guide](/guide/), so the assistant explains how Ignite works from the guide rather than from what the model assumes.
 
 ### Deletions need approval
 

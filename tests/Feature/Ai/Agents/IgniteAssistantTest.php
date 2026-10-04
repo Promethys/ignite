@@ -96,7 +96,7 @@ class IgniteAssistantTest extends TestCase
 
     public function test_it_gets_every_tool_the_user_may_use()
     {
-        $this->assertCount(22, $this->assistant()->tools());
+        $this->assertCount(23, $this->assistant()->tools());
     }
 
     public function test_it_connects_with_the_resolved_provider_and_key()
