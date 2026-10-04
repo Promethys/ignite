@@ -154,11 +154,19 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
     }
 
     /**
+     * @return HasMany<AssistantKey, $this>
+     */
+    public function assistantKeys(): HasMany
+    {
+        return $this->hasMany(AssistantKey::class);
+    }
+
+    /**
      * @return HasOne<AssistantKey, $this>
      */
-    public function assistantKey(): HasOne
+    public function defaultAssistantKey(): HasOne
     {
-        return $this->hasOne(AssistantKey::class);
+        return $this->hasOne(AssistantKey::class)->where('is_default', true);
     }
 
     /**

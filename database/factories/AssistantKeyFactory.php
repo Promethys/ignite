@@ -32,6 +32,11 @@ class AssistantKeyFactory extends Factory
         ];
     }
 
+    public function default(): static
+    {
+        return $this->afterCreating(fn (AssistantKey $assistantKey) => $assistantKey->markAsDefault());
+    }
+
     public function provider(AssistantProvider $provider): static
     {
         return $this->state(fn (array $attributes) => [

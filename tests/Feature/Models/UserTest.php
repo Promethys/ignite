@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Models;
 
+use App\Enums\AssistantProvider;
 use App\Models\AssistantKey;
 use App\Models\Category;
 use App\Models\Goal;
@@ -50,16 +51,27 @@ class UserTest extends TestCase
         $this->assertInstanceOf(SocialAccount::class, $user->socialAccounts->first());
     }
 
-    public function test_user_has_one_assistant_key()
+    public function test_user_has_many_assistant_keys()
+    {
+        $user = User::factory()->create();
+        $assistantKey = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $user->id]);
+
+        $this->assertCount(2, $user->assistantKeys);
+        $this->assertTrue($user->assistantKeys->contains($assistantKey));
+        $this->assertInstanceOf(AssistantKey::class, $user->assistantKeys->first());
+    }
+
+    public function test_user_has_one_default_assistant_key()
     {
         $user = User::factory()->create();
 
-        $this->assertNull($user->assistantKey);
+        $this->assertNull($user->defaultAssistantKey);
 
-        $assistantKey = AssistantKey::factory()->create(['user_id' => $user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        $chosen = AssistantKey::factory()->provider(AssistantProvider::Anthropic)->default()->create(['user_id' => $user->id]);
 
-        $this->assertInstanceOf(AssistantKey::class, $user->fresh()->assistantKey);
-        $this->assertTrue($user->fresh()->assistantKey->is($assistantKey));
+        $this->assertTrue($user->fresh()->defaultAssistantKey->is($chosen));
     }
 
     // =========================================================================
