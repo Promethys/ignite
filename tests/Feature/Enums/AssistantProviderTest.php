@@ -3,6 +3,7 @@
 namespace Tests\Feature\Enums;
 
 use App\Enums\AssistantProvider;
+use Laravel\Ai\Enums\Lab;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -37,8 +38,17 @@ class AssistantProviderTest extends TestCase
 
     public function test_labels_use_the_companies_own_spelling()
     {
-        $this->assertSame('OpenAI', AssistantProvider::OpenAi->label());
-        $this->assertSame('xAI', AssistantProvider::XAi->label());
+        $this->assertSame('OpenAI', AssistantProvider::OpenAI->label());
+        $this->assertSame('xAI', AssistantProvider::xAI->label());
         $this->assertSame('DeepSeek', AssistantProvider::DeepSeek->label());
+    }
+
+    #[DataProvider('providers')]
+    public function test_every_case_is_named_and_valued_like_the_ai_sdks_own_enum(AssistantProvider $provider)
+    {
+        $lab = Lab::tryFrom($provider->value);
+
+        $this->assertNotNull($lab, "The AI SDK has no provider with the value [{$provider->value}].");
+        $this->assertSame($lab->name, $provider->name);
     }
 }

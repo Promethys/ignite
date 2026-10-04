@@ -34,9 +34,9 @@ class AssistantKeyCheckerTest extends TestCase
             'gemini' => [AssistantProvider::Gemini, 'https://generativelanguage.googleapis.com/v1beta/models'],
             'groq' => [AssistantProvider::Groq, 'https://api.groq.com/openai/v1/models'],
             'mistral' => [AssistantProvider::Mistral, 'https://api.mistral.ai/v1/models'],
-            'openai' => [AssistantProvider::OpenAi, 'https://api.openai.com/v1/models'],
+            'openai' => [AssistantProvider::OpenAI, 'https://api.openai.com/v1/models'],
             'openrouter' => [AssistantProvider::OpenRouter, 'https://openrouter.ai/api/v1/key'],
-            'xai' => [AssistantProvider::XAi, 'https://api.x.ai/v1/models'],
+            'xai' => [AssistantProvider::xAI, 'https://api.x.ai/v1/models'],
         ];
     }
 
@@ -60,7 +60,7 @@ class AssistantKeyCheckerTest extends TestCase
     {
         Http::fake(['*' => Http::response([])]);
 
-        $this->checker->check(AssistantProvider::OpenAi, 'the-key');
+        $this->checker->check(AssistantProvider::OpenAI, 'the-key');
 
         Http::assertSent(fn (Request $request): bool => $request->hasHeader('Authorization', 'Bearer the-key'));
     }
@@ -106,14 +106,14 @@ class AssistantKeyCheckerTest extends TestCase
     {
         Http::fake(['*' => Http::response([], $status)]);
 
-        $this->assertSame($expected, $this->checker->check(AssistantProvider::OpenAi, 'the-key'));
+        $this->assertSame($expected, $this->checker->check(AssistantProvider::OpenAI, 'the-key'));
     }
 
     public function test_a_connection_failure_is_unreachable_not_invalid()
     {
         Http::fake(fn () => throw new ConnectionException('Connection timed out'));
 
-        $this->assertSame(AssistantKeyCheck::Unreachable, $this->checker->check(AssistantProvider::OpenAi, 'the-key'));
+        $this->assertSame(AssistantKeyCheck::Unreachable, $this->checker->check(AssistantProvider::OpenAI, 'the-key'));
     }
 
     public function test_a_base_url_from_the_ai_config_is_used_without_a_doubled_slash()

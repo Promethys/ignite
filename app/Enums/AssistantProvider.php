@@ -9,9 +9,9 @@ enum AssistantProvider: string
     case Gemini = 'gemini';
     case Groq = 'groq';
     case Mistral = 'mistral';
-    case OpenAi = 'openai';
+    case OpenAI = 'openai';
     case OpenRouter = 'openrouter';
-    case XAi = 'xai';
+    case xAI = 'xai';
 
     public function label(): string
     {
@@ -21,9 +21,9 @@ enum AssistantProvider: string
             AssistantProvider::Gemini => 'Gemini',
             AssistantProvider::Groq => 'Groq',
             AssistantProvider::Mistral => 'Mistral',
-            AssistantProvider::OpenAi => 'OpenAI',
+            AssistantProvider::OpenAI => 'OpenAI',
             AssistantProvider::OpenRouter => 'OpenRouter',
-            AssistantProvider::XAi => 'xAI',
+            AssistantProvider::xAI => 'xAI',
         };
     }
 }

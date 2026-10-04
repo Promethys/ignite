@@ -54,7 +54,7 @@ class UserTest extends TestCase
     public function test_user_has_many_assistant_keys()
     {
         $user = User::factory()->create();
-        $assistantKey = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        $assistantKey = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
         AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $user->id]);
 
         $this->assertCount(2, $user->assistantKeys);
@@ -68,7 +68,7 @@ class UserTest extends TestCase
 
         $this->assertNull($user->defaultAssistantKey);
 
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
         $chosen = AssistantKey::factory()->provider(AssistantProvider::Anthropic)->default()->create(['user_id' => $user->id]);
 
         $this->assertTrue($user->fresh()->defaultAssistantKey->is($chosen));

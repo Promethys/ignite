@@ -43,7 +43,7 @@ class AssistantKeyResolverTest extends TestCase
 
     public function test_the_users_default_key_resolves_with_its_provider_settings_and_model()
     {
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $this->user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $this->user->id]);
         AssistantKey::factory()->provider(AssistantProvider::Anthropic)->default()->create([
             'user_id' => $this->user->id,
             'api_key' => 'sk-ant-users-own-key',
@@ -62,7 +62,7 @@ class AssistantKeyResolverTest extends TestCase
     public function test_the_users_key_wins_over_the_instance_configuration()
     {
         $this->configureInstance('gemini', 'instance-gemini-key');
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create([
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create([
             'user_id' => $this->user->id,
             'api_key' => 'sk-users-own-key',
         ]);
@@ -86,7 +86,7 @@ class AssistantKeyResolverTest extends TestCase
 
     public function test_one_users_key_never_resolves_for_another_user()
     {
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create();
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create();
 
         $this->assertNull($this->resolver->resolve($this->user));
     }

@@ -32,17 +32,17 @@ class AssistantKeyTest extends TestCase
     public function test_a_user_cannot_have_two_keys_for_the_same_provider()
     {
         $user = User::factory()->create();
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
 
         $this->expectException(QueryException::class);
 
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
     }
 
     public function test_a_user_can_keep_a_key_for_several_providers()
     {
         $user = User::factory()->create();
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
         AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $user->id]);
 
         $this->assertCount(2, $user->assistantKeys);
@@ -50,8 +50,8 @@ class AssistantKeyTest extends TestCase
 
     public function test_two_users_can_each_have_a_key_for_the_same_provider()
     {
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create();
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create();
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create();
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create();
 
         $this->assertDatabaseCount('assistant_keys', 2);
     }
@@ -73,7 +73,7 @@ class AssistantKeyTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $first = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        $first = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
         $second = AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $user->id]);
 
         $this->assertTrue($first->fresh()->is_default);
@@ -83,7 +83,7 @@ class AssistantKeyTest extends TestCase
     public function test_marking_a_key_as_default_clears_the_flag_on_the_users_other_keys()
     {
         $user = User::factory()->create();
-        $first = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        $first = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
         $second = AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $user->id]);
 
         $second->markAsDefault();
@@ -95,9 +95,9 @@ class AssistantKeyTest extends TestCase
 
     public function test_marking_a_default_leaves_other_users_keys_alone()
     {
-        $otherUsersDefault = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create();
+        $otherUsersDefault = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create();
         $user = User::factory()->create();
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
         $second = AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $user->id]);
 
         $second->markAsDefault();
@@ -108,7 +108,7 @@ class AssistantKeyTest extends TestCase
     public function test_deleting_the_default_promotes_the_most_recently_added_key()
     {
         $user = User::factory()->create();
-        $default = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        $default = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
         $older = AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $user->id]);
         $newest = AssistantKey::factory()->provider(AssistantProvider::Gemini)->create(['user_id' => $user->id]);
 
@@ -121,7 +121,7 @@ class AssistantKeyTest extends TestCase
     public function test_deleting_a_key_that_is_not_the_default_keeps_the_default()
     {
         $user = User::factory()->create();
-        $default = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        $default = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
         $other = AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $user->id]);
 
         $other->delete();
@@ -142,7 +142,7 @@ class AssistantKeyTest extends TestCase
     public function test_the_default_flag_cannot_be_mass_assigned()
     {
         $user = User::factory()->create();
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $user->id]);
 
         $second = $user->assistantKeys()->create([
             'provider' => AssistantProvider::Anthropic,
@@ -215,7 +215,7 @@ class AssistantKeyTest extends TestCase
 
         $assistantKey = $owner->assistantKeys()->create([
             'user_id' => $other->id,
-            'provider' => AssistantProvider::OpenAi,
+            'provider' => AssistantProvider::OpenAI,
             'api_key' => 'sk-test-secret-value',
             'key_suffix' => 'alue',
             'consented_at' => now(),

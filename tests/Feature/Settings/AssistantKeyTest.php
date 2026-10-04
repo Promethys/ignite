@@ -56,7 +56,7 @@ class AssistantKeyTest extends TestCase
             'api_key' => 'sk-ant-secret-value-wxyz',
             'key_suffix' => 'wxyz',
         ]);
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create();
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create();
 
         $response = $this->actingAs($this->user)->get('/settings/assistant');
 
@@ -89,7 +89,7 @@ class AssistantKeyTest extends TestCase
 
         $assistantKey = $this->user->assistantKeys()->sole();
 
-        $this->assertSame(AssistantProvider::OpenAi, $assistantKey->provider);
+        $this->assertSame(AssistantProvider::OpenAI, $assistantKey->provider);
         $this->assertSame('sk-test-0123456789abcd', $assistantKey->api_key);
         $this->assertSame('abcd', $assistantKey->key_suffix);
         $this->assertSame('gpt-custom', $assistantKey->model);
@@ -147,7 +147,7 @@ class AssistantKeyTest extends TestCase
     {
         Http::fake();
 
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $this->user->id]);
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $this->user->id]);
 
         $this->actingAs($this->user)
             ->post('/settings/assistant', $this->validPayload())
@@ -159,7 +159,7 @@ class AssistantKeyTest extends TestCase
 
     public function test_another_users_key_for_the_same_provider_does_not_block_connecting(): void
     {
-        AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create();
+        AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create();
         Http::fake(['*' => Http::response([])]);
 
         $this->actingAs($this->user)
@@ -190,7 +190,7 @@ class AssistantKeyTest extends TestCase
     {
         Http::fake();
 
-        $assistantKey = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create([
+        $assistantKey = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create([
             'user_id' => $this->user->id,
             'api_key' => 'sk-test-original-wxyz',
             'key_suffix' => 'wxyz',
@@ -209,7 +209,7 @@ class AssistantKeyTest extends TestCase
 
     public function test_editing_with_a_new_key_checks_it_and_replaces_the_stored_one(): void
     {
-        $assistantKey = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $this->user->id]);
+        $assistantKey = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $this->user->id]);
         Http::fake(['*' => Http::response([])]);
 
         $this->actingAs($this->user)
@@ -223,7 +223,7 @@ class AssistantKeyTest extends TestCase
 
     public function test_editing_with_a_rejected_key_keeps_the_stored_one(): void
     {
-        $assistantKey = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create([
+        $assistantKey = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create([
             'user_id' => $this->user->id,
             'api_key' => 'sk-test-original-wxyz',
         ]);
@@ -242,7 +242,7 @@ class AssistantKeyTest extends TestCase
 
     public function test_a_user_can_choose_which_key_the_assistant_uses(): void
     {
-        $first = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $this->user->id]);
+        $first = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $this->user->id]);
         $second = AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $this->user->id]);
 
         $this->actingAs($this->user)
@@ -255,7 +255,7 @@ class AssistantKeyTest extends TestCase
 
     public function test_removing_a_key_deletes_it_and_promotes_another(): void
     {
-        $default = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['user_id' => $this->user->id]);
+        $default = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['user_id' => $this->user->id]);
         $other = AssistantKey::factory()->provider(AssistantProvider::Anthropic)->create(['user_id' => $this->user->id]);
 
         $this->actingAs($this->user)
@@ -268,7 +268,7 @@ class AssistantKeyTest extends TestCase
 
     public function test_another_users_key_cannot_be_edited_chosen_or_removed(): void
     {
-        $othersKey = AssistantKey::factory()->provider(AssistantProvider::OpenAi)->create(['model' => 'untouched']);
+        $othersKey = AssistantKey::factory()->provider(AssistantProvider::OpenAI)->create(['model' => 'untouched']);
 
         $this->actingAs($this->user)->put("/settings/assistant/{$othersKey->id}", ['model' => 'hijacked'])->assertNotFound();
         $this->actingAs($this->user)->patch("/settings/assistant/{$othersKey->id}/default")->assertNotFound();
