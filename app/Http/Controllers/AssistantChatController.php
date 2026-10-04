@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Ai\Agents\IgniteAssistant;
 use App\Http\Requests\AssistantChatRequest;
 use App\Services\Assistant\AssistantKeyResolver;
-use Laravel\Ai\Vercel\Vercel;
 use Symfony\Component\HttpFoundation\Response;
 
 class AssistantChatController extends Controller
@@ -30,7 +29,7 @@ class AssistantChatController extends Controller
         $stream = (new IgniteAssistant($user, $connection, $currentGoal))
             ->continueOrStart($conversationId, $user)
             ->stream($request->turn())
-            ->usingProtocol(Vercel::chat($request)->protocol());
+            ->usingVercelDataProtocol($request->continuedMessageId());
 
         $response = $stream->toResponse($request);
         $response->headers->set('X-Conversation-Id', $conversationId ?? $stream->conversationId);

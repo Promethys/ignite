@@ -45,4 +45,15 @@ class AssistantChatRequest extends FormRequest
 
         return $turn;
     }
+
+    /**
+     * The id of the assistant message a decision turn continues, so its tool results land in that message.
+     */
+    public function continuedMessageId(): ?string
+    {
+        $latest = collect($this->input('messages'))->last();
+        $id = $latest['id'] ?? null;
+
+        return ($latest['role'] ?? null) === 'assistant' && is_string($id) && $id !== '' ? $id : null;
+    }
 }
