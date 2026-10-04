@@ -4,13 +4,14 @@
 
 Every user's free text is stored encrypted under a key that belongs to that user alone. The database, its dumps and the [admin panel](/features/admin-panel) never hold or show it in clear. Deleting an account destroys its key, which leaves that account's text unreadable everywhere the key is gone, backups included.
 
-| Model       | Encrypted columns              |
-| ----------- | ------------------------------ |
-| `User`      | `name`                         |
-| `Goal`      | `title`, `description`, `unit` |
-| `GoalEntry` | `note`                         |
-| `Milestone` | `title`, `description`         |
-| `Category`  | `name`, `description`          |
+| Model          | Encrypted columns              |
+| -------------- | ------------------------------ |
+| `User`         | `name`                         |
+| `Goal`         | `title`, `description`, `unit` |
+| `GoalEntry`    | `note`                         |
+| `Milestone`    | `title`, `description`         |
+| `Category`     | `name`, `description`          |
+| `AssistantKey` | `api_key`                      |
 
 Everything else stays in clear: email addresses (login and mail need them), numbers, dates, statuses, types, priorities, order, icons and colours. Charts, streaks, sorting and date filters therefore keep working in SQL.
 

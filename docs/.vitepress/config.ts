@@ -115,6 +115,10 @@ export default withMermaid(
                                 link: '/features/internationalization',
                             },
                             {
+                                text: 'AI Assistant',
+                                link: '/features/ai-assistant',
+                            },
+                            {
                                 text: 'Data Encryption',
                                 link: '/features/encryption',
                             },
