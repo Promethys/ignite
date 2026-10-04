@@ -12,7 +12,7 @@ import {
     lastAssistantMessageIsCompleteWithApprovalResponses,
     type UIMessage,
 } from 'ai';
-import { ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 
 export interface ConversationSummary {
     id: string;
@@ -112,6 +112,24 @@ export function useAssistantChat(currentGoalId: () => number | null) {
         },
     });
 
+    const firstSeenAt = reactive(new Map<string, string>());
+
+    watch(
+        chat.messages,
+        (messages) => {
+            for (const message of messages) {
+                if (!firstSeenAt.has(message.id)) {
+                    firstSeenAt.set(message.id, new Date().toISOString());
+                }
+            }
+        },
+        { immediate: true },
+    );
+
+    const sentAt = (message: UIMessage): string | undefined =>
+        (message.metadata as { createdAt?: string } | undefined)?.createdAt ??
+        firstSeenAt.get(message.id);
+
     const startNewConversation = (): void => {
         chat.clearError();
         conversationId.value = null;
@@ -185,6 +203,7 @@ export function useAssistantChat(currentGoalId: () => number | null) {
         conversationId,
         conversations,
         isLoadingConversation,
+        sentAt,
         startNewConversation,
         loadConversations,
         openConversation,

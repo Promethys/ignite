@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AssistantConversationList from '@/components/assistant/AssistantConversationList.vue';
 import AssistantMarkdown from '@/components/assistant/AssistantMarkdown.vue';
+import AssistantMessageMeta from '@/components/assistant/AssistantMessageMeta.vue';
 import AssistantToolActivity from '@/components/assistant/AssistantToolActivity.vue';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ import {
 import { isToolPart, useAssistantChat } from '@/composables/useAssistantChat';
 import type { AppPageProps } from '@/types';
 import { usePage } from '@inertiajs/vue3';
+import type { UIMessage } from 'ai';
 import {
     ArrowUp,
     History,
@@ -33,7 +35,9 @@ import { computed, nextTick, ref, watch } from 'vue';
 
 const MAX_PROMPT_LENGTH = 4000;
 
-const page = usePage<AppPageProps & { goal?: { id: number } }>();
+const page = usePage<
+    AppPageProps & { goal?: { id: number }; locale: string }
+>();
 
 const {
     messages,
@@ -45,6 +49,7 @@ const {
     conversationId,
     conversations,
     isLoadingConversation,
+    sentAt,
     startNewConversation,
     loadConversations,
     openConversation,
@@ -119,6 +124,16 @@ watch(
     },
     { deep: true },
 );
+
+const textOf = (message: UIMessage): string =>
+    message.parts
+        .filter((part) => part.type === 'text')
+        .map((part: any) => part.text)
+        .join('\n\n')
+        .trim();
+
+const isFinished = (message: UIMessage): boolean =>
+    !(isBusy.value && message === messages.value.at(-1));
 
 const send = (): void => {
     if (!canSend.value) {
@@ -266,6 +281,13 @@ const reopen = async (id: string): Promise<void> => {
                                 "
                             />
                         </template>
+                        <AssistantMessageMeta
+                            v-if="isFinished(message)"
+                            :text="textOf(message)"
+                            :sent-at="sentAt(message)"
+                            :locale="page.props.locale"
+                            :is-reversed="message.role === 'assistant'"
+                        />
                     </div>
 
                     <p

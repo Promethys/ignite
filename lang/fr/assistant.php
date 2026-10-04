@@ -13,6 +13,8 @@ return [
     'send' => 'Envoyer',
     'thinking' => 'Réflexion...',
     'error' => "L'assistant n'a pas pu répondre. Vérifiez votre clé dans les paramètres ou réessayez dans un instant.",
+    'copy' => 'Copier',
+    'copied' => 'Copié',
     'rename' => 'Renommer',
     'title_label' => 'Titre de la discussion',
     'delete_title' => 'Supprimer cette discussion ?',

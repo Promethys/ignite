@@ -4,6 +4,7 @@ namespace App\Ai\Storage;
 
 use App\Models\User;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Laravel\Ai\Models\ConversationMessage;
@@ -45,15 +46,25 @@ class EncryptedConversationStore extends DatabaseConversationStore
      */
     public function uiMessagesOf(string $conversationId, int $limit): array
     {
-        $messages = $this->table($this->messagesTable())
+        $records = $this->table($this->messagesTable())
             ->where('conversation_id', $conversationId)
             ->orderByDesc('id')
             ->limit($limit)
             ->get()
-            ->reverse()
-            ->map(fn (stdClass $record): ConversationMessage => (new ConversationMessage)->newFromBuilder((array) $record));
+            ->reverse();
 
-        return Vercel::toUiMessages($messages);
+        $sentAt = $records->mapWithKeys(fn (stdClass $record): array => [
+            $record->id => Carbon::parse($record->created_at)->toIso8601String(),
+        ]);
+
+        $messages = $records->map(
+            fn (stdClass $record): ConversationMessage => (new ConversationMessage)->newFromBuilder((array) $record)
+        );
+
+        return array_map(
+            fn (array $message): array => [...$message, 'metadata' => ['createdAt' => $sentAt[$message['id']] ?? null]],
+            Vercel::toUiMessages($messages),
+        );
     }
 
     public function renameConversation(string $conversationId, string $title): void

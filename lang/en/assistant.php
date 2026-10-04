@@ -13,6 +13,8 @@ return [
     'send' => 'Send',
     'thinking' => 'Thinking...',
     'error' => 'The assistant could not answer. Check your key in the settings or try again in a moment.',
+    'copy' => 'Copy',
+    'copied' => 'Copied',
     'rename' => 'Rename',
     'title_label' => 'Conversation title',
     'delete_title' => 'Delete this conversation?',

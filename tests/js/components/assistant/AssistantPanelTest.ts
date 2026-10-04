@@ -3,7 +3,9 @@ import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref, shallowRef } from 'vue';
 
-const page = { props: { assistant: { available: true }, goal: { id: 7 } } };
+const page = {
+    props: { assistant: { available: true }, goal: { id: 7 }, locale: 'en' },
+};
 
 const chat = {
     messages: shallowRef<any[]>([]),
@@ -15,6 +17,7 @@ const chat = {
     conversationId: ref<string | null>(null),
     conversations: ref<any[]>([]),
     isLoadingConversation: ref(false),
+    sentAt: vi.fn((message: any) => message.metadata?.createdAt),
     startNewConversation: vi.fn(),
     loadConversations: vi.fn(),
     openConversation: vi.fn(),
@@ -24,6 +27,17 @@ const chat = {
 };
 
 let goalIdGetter: () => number | null;
+
+const copy = vi.fn();
+
+vi.mock('@vueuse/core', async (original) => ({
+    ...(await original<object>()),
+    useClipboard: () => ({
+        copy,
+        copied: ref(false),
+        isSupported: ref(true),
+    }),
+}));
 
 vi.mock('@inertiajs/vue3', () => ({
     usePage: () => page,
@@ -230,6 +244,55 @@ describe('AssistantPanel', () => {
         chat.messages.value = assistant([tool('output-available')]);
         await wrapper.vm.$nextTick();
         expect(thinking()).toBe(false);
+    });
+
+    it('offers to copy each finished message, as Markdown for the assistant', async () => {
+        chat.messages.value = [
+            {
+                id: 'user-1',
+                role: 'user',
+                parts: [{ type: 'text', text: 'How am I doing?' }],
+            },
+            {
+                id: 'assistant-1',
+                role: 'assistant',
+                parts: [
+                    {
+                        type: 'tool-list_goals',
+                        toolCallId: 'c',
+                        state: 'output-available',
+                    },
+                    { type: 'text', text: 'You have **three** goals.' },
+                ],
+            },
+        ];
+        const wrapper = mount(AssistantPanel);
+        const buttons = wrapper.findAll('[data-test="assistant-copy"]');
+
+        expect(buttons).toHaveLength(2);
+        await buttons[1].trigger('click');
+
+        expect(copy).toHaveBeenCalledWith('You have **three** goals.');
+    });
+
+    it('does not offer to copy a reply that is still being written', () => {
+        chat.status.value = 'streaming';
+        chat.messages.value = [
+            {
+                id: 'user-1',
+                role: 'user',
+                parts: [{ type: 'text', text: 'How am I doing?' }],
+            },
+            {
+                id: 'assistant-1',
+                role: 'assistant',
+                parts: [{ type: 'text', text: 'You have' }],
+            },
+        ];
+
+        expect(
+            mount(AssistantPanel).findAll('[data-test="assistant-copy"]'),
+        ).toHaveLength(1);
     });
 
     it('lists past conversations and reopens the chosen one', async () => {

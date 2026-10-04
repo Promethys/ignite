@@ -245,6 +245,30 @@ describe('useAssistantChat', () => {
         expect(chat.messages.value).toEqual([]);
     });
 
+    it('dates a stored message from the server and a new one from when it appeared', async () => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date('2026-10-22T14:12:00Z'));
+        const stored = {
+            id: 'stored-1',
+            role: 'user',
+            parts: [{ type: 'text', text: 'Earlier' }],
+            metadata: { createdAt: '2026-10-01T08:00:00+00:00' },
+        };
+        fetchMock
+            .mockResolvedValueOnce(json({ id: 'one', messages: [stored] }))
+            .mockResolvedValueOnce(stream(textReply('Hello')));
+        const chat = makeChat();
+
+        await chat.openConversation('one');
+        await chat.sendMessage({ text: 'Now' });
+        vi.setSystemTime(new Date('2026-10-22T18:00:00Z'));
+
+        const [first, second] = chat.messages.value;
+        expect(chat.sentAt(first)).toBe('2026-10-01T08:00:00+00:00');
+        expect(chat.sentAt(second)).toBe('2026-10-22T14:12:00.000Z');
+        vi.useRealTimers();
+    });
+
     it('renames a conversation in the list', async () => {
         const chat = makeChat();
         chat.conversations.value = [

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\Encryption\UserDataCipher;
 use App\Services\Encryption\UserDataKeyring;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Laravel\Ai\Contracts\ConversationStore;
@@ -223,6 +224,18 @@ class EncryptedConversationStoreTest extends TestCase
         $this->assertSame('How are my books going?', $listed->title);
         $this->assertSame('How are my books going?', $messages[0]['parts'][0]['text']);
         $this->assertSame('You are halfway through your books.', $messages[1]['parts'][0]['text']);
+    }
+
+    public function test_each_panel_message_carries_when_it_was_stored()
+    {
+        Carbon::setTestNow('2026-10-22 14:12:00');
+        IgniteAssistant::fake(['You are halfway through your books.']);
+        $conversationId = $this->ask('How are my books going?');
+
+        $messages = $this->store()->uiMessagesOf($conversationId, 10);
+
+        $this->assertSame('2026-10-22T14:12:00+00:00', $messages[0]['metadata']['createdAt']);
+        $this->assertSame('2026-10-22T14:12:00+00:00', $messages[1]['metadata']['createdAt']);
     }
 
     public function test_a_conversation_is_only_found_for_its_owner()
