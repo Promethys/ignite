@@ -277,4 +277,17 @@ class AssistantKeyTest extends TestCase
         $this->assertSame('untouched', $othersKey->fresh()->model);
         $this->assertModelExists($othersKey);
     }
+
+    public function test_the_page_says_whether_the_instance_is_already_configured(): void
+    {
+        $this->actingAs($this->user)
+            ->get('/settings/assistant')
+            ->assertInertia(fn (Assert $page) => $page->where('instanceConfigured', false));
+
+        config(['ai.default' => 'gemini', 'ai.providers.gemini.key' => 'instance-gemini-key']);
+
+        $this->actingAs($this->user)
+            ->get('/settings/assistant')
+            ->assertInertia(fn (Assert $page) => $page->where('instanceConfigured', true));
+    }
 }

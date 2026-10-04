@@ -164,6 +164,7 @@ return [
         'breadcrumb' => 'AI Assistant',
         'title' => 'AI assistant keys',
         'description' => 'Connect your own AI account to use the assistant. Your keys are encrypted and deleted with your account.',
+        'instance_configured' => 'This instance already provides an AI configuration, so the assistant works without a key. A key you add here is used instead for your own account.',
         'not_connected' => 'No key saved',
         'key_ending' => 'Key ending in :suffix',
         'model' => 'Model: :model',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Assistant\AssistantKeyResolver;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -45,6 +46,9 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 'adminPanelUrl' => $request->user()?->isAdmin() ? route('filament.admin.pages.dashboard') : null,
+            ],
+            'assistant' => [
+                'available' => $request->user() !== null && app(AssistantKeyResolver::class)->isAvailableFor($request->user()),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'locale' => app()->getLocale(),

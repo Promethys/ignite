@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\StoreAssistantKeyRequest;
 use App\Http\Requests\Settings\UpdateAssistantKeyRequest;
 use App\Models\AssistantKey;
+use App\Services\Assistant\AssistantKeyResolver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,9 +18,10 @@ class AssistantKeyController extends Controller
     /**
      * Show the supported providers and the user's saved keys.
      */
-    public function index(Request $request): Response
+    public function index(Request $request, AssistantKeyResolver $resolver): Response
     {
         return Inertia::render('settings/Assistant', [
+            'instanceConfigured' => $resolver->instanceIsConfigured(),
             'providers' => collect(AssistantProvider::cases())->map(fn (AssistantProvider $provider): array => [
                 'value' => $provider->value,
                 'label' => $provider->label(),

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Http\Middleware;
 
+use App\Models\AssistantKey;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -112,5 +113,38 @@ class HandleInertiaRequestsTest extends TestCase
             ->assertInertia(fn (AssertableJson $page) => $page
                 ->where('auth.adminPanelUrl', null)
             );
+    }
+
+    public function test_the_assistant_is_unavailable_without_a_key_or_an_instance_configuration()
+    {
+        $this->actingAs(User::factory()->create())
+            ->get(route('dashboard'))
+            ->assertInertia(fn (AssertableJson $page) => $page
+                ->where('assistant.available', false)
+            );
+    }
+
+    public function test_the_assistant_is_available_to_a_user_with_a_key()
+    {
+        $assistantKey = AssistantKey::factory()->create();
+
+        $response = $this->actingAs($assistantKey->user)->get(route('dashboard'));
+
+        $response->assertInertia(fn (AssertableJson $page) => $page
+            ->where('assistant', ['available' => true])
+        );
+        $this->assertStringNotContainsString($assistantKey->api_key, $response->getContent());
+    }
+
+    public function test_the_assistant_is_available_to_everyone_on_a_configured_instance()
+    {
+        config(['ai.default' => 'gemini', 'ai.providers.gemini.key' => 'instance-gemini-key']);
+
+        $response = $this->actingAs(User::factory()->create())->get(route('dashboard'));
+
+        $response->assertInertia(fn (AssertableJson $page) => $page
+            ->where('assistant.available', true)
+        );
+        $this->assertStringNotContainsString('instance-gemini-key', $response->getContent());
     }
 }

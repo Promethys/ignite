@@ -108,9 +108,12 @@ const openAiKey = {
     is_default: false,
 };
 
-const mountPage = (assistantKeys: (typeof anthropicKey)[] = []) =>
+const mountPage = (
+    assistantKeys: (typeof anthropicKey)[] = [],
+    instanceConfigured = false,
+) =>
     mount(Assistant, {
-        props: { providers, assistantKeys },
+        props: { providers, assistantKeys, instanceConfigured },
         global: { stubs },
     });
 
@@ -245,5 +248,12 @@ describe('settings/Assistant', () => {
             '/settings/assistant/6',
             expect.anything(),
         );
+    });
+
+    it('mentions the instance configuration only when there is one', () => {
+        const notice = '[data-test="assistant-instance-configured"]';
+
+        expect(mountPage().find(notice).exists()).toBe(false);
+        expect(mountPage([], true).find(notice).exists()).toBe(true);
     });
 });

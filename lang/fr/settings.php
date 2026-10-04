@@ -164,6 +164,7 @@ return [
         'breadcrumb' => 'Assistant IA',
         'title' => 'Clés de l\'assistant IA',
         'description' => 'Connectez votre propre compte IA pour utiliser l\'assistant. Vos clés sont chiffrées et supprimées avec votre compte.',
+        'instance_configured' => 'Cette instance fournit déjà une configuration IA : l\'assistant fonctionne sans clé. Une clé ajoutée ici est utilisée à la place pour votre propre compte.',
         'not_connected' => 'Aucune clé enregistrée',
         'key_ending' => 'Clé se terminant par :suffix',
         'model' => 'Modèle : :model',

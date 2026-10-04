@@ -51,6 +51,7 @@ interface SavedAssistantKey {
 const props = defineProps<{
     providers: AssistantProviderOption[];
     assistantKeys: SavedAssistantKey[];
+    instanceConfigured: boolean;
 }>();
 
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -132,6 +133,14 @@ function remove(): void {
                     :title="$t('settings.assistant.title')"
                     :description="$t('settings.assistant.description')"
                 />
+
+                <p
+                    v-if="instanceConfigured"
+                    class="text-sm text-muted-foreground"
+                    data-test="assistant-instance-configured"
+                >
+                    {{ $t('settings.assistant.instance_configured') }}
+                </p>
 
                 <div class="space-y-4">
                     <Item
