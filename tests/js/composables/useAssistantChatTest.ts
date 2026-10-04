@@ -18,6 +18,8 @@ vi.mock('@/routes/assistant', () => ({
 vi.mock('@/routes/assistant/conversations', () => ({
     index: { url: () => '/assistant/conversations' },
     show: { url: (id: string) => `/assistant/conversations/${id}` },
+    update: { url: (id: string) => `/assistant/conversations/${id}` },
+    destroy: { url: (id: string) => `/assistant/conversations/${id}` },
 }));
 
 const stream = (
@@ -241,5 +243,56 @@ describe('useAssistantChat', () => {
 
         expect(chat.conversationId.value).toBeNull();
         expect(chat.messages.value).toEqual([]);
+    });
+
+    it('renames a conversation in the list', async () => {
+        const chat = makeChat();
+        chat.conversations.value = [
+            { id: 'one', title: 'Old title', updated_at: '' },
+        ];
+        fetchMock.mockResolvedValueOnce(
+            json({ id: 'one', title: 'New title' }),
+        );
+
+        await chat.renameConversation('one', 'New title');
+
+        const [url, init] = fetchMock.mock.calls[0];
+        expect(url).toBe('/assistant/conversations/one');
+        expect(init.method).toBe('PATCH');
+        expect(init.headers['X-XSRF-TOKEN']).toBe('token=123');
+        expect(JSON.parse(init.body)).toEqual({ title: 'New title' });
+        expect(chat.conversations.value[0].title).toBe('New title');
+    });
+
+    it('deletes the open conversation and empties the panel', async () => {
+        const chat = makeChat();
+        chat.conversations.value = [
+            { id: 'one', title: 'One', updated_at: '' },
+            { id: 'two', title: 'Two', updated_at: '' },
+        ];
+        chat.conversationId.value = 'one';
+        chat.messages.value = [
+            { id: 'm', role: 'user', parts: [{ type: 'text', text: 'Hi' }] },
+        ];
+        fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
+
+        await chat.deleteConversation('one');
+
+        expect(fetchMock.mock.calls[0][1].method).toBe('DELETE');
+        expect(chat.conversations.value.map(({ id }) => id)).toEqual(['two']);
+        expect(chat.conversationId.value).toBeNull();
+        expect(chat.messages.value).toEqual([]);
+    });
+
+    it('keeps the list unchanged when the server refuses', async () => {
+        const chat = makeChat();
+        chat.conversations.value = [
+            { id: 'one', title: 'One', updated_at: '' },
+        ];
+        fetchMock.mockResolvedValueOnce(new Response(null, { status: 404 }));
+
+        await expect(chat.deleteConversation('one')).rejects.toThrow();
+
+        expect(chat.conversations.value).toHaveLength(1);
     });
 });

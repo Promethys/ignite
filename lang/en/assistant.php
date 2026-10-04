@@ -13,6 +13,11 @@ return [
     'send' => 'Send',
     'thinking' => 'Thinking...',
     'error' => 'The assistant could not answer. Check your key in the settings or try again in a moment.',
+    'rename' => 'Rename',
+    'title_label' => 'Conversation title',
+    'delete_title' => 'Delete this conversation?',
+    'delete_description' => 'The conversation and its messages are permanently deleted.',
+    'action_failed' => 'That did not work. Try again in a moment.',
     'activity' => [
         'running' => 'Working...',
         'reading' => 'Looked at your data',

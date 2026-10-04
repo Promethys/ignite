@@ -2,6 +2,8 @@ import { chat as chatRoute } from '@/routes/assistant';
 import {
     show as conversationRoute,
     index as conversationsRoute,
+    destroy as deleteConversationRoute,
+    update as renameConversationRoute,
 } from '@/routes/assistant/conversations';
 import { useChat } from '@ai-sdk/vue';
 import { router } from '@inertiajs/vue3';
@@ -46,17 +48,31 @@ const xsrfToken = (): string =>
         document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '',
     );
 
-const getJson = async <T>(url: string): Promise<T> => {
+const requestJson = async <T>(
+    url: string,
+    method: 'GET' | 'PATCH' | 'DELETE' = 'GET',
+    body?: Record<string, unknown>,
+): Promise<T> => {
     const response = await fetch(url, {
-        headers: { Accept: 'application/json' },
+        method,
+        headers: {
+            Accept: 'application/json',
+            ...(method === 'GET'
+                ? {}
+                : {
+                      'Content-Type': 'application/json',
+                      'X-XSRF-TOKEN': xsrfToken(),
+                  }),
+        },
         credentials: 'same-origin',
+        body: body ? JSON.stringify(body) : undefined,
     });
 
     if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
     }
 
-    return response.json();
+    return response.status === 204 ? (undefined as T) : response.json();
 };
 
 export function useAssistantChat(currentGoalId: () => number | null) {
@@ -103,7 +119,7 @@ export function useAssistantChat(currentGoalId: () => number | null) {
     };
 
     const loadConversations = async (): Promise<void> => {
-        const { conversations: listed } = await getJson<{
+        const { conversations: listed } = await requestJson<{
             conversations: ConversationSummary[];
         }>(conversationsRoute.url());
 
@@ -114,7 +130,7 @@ export function useAssistantChat(currentGoalId: () => number | null) {
         isLoadingConversation.value = true;
 
         try {
-            const conversation = await getJson<{
+            const conversation = await requestJson<{
                 id: string;
                 messages: UIMessage[];
             }>(conversationRoute.url(id));
@@ -135,6 +151,35 @@ export function useAssistantChat(currentGoalId: () => number | null) {
         }
     };
 
+    const renameConversation = async (
+        id: string,
+        title: string,
+    ): Promise<void> => {
+        const renamed = await requestJson<{ id: string; title: string }>(
+            renameConversationRoute.url(id),
+            'PATCH',
+            { title },
+        );
+
+        conversations.value = conversations.value.map((conversation) =>
+            conversation.id === id
+                ? { ...conversation, title: renamed.title }
+                : conversation,
+        );
+    };
+
+    const deleteConversation = async (id: string): Promise<void> => {
+        await requestJson<void>(deleteConversationRoute.url(id), 'DELETE');
+
+        conversations.value = conversations.value.filter(
+            (conversation) => conversation.id !== id,
+        );
+
+        if (conversationId.value === id) {
+            startNewConversation();
+        }
+    };
+
     return {
         ...chat,
         conversationId,
@@ -144,5 +189,7 @@ export function useAssistantChat(currentGoalId: () => number | null) {
         loadConversations,
         openConversation,
         openLatestConversation,
+        renameConversation,
+        deleteConversation,
     };
 }

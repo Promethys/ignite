@@ -13,6 +13,11 @@ return [
     'send' => 'Envoyer',
     'thinking' => 'Réflexion...',
     'error' => "L'assistant n'a pas pu répondre. Vérifiez votre clé dans les paramètres ou réessayez dans un instant.",
+    'rename' => 'Renommer',
+    'title_label' => 'Titre de la discussion',
+    'delete_title' => 'Supprimer cette discussion ?',
+    'delete_description' => 'La discussion et ses messages sont supprimés définitivement.',
+    'action_failed' => "Cela n'a pas fonctionné. Réessayez dans un instant.",
     'activity' => [
         'running' => 'En cours...',
         'reading' => 'A consulté vos données',

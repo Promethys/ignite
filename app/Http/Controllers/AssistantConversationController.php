@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RenameAssistantConversationRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Laravel\Ai\Vercel\Vercel;
 
 class AssistantConversationController extends Controller
@@ -42,5 +45,33 @@ class AssistantConversationController extends Controller
             ...$conversation->only(['id', 'title']),
             'messages' => Vercel::toUiMessages($messages),
         ]);
+    }
+
+    /**
+     * Rename one of the user's conversations.
+     */
+    public function update(RenameAssistantConversationRequest $request, string $conversation): JsonResponse
+    {
+        $conversation = $request->user()->conversations()->findOrFail($conversation);
+
+        $conversation->timestamps = false;
+        $conversation->update(['title' => $request->validated('title')]);
+
+        return response()->json($conversation->only(['id', 'title']));
+    }
+
+    /**
+     * Delete one of the user's conversations with its messages.
+     */
+    public function destroy(Request $request, string $conversation): Response
+    {
+        $conversation = $request->user()->conversations()->findOrFail($conversation);
+
+        DB::connection($conversation->getConnectionName())->transaction(function () use ($conversation) {
+            $conversation->messages()->delete();
+            $conversation->delete();
+        });
+
+        return response()->noContent();
     }
 }

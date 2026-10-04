@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers;
 
 use App\Ai\Agents\IgniteAssistant;
+use App\Http\Requests\RenameAssistantConversationRequest;
 use App\Models\AssistantKey;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -104,5 +105,95 @@ class AssistantConversationControllerTest extends TestCase
     {
         $this->actingAs($this->user)->getJson(route('assistant.conversations.show', 'missing'))
             ->assertNotFound();
+    }
+
+    // =========================================================================
+    // UPDATE
+    // =========================================================================
+
+    public function test_it_renames_a_conversation_without_moving_it_in_the_list()
+    {
+        Carbon::setTestNow('2026-10-01 10:00:00');
+        $conversationId = $this->startConversation('How am I doing?');
+
+        Carbon::setTestNow('2026-10-03 10:00:00');
+        $this->actingAs($this->user)
+            ->patchJson(route('assistant.conversations.update', $conversationId), ['title' => 'Weekly review'])
+            ->assertOk()
+            ->assertJsonPath('title', 'Weekly review');
+
+        $this->assertDatabaseHas('agent_conversations', [
+            'id' => $conversationId,
+            'title' => 'Weekly review',
+            'updated_at' => '2026-10-01 10:00:00',
+        ]);
+    }
+
+    public function test_a_title_is_required_and_limited()
+    {
+        $conversationId = $this->startConversation('How am I doing?');
+        $route = route('assistant.conversations.update', $conversationId);
+
+        $this->actingAs($this->user)->patchJson($route, ['title' => ''])->assertJsonValidationErrors('title');
+        $this->actingAs($this->user)
+            ->patchJson($route, ['title' => str_repeat('a', RenameAssistantConversationRequest::MAX_TITLE_LENGTH + 1)])
+            ->assertJsonValidationErrors('title');
+
+        $this->assertDatabaseHas('agent_conversations', ['id' => $conversationId, 'title' => 'How am I doing?']);
+    }
+
+    public function test_it_cannot_rename_another_users_conversation()
+    {
+        $other = User::factory()->create();
+        AssistantKey::factory()->create(['user_id' => $other->id]);
+        $conversationId = $this->startConversation('A private question', $other);
+
+        $this->actingAs($this->user)
+            ->patchJson(route('assistant.conversations.update', $conversationId), ['title' => 'Mine now'])
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('agent_conversations', ['id' => $conversationId, 'title' => 'A private question']);
+    }
+
+    // =========================================================================
+    // DESTROY
+    // =========================================================================
+
+    public function test_it_deletes_a_conversation_with_its_messages_and_nothing_else()
+    {
+        $deleted = $this->startConversation('How am I doing?');
+        $kept = $this->startConversation('What is due this week?');
+
+        $this->actingAs($this->user)
+            ->deleteJson(route('assistant.conversations.destroy', $deleted))
+            ->assertNoContent();
+
+        $this->assertDatabaseMissing('agent_conversations', ['id' => $deleted]);
+        $this->assertDatabaseMissing('agent_conversation_messages', ['conversation_id' => $deleted]);
+        $this->assertDatabaseHas('agent_conversations', ['id' => $kept]);
+        $this->assertDatabaseCount('agent_conversation_messages', 2);
+    }
+
+    public function test_it_cannot_delete_another_users_conversation()
+    {
+        $other = User::factory()->create();
+        AssistantKey::factory()->create(['user_id' => $other->id]);
+        $conversationId = $this->startConversation('A private question', $other);
+
+        $this->actingAs($this->user)
+            ->deleteJson(route('assistant.conversations.destroy', $conversationId))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('agent_conversations', ['id' => $conversationId]);
+        $this->assertDatabaseCount('agent_conversation_messages', 2);
+    }
+
+    public function test_a_guest_cannot_rename_or_delete_a_conversation()
+    {
+        $conversationId = $this->startConversation('How am I doing?');
+        auth()->logout();
+
+        $this->patchJson(route('assistant.conversations.update', $conversationId), ['title' => 'New'])->assertUnauthorized();
+        $this->deleteJson(route('assistant.conversations.destroy', $conversationId))->assertUnauthorized();
     }
 }

@@ -20,6 +20,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('assistant.conversations.index');
     Route::get('assistant/conversations/{conversation}', [AssistantConversationController::class, 'show'])
         ->name('assistant.conversations.show');
+    Route::patch('assistant/conversations/{conversation}', [AssistantConversationController::class, 'update'])
+        ->name('assistant.conversations.update');
+    Route::delete('assistant/conversations/{conversation}', [AssistantConversationController::class, 'destroy'])
+        ->name('assistant.conversations.destroy');
 });
 
 require __DIR__.'/settings.php';

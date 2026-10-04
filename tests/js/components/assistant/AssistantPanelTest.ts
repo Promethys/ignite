@@ -19,6 +19,8 @@ const chat = {
     loadConversations: vi.fn(),
     openConversation: vi.fn(),
     openLatestConversation: vi.fn(),
+    renameConversation: vi.fn(),
+    deleteConversation: vi.fn(),
 };
 
 let goalIdGetter: () => number | null;
@@ -247,7 +249,7 @@ describe('AssistantPanel', () => {
             expect(wrapper.text()).toContain('Reading plan'),
         );
         await wrapper
-            .find('[data-test="assistant-conversations"] button')
+            .find('[data-test="assistant-conversation"]')
             .trigger('click');
 
         expect(chat.openConversation).toHaveBeenCalledWith('older');

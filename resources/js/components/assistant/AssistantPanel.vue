@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AssistantConversationList from '@/components/assistant/AssistantConversationList.vue';
 import AssistantMarkdown from '@/components/assistant/AssistantMarkdown.vue';
 import AssistantToolActivity from '@/components/assistant/AssistantToolActivity.vue';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -28,7 +29,6 @@ import {
     Sparkles,
     SquarePen,
 } from 'lucide-vue-next';
-import moment from 'moment';
 import { computed, nextTick, ref, watch } from 'vue';
 
 const MAX_PROMPT_LENGTH = 4000;
@@ -49,6 +49,8 @@ const {
     loadConversations,
     openConversation,
     openLatestConversation,
+    renameConversation,
+    deleteConversation,
 } = useAssistantChat(() => page.props.goal?.id ?? null);
 
 const isOpen = ref(false);
@@ -199,38 +201,14 @@ const reopen = async (id: string): Promise<void> => {
                 </div>
             </SheetHeader>
 
-            <ul
+            <AssistantConversationList
                 v-if="isShowingHistory"
-                class="flex-1 divide-y overflow-y-auto"
-                data-test="assistant-conversations"
-            >
-                <li
-                    v-if="conversations.length === 0"
-                    class="p-4 text-sm text-muted-foreground"
-                >
-                    {{ $t('assistant.no_history') }}
-                </li>
-                <li
-                    v-for="conversation in conversations"
-                    :key="conversation.id"
-                >
-                    <button
-                        type="button"
-                        class="flex w-full flex-col gap-1 p-4 text-left text-sm hover:bg-accent"
-                        :class="{
-                            'bg-accent': conversation.id === conversationId,
-                        }"
-                        @click="reopen(conversation.id)"
-                    >
-                        <span class="truncate font-medium">
-                            {{ conversation.title }}
-                        </span>
-                        <span class="text-xs text-muted-foreground">
-                            {{ moment(conversation.updated_at).format('LL') }}
-                        </span>
-                    </button>
-                </li>
-            </ul>
+                :conversations="conversations"
+                :active-conversation-id="conversationId"
+                :rename="renameConversation"
+                :remove="deleteConversation"
+                @open="reopen"
+            />
 
             <template v-else>
                 <div
