@@ -160,6 +160,10 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'api_key' => [
+            'rejected' => ':provider n\'a pas accepté cette clé. Vérifiez que vous l\'avez copiée en entier.',
+            'unverifiable' => 'Ignite n\'a pas pu joindre :provider pour vérifier cette clé. Réessayez dans un instant.',
+        ],
         'entry_date' => [
             'check_in_period_taken' => 'Un pointage existe déjà pour cette période.',
         ],

@@ -20,8 +20,8 @@ trait SendsMcpRequests
             'Mcp-Method' => $method,
         ];
 
-        if (isset($params['name'])) {
-            $headers['Mcp-Name'] = $params['name'];
+        if (isset($params['name']) || isset($params['uri'])) {
+            $headers['Mcp-Name'] = $params['name'] ?? $params['uri'];
         }
 
         return $this->postJson('/mcp', [

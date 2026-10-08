@@ -9,4 +9,6 @@ export const FIELD_LIMITS = {
     email: 255,
     description: 2000,
     apiTokenName: 255,
+    assistantModel: 255,
+    conversationTitle: 100,
 } as const;

@@ -66,6 +66,10 @@ export default withMermaid(
                                 text: 'Tracking Progress',
                                 link: '/guide/tracking-progress',
                             },
+                            {
+                                text: 'Use the Assistant',
+                                link: '/guide/assistant',
+                            },
                         ],
                     },
                 ],
@@ -113,6 +117,10 @@ export default withMermaid(
                             {
                                 text: 'Internationalization',
                                 link: '/features/internationalization',
+                            },
+                            {
+                                text: 'AI Assistant',
+                                link: '/features/ai-assistant',
                             },
                             {
                                 text: 'Data Encryption',

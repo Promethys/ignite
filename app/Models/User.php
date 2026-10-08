@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Ai\Storage\EncryptedConversationStore;
 use App\Exceptions\UserDataEncryptionException;
 use App\Notifications\Auth\ResetPassword;
 use App\Notifications\Auth\VerifyEmail;
@@ -18,9 +19,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Log;
+use Laravel\Ai\Concerns\HasConversations;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -33,6 +36,7 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
 {
     use EncryptsUserData;
     use HasApiTokens;
+    use HasConversations;
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -150,6 +154,22 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
     public function socialAccounts(): HasMany
     {
         return $this->hasMany(SocialAccount::class);
+    }
+
+    /**
+     * @return HasMany<AssistantKey, $this>
+     */
+    public function assistantKeys(): HasMany
+    {
+        return $this->hasMany(AssistantKey::class);
+    }
+
+    /**
+     * @return HasOne<AssistantKey, $this>
+     */
+    public function defaultAssistantKey(): HasOne
+    {
+        return $this->hasOne(AssistantKey::class)->where('is_default', true);
     }
 
     /**
@@ -278,6 +298,8 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference,
         });
 
         static::deleting(function (User $user): void {
+            app(EncryptedConversationStore::class)->deleteConversationsOf($user);
+
             if ($user->data_key_id === null) {
                 return;
             }

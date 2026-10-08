@@ -182,6 +182,10 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'api_key' => [
+            'rejected' => ':provider did not accept this key. Check that you copied it completely.',
+            'unverifiable' => 'Ignite could not reach :provider to check this key. Try again in a moment.',
+        ],
         'entry_date' => [
             'check_in_period_taken' => 'A check-in already exists for this period.',
         ],

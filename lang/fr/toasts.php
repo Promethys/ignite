@@ -49,6 +49,13 @@ return [
         'reset' => 'Mot de passe réinitialisé. Vous pouvez maintenant vous connecter.',
     ],
 
+    'assistant_key' => [
+        'connected' => 'Clé :provider enregistrée.',
+        'updated' => 'Clé :provider mise à jour.',
+        'default' => 'L\'assistant utilise désormais :provider.',
+        'removed' => 'Clé :provider retirée.',
+    ],
+
     'api_token' => [
         'created' => 'Jeton API créé.',
         'revoked' => 'Jeton API révoqué.',

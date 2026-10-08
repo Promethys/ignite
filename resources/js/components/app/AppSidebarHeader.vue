@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/app/Breadcrumbs.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import type { BreadcrumbItemType } from '@/types';
+import type { AppPageProps, BreadcrumbItemType } from '@/types';
+import { usePage } from '@inertiajs/vue3';
+import { defineAsyncComponent } from 'vue';
+
+const AssistantPanel = defineAsyncComponent(
+    () => import('@/components/assistant/AssistantPanel.vue'),
+);
+
+const page = usePage<AppPageProps>();
 
 withDefaults(
     defineProps<{
@@ -22,6 +30,9 @@ withDefaults(
             <template v-if="breadcrumbs && breadcrumbs.length > 0">
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
+        </div>
+        <div class="ml-auto">
+            <AssistantPanel v-if="page.props.assistant?.available" />
         </div>
     </header>
 </template>

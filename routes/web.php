@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AssistantChatController;
+use App\Http\Controllers\AssistantConversationController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -10,6 +12,18 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::post('assistant/chat', AssistantChatController::class)
+        ->middleware('throttle:assistant')
+        ->name('assistant.chat');
+    Route::get('assistant/conversations', [AssistantConversationController::class, 'index'])
+        ->name('assistant.conversations.index');
+    Route::get('assistant/conversations/{conversation}', [AssistantConversationController::class, 'show'])
+        ->name('assistant.conversations.show');
+    Route::patch('assistant/conversations/{conversation}', [AssistantConversationController::class, 'update'])
+        ->name('assistant.conversations.update');
+    Route::delete('assistant/conversations/{conversation}', [AssistantConversationController::class, 'destroy'])
+        ->name('assistant.conversations.destroy');
 });
 
 require __DIR__.'/settings.php';
