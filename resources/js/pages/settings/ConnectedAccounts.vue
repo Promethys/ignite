@@ -78,11 +78,12 @@ function disconnect(provider: string) {
                     :description="$t('settings.connected_accounts.description')"
                 />
 
-                <div class="space-y-4">
+                <div class="@container space-y-4">
                     <Item
                         v-for="provider in providers"
                         :key="provider"
                         variant="outline"
+                        class="@lg:flex-nowrap"
                     >
                         <ItemMedia>
                             <Google
@@ -94,7 +95,7 @@ function disconnect(provider: string) {
                                 class="size-5"
                             />
                         </ItemMedia>
-                        <ItemContent>
+                        <ItemContent class="min-w-0">
                             <ItemTitle>{{ providerLabel(provider) }}</ItemTitle>
                             <ItemDescription>
                                 <template v-if="isConnected(provider)">
@@ -143,7 +144,9 @@ function disconnect(provider: string) {
                                 </template>
                             </ItemDescription>
                         </ItemContent>
-                        <ItemActions>
+                        <ItemActions
+                            class="basis-full flex-wrap pl-9 @lg:basis-auto @lg:flex-nowrap @lg:pl-0"
+                        >
                             <Button
                                 v-if="isLastCredential(provider)"
                                 variant="outline"

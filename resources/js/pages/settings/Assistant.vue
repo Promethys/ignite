@@ -142,12 +142,13 @@ function remove(): void {
                     {{ $t('settings.assistant.instance_configured') }}
                 </p>
 
-                <div class="space-y-4">
+                <div class="@container space-y-4">
                     <Item
                         v-for="provider in providers"
                         :key="provider.value"
                         variant="outline"
                         :data-test="`assistant-provider-${provider.value}`"
+                        class="@lg:flex-nowrap"
                     >
                         <ItemMedia>
                             <ProviderIcon
@@ -155,7 +156,7 @@ function remove(): void {
                                 :label="provider.label"
                             />
                         </ItemMedia>
-                        <ItemContent>
+                        <ItemContent class="min-w-0">
                             <ItemTitle>
                                 {{ provider.label }}
                                 <Badge
@@ -202,7 +203,9 @@ function remove(): void {
                                 </template>
                             </ItemDescription>
                         </ItemContent>
-                        <ItemActions>
+                        <ItemActions
+                            class="basis-full flex-wrap pl-12 @lg:basis-auto @lg:flex-nowrap @lg:pl-0"
+                        >
                             <template v-if="savedKeyFor(provider.value)">
                                 <Button
                                     v-if="
