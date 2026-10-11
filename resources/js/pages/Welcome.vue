@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import DemoSlot from '@/components/public/DemoSlot.vue';
-import FeatureRows from '@/components/public/FeatureRows.vue';
+import FeatureGrid from '@/components/public/FeatureGrid.vue';
+import HeroProgressTrack from '@/components/public/HeroProgressTrack.vue';
 import PublicShell from '@/components/public/PublicShell.vue';
 import { Button } from '@/components/ui/button';
-import { register } from '@/routes';
+import { dashboard, register } from '@/routes';
 import { Link } from '@inertiajs/vue3';
 import 'vue-sonner/style.css';
 
@@ -18,34 +19,35 @@ const trust = [
     <PublicShell title="Welcome">
         <main class="relative mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6">
             <div class="relative grid grid-cols-1 items-center lg:grid-cols-2">
-                <div
-                    class="public-surface-glow pointer-events-none absolute -top-40 left-[15%] h-[26rem] w-[42rem] max-w-full"
-                />
-
                 <section class="relative px-2 py-7 sm:py-10">
                     <p
-                        class="flex items-center gap-2 font-mono text-xs tracking-widest text-primary uppercase"
+                        class="flex items-center gap-2 text-xs font-semibold tracking-widest text-primary uppercase"
                     >
-                        <span
-                            class="size-2 shrink-0 bg-primary shadow-[0_0_16px_1px] shadow-primary/70"
-                        />
+                        <span class="size-2 shrink-0 bg-primary" />
                         {{ $t('landing.hero.eyebrow') }}
                     </p>
                     <h1
                         class="mt-3 max-w-2xl font-display text-4xl font-bold text-balance sm:text-5xl"
                     >
                         {{ $t('landing.hero.title_lead') }}
-                        <em
-                            class="bg-[linear-gradient(96deg,hsl(262_83%_68%)_10%,hsl(292_80%_68%)_90%)] bg-clip-text text-transparent italic"
-                            >{{ $t('landing.hero.title_highlight') }}</em
+                        <em class="italic">{{
+                            $t('landing.hero.title_highlight')
+                        }}</em
                         >.
                     </h1>
+                    <HeroProgressTrack class="mt-7" />
                     <p class="mt-7 max-w-xl text-pretty text-muted-foreground">
                         {{ $t('landing.hero.subtitle') }}
                     </p>
                     <div class="mt-7 flex gap-3">
-                        <Button size="lg" variant="inverse" as-child>
-                            <Link :href="register()">
+                        <Button size="lg" as-child>
+                            <Link
+                                v-if="$page.props.auth.user"
+                                :href="dashboard()"
+                            >
+                                {{ $t('common.nav.dashboard') }}
+                            </Link>
+                            <Link v-else :href="register()">
                                 {{ $t('landing.hero.start') }}
                             </Link>
                         </Button>
@@ -72,7 +74,7 @@ const trust = [
                 <DemoSlot />
             </div>
 
-            <FeatureRows />
+            <FeatureGrid />
         </main>
     </PublicShell>
 </template>
