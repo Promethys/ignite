@@ -17,19 +17,19 @@ import Button from '../ui/button/Button.vue';
             <nav class="flex items-center gap-2">
                 <LanguageSwitcher />
                 <template v-if="$page.props.auth.user">
-                    <Button as-child variant="inverse" class="font-semibold">
+                    <Button as-child variant="outline" class="font-semibold">
                         <Link :href="dashboard()">
                             {{ $t('common.nav.dashboard') }}
                         </Link>
                     </Button>
                 </template>
                 <template v-else>
-                    <Button variant="outline" as-child>
+                    <Button variant="ghost" as-child>
                         <Link :href="login()">
                             {{ $t('common.actions.log_in') }}
                         </Link>
                     </Button>
-                    <Button as-child variant="inverse" class="font-semibold">
+                    <Button as-child variant="outline" class="font-semibold">
                         <Link :href="register()">
                             {{ $t('common.actions.get_started') }}
                         </Link>

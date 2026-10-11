@@ -78,18 +78,11 @@
 
     --animate-mark-settle-mid: settle 1.2s ease-in-out 0.55s infinite;
     --animate-mark-settle-tip: settle 1.2s ease-in-out 0.75s infinite;
+    --animate-track-fill: track-fill 1.7s cubic-bezier(0.2, 0.8, 0.25, 1) both;
 
-    @keyframes bounce {
-        0% {
-            transform: translateY(0);
-        }
-
-        50% {
-            transform: translateY(20px);
-        }
-
-        100% {
-            transform: translateY(0);
+    @keyframes track-fill {
+        from {
+            width: 0;
         }
     }
 
@@ -353,15 +346,4 @@
         #000 30%,
         transparent 75%
     );
-}
-
-.public-surface-glow {
-    background: radial-gradient(
-        ellipse at center,
-        hsl(262 83% 58% / 0.4),
-        hsl(292 80% 60% / 0.12) 45%,
-        transparent 70%
-    );
-    filter: blur(30px);
-    animation: bounce 3s linear infinite;
 }
