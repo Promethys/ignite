@@ -12,6 +12,7 @@ import { initializeTheme } from './composables/useAppearance';
 import { initializeFlashToast } from './lib/flashToast';
 import { formbricksEnabled } from './lib/formbricks';
 import { bootI18n, bootLocale, resolveLang } from './lib/i18n';
+import { initializeUserTheme } from './lib/userTheme';
 
 const ENV = import.meta.env;
 const formbricksWorkspaceID = ENV.VITE_FORMBRICKS_WORKSPACE_ID;
@@ -93,3 +94,6 @@ initializeTheme();
 
 // This will listen for flash toast data from the server...
 initializeFlashToast();
+
+// This will keep the user's theme in step with the page being shown...
+initializeUserTheme();

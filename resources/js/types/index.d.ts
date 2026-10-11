@@ -26,6 +26,7 @@ export type AppPageProps<
     quote: { message: string; author: string };
     auth: Auth;
     assistant: { available: boolean };
+    themeStylesheet: string | null;
     sidebarOpen: boolean;
     locale: string;
     supportedLocales: Record<string, string>;

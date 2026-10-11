@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Services\Assistant\AssistantKeyResolver;
+use App\Services\Themes\ThemeStylesheet;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -50,6 +51,7 @@ class HandleInertiaRequests extends Middleware
             'assistant' => [
                 'available' => $request->user() !== null && app(AssistantKeyResolver::class)->isAvailableFor($request->user()),
             ],
+            'themeStylesheet' => app(ThemeStylesheet::class)->forRequest($request),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'locale' => app()->getLocale(),
             'supportedLocales' => config('locales.supported'),
