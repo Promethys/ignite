@@ -56,6 +56,14 @@ return [
         'removed' => ':provider key removed.',
     ],
 
+    'theme' => [
+        'created' => 'Theme ":name" created and in use.',
+        'updated' => 'Theme ":name" updated.',
+        'activated' => 'The app now uses the theme ":name".',
+        'default' => 'The app is back on the built-in theme.',
+        'removed' => 'Theme ":name" deleted.',
+    ],
+
     'api_token' => [
         'created' => 'API token created.',
         'revoked' => 'API token revoked.',

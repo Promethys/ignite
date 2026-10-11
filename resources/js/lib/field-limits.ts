@@ -11,4 +11,5 @@ export const FIELD_LIMITS = {
     apiTokenName: 255,
     assistantModel: 255,
     conversationTitle: 100,
+    themeName: 50,
 } as const;

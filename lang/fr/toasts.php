@@ -56,6 +56,14 @@ return [
         'removed' => 'Clé :provider retirée.',
     ],
 
+    'theme' => [
+        'created' => 'Thème « :name » créé et utilisé.',
+        'updated' => 'Thème « :name » mis à jour.',
+        'activated' => 'L\'application utilise désormais le thème « :name ».',
+        'default' => 'L\'application est revenue au thème intégré.',
+        'removed' => 'Thème « :name » supprimé.',
+    ],
+
     'api_token' => [
         'created' => 'Jeton API créé.',
         'revoked' => 'Jeton API révoqué.',
