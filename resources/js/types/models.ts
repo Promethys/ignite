@@ -180,3 +180,11 @@ export interface SocialAccount {
     created_at: string;
     updated_at: string;
 }
+
+export interface Theme {
+    id: number;
+    name: string;
+    light_color: string;
+    dark_color: string | null;
+    is_active: boolean;
+}

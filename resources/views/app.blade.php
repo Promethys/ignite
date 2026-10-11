@@ -30,6 +30,8 @@
             }
         </style>
 
+        <style id="user-theme">{!! $page['props']['themeStylesheet'] ?? '' !!}</style>
+
         <title data-inertia>{{ config('app.name', 'Laravel') }}</title>
 
         @php

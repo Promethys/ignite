@@ -31,6 +31,7 @@ class GuideResourcesTest extends TestCase
                 'ignite://guide/assistant',
                 'ignite://guide/getting-started',
                 'ignite://guide/goal-types',
+                'ignite://guide/themes',
                 'ignite://guide/tracking-progress',
             ],
             array_column($resources, 'uri'),

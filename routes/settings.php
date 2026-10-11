@@ -1,15 +1,16 @@
 <?php
 
 use App\Http\Controllers\Settings\ApiTokenController;
+use App\Http\Controllers\Settings\AppearanceController;
 use App\Http\Controllers\Settings\AssistantKeyController;
 use App\Http\Controllers\Settings\ConnectedAccountController;
 use App\Http\Controllers\Settings\LocaleController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\ThemeController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::redirect('settings', '/settings/profile');
@@ -28,9 +29,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('settings/connected-accounts', [ConnectedAccountController::class, 'index'])->name('connected-accounts.index');
 
-    Route::get('settings/appearance', function () {
-        return Inertia::render('settings/Appearance');
-    })->name('appearance.edit');
+    Route::get('settings/appearance', [AppearanceController::class, 'edit'])->name('appearance.edit');
+
+    Route::post('settings/themes', [ThemeController::class, 'store'])
+        ->name('themes.store')
+        ->middleware([HandlePrecognitiveRequests::class]);
+    Route::patch('settings/themes/default', [ThemeController::class, 'useDefault'])
+        ->name('themes.use-default');
+    Route::put('settings/themes/{theme}', [ThemeController::class, 'update'])
+        ->name('themes.update')
+        ->middleware([HandlePrecognitiveRequests::class]);
+    Route::patch('settings/themes/{theme}/activate', [ThemeController::class, 'activate'])
+        ->name('themes.activate');
+    Route::delete('settings/themes/{theme}', [ThemeController::class, 'destroy'])
+        ->name('themes.destroy');
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');
