@@ -12,6 +12,7 @@ Every user's free text is stored encrypted under a key that belongs to that user
 | `Milestone`    | `title`, `description`         |
 | `Category`     | `name`, `description`          |
 | `AssistantKey` | `api_key`                      |
+| `Theme`        | `name`                         |
 
 The [assistant](/features/ai-assistant)'s stored conversations are encrypted the same way, although they are not Eloquent models of the app:
 
@@ -47,7 +48,7 @@ A stored value looks like `v1:eyJpdiI6...`. The `v1:` prefix marks the value as 
 
 ### In the models
 
-The six models use the `App\Traits\Models\EncryptsUserData` trait. It declares the encrypted columns and how to find the row's owner: `user_id` for goals, categories and assistant keys, the goal's owner for entries and milestones, the user itself for `User`.
+The seven models use the `App\Traits\Models\EncryptsUserData` trait. It declares the encrypted columns and how to find the row's owner: `user_id` for goals, categories, assistant keys and themes, the goal's owner for entries and milestones, the user itself for `User`.
 
 - **Writing.** The trait overrides `getAttributesForInsert()` and `getDirtyForUpdate()`, so only the values sent to SQL are encrypted, and only the changed ones. The model in memory, its observers and whatever it is returned to always see plaintext.
 - **Reading.** A `retrieved` listener decrypts the loaded columns, so controllers, Inertia props and MCP responses need no changes.

@@ -57,6 +57,7 @@ The core data graph, all under `app/Models/`:
 - `GoalEntry`: incremental progress records tied to a goal, with a timestamp.
 - `Category`: user-defined grouping for goals.
 - `Milestone`: checkpoints that break a goal into steps.
+- `Theme`: a user's own primary color for the app; see [Themes](/features/themes).
 - `Achievement` / `UserAchievement`: gamification records.
 - `UserDataKey`: a user's wrapped data key, on its own connection. `Goal`, `GoalEntry`, `Milestone`, `Category` and `User` use the `EncryptsUserData` trait; see [Data Encryption](/features/encryption).
 

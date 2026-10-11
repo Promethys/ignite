@@ -70,6 +70,7 @@ export default withMermaid(
                                 text: 'Use the Assistant',
                                 link: '/guide/assistant',
                             },
+                            { text: 'Themes', link: '/guide/themes' },
                         ],
                     },
                 ],
@@ -122,6 +123,7 @@ export default withMermaid(
                                 text: 'AI Assistant',
                                 link: '/features/ai-assistant',
                             },
+                            { text: 'Themes', link: '/features/themes' },
                             {
                                 text: 'Data Encryption',
                                 link: '/features/encryption',
