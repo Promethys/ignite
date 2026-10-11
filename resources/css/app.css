@@ -165,8 +165,8 @@
     --destructive-foreground: hsl(0 0% 100%);
     --border: hsl(260 20% 91%);
     --input: hsl(260 20% 89%);
-    --ring: hsl(262 83% 58%);
-    --chart-1: hsl(262 83% 58%);
+    --ring: var(--primary);
+    --chart-1: var(--primary);
     --chart-2: hsl(142 75% 32%);
     --chart-3: hsl(200 85% 38%);
     --chart-4: hsl(38 85% 40%);
@@ -174,12 +174,12 @@
     --radius: 0;
     --sidebar-background: hsl(260 24% 98%);
     --sidebar-foreground: hsl(260 10% 26%);
-    --sidebar-primary: hsl(262 83% 58%);
+    --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: hsl(0 0% 100%);
     --sidebar-accent: hsl(260 24% 94%);
     --sidebar-accent-foreground: hsl(260 15% 25%);
     --sidebar-border: hsl(260 20% 91%);
-    --sidebar-ring: hsl(262 83% 58%);
+    --sidebar-ring: var(--primary);
     --sidebar: hsl(260 24% 98%);
     --success: hsl(142 71% 40%);
     --success-foreground: hsl(0 0% 100%);
@@ -215,20 +215,20 @@
     --destructive-foreground: hsl(0 0% 100%);
     --border: hsl(260 12% 18%);
     --input: hsl(260 12% 18%);
-    --ring: hsl(262 83% 62%);
-    --chart-1: hsl(262 83% 66%);
+    --ring: var(--primary);
+    --chart-1: var(--primary);
     --chart-2: hsl(142 60% 42%);
     --chart-3: hsl(200 75% 46%);
     --chart-4: hsl(38 70% 44%);
     --chart-5: hsl(330 70% 52%);
     --sidebar-background: hsl(260 15% 10%);
     --sidebar-foreground: hsl(260 15% 96%);
-    --sidebar-primary: hsl(262 83% 62%);
+    --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: hsl(0 0% 100%);
     --sidebar-accent: hsl(260 12% 16%);
     --sidebar-accent-foreground: hsl(260 15% 96%);
     --sidebar-border: hsl(260 12% 18%);
-    --sidebar-ring: hsl(262 83% 62%);
+    --sidebar-ring: var(--primary);
     --sidebar: hsl(260 15% 10%);
     --success: hsl(142 60% 45%);
     --success-foreground: hsl(0 0% 100%);
@@ -292,13 +292,22 @@
 /*
   NProgress style override
 */
-#nprogress .bar {
-    background: linear-gradient(
-        90deg,
-        hsl(262 83% 58%),
-        hsl(292 80% 68%)
-    ) !important;
-    box-shadow: 0 0 10px 1px hsl(292 80% 68% / 0.7) !important;
+@supports (color: hsl(from red h s l)) {
+    #nprogress .bar {
+        background: linear-gradient(
+            90deg,
+            var(--primary),
+            hsl(from var(--primary) calc(h + 30) s calc(l + 10))
+        ) !important;
+        box-shadow: 0 0 10px 1px
+            hsl(from var(--primary) calc(h + 30) s calc(l + 10) / 0.7) !important;
+    }
+
+    #nprogress .peg {
+        box-shadow:
+            0 0 10px hsl(from var(--primary) calc(h + 30) s calc(l + 10)),
+            0 0 5px hsl(from var(--primary) calc(h + 30) s calc(l + 10));
+    }
 }
 
 .app-logo-icon path {
