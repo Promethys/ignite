@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:1.12.4-php8.5 AS runtime
+FROM dunglas/frankenphp:1.13.4-php8.5.12 AS runtime
 
 RUN install-php-extensions pdo_pgsql intl zip bcmath opcache
 
