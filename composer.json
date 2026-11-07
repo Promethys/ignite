@@ -29,6 +29,7 @@
         "laravel/socialite": "^5.29",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.9",
+        "league/commonmark": "^2.8",
         "resend/resend-php": "^1.7",
         "spatie/laravel-permission": "^8.3",
         "svix/svix": "^1.97"
