@@ -29,7 +29,10 @@ const mountHeader = () =>
     mount(PublicHeader, {
         global: {
             mocks: { $page: mocks.page },
-            stubs: { Link: false },
+            stubs: {
+                Link: false,
+                SheetContent: { template: '<div><slot /></div>' },
+            },
         },
     });
 
@@ -46,11 +49,7 @@ describe('PublicHeader', () => {
             expect(wrapper.find(`a[href="${href}"]`).exists()).toBe(true);
         }
         expect(wrapper.find('a[href="/dashboard"]').exists()).toBe(false);
-        expect(
-            wrapper
-                .find('a[href="https://ignite-docs.promethys.dev/guide/"]')
-                .exists(),
-        ).toBe(true);
+        expect(wrapper.find('a[href="/docs"]').exists()).toBe(true);
         expect(
             wrapper.find(`a[href="${mocks.page.props.githubUrl}"]`).exists(),
         ).toBe(true);
@@ -66,15 +65,45 @@ describe('PublicHeader', () => {
         expect(wrapper.find('a[href="/register"]').exists()).toBe(false);
     });
 
-    it('marks the current public page including URLs with a fragment', () => {
-        mocks.page.url = '/features#progress';
+    it.each(['/features#progress', '/docs/goal-types'])(
+        'marks the current public page at %s',
+        (url) => {
+            mocks.page.url = url;
+            const wrapper = mountHeader();
+
+            expect(
+                wrapper
+                    .get(
+                        `a[href="${url.startsWith('/docs') ? '/docs' : '/features'}"]`,
+                    )
+                    .attributes('aria-current'),
+            ).toBe('page');
+            expect(
+                wrapper.get('a[href="/self-host"]').attributes('aria-current'),
+            ).toBeUndefined();
+        },
+    );
+
+    it('marks external websites and announces their new tab', () => {
         const wrapper = mountHeader();
 
-        expect(
-            wrapper.get('a[href="/features"]').attributes('aria-current'),
-        ).toBe('page');
-        expect(
-            wrapper.get('a[href="/self-host"]').attributes('aria-current'),
-        ).toBeUndefined();
+        const externalLinks = wrapper.findAll('a[href^="https://"]');
+
+        expect(externalLinks).toHaveLength(2);
+        for (const link of externalLinks) {
+            expect(link.attributes('target')).toBe('_blank');
+            expect(link.attributes('rel')).toBe('noopener');
+            expect(
+                link.get('svg.lucide-move-up-right').attributes('aria-hidden'),
+            ).toBe('true');
+            expect(link.get('svg').classes()).toContain('size-3');
+            expect(link.get('.sr-only').text()).toBe('public.opens_in_new_tab');
+        }
+
+        for (const link of wrapper.findAll('a[href^="/"]')) {
+            expect(link.find('svg.lucide-move-up-right').exists()).toBe(false);
+            expect(link.attributes('target')).toBeUndefined();
+            expect(link.find('.sr-only').exists()).toBe(false);
+        }
     });
 });

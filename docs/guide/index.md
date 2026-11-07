@@ -2,7 +2,7 @@
 
 Ignite is a goal tracker built around a simple observation: most goals are not abandoned because they were too hard, but because progress became invisible. Ignite's job is to keep your progress in front of you.
 
-![The Ignite dashboard, showing active goals with progress bars, a streak, and charts of completions and categories](/dashboard_filled.png)
+![The Ignite dashboard, showing active goals with progress bars, a streak, and charts of completions and categories](/images/guide/dashboard_filled.png)
 
 This guide covers using the app. If you want to run your own copy or work on the code, start with the [developer documentation](/getting-started) instead.
 
@@ -16,7 +16,7 @@ You can use Ignite in English or French. The switcher sits in the top bar, and t
 
 A goal needs a title and a type. Everything else is optional.
 
-![The new goal form, with the four goal types offered as a choice](/new_goal_form.png)
+![The new goal form, with the four goal types offered as a choice](/images/guide/new_goal_form.png)
 
 **The type is the important choice**, because it decides how progress is measured and how you log it. If you are unsure, [Goal Types](/guide/goal-types) walks through the four and when each one fits. You can change the type later if you pick wrong.
 

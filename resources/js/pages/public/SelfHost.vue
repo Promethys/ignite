@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ExternalLink from '@/components/public/ExternalLink.vue';
 import PageIntro from '@/components/public/PageIntro.vue';
 import PublicShell from '@/components/public/PublicShell.vue';
 </script>
@@ -21,10 +22,10 @@ import PublicShell from '@/components/public/PublicShell.vue';
             <p class="mt-8 text-muted-foreground">
                 {{ $t('public.self_host.onward') }}
             </p>
-            <a
+            <ExternalLink
                 href="https://ignite-docs.promethys.dev/self-hosting"
                 class="mt-3 inline-flex min-h-11 items-center text-[var(--primary-text)] underline underline-offset-4"
-                >{{ $t('public.self_host.link') }}</a
+                >{{ $t('public.self_host.link') }}</ExternalLink
             >
         </main>
     </PublicShell>

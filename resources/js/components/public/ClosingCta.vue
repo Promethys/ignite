@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ExternalLink from '@/components/public/ExternalLink.vue';
 import { Button } from '@/components/ui/button';
 import { dashboard, register } from '@/routes';
 import type { AppPageProps } from '@/types';
@@ -26,12 +27,9 @@ const page = usePage<AppPageProps>();
                 ></Button
             >
             <Button size="lg" variant="ghost" as-child
-                ><a
-                    :href="page.props.githubUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >{{ $t('public.cta.code') }}</a
-                ></Button
+                ><ExternalLink :href="page.props.githubUrl">{{
+                    $t('public.cta.code')
+                }}</ExternalLink></Button
             >
         </div>
     </div>

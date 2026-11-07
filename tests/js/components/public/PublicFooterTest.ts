@@ -29,7 +29,7 @@ describe('PublicFooter', () => {
                 '/self-host',
                 '/privacy',
                 '/terms',
-                'https://ignite-docs.promethys.dev/guide/',
+                '/docs',
                 'https://ignite-docs.promethys.dev/',
                 githubUrl,
                 `${githubUrl}/releases`,
@@ -39,5 +39,30 @@ describe('PublicFooter', () => {
         );
         expect(wrapper.text()).toContain('Ignite');
         expect(wrapper.text()).toContain('©');
+    });
+
+    it('marks external websites and announces their new tab', () => {
+        const wrapper = mount(PublicFooter, {
+            global: { stubs: { Link: false } },
+        });
+
+        const externalLinks = wrapper.findAll('a[href^="https://"]');
+
+        expect(externalLinks).toHaveLength(4);
+        for (const link of externalLinks) {
+            expect(link.attributes('target')).toBe('_blank');
+            expect(link.attributes('rel')).toBe('noopener');
+            expect(
+                link.get('svg.lucide-move-up-right').attributes('aria-hidden'),
+            ).toBe('true');
+            expect(link.get('svg').classes()).toContain('size-3');
+            expect(link.get('.sr-only').text()).toBe('public.opens_in_new_tab');
+        }
+
+        for (const link of wrapper.findAll('a[href^="/"]')) {
+            expect(link.find('svg.lucide-move-up-right').exists()).toBe(false);
+            expect(link.attributes('target')).toBeUndefined();
+            expect(link.find('.sr-only').exists()).toBe(false);
+        }
     });
 });

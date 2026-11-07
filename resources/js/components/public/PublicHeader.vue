@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue';
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
+import ExternalLink from '@/components/public/ExternalLink.vue';
 import { Button } from '@/components/ui/button';
 import {
     Sheet,
@@ -12,6 +13,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { dashboard, features, home, login, register, selfHost } from '@/routes';
+import { index as docsIndex } from '@/routes/docs';
 import type { AppPageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { Menu, X } from 'lucide-vue-next';
@@ -23,13 +25,19 @@ const links = computed(() => [
     { key: 'features', href: features().url, external: false },
     {
         key: 'docs',
-        href: 'https://ignite-docs.promethys.dev/guide/',
-        external: true,
+        href: docsIndex().url,
+        external: false,
     },
     { key: 'self_host', href: selfHost().url, external: false },
     { key: 'github', href: page.props.githubUrl, external: true },
 ]);
-const isActive = (href: string) => page.url.split(/[?#]/)[0] === href;
+const isActive = (href: string) => {
+    const path = page.url.split(/[?#]/)[0];
+    return (
+        path === href ||
+        (href === docsIndex().url && path.startsWith(`${href}/`))
+    );
+};
 </script>
 
 <template>
@@ -44,14 +52,8 @@ const isActive = (href: string) => page.url.split(/[?#]/)[0] === href;
                 <ul class="flex items-center gap-4">
                     <li v-for="link in links" :key="link.key">
                         <component
-                            :is="link.external ? 'a' : Link"
+                            :is="link.external ? ExternalLink : Link"
                             :href="link.href"
-                            :target="link.external ? '_blank' : undefined"
-                            :rel="
-                                link.external
-                                    ? 'noopener noreferrer'
-                                    : undefined
-                            "
                             :aria-current="
                                 !link.external && isActive(link.href)
                                     ? 'page'
@@ -118,22 +120,16 @@ const isActive = (href: string) => page.url.split(/[?#]/)[0] === href;
                         </SheetHeader>
                         <nav :aria-label="$t('public.nav.main')" class="px-4">
                             <component
-                                :is="link.external ? 'a' : Link"
+                                :is="link.external ? ExternalLink : Link"
                                 v-for="link in links"
                                 :key="link.key"
                                 :href="link.href"
-                                :target="link.external ? '_blank' : undefined"
-                                :rel="
-                                    link.external
-                                        ? 'noopener noreferrer'
-                                        : undefined
-                                "
                                 :aria-current="
                                     !link.external && isActive(link.href)
                                         ? 'page'
                                         : undefined
                                 "
-                                class="flex min-h-12 items-center border-b py-3 aria-[current=page]:text-[var(--primary-text)]"
+                                class="flex min-h-12 w-full items-center border-b py-3 aria-[current=page]:text-[var(--primary-text)]"
                                 @click="open = false"
                                 >{{ $t(`public.nav.${link.key}`) }}</component
                             >

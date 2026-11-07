@@ -40,6 +40,22 @@ describe('FeatureSection', () => {
         ).toBe(true);
     });
 
+    it('uses the shared external link only for off-site documentation', async () => {
+        const wrapper = mount(FeatureSection, {
+            props: { ...props, docsHref: 'https://example.test/docs' },
+        });
+        const link = wrapper.get('a[href="https://example.test/docs"]');
+        expect(link.attributes('target')).toBe('_blank');
+        expect(link.attributes('rel')).toBe('noopener');
+        expect(link.get('.sr-only').text()).toBe('public.opens_in_new_tab');
+        expect(link.findAll('svg')).toHaveLength(1);
+        await wrapper.setProps({ docsHref: '/docs/goal-types' });
+        expect(
+            wrapper.get('a[href="/docs/goal-types"]').attributes('target'),
+        ).toBeUndefined();
+        wrapper.unmount();
+    });
+
     it('reverses the desktop visual order without losing its content', async () => {
         const wrapper = mount(FeatureSection, {
             props,

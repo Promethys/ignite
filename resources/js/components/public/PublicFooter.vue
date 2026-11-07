@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue';
+import ExternalLink from '@/components/public/ExternalLink.vue';
 import { getCopyrightYears } from '@/lib/utils';
 import { features, home, privacy, selfHost, terms } from '@/routes';
+import { index as docsIndex } from '@/routes/docs';
 import type { AppPageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -12,7 +14,7 @@ const columns = computed(() => [
         key: 'product',
         links: [
             { key: 'features', href: features().url, internal: true },
-            { key: 'docs', href: 'https://ignite-docs.promethys.dev/guide/' },
+            { key: 'docs', href: docsIndex().url, internal: true },
         ],
     },
     {
@@ -68,7 +70,13 @@ const columns = computed(() => [
                 <ul class="mt-3">
                     <li v-for="link in column.links" :key="link.key">
                         <component
-                            :is="link.internal ? Link : 'a'"
+                            :is="
+                                link.internal
+                                    ? Link
+                                    : link.href.startsWith('mailto:')
+                                      ? 'a'
+                                      : ExternalLink
+                            "
                             :href="link.href"
                             class="inline-flex min-h-11 items-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                             >{{ $t(`public.nav.${link.key}`) }}</component

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ExternalLink from '@/components/public/ExternalLink.vue';
 import { ArrowRight, Link2 } from 'lucide-vue-next';
 withDefaults(
     defineProps<{
@@ -53,13 +54,21 @@ withDefaults(
                         />{{ point }}
                     </li>
                 </ul>
-                <a
+                <component
+                    :is="
+                        /^https?:|^\/\//.test(docsHref ?? '')
+                            ? ExternalLink
+                            : 'a'
+                    "
                     v-if="docsHref"
                     :href="docsHref"
                     class="mt-4 inline-flex min-h-11 items-center gap-2 text-sm text-[var(--primary-text)] underline-offset-4 hover:underline"
                     >{{ $t('public.read_docs')
-                    }}<ArrowRight class="size-4" aria-hidden="true"
-                /></a>
+                    }}<ArrowRight
+                        v-if="!/^https?:|^\/\//.test(docsHref)"
+                        class="size-4"
+                        aria-hidden="true"
+                /></component>
             </div>
             <div
                 v-if="$slots.default"

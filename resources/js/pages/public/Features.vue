@@ -26,6 +26,7 @@ import {
     simpleGoal,
 } from '@/lib/public-showcase';
 import { selfHost } from '@/routes';
+import { index as docsIndex, show as docsShow } from '@/routes/docs';
 import { trans } from 'laravel-vue-i18n';
 import { Check, LockKeyhole } from 'lucide-vue-next';
 import {
@@ -51,14 +52,13 @@ const sections = computed(() => [
     { id: 'faq', label: trans('public.faq.label') },
 ]);
 const docs: Record<string, string> = {
-    'goal-types': 'https://ignite-docs.promethys.dev/guide/goal-types',
-    progress: 'https://ignite-docs.promethys.dev/guide/tracking-progress',
-    streaks: 'https://ignite-docs.promethys.dev/guide/goal-types#recurring',
-    milestones:
-        'https://ignite-docs.promethys.dev/guide/tracking-progress#multi-step-goals-complete-milestones',
-    assistant: 'https://ignite-docs.promethys.dev/guide/assistant',
-    mcp: 'https://ignite-docs.promethys.dev/guide/#connect-your-ai-assistant',
-    'make-it-yours': 'https://ignite-docs.promethys.dev/guide/themes',
+    'goal-types': docsShow('goal-types').url,
+    progress: docsShow('tracking-progress').url,
+    streaks: `${docsShow('goal-types').url}#recurring`,
+    milestones: `${docsShow('tracking-progress').url}#multi-step-goals-complete-milestones`,
+    assistant: docsShow('assistant').url,
+    mcp: `${docsIndex().url}#connect-your-ai-assistant`,
+    'make-it-yours': docsShow('themes').url,
     'your-data': 'https://ignite-docs.promethys.dev/features/encryption',
 };
 const points: Record<string, number> = {

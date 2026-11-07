@@ -3,12 +3,18 @@
 use App\Http\Controllers\AssistantChatController;
 use App\Http\Controllers\AssistantConversationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
+
+Route::controller(DocsController::class)->prefix('docs')->name('docs.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('{topic}', 'show')->name('show');
+});
 
 Route::get('features', fn () => Inertia::render('public/Features'))->name('features');
 Route::get('self-host', fn () => Inertia::render('public/SelfHost'))->name('self-host');
