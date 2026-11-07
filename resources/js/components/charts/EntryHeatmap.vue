@@ -13,6 +13,7 @@ import {
     type HeatmapPayload,
 } from '@/lib/heatmap';
 import { unitByRecurrence } from '@/lib/streak';
+import { currentLocale } from 'laravel-vue-i18n';
 import { computed, onMounted, ref, watch } from 'vue';
 
 const props = defineProps<HeatmapPayload>();
@@ -44,6 +45,17 @@ const summaryArgs = computed(() => ({
     done: props.total.toString(),
     total: props.cells.length.toString(),
 }));
+
+const percentage = computed(() => {
+    if (props.cells.length === 0) return null;
+
+    const ratio = Math.floor((props.total * 100) / props.cells.length) / 100;
+
+    return new Intl.NumberFormat(currentLocale.value, {
+        style: 'percent',
+        maximumFractionDigits: 0,
+    }).format(ratio);
+});
 
 const gridStyle = computed(() => ({
     gridAutoFlow: 'column',
@@ -126,6 +138,9 @@ watch(() => props.cells, parkAtLatest, { flush: 'post' });
     <div class="space-y-3">
         <p class="text-sm text-muted-foreground">
             {{ $tChoice(summaryKey, cells.length, summaryArgs) }}
+            <span v-if="percentage" class="text-muted-foreground">
+                · {{ percentage }}
+            </span>
         </p>
 
         <div

@@ -5,8 +5,17 @@ import {
     type HeatmapCell,
 } from '@/lib/heatmap';
 import { mount } from '@vue/test-utils';
+import { currentLocale } from 'laravel-vue-i18n';
 import moment from 'moment';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick, type Ref } from 'vue';
+
+vi.mock('laravel-vue-i18n', async () => {
+    const { ref } = await import('vue');
+    return { currentLocale: ref('en') };
+});
+
+const locale = currentLocale as Ref<string>;
 
 // jsdom has no layout, so `scrollWidth` is always 0 and asserting on a real
 // element proves nothing. The behaviour is covered in the lib test; here we
@@ -18,6 +27,11 @@ vi.mock('@/lib/heatmap', async (importOriginal) => ({
 
 beforeEach(() => {
     vi.mocked(scrollToLatest).mockClear();
+    locale.value = 'en';
+});
+
+afterEach(() => {
+    locale.value = 'en';
 });
 
 const daysFrom = (
@@ -81,6 +95,64 @@ describe('EntryHeatmap', () => {
 
         expect(wrapper.text()).toContain('goals.heatmap.summary.day');
         expect(wrapper.text()).toContain('2 10');
+    });
+
+    describe('percentage', () => {
+        const loggedDays = (count: number, total: number) =>
+            daysFrom('2026-01-01', count).map((cell, index) => ({
+                ...cell,
+                value: index < total ? 1 : 0,
+            }));
+
+        it.each([
+            { total: 24, count: 118, expected: '20%' },
+            { total: 199, count: 200, expected: '99%' },
+            { total: 29, count: 100, expected: '29%' },
+            { total: 57, count: 100, expected: '57%' },
+            { total: 200, count: 200, expected: '100%' },
+            { total: 0, count: 118, expected: '0%' },
+        ])(
+            'shows $expected after the summary for $total of $count logged cells',
+            ({ total, count, expected }) => {
+                const wrapper = render('daily', loggedDays(count, total));
+                const summary = wrapper.find('p');
+
+                expect(summary.text()).toContain(
+                    `goals.heatmap.summary.day ${total} ${count}`,
+                );
+                expect(summary.find('span').text()).toBe(`· ${expected}`);
+            },
+        );
+
+        it('hides the percentage when the cells become empty', async () => {
+            const wrapper = render('daily', loggedDays(1, 1));
+
+            expect(wrapper.find('p span').text()).toBe('· 100%');
+
+            await wrapper.setProps({ cells: [], total: 0 });
+
+            expect(wrapper.find('p span').exists()).toBe(false);
+            expect(wrapper.find('p').text()).toBe(
+                'goals.heatmap.summary.day 0 0',
+            );
+        });
+
+        it('formats the percentage with the current French locale', async () => {
+            const wrapper = render('daily', loggedDays(118, 24));
+
+            expect(wrapper.find('p span').text()).toBe('· 20%');
+
+            locale.value = 'fr';
+            await nextTick();
+
+            const expected = new Intl.NumberFormat('fr', {
+                style: 'percent',
+            }).format(0.2);
+
+            expect(wrapper.find('p span').element.textContent?.trim()).toBe(
+                `· ${expected}`,
+            );
+        });
     });
 
     it('switches the summary key with the cadence', () => {
