@@ -46,6 +46,11 @@ export default withMermaid(
             },
         },
         themeConfig: {
+            editLink: {
+                pattern:
+                    'https://github.com/Promethys/ignite/edit/main/docs/:path',
+                text: 'Edit this page on GitHub',
+            },
             logo: {
                 light: '/logo-light.svg',
                 dark: '/logo-dark.svg',
