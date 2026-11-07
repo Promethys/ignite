@@ -2,20 +2,31 @@ import FeatureGrid from '@/components/public/FeatureGrid.vue';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
+const linkStub = {
+    props: ['href'],
+    template: '<a :href="href"><slot /></a>',
+};
+
+const mountGrid = () =>
+    mount(FeatureGrid, {
+        global: { stubs: { Link: linkStub } },
+    });
+
 describe('FeatureGrid', () => {
     it('renders one cell per feature', () => {
-        const wrapper = mount(FeatureGrid);
+        const wrapper = mountGrid();
 
-        expect(wrapper.findAll('li').length).toBeGreaterThan(0);
+        expect(wrapper.findAll('li')).toHaveLength(9);
+        expect(wrapper.get('h2').text()).toBe('landing.features.section_title');
         expect(wrapper.findAll('li')).toHaveLength(
-            wrapper.findAll('h4').length,
+            wrapper.findAll('h3').length,
         );
     });
 
     it('asks for a title and a description key for every feature', () => {
-        const wrapper = mount(FeatureGrid);
+        const wrapper = mountGrid();
 
-        const titles = wrapper.findAll('li > h4').map((node) => node.text());
+        const titles = wrapper.findAll('li > h3').map((node) => node.text());
         const descriptions = wrapper
             .findAll('li > p')
             .map((node) => node.text());
@@ -31,7 +42,7 @@ describe('FeatureGrid', () => {
     });
 
     it('renders the section heading and the feature count', () => {
-        const wrapper = mount(FeatureGrid);
+        const wrapper = mountGrid();
 
         const heading = wrapper.find('section > div');
 
@@ -42,6 +53,7 @@ describe('FeatureGrid', () => {
     it('renders translated copy rather than raw keys when translations exist', () => {
         const wrapper = mount(FeatureGrid, {
             global: {
+                stubs: { Link: linkStub },
                 mocks: {
                     $t: (key: string) =>
                         key === 'landing.features.mcp.title'
@@ -52,5 +64,23 @@ describe('FeatureGrid', () => {
         });
 
         expect(wrapper.text()).toContain('Manage goals from your AI client');
+    });
+
+    it('links every card to the corresponding features section', () => {
+        const wrapper = mountGrid();
+
+        expect(
+            wrapper.findAll('li a').map((link) => link.attributes('href')),
+        ).toEqual([
+            '/features#goal-types',
+            '/features#progress',
+            '/features#streaks',
+            '/features#milestones',
+            '/features#make-it-yours',
+            '/features#assistant',
+            '/features#mcp',
+            '/features#your-data',
+            '/features#make-it-yours',
+        ]);
     });
 });
