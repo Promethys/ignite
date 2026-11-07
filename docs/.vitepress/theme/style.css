@@ -58,3 +58,65 @@
     font-family: Fraunces, ui-serif, Georgia, serif;
     letter-spacing: -0.015em;
 }
+
+.VPDocFooter {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+        'edit markdown'
+        'pager pager';
+    column-gap: 24px;
+}
+
+.VPDocFooter .edit-info {
+    grid-area: edit;
+}
+
+.VPDocFooter .prev-next {
+    grid-area: pager;
+}
+
+.doc-markdown-link {
+    grid-area: markdown;
+    justify-self: start;
+    align-self: start;
+    color: var(--vp-c-brand-1);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 32px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.doc-markdown-link-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+}
+
+.doc-markdown-link:hover {
+    color: var(--vp-c-brand-2);
+}
+
+.doc-markdown-link:focus-visible {
+    outline: 2px solid var(--vp-c-brand-1);
+    outline-offset: 2px;
+}
+
+@media (max-width: 639px) {
+    .VPDocFooter {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            'edit'
+            'markdown'
+            'pager';
+    }
+
+    .VPDocFooter .edit-info {
+        padding-bottom: 0;
+    }
+
+    .doc-markdown-link {
+        margin-bottom: 18px;
+    }
+}

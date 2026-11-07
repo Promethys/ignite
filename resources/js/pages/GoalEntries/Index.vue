@@ -32,7 +32,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useQueryFilters } from '@/composables/useQueryFilters';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { cn } from '@/lib/utils';
+import { cn, formatDisplayDate } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
@@ -44,7 +44,6 @@ import {
 } from '@internationalized/date';
 import { useDebounceFn } from '@vueuse/core';
 import { CalendarIcon, ListChecks, Pencil, XIcon } from 'lucide-vue-next';
-import moment from 'moment';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{
@@ -59,7 +58,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: goals.index().url,
     },
     {
-        title: `"${props.goal.title}"`,
+        title: props.goal.title,
         href: goals.show({ goal: props.goal }).url,
     },
     {
@@ -302,8 +301,8 @@ const toDateValue = (date: string | null | undefined) => {
                                     <ItemContent>
                                         <ItemTitle>
                                             {{
-                                                moment(entry.entry_date).format(
-                                                    'MMM DD, YYYY',
+                                                formatDisplayDate(
+                                                    entry.entry_date,
                                                 )
                                             }}
                                         </ItemTitle>

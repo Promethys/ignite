@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useReorderableList } from '@/composables/useReorderableList';
-import { formatDate, getDateDiffFromNow } from '@/lib/utils';
+import { formatDate, formatDisplayDate, getDateDiffFromNow } from '@/lib/utils';
 import milestones from '@/routes/milestones';
 import { Goal, Milestone } from '@/types/models';
 import { router } from '@inertiajs/vue3';
@@ -12,7 +12,6 @@ import {
     RotateCcw,
     Target,
 } from 'lucide-vue-next';
-import moment from 'moment';
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { Badge } from '../ui/badge';
 import MilestoneFormModal from './MilestoneFormModal.vue';
@@ -230,8 +229,8 @@ const activeIndex = computed(() =>
                                 <Calendar class="size-3.5" />
                                 {{
                                     $t('milestones.due_on', {
-                                        date: moment(milestone.deadline).format(
-                                            'L',
+                                        date: formatDisplayDate(
+                                            milestone.deadline,
                                         ),
                                     })
                                 }}

@@ -8,12 +8,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { getDateDiffFromNow } from '@/lib/utils';
+import { formatDisplayDate, getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { Goal } from '@/types/models';
 import { Link } from '@inertiajs/vue3';
 import { Ellipsis } from 'lucide-vue-next';
-import moment from 'moment';
 import { computed } from 'vue';
 import DeleteGoalDialog from './DeleteGoalDialog.vue';
 import GoalBadges from './GoalBadges.vue';
@@ -141,7 +140,7 @@ const deadlineState = computed(() => {
                             deadlineState === 'overdue',
                     }"
                 >
-                    {{ moment(item.deadline).format('L') }}
+                    {{ formatDisplayDate(item.deadline) }}
                 </span>
             </div>
         </Card>

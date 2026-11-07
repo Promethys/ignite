@@ -1,6 +1,7 @@
 import {
     cn,
     formatDate,
+    formatDisplayDate,
     getDateDiffFromNow,
     nullToEmpty,
     nullToUndefined,
@@ -8,7 +9,18 @@ import {
     toUrl,
     urlIsActive,
 } from '@/lib/utils';
-import { describe, expect, it } from 'vitest';
+import moment from 'moment';
+import 'moment/locale/fr';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+beforeEach(() => {
+    moment.locale('en');
+});
+
+afterEach(() => {
+    moment.locale('en');
+    vi.restoreAllMocks();
+});
 
 // =========================================================================
 // getDateDiffFromNow
@@ -198,6 +210,14 @@ describe('toDateInputFormat', () => {
 // =========================================================================
 
 describe('formatDate', () => {
+    it('uses the French moment locale when the browser language is English', () => {
+        vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['en-US']);
+        vi.spyOn(navigator, 'language', 'get').mockReturnValue('en-US');
+        moment.locale('fr');
+
+        expect(formatDate('2026-04-06T12:00:00')).toBe('6 avr.');
+    });
+
     it('formats a date string with month and day', () => {
         const result = formatDate('2026-03-15');
         expect(result).toContain('Mar');
@@ -208,5 +228,17 @@ describe('formatDate', () => {
         const result = formatDate('2026-12-01T00:00:00Z');
         expect(result).toContain('Dec');
         expect(result).toContain('1');
+    });
+});
+
+describe('formatDisplayDate', () => {
+    it('formats an English display date with the year', () => {
+        expect(formatDisplayDate('2026-04-06')).toBe('Apr 6, 2026');
+    });
+
+    it('formats a French display date with the year', () => {
+        moment.locale('fr');
+
+        expect(formatDisplayDate('2026-04-06')).toBe('6 avr. 2026');
     });
 });

@@ -240,6 +240,14 @@ php artisan migrate --seed
 
 ### 7. Seed demo data (optional)
 
+For deterministic data for screenshots and demos, run the showcase seeder:
+
+```bash
+php artisan db:seed --class=ShowcaseDataSeeder
+```
+
+Sign in with `showcase@ignite.test` / `password`. It creates ten realistic goals with progress history, recurring streaks, and portfolio steps. Dates move relative to today in Europe/Paris so the data stays current. It runs only in `local` and `testing` environments. It is safe to rerun: each run recreates only this account's goals and preserves its user and categories, leaving other accounts untouched.
+
 For a richer dataset with sample goals, categories, and achievements, run the dedicated demo seeder separately:
 
 ```bash

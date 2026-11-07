@@ -15,8 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { ConversationSummary } from '@/composables/useAssistantChat';
 import { FIELD_LIMITS } from '@/lib/field-limits';
+import { formatDisplayDate } from '@/lib/utils';
 import { Check, Pencil, Trash, X } from 'lucide-vue-next';
-import moment from 'moment';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -143,7 +143,7 @@ const saveTitle = async (): Promise<void> => {
                             {{ conversation.title }}
                         </span>
                         <span class="text-xs text-muted-foreground">
-                            {{ moment(conversation.updated_at).format('LL') }}
+                            {{ formatDisplayDate(conversation.updated_at) }}
                         </span>
                     </button>
                     <Button

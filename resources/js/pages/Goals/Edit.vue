@@ -42,7 +42,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: goals.index().url,
     },
     {
-        title: `"${props.goal.title}"`,
+        title: props.goal.title,
         href: goals.show(props.goal).url,
     },
     {
