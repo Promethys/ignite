@@ -14,6 +14,8 @@ The public site uses Inertia pages inside `PublicShell`, with its own color toke
 
 The named routes `docs.index` and `docs.show` point to the guide. `/docs/getting-started` redirects permanently to `/docs` with HTTP 301. An unknown topic returns HTTP 404 inside the docs layout, with links back to the guide and search. Each page supplies its title and description through the public shell's Inertia metadata.
 
+The self-host page summarises the FSL-1.1-MIT licence and six-step Docker Compose setup, with copyable commands, a master-key backup warning, and links to the full guide and contribution resources.
+
 ## Guide source
 
 `docs/guide/*.md` is the source for the in-app guide, the MCP `get_help` tool and the `ignite://guide/*` resources. `App\Services\Help\UserGuide` reads the files, extracts their titles and summaries, and provides the page order. `index.md` is the `getting-started` topic and appears at `/docs`.

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { trans } from 'laravel-vue-i18n';
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { h, nextTick, onMounted, onUnmounted, ref, render, watch } from 'vue';
 import ArticleFooterLinks from './ArticleFooterLinks.vue';
+import CopyButton from './CopyButton.vue';
 import PrevNextLinks from './PrevNextLinks.vue';
 import type { GuideArticle, GuidePage } from './types';
 const props = defineProps<{
@@ -31,31 +32,16 @@ const enhance = async () => {
     prose.value?.querySelectorAll('pre').forEach((block) => {
         const code = block.querySelector('code');
         if (!code) return;
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'docs-copy-button';
-        button.textContent = trans('public.docs.copy');
-        button.setAttribute('aria-label', trans('public.docs.copy'));
-        button.setAttribute('aria-live', 'polite');
-        let timeout: ReturnType<typeof setTimeout> | undefined;
-        const copy = async () => {
-            try {
-                await navigator.clipboard.writeText(code.textContent ?? '');
-                button.textContent = trans('public.docs.copied');
-            } catch {
-                button.textContent = trans('public.docs.copy_failed');
-            }
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                button.textContent = trans('public.docs.copy');
-            }, 2500);
-        };
-        button.addEventListener('click', copy);
-        block.appendChild(button);
+        const controls = document.createElement('div');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'public-code-block';
+        block.replaceWith(wrapper);
+        wrapper.appendChild(block);
+        wrapper.appendChild(controls);
+        render(h(CopyButton, { code: code.textContent ?? '' }), controls);
         cleanup.push(() => {
-            clearTimeout(timeout);
-            button.removeEventListener('click', copy);
-            button.remove();
+            render(null, controls);
+            wrapper.replaceWith(block);
         });
     });
     prose.value?.querySelectorAll('table').forEach((table) => {

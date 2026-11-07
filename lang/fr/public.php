@@ -3,7 +3,7 @@
 return [
     'skip_to_content' => 'Aller au contenu',
     'language_switcher' => 'Changer de langue, langue actuelle : :language',
-    'opens_in_new_tab' => '(s’ouvre dans un nouvel onglet)',
+    'opens_in_new_tab' => '(s\'ouvre dans un nouvel onglet)',
     'nav' => [
         'home' => 'Accueil',
         'close_menu' => 'Fermer le menu',
@@ -30,10 +30,11 @@ return [
     ],
     'link_to' => 'Lien vers :title',
     'read_docs' => 'Lire le guide',
+    'read_developer_docs' => 'Lire la documentation technique',
     'on_this_page' => 'Sur cette page',
     'docs' => [
         'title' => 'Utiliser Ignite',
-        'lead' => 'Des guides courts pour chaque partie de l’application, du premier objectif à la connexion d’un client IA.',
+        'lead' => 'Des guides courts pour chaque partie de l\'application, du premier objectif à la connexion d\'un client IA.',
         'guide' => 'Guide utilisateur',
         'navigation' => 'Navigation du guide',
         'menu' => 'Menu du guide',
@@ -51,10 +52,10 @@ return [
         'copied' => 'Copié',
         'copy_failed' => 'Copie impossible',
         'table' => 'Tableau du guide',
-        'breadcrumb' => 'Fil d’Ariane',
-        'not_found_title' => 'Cette page a été déplacée ou n’a jamais existé',
+        'breadcrumb' => 'Fil d\'Ariane',
+        'not_found_title' => 'Cette page a été déplacée ou n\'a jamais existé',
         'not_found_lead' => 'Trouvez ce dont vous avez besoin dans le menu du guide ou avec la recherche ci-dessous.',
-        'back_home' => 'Retour à l’accueil du guide',
+        'back_home' => 'Retour à l\'accueil du guide',
     ],
     'intro' => [
         'label' => 'Fonctionnalités',
@@ -62,10 +63,68 @@ return [
         'lead' => 'Quatre types d\'objectifs, une progression visible, des séries à votre rythme et un assistant qui utilise votre propre clé API.',
     ],
     'self_host' => [
-        'onward' => 'Le guide d\'installation détaille la mise en place et la configuration nécessaires.',
-        'link' => 'Lire le guide d\'auto-hébergement',
-        'title' => 'Auto-héberger Ignite',
-        'lead' => 'Installez Ignite sur votre propre infrastructure.',
+        'title' => 'Lisez le code. Hébergez votre instance.',
+        'lead' => 'Le code source d\'Ignite est accessible au public sur GitHub. Vous pouvez l\'exécuter sur votre propre serveur.',
+        'github' => 'Voir sur GitHub',
+        'developer_docs' => 'Documentation technique',
+        'licence_label' => 'La licence',
+        'licence_title' => 'Ce que permet l\'accès au code source',
+        'licence_name' => 'FSL-1.1-MIT',
+        'licence_read_title' => 'Lire et utiliser le code',
+        'licence_read' => 'Vous pouvez lire, utiliser, copier, modifier et redistribuer le code pour tout usage autre qu\'un usage concurrent (Competing Use), dans le respect des conditions de la licence.',
+        'licence_competing_title' => 'Qu\'est-ce qu\'un usage concurrent ?',
+        'licence_competing' => 'Mettre le logiciel à disposition de tiers dans un produit ou service commercial qui remplace Ignite, remplace un autre produit ou service proposé à partir de ce logiciel lors de la publication de cette version, ou offre des fonctionnalités identiques ou substantiellement similaires.',
+        'licence_mit_title' => 'Licence MIT après deux ans',
+        'licence_mit' => 'Chaque version devient disponible sous licence MIT au deuxième anniversaire de sa publication.',
+        'licence_link' => 'Lire la licence complète',
+        'stack_label' => 'La stack technique',
+        'stack_title' => 'Laravel, Vue et PostgreSQL, livrés dans une stack Docker Compose.',
+        'run_label' => 'Hébergez votre instance',
+        'run_title' => 'Six étapes avec Docker',
+        'requirements' => 'Docker Engine et le plugin Compose v2 sont nécessaires.',
+        'warning_title' => 'Conservez une copie de cette clé hors du serveur',
+        'warning' => 'USER_DATA_MASTER_KEY doit être différente de APP_KEY. Conservez-en une copie dans un gestionnaire de mots de passe avant le premier démarrage. Si vous la perdez, les textes de tous les utilisateurs deviennent définitivement illisibles.',
+        'guide' => 'Guide complet d\'auto-hébergement',
+        'contribute_label' => 'Contribuer',
+        'contribute_title' => 'Aidez à améliorer Ignite',
+        'bug' => 'Signaler un bug',
+        'feature' => 'Proposer une fonctionnalité',
+        'contributing' => 'Guide de contribution',
+        'steps' => [
+            1 => [
+                'title' => 'Cloner le dépôt et créer le fichier d\'environnement',
+                'description' => 'Clonez le dépôt, puis créez .env avant toute commande Docker.',
+                'code' => 'git clone https://github.com/Promethys/ignite.git
+cd ignite
+cp .env.example .env',
+            ],
+            2 => [
+                'title' => 'Configurer vos valeurs',
+                'description' => 'Modifiez APP_URL et définissez un vrai DB_PASSWORD dans .env avant le premier démarrage.',
+                'code' => 'APP_URL=https://ignite.example.com
+DB_PASSWORD=<something-other-than-the-default>',
+            ],
+            3 => [
+                'title' => 'Générer la clé de l\'application',
+                'description' => 'Collez la valeur affichée dans APP_KEY dans .env, sans guillemets et en conservant le préfixe base64:.',
+                'code' => 'docker compose run --rm --no-deps --entrypoint php web artisan key:generate --show',
+            ],
+            4 => [
+                'title' => 'Générer la clé maîtresse des données',
+                'description' => 'Relancez la même commande. Collez la nouvelle valeur dans USER_DATA_MASTER_KEY dans .env.',
+                'code' => 'docker compose run --rm --no-deps --entrypoint php web artisan key:generate --show',
+            ],
+            5 => [
+                'title' => 'Démarrer la stack',
+                'description' => 'Démarrez la stack Docker Compose.',
+                'code' => 'docker compose up -d',
+            ],
+            6 => [
+                'title' => 'Ouvrir Ignite',
+                'description' => 'Ouvrez cette adresse dans votre navigateur.',
+                'code' => 'http://localhost:8080',
+            ],
+        ],
     ],
     'privacy' => [
         'onward' => 'Découvrez comment Ignite chiffre vos données personnelles en attendant la publication de cette politique.',
@@ -121,7 +180,7 @@ return [
         ],
         'your-data' => [
             'title' => 'Vos données',
-            'description' => 'Les titres, descriptions et notes de vos objectifs, les noms de catégories et les clés API sont chiffrés avec une clé qui vous appartient. Le panneau d\'administration ne les affiche jamais. Supprimer votre compte détruit cette clé.',
+            'description' => 'Les titres, descriptions et notes de vos objectifs, les noms de catégories et les clés API sont chiffrés avec une clé qui vous appartient. Supprimer votre compte détruit cette clé.',
             'points' => [
                 'Connexion par e-mail et mot de passe, Google ou GitHub.',
                 'Authentification à deux facteurs.',

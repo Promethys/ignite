@@ -38,6 +38,10 @@ class GuideRendererTest extends TestCase
         $result = $this->render("> [!{$type}]\n> Helpful **content**.\n\n> A regular quote.");
 
         $this->assertStringContainsString('docs-callout-'.strtolower($type), $result['html']);
+        $this->assertStringContainsString('class="docs-callout-title"', $result['html']);
+        $this->assertStringContainsString('class="docs-callout-icon"', $result['html']);
+        $this->assertStringContainsString('aria-hidden="true"', $result['html']);
+        $this->assertStringContainsString('</svg>'.ucfirst(strtolower($type)), $result['html']);
         $this->assertStringContainsString('<strong>content</strong>', $result['html']);
         $this->assertStringNotContainsString("[!{$type}]", $result['html']);
         $this->assertStringContainsString('<blockquote>', $result['html']);

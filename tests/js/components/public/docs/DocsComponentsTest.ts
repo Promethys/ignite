@@ -45,7 +45,50 @@ const article = {
         'https://github.com/Promethys/ignite/edit/main/docs/guide/index.md',
 };
 
+const clipboardDescriptor = Object.getOwnPropertyDescriptor(
+    navigator,
+    'clipboard',
+);
+const permissionsDescriptor = Object.getOwnPropertyDescriptor(
+    navigator,
+    'permissions',
+);
+const execCommandDescriptor = Object.getOwnPropertyDescriptor(
+    document,
+    'execCommand',
+);
+const mockClipboard = (writeText: ReturnType<typeof vi.fn>) => {
+    Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText },
+    });
+    Object.defineProperty(navigator, 'permissions', {
+        configurable: true,
+        value: {
+            query: vi
+                .fn()
+                .mockResolvedValue(
+                    Object.assign(new EventTarget(), { state: 'granted' }),
+                ),
+        },
+    });
+    Object.defineProperty(document, 'execCommand', {
+        configurable: true,
+        value: vi.fn(() => {
+            throw new Error('Clipboard unavailable');
+        }),
+    });
+};
+
 afterEach(() => {
+    for (const [target, key, descriptor] of [
+        [navigator, 'clipboard', clipboardDescriptor],
+        [navigator, 'permissions', permissionsDescriptor],
+        [document, 'execCommand', execCommandDescriptor],
+    ] as const) {
+        if (descriptor) Object.defineProperty(target, key, descriptor);
+        else Reflect.deleteProperty(target, key);
+    }
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
 });
@@ -153,34 +196,32 @@ describe('DocsSearch', () => {
 describe('DocsArticle', () => {
     it('copies only the code and reports success', async () => {
         const writeText = vi.fn().mockResolvedValue(undefined);
-        vi.stubGlobal('navigator', { clipboard: { writeText } });
+        mockClipboard(writeText);
         const wrapper = mount(DocsArticle, {
             props: { article, previous: null, next: pages[1] },
             global,
         });
         await flushPromises();
-        expect(wrapper.findAll('pre button')).toHaveLength(1);
-        await wrapper.get('pre button').trigger('click');
+        expect(wrapper.findAll('.public-code-block button')).toHaveLength(1);
+        await wrapper.get('.public-code-block button').trigger('click');
         await flushPromises();
         expect(writeText).toHaveBeenCalledWith('php artisan serve\n');
-        expect(wrapper.get('pre button').text()).toBe('public.docs.copied');
+        expect(wrapper.get('.public-code-block button').text()).toBe(
+            'public.docs.copied',
+        );
         wrapper.unmount();
     });
 
     it('reports clipboard failures and enhances replacement article HTML once', async () => {
-        vi.stubGlobal('navigator', {
-            clipboard: {
-                writeText: vi.fn().mockRejectedValue(new Error('Denied')),
-            },
-        });
+        mockClipboard(vi.fn().mockRejectedValue(new Error('Denied')));
         const wrapper = mount(DocsArticle, {
             props: { article, previous: null, next: null },
             global,
         });
         await flushPromises();
-        await wrapper.get('pre button').trigger('click');
+        await wrapper.get('.public-code-block button').trigger('click');
         await flushPromises();
-        expect(wrapper.get('pre button').text()).toBe(
+        expect(wrapper.get('.public-code-block button').text()).toBe(
             'public.docs.copy_failed',
         );
         await wrapper.setProps({
@@ -190,8 +231,10 @@ describe('DocsArticle', () => {
             },
         });
         await flushPromises();
-        expect(wrapper.findAll('pre button')).toHaveLength(1);
-        expect(wrapper.get('pre button').text()).toBe('public.docs.copy');
+        expect(wrapper.findAll('.public-code-block button')).toHaveLength(1);
+        expect(wrapper.get('.public-code-block button').text()).toBe(
+            'public.docs.copy',
+        );
         wrapper.unmount();
     });
 });

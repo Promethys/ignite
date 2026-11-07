@@ -30,6 +30,7 @@ return [
     ],
     'link_to' => 'Link to :title',
     'read_docs' => 'Read the docs',
+    'read_developer_docs' => 'Read the developer docs',
     'on_this_page' => 'On this page',
     'docs' => [
         'title' => 'How to use Ignite',
@@ -62,10 +63,68 @@ return [
         'lead' => 'Four goal types, progress you can see, streaks that respect your calendar, and an assistant that works on your own key.',
     ],
     'self_host' => [
-        'onward' => 'The installation guide covers the setup and configuration you need.',
-        'link' => 'Read the self-hosting guide',
-        'title' => 'Self-host Ignite',
-        'lead' => 'Run Ignite on your own infrastructure.',
+        'title' => 'Read the code. Run your own copy.',
+        'lead' => 'Ignite is source available. Its code is public on GitHub, and you can run it on your own server.',
+        'github' => 'View on GitHub',
+        'developer_docs' => 'Developer docs',
+        'licence_label' => 'The licence',
+        'licence_title' => 'What source available means here',
+        'licence_name' => 'FSL-1.1-MIT',
+        'licence_read_title' => 'Read and use the code',
+        'licence_read' => 'Read, use, copy, modify and redistribute the code for any purpose except a Competing Use, subject to the licence terms.',
+        'licence_competing_title' => 'What counts as a Competing Use?',
+        'licence_competing' => 'Making the software available to others in a commercial product or service that replaces Ignite, replaces another product or service offered using it when that version was published, or offers the same or substantially similar functionality.',
+        'licence_mit_title' => 'MIT after two years',
+        'licence_mit' => 'Each release becomes available under the MIT licence on the second anniversary of its publication.',
+        'licence_link' => 'Read the full licence',
+        'stack_label' => 'The stack',
+        'stack_title' => 'Laravel, Vue and PostgreSQL, shipped as a Docker Compose stack.',
+        'run_label' => 'Run your own copy',
+        'run_title' => 'Six steps with Docker',
+        'requirements' => 'You need Docker Engine with the Compose v2 plugin.',
+        'warning_title' => 'Keep a copy of this key outside the server',
+        'warning' => 'USER_DATA_MASTER_KEY must differ from APP_KEY. Store a copy in a password manager before the first boot. Losing it makes every user\'s text permanently unreadable.',
+        'guide' => 'Full self-hosting guide',
+        'contribute_label' => 'Contribute',
+        'contribute_title' => 'Help make Ignite better',
+        'bug' => 'Report a bug',
+        'feature' => 'Request a feature',
+        'contributing' => 'Contributing guide',
+        'steps' => [
+            1 => [
+                'title' => 'Clone and create your environment file',
+                'description' => 'Clone the repository, then create .env before running any Docker command.',
+                'code' => 'git clone https://github.com/Promethys/ignite.git
+cd ignite
+cp .env.example .env',
+            ],
+            2 => [
+                'title' => 'Set your own values',
+                'description' => 'Edit APP_URL and set a real DB_PASSWORD in .env before the first boot.',
+                'code' => 'APP_URL=https://ignite.example.com
+DB_PASSWORD=<something-other-than-the-default>',
+            ],
+            3 => [
+                'title' => 'Generate the application key',
+                'description' => 'Paste the printed value into APP_KEY in .env, unquoted and including the base64: prefix.',
+                'code' => 'docker compose run --rm --no-deps --entrypoint php web artisan key:generate --show',
+            ],
+            4 => [
+                'title' => 'Generate the user data master key',
+                'description' => 'Run the same command again. Paste the new value into USER_DATA_MASTER_KEY in .env.',
+                'code' => 'docker compose run --rm --no-deps --entrypoint php web artisan key:generate --show',
+            ],
+            5 => [
+                'title' => 'Start the stack',
+                'description' => 'Start the Docker Compose stack.',
+                'code' => 'docker compose up -d',
+            ],
+            6 => [
+                'title' => 'Open Ignite',
+                'description' => 'Visit this address in your browser.',
+                'code' => 'http://localhost:8080',
+            ],
+        ],
     ],
     'privacy' => [
         'onward' => 'Read how Ignite encrypts your personal data while this policy is being prepared.',
@@ -121,7 +180,7 @@ return [
         ],
         'your-data' => [
             'title' => 'Your data',
-            'description' => 'Goal titles, descriptions, notes, category names and AI keys are encrypted under a key that belongs to you alone. The admin panel never shows them. Deleting your account destroys that key.',
+            'description' => 'Goal titles, descriptions, notes, category names and AI keys are encrypted under a key that belongs to you alone. Deleting your account destroys that key.',
             'points' => [
                 'Sign in with email and password, Google or GitHub.',
                 'Two-factor authentication.',

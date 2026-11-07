@@ -63,7 +63,14 @@ withDefaults(
                     v-if="docsHref"
                     :href="docsHref"
                     class="mt-4 inline-flex min-h-11 items-center gap-2 text-sm text-[var(--primary-text)] underline-offset-4 hover:underline"
-                    >{{ $t('public.read_docs')
+                    >{{
+                        $t(
+                            docsHref.startsWith(
+                                'https://ignite-docs.promethys.dev',
+                            )
+                                ? 'public.read_developer_docs'
+                                : 'public.read_docs',
+                        )
                     }}<ArrowRight
                         v-if="!/^https?:|^\/\//.test(docsHref)"
                         class="size-4"
