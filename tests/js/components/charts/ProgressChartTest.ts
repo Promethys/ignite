@@ -5,9 +5,10 @@ import type { ApexOptions } from 'apexcharts';
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 
-vi.mock('laravel-vue-i18n', async () => {
+vi.mock('laravel-vue-i18n', async (importOriginal) => {
     const { computed } = await import('vue');
     return {
+        ...(await importOriginal<typeof import('laravel-vue-i18n')>()),
         wTrans: (key: string, replacements: Record<string, string> = {}) =>
             computed(() => [key, ...Object.values(replacements)].join(' ')),
     };

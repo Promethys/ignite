@@ -1,5 +1,8 @@
 import { prefersReducedMotion, readCssVar } from '@/lib/chart-utils';
 import type { ApexOptions } from 'apexcharts';
+import english from 'apexcharts/dist/locales/en.json';
+import french from 'apexcharts/dist/locales/fr.json';
+import { currentLocale } from 'laravel-vue-i18n';
 
 /**
  * Shared ApexCharts configuration.
@@ -12,10 +15,16 @@ import type { ApexOptions } from 'apexcharts';
 export function baseChartOptions(): ApexOptions {
     const border = readCssVar('--border');
     const muted = readCssVar('--muted-foreground');
+    const locale = currentLocale.value.replace('_', '-');
+    const numbers = new Intl.NumberFormat(locale, {
+        maximumFractionDigits: 1,
+    });
 
     return {
         chart: {
             background: 'transparent',
+            locales: [english, french],
+            defaultLocale: locale.split('-')[0] === 'fr' ? 'fr' : 'en',
             fontFamily: 'inherit',
             toolbar: { show: false },
             zoom: { enabled: false },
@@ -35,7 +44,10 @@ export function baseChartOptions(): ApexOptions {
             labels: { style: { colors: muted, fontSize: '11px' } },
         },
         yaxis: {
-            labels: { style: { colors: muted, fontSize: '11px' } },
+            labels: {
+                style: { colors: muted, fontSize: '11px' },
+                formatter: (value) => numbers.format(value),
+            },
         },
         legend: {
             position: 'top',
@@ -46,6 +58,7 @@ export function baseChartOptions(): ApexOptions {
         },
         tooltip: {
             style: { fontSize: '12px' },
+            y: { formatter: (value) => numbers.format(value) },
         },
         stroke: { curve: 'smooth', width: 2, lineCap: 'round' },
     };
