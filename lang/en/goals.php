@@ -50,7 +50,7 @@ return [
         'simple' => 'Simple',
         'quantifiable' => 'Quantifiable',
         'recurring' => 'Recurring',
-        'multi_step' => 'Multi Step',
+        'multi_step' => 'Multi-step',
     ],
     'priorities' => [
         'low' => 'Low',
