@@ -29,8 +29,20 @@ const chartSeries = computed(() => [
     },
 ]);
 
+const highestCount = computed(() =>
+    Math.max(1, ...props.data.map((item) => item.count)),
+);
+
 const chartOptions = useChartTheme(() => ({
     ...barChartOptions(),
+    yaxis: {
+        ...(barChartOptions().yaxis as object),
+        min: 0,
+        max: highestCount.value <= 5 ? highestCount.value : undefined,
+        tickAmount: Math.min(highestCount.value, 5),
+        forceNiceScale: highestCount.value > 5,
+        decimalsInFloat: 0,
+    },
     xaxis: {
         ...(barChartOptions().xaxis as object),
         categories: formatMonthLabels(props.data.map((item) => item.month)),
