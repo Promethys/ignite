@@ -53,7 +53,9 @@ async function change(code: string) {
             <Button
                 variant="outline"
                 class="gap-2"
-                :aria-label="`Change language, current: ${currentLabel}`"
+                :aria-label="
+                    $t('public.language_switcher', { language: currentLabel })
+                "
             >
                 <Globe class="size-4" />
                 <span :class="{ 'hidden sm:inline': responsive }">{{

@@ -328,6 +328,10 @@
     --border: hsl(260 10% 13%);
     --input: hsl(260 10% 13%);
     --muted: hsl(260 12% 11%);
+    --primary-text: hsl(262 83% 75%);
+    --terminal: hsl(260 20% 3%);
+    --public-font-mono:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     --radius: 0;
 }
 
@@ -345,6 +349,10 @@
     border-radius: 0;
 }
 
+.public-surface [role='tab'][data-state='active'] {
+    color: var(--primary-text);
+}
+
 .public-surface-grid {
     background-image:
         linear-gradient(hsl(0 0% 100% / 0.03) 1px, transparent 1px),
@@ -355,4 +363,87 @@
         #000 30%,
         transparent 75%
     );
+}
+
+.public-surface :is(a, button):focus-visible {
+    outline: 2px solid var(--primary-text);
+    outline-offset: 4px;
+}
+
+.public-surface .public-terminal {
+    font-family: var(--public-font-mono);
+}
+
+.public-surface .terminal-type {
+    clip-path: inset(0 100% 0 0);
+}
+
+.public-surface .terminal-reveal {
+    opacity: 0;
+}
+
+.public-surface .terminal-running .terminal-type {
+    animation: public-terminal-type var(--type-duration)
+        steps(var(--type-steps), end) forwards;
+}
+
+.public-surface .terminal-running .terminal-reveal {
+    animation: public-terminal-reveal 0.3s ease-out var(--reveal-delay) forwards;
+}
+
+.public-surface .terminal-running .terminal-caret {
+    animation: public-terminal-caret 1s steps(1) 5 forwards;
+}
+
+@keyframes public-terminal-type {
+    to {
+        clip-path: inset(0);
+    }
+}
+
+@keyframes public-terminal-reveal {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes public-terminal-caret {
+    50%,
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html:has(.public-surface) {
+        scroll-behavior: auto;
+    }
+
+    .public-surface .terminal-type,
+    .public-surface .terminal-running .terminal-type {
+        clip-path: none;
+        animation: none;
+    }
+    .public-surface .terminal-reveal,
+    .public-surface .terminal-running .terminal-reveal {
+        opacity: 1;
+        animation: none;
+    }
+    .public-surface .terminal-caret,
+    .public-surface .terminal-running .terminal-caret {
+        opacity: 0;
+        animation: none;
+    }
+    .public-surface [data-slot='sheet-content'] {
+        animation: none;
+        transition: none;
+    }
+}
+
+.public-surface .apexcharts-text {
+    fill: var(--muted-foreground);
+}
+
+.public-surface .apexcharts-gridline {
+    stroke: var(--border);
 }

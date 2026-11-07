@@ -1,58 +1,41 @@
 <script setup lang="ts">
-import { getCopyrightYears } from '@/lib/utils';
-import { AppPageProps } from '@/types';
-import { Head, usePage } from '@inertiajs/vue3';
-import { MoveUpRight } from 'lucide-vue-next';
+import { Head } from '@inertiajs/vue3';
 import { Toaster } from '../ui/sonner';
+import PublicFooter from './PublicFooter.vue';
 import PublicHeader from './PublicHeader.vue';
 
 defineProps<{
     title?: string;
+    description?: string;
 }>();
-
-const supportEmail = usePage().props.supportEmail;
-const appPublicRepo = usePage<AppPageProps>().props.githubUrl;
 </script>
 
 <template>
-    <Head v-if="title" :title="title" />
+    <Head v-if="title" :title="title">
+        <meta
+            v-if="description"
+            head-key="description"
+            name="description"
+            :content="description"
+        />
+    </Head>
 
     <div
-        class="public-surface dark relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground"
+        class="public-surface dark relative flex min-h-screen flex-col overflow-x-clip bg-background text-foreground"
     >
         <div class="public-surface-grid pointer-events-none absolute inset-0" />
+
+        <a
+            href="#main"
+            class="sr-only z-50 border bg-background px-4 py-3 text-sm font-semibold focus:not-sr-only focus:absolute focus:top-4 focus:left-4"
+            >{{ $t('public.skip_to_content') }}</a
+        >
 
         <PublicHeader class="relative" />
 
         <slot />
 
-        <footer class="relative border-t">
-            <div
-                class="mx-auto flex max-w-7xl items-center justify-between px-4 pt-5 pb-10 text-xs text-muted-foreground sm:px-6"
-            >
-                <span>© {{ getCopyrightYears() }} Ignite</span>
-                <span class="flex items-center gap-3">
-                    <a
-                        :href="`mailto:${supportEmail}`"
-                        target="_blank"
-                        rel="noopener"
-                        class="underline-offset-2 hover:underline"
-                    >
-                        {{ $t('landing.footer.contact') }}
-                    </a>
-                    ·
-                    <a
-                        :href="appPublicRepo"
-                        target="_blank"
-                        rel="noopener"
-                        class="flex items-center gap-1 underline-offset-2 hover:underline"
-                    >
-                        {{ $t('common.nav.repository') }}
-                        <MoveUpRight class="size-3" />
-                    </a>
-                </span>
-            </div>
-        </footer>
+        <PublicFooter />
     </div>
 
     <Toaster

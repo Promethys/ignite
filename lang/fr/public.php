@@ -1,0 +1,167 @@
+<?php
+
+return [
+    'skip_to_content' => 'Aller au contenu',
+    'language_switcher' => 'Changer de langue, langue actuelle : :language',
+    'nav' => [
+        'home' => 'Accueil',
+        'close_menu' => 'Fermer le menu',
+        'main' => 'Navigation principale',
+        'features' => 'Fonctionnalités',
+        'docs' => 'Guide',
+        'self_host' => 'Auto-hébergement',
+        'github' => 'GitHub',
+        'open_menu' => 'Ouvrir le menu',
+        'menu' => 'Menu',
+        'developer_docs' => 'Documentation technique',
+        'releases' => 'Versions',
+        'report_bug' => 'Signaler un bug',
+        'privacy' => 'Confidentialité',
+        'terms' => 'Conditions d\'utilisation',
+        'contact' => 'Contact',
+    ],
+    'footer' => [
+        'description' => 'Suivez vos objectifs avec une progression visuelle, des jalons et des séries.',
+        'product' => 'Produit',
+        'project' => 'Projet',
+        'legal' => 'Informations légales',
+        'license' => 'Code source disponible sous licence FSL-1.1-MIT.',
+    ],
+    'link_to' => 'Lien vers :title',
+    'read_docs' => 'Lire le guide',
+    'on_this_page' => 'Sur cette page',
+    'intro' => [
+        'label' => 'Fonctionnalités',
+        'title' => 'Tout ce que fait Ignite, sur une seule page.',
+        'lead' => 'Quatre types d\'objectifs, une progression visible, des séries à votre rythme et un assistant qui utilise votre propre clé API.',
+    ],
+    'self_host' => [
+        'onward' => 'Le guide d\'installation détaille la mise en place et la configuration nécessaires.',
+        'link' => 'Lire le guide d\'auto-hébergement',
+        'title' => 'Auto-héberger Ignite',
+        'lead' => 'Installez Ignite sur votre propre infrastructure.',
+    ],
+    'privacy' => [
+        'onward' => 'Découvrez comment Ignite chiffre vos données personnelles en attendant la publication de cette politique.',
+        'link' => 'Comprendre le chiffrement',
+        'title' => 'Confidentialité',
+        'lead' => 'Comment Ignite traite vos données.',
+    ],
+    'terms' => [
+        'onward' => 'Ces conditions sont en cours de rédaction. Contactez-nous pour toute question sur l\'utilisation d\'Ignite.',
+        'link' => 'Contacter l\'assistance',
+        'title' => 'Conditions d\'utilisation',
+        'lead' => 'Les conditions d\'utilisation d\'Ignite.',
+    ],
+    'coming_soon' => 'Cette page sera bientôt disponible.',
+    'features' => [
+        'goal-types' => [
+            'title' => 'Quatre types d\'objectifs',
+            'description' => 'Choisissez la forme qui convient à votre objectif.',
+            'points' => [
+                'Simple : fait ou pas fait.',
+                'Quantifiable : une valeur et une cible, avec une unité, comme :current / :target :unit.',
+                'Récurrent : une habitude à valider chaque jour, semaine, mois ou année.',
+                'À étapes : une liste ordonnée, avec une échéance facultative par étape.',
+            ],
+        ],
+        'progress' => [
+            'title' => 'Une progression visible',
+            'description' => 'Voyez vos progrès d\'un coup d\'œil. Les objectifs quantifiables disposent d\'un graphique avec une ligne de cible. Le tableau de bord affiche les accomplissements par mois et les objectifs par catégorie.',
+        ],
+        'streaks' => [
+            'title' => 'Séries et calendrier d\'activité',
+            'description' => 'Les objectifs récurrents affichent votre série en cours, votre record et un calendrier d\'activité. Les séries suivent votre fuseau horaire : une validation tardive compte pour le bon jour.',
+        ],
+        'milestones' => [
+            'title' => 'Jalons et étapes',
+            'description' => 'Fixez des jalons à certaines valeurs pour les objectifs quantifiables. Découpez les objectifs à étapes et réorganisez-les par glisser-déposer ou au clavier.',
+        ],
+        'assistant' => [
+            'title' => 'Un assistant avec votre clé API',
+            'description' => 'Un panneau latéral pour consulter et modifier vos objectifs. Utilisez une clé Anthropic, OpenAI, Gemini, Mistral, DeepSeek, Groq, xAI ou OpenRouter. Toute suppression demande votre confirmation.',
+            'points' => [
+                'Votre fournisseur peut facturer votre utilisation.',
+                'Votre clé est chiffrée avant d\'être enregistrée.',
+            ],
+        ],
+        'mcp' => [
+            'title' => 'Vos objectifs dans votre client IA',
+            'description' => 'Le serveur MCP intégré propose 23 outils pour consulter, créer et modifier vos objectifs, enregistrer une progression ou valider une habitude depuis Claude, Cursor ou tout client MCP. Vous créez un jeton et pouvez le révoquer à tout moment.',
+        ],
+        'make-it-yours' => [
+            'title' => 'Un espace à votre image',
+            'description' => 'Dix catégories avec leur couleur sont créées à l\'inscription. Renommez-les ou remplacez-les. Choisissez la couleur principale de l\'application, avec jusqu\'à cinq thèmes et une couleur facultative pour le mode sombre. Ignite est disponible en français et en anglais, e-mails compris.',
+        ],
+        'your-data' => [
+            'title' => 'Vos données',
+            'description' => 'Les titres, descriptions et notes de vos objectifs, les noms de catégories et les clés API sont chiffrés avec une clé qui vous appartient. Le panneau d\'administration ne les affiche jamais. Supprimer votre compte détruit cette clé.',
+            'points' => [
+                'Connexion par e-mail et mot de passe, Google ou GitHub.',
+                'Authentification à deux facteurs.',
+                'Suppression du compte depuis les paramètres.',
+            ],
+        ],
+    ],
+    'faq' => [
+        'label' => 'Questions',
+        'title' => 'Des réponses courtes',
+        'items' => [
+            'free' => [
+                'question' => 'Ignite est-il gratuit ?',
+                'answer' => 'Ignite est gratuit à utiliser aujourd\'hui.',
+            ],
+            'assistant-cost' => [
+                'question' => 'Combien coûte l\'assistant ?',
+                'answer' => 'L\'assistant utilise votre propre clé API. Ignite ne facture pas son utilisation, mais votre fournisseur IA peut la facturer selon ses tarifs.',
+            ],
+            'mcp-clients' => [
+                'question' => 'Quels clients IA sont compatibles avec le serveur MCP ?',
+                'answer' => 'Claude, Cursor et tout autre client compatible avec MCP. Créez un jeton dans Ignite, collez-le dans votre client et révoquez-le quand vous le souhaitez.',
+            ],
+            'self-host' => [
+                'question' => 'Puis-je héberger ma propre instance ?',
+                'answer' => 'Oui. Le code est disponible sur GitHub et inclut une configuration Docker.',
+            ],
+            'delete' => [
+                'question' => 'Que deviennent mes données si je supprime mon compte ?',
+                'answer' => 'Votre compte et vos objectifs sont supprimés. La clé qui chiffre vos textes est détruite avec eux : ces textes deviennent illisibles.',
+            ],
+            'open-source' => [
+                'question' => 'Ignite est-il open source ?',
+                'answer' => 'Son code source est disponible sous licence FSL-1.1-MIT. Vous pouvez le consulter et héberger votre instance. Chaque version passe sous licence MIT deux ans après sa publication.',
+            ],
+        ],
+    ],
+    'cta' => [
+        'title' => 'Suivez votre premier objectif.',
+        'code' => 'Consulter le code',
+    ],
+    'showcase' => [
+        'distance_axis' => 'Distance (km)',
+        'encrypted' => 'Chiffré avec votre clé',
+        'encrypted_goals' => 'Titres et descriptions des objectifs',
+        'encrypted_notes' => 'Notes de progression',
+        'encrypted_categories' => 'Noms des catégories',
+        'encrypted_keys' => 'Clés API de l\'assistant',
+        'simple' => 'Envoyer la candidature',
+        'quantifiable' => 'Préparer un semi-marathon',
+        'recurring' => 'Lire chaque jour',
+        'multi_step' => 'Créer un site personnel',
+        'completed' => 'Terminé',
+        'step_1' => 'Définir le contenu',
+        'step_2' => 'Créer les pages',
+        'step_3' => 'Publier le site',
+        'assistant_prompt' => 'Ajoute 5 km à mon objectif de semi-marathon et supprime mon ancien objectif de 10 km',
+        'assistant_reply' => '5 km enregistrés. Vous en êtes à :current / :target km.',
+        'assistant_alt' => 'Le panneau de l\'assistant Ignite à côté du tableau de bord des objectifs',
+        'themes_alt' => 'Les paramètres d\'apparence d\'Ignite avec des thèmes de couleurs personnalisés',
+    ],
+    'terminal' => [
+        'client' => 'Client IA',
+        'prompt' => 'Ajoute 12 km à mon objectif de semi-marathon',
+        'result' => '12 km enregistrés. :current / :target :unit (:progress %)',
+        'reply' => 'C\'est fait. Vous avez parcouru :current :unit sur :target pour votre objectif de semi-marathon.',
+        'replay' => 'Rejouer',
+    ],
+];

@@ -10,6 +10,11 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
+Route::get('features', fn () => Inertia::render('public/Features'))->name('features');
+Route::get('self-host', fn () => Inertia::render('public/SelfHost'))->name('self-host');
+Route::get('privacy', fn () => Inertia::render('legal/Privacy'))->name('privacy');
+Route::get('terms', fn () => Inertia::render('legal/Terms'))->name('terms');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
