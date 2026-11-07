@@ -24,7 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { HeatmapPayload } from '@/lib/heatmap';
 import { streakUnit as streakUnitHelper } from '@/lib/streak';
-import { getDateDiffFromNow } from '@/lib/utils';
+import { formatDisplayDate, getDateDiffFromNow } from '@/lib/utils';
 import goals from '@/routes/goals';
 import { type BreadcrumbItem } from '@/types';
 import { Goal } from '@/types/models';
@@ -56,7 +56,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: goals.index().url,
     },
     {
-        title: `"${props.goal.title}"`,
+        title: props.goal.title,
         href: goals.show(props.goal.id).url,
     },
 ];
@@ -91,8 +91,6 @@ const deadlineLabel = computed<SummaryTile>(() => {
         l: 'goals.summary.until_deadline',
     };
 });
-
-const fmtDate = (d: string) => moment(d).format('MMM D, YYYY');
 
 const currentStreak = computed(() => props.goal.streak?.current ?? 0);
 const longestStreak = computed(() => props.goal.streak?.longest ?? 0);
@@ -171,7 +169,9 @@ const summaryTiles = computed<SummaryTile[]>(() => {
     return [
         status,
         {
-            n: props.goal.start_date ? fmtDate(props.goal.start_date) : '—',
+            n: props.goal.start_date
+                ? formatDisplayDate(props.goal.start_date)
+                : '—',
             l: 'goals.summary.started',
         },
         deadline,
@@ -375,7 +375,7 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                         >
                             {{
                                 $t('goals.show.simple_completed_on', {
-                                    date: fmtDate(goal.completed_at),
+                                    date: formatDisplayDate(goal.completed_at),
                                 })
                             }}
                         </p>
@@ -602,13 +602,13 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                 <span class="font-medium text-foreground">{{
                                     $t('goals.show.about_started')
                                 }}</span>
-                                · {{ fmtDate(goal.start_date) }}
+                                · {{ formatDisplayDate(goal.start_date) }}
                             </div>
                             <div v-if="goal.deadline">
                                 <span class="font-medium text-foreground">{{
                                     $t('goals.show.about_deadline')
                                 }}</span>
-                                · {{ fmtDate(goal.deadline) }}
+                                · {{ formatDisplayDate(goal.deadline) }}
                             </div>
                             <div v-if="goal.type === 'quantifiable'">
                                 <span class="font-medium text-foreground">{{
@@ -655,7 +655,7 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                 class="flex items-center justify-between border-b border-border/60 py-2 text-sm last:border-0"
                             >
                                 <span class="text-muted-foreground">
-                                    {{ fmtDate(entry.entry_date) }}
+                                    {{ formatDisplayDate(entry.entry_date) }}
                                 </span>
                                 <span class="flex items-center gap-2">
                                     <span class="font-semibold">
@@ -723,7 +723,9 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                             >
                                 <div class="space-y-0.5">
                                     <span class="text-muted-foreground">
-                                        {{ fmtDate(entry.entry_date) }}
+                                        {{
+                                            formatDisplayDate(entry.entry_date)
+                                        }}
                                     </span>
                                     <EntryNote
                                         v-if="entry.note"

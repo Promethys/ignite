@@ -26,12 +26,14 @@ export function getDateDiffFromNow(date: string) {
 }
 
 export function formatDate(date: string) {
-    const lang = navigator.languages?.[0] ?? navigator.language;
-
-    return new Date(date).toLocaleDateString(lang ?? 'en-US', {
+    return new Date(date).toLocaleDateString(moment.locale(), {
         month: 'short',
         day: 'numeric',
     });
+}
+
+export function formatDisplayDate(date: string) {
+    return moment(date).format('ll');
 }
 
 export function toDateInputFormat(date: string) {

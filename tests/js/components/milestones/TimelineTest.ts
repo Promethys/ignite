@@ -8,6 +8,7 @@ const daysUntilDeadline = vi.hoisted(() => ({ value: 5 }));
 
 vi.mock('@/lib/utils', () => ({
     formatDate: (date: string) => `formatted:${date}`,
+    formatDisplayDate: (date: string) => `formatted:${date}`,
     getDateDiffFromNow: () => daysUntilDeadline.value,
 }));
 
