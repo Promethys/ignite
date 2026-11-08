@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ClosingCta from '@/components/public/ClosingCta.vue';
 import DemoSlot from '@/components/public/DemoSlot.vue';
 import FeatureGrid from '@/components/public/FeatureGrid.vue';
 import HeroProgressTrack from '@/components/public/HeroProgressTrack.vue';
@@ -16,12 +17,16 @@ const trust = [
 </script>
 
 <template>
-    <PublicShell title="Welcome">
-        <main class="relative mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6">
+    <PublicShell :title="$t('landing.meta.tagline')">
+        <main
+            id="main"
+            tabindex="-1"
+            class="relative mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6"
+        >
             <div class="relative grid grid-cols-1 items-center lg:grid-cols-2">
                 <section class="relative px-2 py-7 sm:py-10">
                     <p
-                        class="flex items-center gap-2 text-xs font-semibold tracking-widest text-primary uppercase"
+                        class="flex items-center gap-2 text-xs font-semibold tracking-widest text-[var(--primary-text)] uppercase"
                     >
                         <span class="size-2 shrink-0 bg-primary" />
                         {{ $t('landing.hero.eyebrow') }}
@@ -39,7 +44,7 @@ const trust = [
                     <p class="mt-7 max-w-xl text-pretty text-muted-foreground">
                         {{ $t('landing.hero.subtitle') }}
                     </p>
-                    <div class="mt-7 flex gap-3">
+                    <div class="mt-7 flex flex-col gap-3 sm:flex-row">
                         <Button size="lg" as-child>
                             <Link
                                 v-if="$page.props.auth.user"
@@ -61,11 +66,14 @@ const trust = [
                         class="mt-7 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground"
                     >
                         <li
-                            v-for="(item, index) in trust"
+                            v-for="item in trust"
                             :key="item"
-                            class="flex items-center gap-3"
+                            class="flex items-center gap-2 whitespace-nowrap"
                         >
-                            <span v-if="index > 0" aria-hidden="true">·</span>
+                            <span
+                                class="size-1 shrink-0 bg-muted-foreground"
+                                aria-hidden="true"
+                            />
                             {{ $t(item) }}
                         </li>
                     </ul>
@@ -75,6 +83,7 @@ const trust = [
             </div>
 
             <FeatureGrid />
+            <ClosingCta />
         </main>
     </PublicShell>
 </template>

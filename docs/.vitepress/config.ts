@@ -19,6 +19,7 @@ export default withMermaid(
             'Documentation for Ignite, a goal tracking app you can use or self-host',
         cleanUrls: true,
         srcExclude: [
+            'guide/**',
             'superpowers/**',
             'tmp/**',
             'use-containerized-services/**',
@@ -57,28 +58,13 @@ export default withMermaid(
                 alt: 'Ignite',
             },
             nav: [
-                { text: 'Using Ignite', link: '/guide/' },
+                {
+                    text: 'Using Ignite',
+                    link: 'https://ignite.promethys.dev/docs',
+                },
                 { text: 'Developers', link: '/getting-started' },
             ],
             sidebar: {
-                '/guide/': [
-                    {
-                        text: 'Using Ignite',
-                        items: [
-                            { text: 'Getting Started', link: '/guide/' },
-                            { text: 'Goal Types', link: '/guide/goal-types' },
-                            {
-                                text: 'Tracking Progress',
-                                link: '/guide/tracking-progress',
-                            },
-                            {
-                                text: 'Use the Assistant',
-                                link: '/guide/assistant',
-                            },
-                            { text: 'Themes', link: '/guide/themes' },
-                        ],
-                    },
-                ],
                 '/': [
                     {
                         text: 'Introduction',
@@ -129,6 +115,10 @@ export default withMermaid(
                                 link: '/features/ai-assistant',
                             },
                             { text: 'Themes', link: '/features/themes' },
+                            {
+                                text: 'Public Site',
+                                link: '/features/public-site',
+                            },
                             {
                                 text: 'Data Encryption',
                                 link: '/features/encryption',

@@ -43,6 +43,10 @@ return [
             'title' => 'Categories from day one',
             'description' => 'Ten categories are created when you register, each with its own colour and icon. Rename or replace them freely.',
         ],
+        'assistant' => [
+            'title' => 'An assistant on your own key',
+            'description' => 'A side panel that reads and updates your goals, with your own key from 8 providers. Asks before deleting.',
+        ],
         'mcp' => [
             'title' => 'Manage goals from your AI client',
             'description' => 'A built-in MCP server lets Claude, Cursor or any MCP client read and update your goals over scoped tokens.',

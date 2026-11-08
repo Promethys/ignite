@@ -43,6 +43,31 @@ class UserGuide
         return File::get("{$this->directory()}/{$page}.md");
     }
 
+    /** @return list<array{topic: string, title: string, summary: string, file: string}> */
+    public function pages(): array
+    {
+        $topics = $this->topics();
+        $order = array_unique([...['getting-started', 'goal-types', 'tracking-progress', 'assistant', 'themes'], ...array_keys($topics)]);
+        $pages = [];
+
+        foreach ($order as $topic) {
+            if (! isset($topics[$topic])) {
+                continue;
+            }
+
+            $markdown = $this->page($topic);
+            preg_match('/^#\s+[^\n]+\n+([^\n]+(?:\n(?!\n)[^\n]+)*)/', $markdown, $match);
+            $pages[] = [
+                'topic' => $topic,
+                'title' => $topics[$topic],
+                'summary' => trim(preg_replace('/\s+/', ' ', $match[1] ?? '')),
+                'file' => $topic === self::HOME_TOPIC ? self::HOME_PAGE : $topic,
+            ];
+        }
+
+        return $pages;
+    }
+
     private function directory(): string
     {
         return base_path('docs/guide');

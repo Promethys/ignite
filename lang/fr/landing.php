@@ -6,7 +6,7 @@ return [
         'description' => 'Suivez n\'importe quel objectif (simple, mesurable, récurrent ou à étapes) avec une progression visuelle, des jalons et des séries qui vous font avancer. Auto-hébergeable.',
     ],
     'trust' => [
-        'source_available' => 'Code source ouvert',
+        'source_available' => 'Code source disponible',
         'self_hostable' => 'Auto-hébergeable',
         'ai_ready' => 'Compatible avec votre client IA',
     ],
@@ -42,6 +42,10 @@ return [
         'categories' => [
             'title' => 'Des catégories dès le départ',
             'description' => 'Dix catégories sont créées à l\'inscription, chacune avec sa couleur et son icône. Renommez-les ou remplacez-les librement.',
+        ],
+        'assistant' => [
+            'title' => 'Un assistant avec votre propre clé',
+            'description' => 'Un panneau latéral qui lit et modifie vos objectifs, avec votre propre clé parmi 8 fournisseurs. Demande confirmation avant de supprimer.',
         ],
         'mcp' => [
             'title' => 'Pilotez vos objectifs depuis votre client IA',

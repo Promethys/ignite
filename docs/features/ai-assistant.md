@@ -6,7 +6,7 @@ The assistant works with an AI account the user or the operator brings. Ignite n
 
 With one of the two in place, a button in the page header opens a chat panel. The assistant answers questions about the user's goals and changes them on request, through the same tools as the [MCP server](/features/mcp-server). Without a key and without an instance configuration, the assistant is not offered at all.
 
-For how to use it, see [Use the assistant](/guide/assistant).
+For how to use it, see [Use the assistant](https://ignite.promethys.dev/docs/assistant).
 
 ## Supported providers
 
@@ -93,7 +93,7 @@ The shared Inertia prop `assistant.available` tells the frontend whether one of 
 
 `App\Ai\AssistantTools` gives the agent every tool in `IgniteServer::TOOLS` that the signed-in user may use, with the same names, descriptions and schemas as over MCP. Each tool validates its own arguments and applies only to the current user's data. Arguments a tool refuses are returned to the model as text so it can correct itself.
 
-One of them, `get_help`, returns a page of the [user guide](/guide/), so the assistant explains how Ignite works from the guide rather than from what the model assumes.
+One of them, `get_help`, returns a page of the [user guide](https://ignite.promethys.dev/docs), so the assistant explains how Ignite works from the guide rather than from what the model assumes.
 
 ### Deletions need approval
 

@@ -1,0 +1,4 @@
+/guide https://ignite.promethys.dev/docs 301
+/guide/ https://ignite.promethys.dev/docs 301
+/guide/index https://ignite.promethys.dev/docs 301
+/guide/* https://ignite.promethys.dev/docs/:splat 301
