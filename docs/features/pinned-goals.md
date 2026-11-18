@@ -22,11 +22,11 @@ The logic lives in `GoalService`, and every action authorizes through the `updat
 
 ## Routes
 
-| Route                        | Name                | Handler                                                                    |
-| ---------------------------- | ------------------- | -------------------------------------------------------------------------- |
-| `PATCH /goals/{goal}/pin`    | `goals.pin`         | `GoalController::pin`                                                       |
-| `PATCH /goals/{goal}/unpin`  | `goals.unpin`       | `GoalController::unpin`                                                     |
-| `PATCH /goals/pins/reorder`  | `goals.pins.reorder`| `GoalController::reorderPins`, body `goals`: ordered ids of all pinned goals |
+| Route                       | Name                 | Handler                                                                      |
+| --------------------------- | -------------------- | ---------------------------------------------------------------------------- |
+| `PATCH /goals/{goal}/pin`   | `goals.pin`          | `GoalController::pin`                                                        |
+| `PATCH /goals/{goal}/unpin` | `goals.unpin`        | `GoalController::unpin`                                                      |
+| `PATCH /goals/pins/reorder` | `goals.pins.reorder` | `GoalController::reorderPins`, body `goals`: ordered ids of all pinned goals |
 
 ## How to use it
 
