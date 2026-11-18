@@ -11,7 +11,9 @@ return [
         'completion' => 'Completion',
         'total' => 'Total',
     ],
-    'active_goals' => 'Active goals',
+    'your_goals' => 'Your goals',
+    'see_all_goals' => 'See all goals',
+    'move_pinned_goal' => 'Move ":title" with the arrow keys',
     'charts' => [
         'completions' => [
             'title' => 'Monthly completed goals',

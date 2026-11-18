@@ -18,6 +18,8 @@ return [
     ],
 
     'actions' => [
+        'pin' => 'Pin',
+        'unpin' => 'Unpin',
         'new' => 'New goal',
         'define' => 'Define a Goal',
         'log_progress' => 'Log progress',

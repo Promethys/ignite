@@ -14,6 +14,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/create', 'create')->name('goals.create');
             Route::post('/', 'store')->name('goals.store')
                 ->middleware([HandlePrecognitiveRequests::class]);
+            Route::patch('/pins/reorder', 'reorderPins')->name('goals.pins.reorder');
+            Route::patch('/{goal}/pin', 'pin')->name('goals.pin');
+            Route::patch('/{goal}/unpin', 'unpin')->name('goals.unpin');
             Route::get('/{goal}', 'show')->name('goals.show');
             Route::get('/{goal}/edit', 'edit')->name('goals.edit');
             Route::put('/{goal}', 'update')->name('goals.update')

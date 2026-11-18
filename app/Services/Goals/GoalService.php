@@ -210,6 +210,64 @@ class GoalService
         return $goal;
     }
 
+    public function pin(User $actor, Goal $goal): bool
+    {
+        Gate::forUser($actor)->authorize('update', $goal);
+
+        return DB::transaction(function () use ($actor, $goal) {
+            User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+            $goal->refresh();
+            if ($goal->pin_order !== null) {
+                return true;
+            }
+
+            $pins = $actor->goals()->whereNotNull('pin_order');
+            if ($pins->count() >= Goal::MAX_PINNED) {
+                return false;
+            }
+
+            Goal::whereKey($goal->id)->toBase()->update(['pin_order' => ($pins->max('pin_order') ?? 0) + 1]);
+
+            return true;
+        });
+    }
+
+    public function unpin(User $actor, Goal $goal): void
+    {
+        Gate::forUser($actor)->authorize('update', $goal);
+
+        DB::transaction(function () use ($actor, $goal) {
+            User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+            Goal::whereKey($goal->id)->toBase()->update(['pin_order' => null]);
+            $this->renumberPins($actor);
+        });
+    }
+
+    public function reorderPins(User $actor, array $goalIds): void
+    {
+        DB::transaction(function () use ($actor, $goalIds) {
+            User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+            $pins = $actor->goals()->whereNotNull('pin_order')->get();
+            if ($pins->count() !== count($goalIds) || $pins->pluck('id')->diff($goalIds)->isNotEmpty()) {
+                throw ValidationException::withMessages(['goals' => __('validation.exists', ['attribute' => 'goals'])]);
+            }
+
+            foreach ($goalIds as $index => $id) {
+                Goal::whereKey($id)->toBase()->update(['pin_order' => $index + 1]);
+            }
+        });
+    }
+
+    private function renumberPins(User $actor): void
+    {
+        $actor->goals()->whereNotNull('pin_order')->orderBy('pin_order')->get()
+            ->each(function (Goal $goal, int $index) {
+                if ($goal->pin_order !== $index + 1) {
+                    Goal::whereKey($goal->id)->toBase()->update(['pin_order' => $index + 1]);
+                }
+            });
+    }
+
     /**
      * Delete a goal. Consumed by the controller now and by the Phase 3
      * delete MCP tool.
@@ -218,6 +276,12 @@ class GoalService
     {
         Gate::forUser($actor)->authorize('delete', $goal);
 
-        return $goal->delete();
+        return DB::transaction(function () use ($actor, $goal) {
+            User::whereKey($actor->id)->lockForUpdate()->firstOrFail();
+            $deleted = $goal->delete();
+            $this->renumberPins($actor);
+
+            return $deleted;
+        });
     }
 }

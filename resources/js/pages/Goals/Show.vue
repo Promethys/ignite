@@ -239,6 +239,26 @@ const recentEntries = computed(() => props.goal.entries?.slice(0, 5) ?? []);
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuGroup>
+                                        <DropdownMenuItem as-child>
+                                            <Link
+                                                :href="
+                                                    goal.pin_order !== null
+                                                        ? goals.unpin(goal).url
+                                                        : goals.pin(goal).url
+                                                "
+                                                method="patch"
+                                                preserve-scroll
+                                                class="w-full cursor-pointer"
+                                            >
+                                                {{
+                                                    $t(
+                                                        goal.pin_order !== null
+                                                            ? 'goals.actions.unpin'
+                                                            : 'goals.actions.pin',
+                                                    )
+                                                }}
+                                            </Link>
+                                        </DropdownMenuItem>
                                         <DropdownMenuItem
                                             v-if="
                                                 goal.type === 'quantifiable' &&

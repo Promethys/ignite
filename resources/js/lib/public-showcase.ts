@@ -16,6 +16,7 @@ const relativeDate = (daysAgo: number) => {
 };
 const date = relativeDate(0);
 const base: Goal = {
+    pin_order: null,
     id: 12,
     user_id: 0,
     category_id: null,

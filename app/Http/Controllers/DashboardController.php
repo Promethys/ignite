@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Goal;
 use App\Support\DashboardCharts;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,13 +13,23 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        $activeGoalsList = $user->goals()
+        $pinnedGoals = $user->goals()
             ->with(['category', 'entries', 'milestones'])
-            ->whereNull('completed_at')
-            ->where('status', 'in_progress')
+            ->whereNotNull('pin_order')
+            ->orderBy('pin_order')
             ->get()
             ->append('streak');
-        $activeGoalsCount = $activeGoalsList->count();
+        $otherGoals = $user->goals()
+            ->with(['category', 'entries', 'milestones'])
+            ->whereNull('pin_order')
+            ->whereNull('completed_at')
+            ->where('status', 'in_progress')
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
+            ->limit(max(0, Goal::MAX_PINNED - $pinnedGoals->count()))
+            ->get()
+            ->append('streak');
+        $activeGoalsCount = $user->goals()->whereNull('completed_at')->where('status', 'in_progress')->count();
         $totalGoalsCount = $user->goals()->count();
         $completedGoalsCount = $user->goals()
             ->where('status', 'completed')
@@ -27,7 +38,8 @@ class DashboardController extends Controller
         $completionRate = $totalGoalsCount > 0 ? ($completedGoalsCount / $totalGoalsCount) * 100 : 0;
 
         return Inertia::render('Dashboard', [
-            'activeGoalsList' => $activeGoalsList,
+            'pinnedGoals' => $pinnedGoals,
+            'otherGoals' => $otherGoals,
             'activeGoalsCount' => $activeGoalsCount,
             'totalGoalsCount' => $totalGoalsCount,
             'completedGoalsCount' => $completedGoalsCount,
