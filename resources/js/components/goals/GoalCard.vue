@@ -10,6 +10,9 @@ defineProps<{ item: Goal }>();
 
 <template>
     <BaseGoalCard :item="item">
+        <template #header-actions>
+            <slot name="header-actions" />
+        </template>
         <template #progress>
             <QuantifiableProgress
                 v-if="item.type === 'quantifiable'"

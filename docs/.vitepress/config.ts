@@ -103,6 +103,10 @@ export default withMermaid(
                                 link: '/features/milestones',
                             },
                             {
+                                text: 'Pinned Goals',
+                                link: '/features/pinned-goals',
+                            },
+                            {
                                 text: 'MCP Server',
                                 link: '/features/mcp-server',
                             },

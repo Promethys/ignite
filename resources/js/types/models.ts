@@ -43,6 +43,7 @@ export interface Category {
 }
 
 export interface Goal {
+    pin_order: number | null;
     id: number;
     user_id: number;
     category_id: number | null;

@@ -18,6 +18,8 @@ return [
     ],
 
     'actions' => [
+        'pin' => 'Épingler',
+        'unpin' => 'Désépingler',
         'new' => 'Nouvel objectif',
         'define' => 'Définir un objectif',
         'log_progress' => 'Enregistrer une progression',

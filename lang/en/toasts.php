@@ -4,6 +4,9 @@ return [
     'undo' => 'Undo',
 
     'goal' => [
+        'pinned' => 'Goal pinned.',
+        'unpinned' => 'Goal unpinned.',
+        'pin_limit' => 'You can pin up to :max goals. Unpin one first.',
         'created' => 'Goal created.',
         'completed' => 'Goal completed.',
         'updated' => 'Goal updated.',

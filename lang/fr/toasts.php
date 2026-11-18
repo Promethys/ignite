@@ -4,6 +4,9 @@ return [
     'undo' => 'Annuler',
 
     'goal' => [
+        'pinned' => 'Objectif épinglé.',
+        'unpinned' => 'Objectif désépinglé.',
+        'pin_limit' => "Vous pouvez épingler jusqu'à :max objectifs. Désépinglez-en un d'abord.",
         'created' => 'Objectif créé.',
         'completed' => 'Objectif terminé.',
         'updated' => 'Objectif mis à jour.',

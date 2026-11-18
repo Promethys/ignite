@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Goals;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Goals\ReorderPinnedGoalsRequest;
 use App\Http\Requests\Goals\StoreGoalRequest;
 use App\Http\Requests\Goals\UpdateGoalRequest;
 use App\Models\Goal;
@@ -122,6 +123,32 @@ class GoalController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.updated')]);
 
         return back(303);
+    }
+
+    public function pin(Request $request, Goal $goal)
+    {
+        $pinned = $this->goalService->pin($request->user(), $goal);
+        Inertia::flash('toast', [
+            'type' => $pinned ? 'success' : 'error',
+            'message' => __($pinned ? 'toasts.goal.pinned' : 'toasts.goal.pin_limit', ['max' => Goal::MAX_PINNED]),
+        ]);
+
+        return redirect()->back();
+    }
+
+    public function unpin(Request $request, Goal $goal)
+    {
+        $this->goalService->unpin($request->user(), $goal);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('toasts.goal.unpinned')]);
+
+        return redirect()->back();
+    }
+
+    public function reorderPins(ReorderPinnedGoalsRequest $request)
+    {
+        $this->goalService->reorderPins($request->user(), $request->validated('goals'));
+
+        return redirect()->back();
     }
 
     public function destroy(Request $request, Goal $goal)

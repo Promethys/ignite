@@ -11,7 +11,9 @@ return [
         'completion' => 'Achèvement',
         'total' => 'Total',
     ],
-    'active_goals' => 'Objectifs actifs',
+    'your_goals' => 'Vos objectifs',
+    'see_all_goals' => 'Voir tous les objectifs',
+    'move_pinned_goal' => 'Déplacer « :title » avec les touches fléchées',
     'charts' => [
         'completions' => [
             'title' => 'Objectifs terminés par mois',

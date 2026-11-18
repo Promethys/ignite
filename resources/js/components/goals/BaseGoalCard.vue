@@ -47,67 +47,94 @@ const deadlineState = computed(() => {
             <!-- Header: badges + menu -->
             <div class="flex w-full items-center justify-between gap-2">
                 <GoalBadges :goal="item" />
-                <DropdownMenu>
-                    <DropdownMenuTrigger as-child @click.stop.prevent>
-                        <Button variant="ghost" size="icon" class="size-8">
-                            <Ellipsis />
-                            <span class="sr-only">{{
-                                $t('common.actions.more')
-                            }}</span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent @click.stop>
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem v-if="!isCompleted" as-child>
-                                <Link
-                                    :method="goals.complete(item).method"
-                                    :href="goals.complete(item).url"
-                                    class="w-full cursor-pointer"
-                                    >{{
-                                        $t('goals.actions.mark_completed')
-                                    }}</Link
-                                >
-                            </DropdownMenuItem>
-                            <DropdownMenuItem v-if="isInProgress" as-child>
-                                <Link
-                                    :method="goals.updateStatus(item).method"
-                                    :href="goals.updateStatus(item).url"
-                                    :data="{ status: 'paused' }"
-                                    class="w-full cursor-pointer"
-                                    >{{ $t('goals.actions.pause') }}</Link
-                                >
-                            </DropdownMenuItem>
-                            <DropdownMenuItem v-if="isPaused" as-child>
-                                <Link
-                                    :method="goals.updateStatus(item).method"
-                                    :href="goals.updateStatus(item).url"
-                                    :data="{ status: 'in_progress' }"
-                                    class="w-full cursor-pointer"
-                                    >{{ $t('goals.actions.resume') }}</Link
-                                >
-                            </DropdownMenuItem>
-                            <DropdownMenuItem as-child>
-                                <Link
-                                    :href="goals.edit(item).url"
-                                    class="w-full cursor-pointer"
-                                    >{{ $t('common.actions.edit') }}</Link
-                                >
-                            </DropdownMenuItem>
-                            <DeleteGoalDialog :record="item">
-                                <template #trigger>
-                                    <DropdownMenuItem
-                                        variant="destructive"
-                                        class="cursor-pointer"
-                                        @select.prevent
-                                        >{{
-                                            $t('common.actions.delete')
-                                        }}</DropdownMenuItem
+                <div class="flex shrink-0 items-center">
+                    <slot name="header-actions" />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child @click.stop.prevent>
+                            <Button variant="ghost" size="icon" class="size-8">
+                                <Ellipsis />
+                                <span class="sr-only">{{
+                                    $t('common.actions.more')
+                                }}</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent @click.stop>
+                            <DropdownMenuGroup>
+                                <DropdownMenuItem as-child>
+                                    <Link
+                                        :href="
+                                            item.pin_order !== null
+                                                ? goals.unpin(item).url
+                                                : goals.pin(item).url
+                                        "
+                                        method="patch"
+                                        preserve-scroll
+                                        class="w-full cursor-pointer"
                                     >
-                                </template>
-                            </DeleteGoalDialog>
-                        </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                                        {{
+                                            $t(
+                                                item.pin_order !== null
+                                                    ? 'goals.actions.unpin'
+                                                    : 'goals.actions.pin',
+                                            )
+                                        }}
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem v-if="!isCompleted" as-child>
+                                    <Link
+                                        :method="goals.complete(item).method"
+                                        :href="goals.complete(item).url"
+                                        class="w-full cursor-pointer"
+                                        >{{
+                                            $t('goals.actions.mark_completed')
+                                        }}</Link
+                                    >
+                                </DropdownMenuItem>
+                                <DropdownMenuItem v-if="isInProgress" as-child>
+                                    <Link
+                                        :method="
+                                            goals.updateStatus(item).method
+                                        "
+                                        :href="goals.updateStatus(item).url"
+                                        :data="{ status: 'paused' }"
+                                        class="w-full cursor-pointer"
+                                        >{{ $t('goals.actions.pause') }}</Link
+                                    >
+                                </DropdownMenuItem>
+                                <DropdownMenuItem v-if="isPaused" as-child>
+                                    <Link
+                                        :method="
+                                            goals.updateStatus(item).method
+                                        "
+                                        :href="goals.updateStatus(item).url"
+                                        :data="{ status: 'in_progress' }"
+                                        class="w-full cursor-pointer"
+                                        >{{ $t('goals.actions.resume') }}</Link
+                                    >
+                                </DropdownMenuItem>
+                                <DropdownMenuItem as-child>
+                                    <Link
+                                        :href="goals.edit(item).url"
+                                        class="w-full cursor-pointer"
+                                        >{{ $t('common.actions.edit') }}</Link
+                                    >
+                                </DropdownMenuItem>
+                                <DeleteGoalDialog :record="item">
+                                    <template #trigger>
+                                        <DropdownMenuItem
+                                            variant="destructive"
+                                            class="cursor-pointer"
+                                            @select.prevent
+                                            >{{
+                                                $t('common.actions.delete')
+                                            }}</DropdownMenuItem
+                                        >
+                                    </template>
+                                </DeleteGoalDialog>
+                            </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
 
             <!-- Title + description -->

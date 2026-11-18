@@ -33,6 +33,8 @@ class Goal extends Model
     use HasRecentScope;
     use Notifiable;
 
+    public const MAX_PINNED = 6;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -76,6 +78,7 @@ class Goal extends Model
         'points' => 'integer',
         'is_public' => 'boolean',
         'order' => 'integer',
+        'pin_order' => 'integer',
     ];
 
     protected $with = [
