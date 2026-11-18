@@ -40,6 +40,14 @@ A goal you have stopped working on can be paused. It leaves your active list wit
 
 This matters more than it sounds. The alternative, deleting a goal you feel guilty about, destroys exactly the record that would have shown you how far you actually got. Pause first, delete only when you are sure.
 
+## Pin goals to your dashboard
+
+The dashboard's "Your goals" card shows up to six goals. Your pinned goals come first, in the order you put them in, and the most recently updated in-progress goals fill whatever slots are left. "See all goals" opens the full list.
+
+Pin a goal from the "..." menu on its card, on the goals list or the dashboard, or from the same menu on the goal's own page. You can pin up to six; a seventh is refused until you unpin one. A pinned goal keeps its slot when you complete or pause it, and deleting one frees the slot for another.
+
+To change the order on the dashboard, drag a pinned card by its grip handle, or focus the handle and use the up and down arrow keys.
+
 ## Reviewing what happened
 
 The dashboard summarises activity across goals. Each goal also has a full entry list with search, date filters and sorting, which is where to go when you want to answer a question about a specific stretch of time rather than glance at the current state.
