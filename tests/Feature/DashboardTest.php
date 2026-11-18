@@ -110,8 +110,8 @@ class DashboardTest extends TestCase
         $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertInertia(fn (Assert $page) => $page
-                ->has('activeGoalsList', 1)
-                ->where('activeGoalsList.0.title', 'Active Goal')
+                ->has('otherGoals', 1)
+                ->where('otherGoals.0.title', 'Active Goal')
             );
     }
 
@@ -133,9 +133,9 @@ class DashboardTest extends TestCase
         $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertInertia(fn (Assert $page) => $page
-                ->has('activeGoalsList.0.milestones', 2)
-                ->where('activeGoalsList.0.milestones.0.is_completed', true)
-                ->where('activeGoalsList.0.milestones.1.is_completed', false)
+                ->has('otherGoals.0.milestones', 2)
+                ->where('otherGoals.0.milestones.0.is_completed', true)
+                ->where('otherGoals.0.milestones.1.is_completed', false)
                 ->etc()
             );
     }
@@ -159,10 +159,10 @@ class DashboardTest extends TestCase
         $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertInertia(fn (Assert $page) => $page
-                ->where('activeGoalsList.0.milestones.0.title', 'First')
-                ->where('activeGoalsList.0.milestones.1.title', 'Second')
-                ->where('activeGoalsList.0.milestones.2.title', 'Third')
-                ->where('activeGoalsList.0.milestones.0.is_completed', true)
+                ->where('otherGoals.0.milestones.0.title', 'First')
+                ->where('otherGoals.0.milestones.1.title', 'Second')
+                ->where('otherGoals.0.milestones.2.title', 'Third')
+                ->where('otherGoals.0.milestones.0.is_completed', true)
                 ->etc()
             );
     }
@@ -194,10 +194,10 @@ class DashboardTest extends TestCase
         $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertInertia(fn (Assert $page) => $page
-                ->has('activeGoalsList.0.streak')
-                ->where('activeGoalsList.0.streak.current', 3)
-                ->where('activeGoalsList.0.streak.unit', 'day')
-                ->where('activeGoalsList.0.streak.current_period_satisfied', true)
+                ->has('otherGoals.0.streak')
+                ->where('otherGoals.0.streak.current', 3)
+                ->where('otherGoals.0.streak.unit', 'day')
+                ->where('otherGoals.0.streak.current_period_satisfied', true)
             );
 
         Carbon::setTestNow();
@@ -219,7 +219,7 @@ class DashboardTest extends TestCase
         $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertInertia(fn (Assert $page) => $page
-                ->where('activeGoalsList.0.streak', null)
+                ->where('otherGoals.0.streak', null)
             );
     }
 
@@ -237,5 +237,51 @@ class DashboardTest extends TestCase
                 )
                 ->has('categoryBreakdown')
             );
+    }
+
+    public function test_dashboard_orders_pins_and_fills_remaining_slots_with_recent_active_goals()
+    {
+        $user = User::factory()->create();
+        $make = function (array $attributes) use ($user) {
+            return Goal::factory()->create(array_merge([
+                'user_id' => $user->id, 'category_id' => null, 'type' => 'simple',
+                'status' => 'in_progress', 'completed_at' => null, 'current_value' => 0,
+            ], $attributes));
+        };
+        $completed = $make(['status' => 'completed', 'completed_at' => now()]);
+        $pinned = $make([]);
+        Goal::whereKey($completed->id)->toBase()->update(['pin_order' => 2]);
+        Goal::whereKey($pinned->id)->toBase()->update(['pin_order' => 1]);
+        $active = collect(range(1, 5))->map(fn ($day) => $make(['updated_at' => now()->subDays($day)]));
+        $make(['status' => 'paused']);
+        Goal::factory()->create(['status' => 'in_progress', 'completed_at' => null]);
+
+        $this->actingAs($user)->get(route('dashboard'))->assertInertia(fn (Assert $page) => $page
+            ->has('pinnedGoals', 2)
+            ->where('pinnedGoals.0.id', $pinned->id)
+            ->where('pinnedGoals.1.id', $completed->id)
+            ->has('otherGoals', 4)
+            ->where('otherGoals.0.id', $active[0]->id)
+            ->where('otherGoals.1.id', $active[1]->id)
+            ->where('otherGoals.2.id', $active[2]->id)
+            ->where('otherGoals.3.id', $active[3]->id)
+            ->where('activeGoalsCount', 6)
+        );
+    }
+
+    public function test_dashboard_has_no_filler_when_the_pin_limit_is_reached()
+    {
+        $user = User::factory()->create();
+        foreach (range(1, Goal::MAX_PINNED) as $position) {
+            $goal = Goal::factory()->create(['user_id' => $user->id, 'category_id' => null, 'type' => 'simple', 'status' => 'in_progress', 'completed_at' => null]);
+            Goal::whereKey($goal->id)->toBase()->update(['pin_order' => $position]);
+        }
+        Goal::factory()->create(['user_id' => $user->id, 'category_id' => null, 'type' => 'simple', 'status' => 'in_progress', 'completed_at' => null]);
+
+        $this->actingAs($user)->get(route('dashboard'))->assertInertia(fn (Assert $page) => $page
+            ->has('pinnedGoals', Goal::MAX_PINNED)
+            ->has('otherGoals', 0)
+            ->where('activeGoalsCount', Goal::MAX_PINNED + 1)
+        );
     }
 }
